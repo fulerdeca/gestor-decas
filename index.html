@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.93</title>
+    <title>Gestor de DeCAs Transportes v1.94</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -688,53 +688,45 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 .btn-cerrar-qr-gigante:active { background: #0b3459; }
 
-/* === BLINDAJE DE SEGURIDAD AJUSTADO PARA APK, WEB Y COMPATIBILIDAD DE DISPOSITIVOS === */
 
-/* 1. Permitimos que el canvas sea visible (crucial para Android/APK) pero controlamos su tamaño */
-#qrcode_real_render canvas {
-    display: block !important;
-    width: 100% !important;
-    max-width: 110px !important;
-    height: auto !important;
+/* ==========================================================================
+   🔳 CORRECCIÓN GLOBAL MÁSTER PARA CÓDIGOS QR (APK ANDROID vs WEB GITHUB)
+   ========================================================================== */
+#qrcode_real_render, #canvas_render_qr_gigante {
+    display: block;
     margin: 0 auto;
-    cursor: pointer;
+    text-align: center;
 }
 
+/* Comportamiento base (Optimizado para APK): se muestran los canvas */
+#qrcode_real_render canvas {
+    display: block !important;
+    width: 140px !important;
+    height: 140px !important;
+    margin: 0 auto;
+}
 #canvas_render_qr_gigante canvas {
     display: block !important;
     width: 280px !important;
     height: 280px !important;
-    margin: 0 auto !important;
-}
-
-/* 2. Controlamos las etiquetas <img> en caso de que el navegador web externo las genere */
-#qrcode_real_render img {
-    width: 100% !important;
-    max-width: 110px !important;
-    height: auto !important;
     margin: 0 auto;
-    cursor: pointer;
-    transition: transform 0.15s ease;
-    display: block !important;
-}
-#qrcode_real_render img:active,
-#qrcode_real_render canvas:active {
-    transform: scale(0.95); /* Efecto táctil de pulsación tanto para imagen como para canvas */
 }
 
-#canvas_render_qr_gigante img {
-    width: 280px !important;
-    height: 280px !important;
-    display: block !important;
-    margin: 0 auto !important;
-}
-
-/* 3. Truco maestro anti-duplicados: Si el navegador genera AMBOS (canvas e imagen a la vez),
-   ocultamos el canvas residual para que no se vea doble. Si solo genera uno, se verá perfecto. */
-#qrcode_real_render img + canvas,
-#canvas_render_qr_gigante img + canvas {
+/* Ocultamos las imágenes Base64 en la APK si ya hay un canvas activo acelerado por hardware */
+#qrcode_real_render canvas + img,
+#canvas_render_qr_gigante canvas + img {
     display: none !important;
 }
+
+/* Ajuste del botón táctil */
+#qrcode_real_render img, #qrcode_real_render canvas {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+#qrcode_real_render img:active, #qrcode_real_render canvas:active {
+    transform: scale(0.95);
+}
+
 
 
 /* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
@@ -883,17 +875,17 @@ function iniciarEcosistemaDeCAs() {
     const idDecaInspeccionar = parametrosRuta.get("verificar");
     const idUsuarioInspeccionar = parametrosRuta.get("user");
 
-    if (idDecaInspeccionar && idUsuarioInspeccionar) {
+        if (idDecaInspeccionar && idUsuarioInspeccionar) {
         console.log("👮 MODO INSPECTOR GLOBAL: Renderizando folio público...");
 
-        // Parche estético en caliente para el navegador del agente (Arregla botón cortado y QR duplicados en web)
+        // INYECCIÓN DE PARCHE MAESTRO ANTI-DUPLICADOS Y BOTÓN CORREGIDO PARA EL AGENTE
         const estiloParcheAgente = document.createElement("style");
         estiloParcheAgente.innerHTML = `
             #qrcode_real_render canvas, #canvas_render_qr_gigante canvas { display: none !important; }
-            #qrcode_real_render img, #canvas_render_qr_gigante img { display: block !important; }
-            .preview-container { height: 96vh !important; max-height: 96vh !important; }
-            .preview-cuerpo-scroll { padding: 15px !important; }
-            .preview-pie-botones { padding: 8px 15px !important; margin-top: auto !important; box-sizing: border-box !important; }
+            #qrcode_real_render img, #canvas_render_qr_gigante img { display: block !important; width: 140px !important; height: 140px !important; }
+            .preview-container { height: 95vh !important; max-height: 95vh !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; }
+            .preview-cuerpo-scroll { flex-grow: 1 !important; overflow-y: auto !important; padding-bottom: 20px !important; }
+            .preview-pie-botones { position: relative !important; bottom: 0 !important; width: 100% !important; box-sizing: border-box !important; margin-top: auto !important; padding: 15px !important; background: #ffffff !important; z-index: 999999 !important; }
         `;
         document.head.appendChild(estiloParcheAgente);
 
@@ -906,7 +898,6 @@ function iniciarEcosistemaDeCAs() {
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                         verFichaDocumento(idDecaInspeccionar);
 
-                        // Ocultación total de paneles innecesarios para la autoridad
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -918,6 +909,7 @@ function iniciarEcosistemaDeCAs() {
                     }
                 });
         }, 800);
+        return; // Bloquea el resto del flujo para que no ejecute código de transportista
     }
 
 
@@ -1388,15 +1380,9 @@ function ejecutarDescargaPDFCompleto() {
     const tituloOriginalPestaña = document.title;
     document.title = numeroDeCA;
 
-    mostrarAvisoToast("⏳ Generando compaginación A4...");
-
-    setTimeout(() => {
-        const capaToast = document.getElementById("toast_deca");
-        if (capaToast) capaToast.style.display = "none";
-
-        window.print();
-        document.title = tituloOriginalPestaña;
-    }, 250);
+    mostrarAvisoToast("⏳ Abriendo menú de impresión...");
+    window.print();
+    document.title = tituloOriginalPestaña;
 }
 
 
