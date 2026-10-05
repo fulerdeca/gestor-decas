@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.50</title>
+    <title>Gestor de DeCAs Transportes v1.55</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -620,10 +620,10 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* ==========================================================================
-   🖨️ CONTROLADOR GEOMÉTRICO OFICIAL: IMPRESIÓN IMPERIOSA EN 1 PÁGINA (SANEADO)
+   🖨️ CONTROLADOR GEOMÉTRICO OFICIAL: IMPRESIÓN IMPERIOSA EN 1 PÁGINA (v1.40)
    ========================================================================== */
 @media print {
-    /* 1. Apagamos con nombre y apellidos el dashboard y sus componentes externos */
+    /* 1. Apagamos de forma estricta los componentes y el cartel emergente para la imprenta */
     .cabecera-dashboard,
     .grid-contadores,
     .contenedor-filtros,
@@ -631,6 +631,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     .deca-modal-cabecera,
     .preview-pie-botones,
     .deca-modal-cerrar,
+    #toast_deca, /* 🚀 EL ESCUDO: Hace que el mensaje flotante sea invisible para el PDF */
     #modal_nuevo_deca,
     #modal_perfil_camionero,
     #modal_alerta_deca,
@@ -1301,7 +1302,7 @@ function cerrarVisorPreviewDeCA() {
 
 // Pasarelas interactivas asociadas a vuestra nueva botonera reducida
 // =========================================================================
-// 📥 MOTOR NATIVO: GENERAR Y DESCARGAR PORTES EN 1 SOLA PÁGINA RIGIDA
+// 📥 MOTOR NATIVO: GENERAR Y DESCARGAR PORTES EN 1 SOLA PÁGINA RÍGIDA (MÓVIL)
 // =========================================================================
 function ejecutarDescargaPDFCompleto() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
@@ -1310,11 +1311,11 @@ function ejecutarDescargaPDFCompleto() {
 
     mostrarAvisoToast("⏳ Generando compaginación A4 de página única...");
 
-    // Lanzamos el menú oficial de guardado PDF de forma directa
+    // 🚀 RETARDO ELÁSTICO: Damos 600ms para asegurar la limpieza total del lienzo antes de congelar el PDF
     setTimeout(() => {
         window.print();
         document.title = tituloOriginalPestaña;
-    }, 250);
+    }, 600);
 }
 
 
