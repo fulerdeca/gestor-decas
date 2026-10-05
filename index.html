@@ -641,7 +641,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* ==========================================================================
-   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.85)
+   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.90 FIX)
    ========================================================================== */
 .deca-modal-qr-gigante {
     display: none;
@@ -688,46 +688,65 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 .btn-cerrar-qr-gigante:active { background: #0b3459; }
 
-
 /* ==========================================================================
-   🔳 CORRECCIÓN GLOBAL MÁSTER PARA CÓDIGOS QR (APK ANDROID vs WEB GITHUB)
+   🔳 CONTROL DE QR FIJO MÁSTER: BLINDAJE ANTI-DUPLICADOS INTEGRADO
    ========================================================================== */
-#qrcode_real_render, #canvas_render_qr_gigante {
-    display: block;
-    margin: 0 auto;
-    text-align: center;
+#qrcode_real_render {
+    display: block !important;
+    width: 140px !important; /* Volvemos a los 140px originales de tu folio web */
+    height: 140px !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
 }
 
-/* Comportamiento base (Optimizado para APK): se muestran los canvas */
-#qrcode_real_render canvas {
-    display: block !important;
+#qrcode_real_render canvas,
+#qrcode_real_render img {
     width: 140px !important;
     height: 140px !important;
-    margin: 0 auto;
+    max-width: 140px !important;
+    max-height: 140px !important;
+    margin: 0 auto !important;
+    display: block !important;
+    box-sizing: border-box !important;
 }
-#canvas_render_qr_gigante canvas {
+
+#canvas_render_qr_gigante {
     display: block !important;
     width: 280px !important;
     height: 280px !important;
-    margin: 0 auto;
+    margin: 0 auto !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
 }
 
-/* Ocultamos las imágenes Base64 en la APK si ya hay un canvas activo acelerado por hardware */
+#canvas_render_qr_gigante canvas,
+#canvas_render_qr_gigante img {
+    width: 280px !important;
+    height: 280px !important;
+    max-width: 280px !important;
+    max-height: 280px !important;
+    margin: 0 auto !important;
+    display: block !important;
+    box-sizing: border-box !important;
+}
+
+/* 🛡️ SISTEMA AUTOMÁTICO DE FILTRADO DE ELEMENTOS HUÉRFANOS */
+#qrcode_real_render img + canvas,
+#canvas_render_qr_gigante img + canvas {
+    display: none !important; /* Web: esconde canvas sobrante */
+}
 #qrcode_real_render canvas + img,
 #canvas_render_qr_gigante canvas + img {
-    display: none !important;
+    display: none !important; /* APK: esconde cajas de imagen vacías */
 }
 
-/* Ajuste del botón táctil */
-#qrcode_real_render img, #qrcode_real_render canvas {
-    cursor: pointer;
-    transition: transform 0.15s ease;
+/* Efecto táctil unificado */
+#qrcode_real_render img:active,
+#qrcode_real_render canvas:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
 }
-#qrcode_real_render img:active, #qrcode_real_render canvas:active {
-    transform: scale(0.95);
-}
-
-
 
 /* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
 @media print {
@@ -763,13 +782,15 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         background: #ffffff !important;
         color: #000000 !important;
     }
-    #qrcode_real_render img {
+    #qrcode_real_render img,
+    #qrcode_real_render canvas {
         display: block !important;
-        width: 100px !important;
-        height: 100px !important;
+        width: 110px !important;
+        height: 110px !important;
     }
 }
 </style>
+
 
 
 
