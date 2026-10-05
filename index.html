@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.92</title>
+    <title>Gestor de DeCAs Transportes v1.93</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -886,22 +886,27 @@ function iniciarEcosistemaDeCAs() {
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
         console.log("👮 MODO INSPECTOR GLOBAL: Renderizando folio público...");
 
-        // Esperamos un segundo a que impacte la conexión inicial de Firebase
+        // Parche estético en caliente para el navegador del agente (Arregla botón cortado y QR duplicados en web)
+        const estiloParcheAgente = document.createElement("style");
+        estiloParcheAgente.innerHTML = `
+            #qrcode_real_render canvas, #canvas_render_qr_gigante canvas { display: none !important; }
+            #qrcode_real_render img, #canvas_render_qr_gigante img { display: block !important; }
+            .preview-container { height: 96vh !important; max-height: 96vh !important; }
+            .preview-cuerpo-scroll { padding: 15px !important; }
+            .preview-pie-botones { padding: 8px 15px !important; margin-top: auto !important; box-sizing: border-box !important; }
+        `;
+        document.head.appendChild(estiloParcheAgente);
+
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
-            // Consultamos directamente el documento en la nube de forma aislada
             database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
-                        // Almacenamos el viaje en el array general para que el visor lo localice en RAM
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
-
-                        // Lanzamos la visualización inmediata en pantalla
                         verFichaDocumento(idDecaInspeccionar);
 
-                        // CLÁUSULA DE PRIVACIDAD: Ocultamos todo el dashboard del transportista
-                        // y las cruces de cerrar para que el agente SOLO pueda ver e imprimir su folio
+                        // Ocultación total de paneles innecesarios para la autoridad
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -914,6 +919,7 @@ function iniciarEcosistemaDeCAs() {
                 });
         }, 800);
     }
+
 
 
 
@@ -1215,78 +1221,71 @@ function invertirCargadorTransportista() {
 let urlControlQRGiganteActivo = "";
 
 // ==========================================
-// 📄 VISOR MÁSTER DEFINITIVO: VISUALIZACIÓN
-// ==========================================
-// ==========================================
-// 📄 VISOR MÁSTER DEFINITIVO: VISUALIZACIÓN (VERSIÓN APK BLINDADA)
+// 👮 MODO INSPECTOR GLOBAL: VISUALIZACIÓN EN PASARELA DE COTEJO
 // ==========================================
 function verFichaDocumento(idFirebase) {
     const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
     if (!doc) return;
 
     idDocumentoEnEdicion = idFirebase;
-    console.log("📋 Cargando Folio:", doc.numero_documento);
+    console.log("📋 Cargando Folio para Inspección:", doc.numero_documento);
 
-    // Volcar campos dinámicos en el Folio Blanco
+    // Volcar campos dinámicos exactamente igual
     document.getElementById("prev_top_numero").innerText = doc.numero_documento || "---";
     document.getElementById("prev_folio_numero").innerText = doc.numero_documento || "---";
-
     document.getElementById("prev_carg_razon").innerText = doc.cargador_razon || "---";
     document.getElementById("prev_carg_nif").innerText = doc.cargador_nif || "---";
     document.getElementById("prev_carg_domicilio").innerText = doc.cargador_domicilio || "---";
 
-    document.getElementById("prev_transp_razon").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : "---";
-    document.getElementById("prev_transp_nif").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : "---";
+    document.getElementById("prev_transp_razon").innerText = doc.transportista_razon || misDatosPerfilAutonomo?.razon_social || "---";
+    document.getElementById("prev_transp_nif").innerText = doc.transportista_nif || misDatosPerfilAutonomo?.nif_cif || "---";
 
     document.getElementById("prev_fecha_transporte").innerText = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "";
     document.getElementById("prev_matricula_tractor").innerText = doc.matricula_tractor || "---";
     document.getElementById("prev_matricula_remolque").innerText = doc.matricula_remolque || "---";
-
     document.getElementById("prev_origen_plaza").innerText = doc.origen_plaza || "---";
     document.getElementById("prev_destino_plaza").innerText = doc.destino_plaza || "---";
-
     document.getElementById("prev_mercan_nombre").innerText = doc.mercancia_nombre || "---";
     document.getElementById("prev_mercan_peso").innerText = doc.mercancia_peso || "---";
-    document.getElementById("prev_mercan_bultos").innerText = doc.mercancia_bultos || doc.mercan_bultos || "---";
-
+    document.getElementById("prev_mercan_bultos").innerText = doc.mercancia_bultos || "---";
     document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
 
-    // === INYECCIÓN DE QR CON COMPATIBILIDAD ASÍNCRONA PARA APK ===
+    // === REPARACIÓN DEL QR ÚNICO EN MODO WEB INSPECTOR ===
     const contenedorQR = document.getElementById("qrcode_real_render");
     if (contenedorQR) {
-        contenedorQR.innerHTML = "";
+        contenedorQR.innerHTML = ""; // Vaciado estricto anti-duplicados previos
 
         const miUsuarioGitHubOficial = "fulerdeca";
         const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
-
         urlControlQRGiganteActivo = enlaceInspeccionReal;
 
-        // Mostramos el modal primero para que el contenedor adquiera dimensiones físicas en pantalla antes de dibujar el QR
+        // Mostramos la interfaz primero
         document.getElementById("modal_preview_deca").style.display = "flex";
 
-        // Le damos un pequeño respiro a Android (100ms) para inicializar el contenedor gráfico
-        setTimeout(() => {
-            try {
-                new QRCode(contenedorQR, {
-                    text: enlaceInspeccionReal,
-                    width: 140,
-                    height: 140,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.M
-                });
+        // Generamos el QR de forma síncrona controlada
+        try {
+            new QRCode(contenedorQR, {
+                text: enlaceInspeccionReal,
+                width: 140,
+                height: 140,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
 
-                // Asignar el trigger táctil para ampliar
-                contenedorQR.onclick = function() {
-                    abrirModalQRGiganteNativo();
-                };
-            } catch (e) {
-                console.warn("Error al generar el QR en APK:", e);
-                contenedorQR.innerHTML = "<span style='font-size:30px;'>🔳</span>";
-            }
-        }, 100);
+            // Reasignar la lupa táctil
+            contenedorQR.onclick = function() {
+                abrirModalQRGiganteNativo();
+            };
+        } catch (e) {
+            console.warn("Librería QR ocupada en pasarela", e);
+        }
     }
+
+    // 🔒 ELIMINADO EL DISPARADOR AUTOMÁTICO DE IMPRESIÓN (window.print)
+    // El agente ahora verá los datos en pantalla directamente sin ventanas emergentes molestas.
 }
+
 
 // ==========================================
 // 🔳 DISPARADOR LÓGICO: GESTIÓN QR GIGANTE (VERSIÓN APK BLINDADA)
