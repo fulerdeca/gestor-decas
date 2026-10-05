@@ -620,119 +620,75 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* ==========================================================================
-   🖨️ CONTROLADOR GEOMÉTRICO OFICIAL: IMPRESIÓN IMPERIOSA EN 1 PÁGINA (v1.65)
+   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.80)
    ========================================================================== */
-@media print {
-    /* 1. Apagamos de forma estricta los componentes y el cartel emergente para la imprenta */
-    .cabecera-dashboard,
-    .grid-contadores,
-    .contenedor-filtros,
-    .contenedor-tabla,
-    .deca-modal-cabecera,
-    .preview-pie-botones,
-    .deca-modal-cerrar,
-    #toast_deca,
-    #modal_nuevo_deca,
-    #modal_perfil_camionero,
-    #modal_alerta_deca,
-    #modal_confirm_deca,
-    #modal_clave_seguridad_deca {
-        display: none !important;
-    }
-
-    /* 2. Forzamos al cuerpo de la hoja a estar limpio y sin fondos oscuros */
-    html, body {
-        background: #ffffff !important;
-        color: #111111 !important;
-        height: auto !important;
-        overflow: visible !important;
-    }
-
-    /* 3. Colocamos el modal en el origen del papel eliminando capas oscuras */
-    #modal_preview_deca {
-        display: block !important;
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        height: auto !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .preview-container {
-        display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
-        background: #ffffff !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .preview-cuerpo-scroll {
-        display: block !important;
-        overflow: visible !important;
-        height: auto !important;
-        padding: 0 !important;
-        width: 100% !important;
-    }
-
-    /* 4. Forzamos al folio blanco a ocupar el papel A4 con colchón elástico */
-    .folio-deca {
-        display: block !important;
-        position: relative !important;
-        width: 100% !important;
-        max-width: 660px !important;
-        margin: 0 auto !important;
-        box-shadow: none !important;
-        background: #ffffff !important;
-        color: #111111 !important;
-        padding: 10mm 12mm !important;
-        page-break-inside: avoid !important;
-        page-break-after: avoid !important;
-    }
-
-    .folio-tabla, .folio-tabla tr, .folio-tabla td {
-        page-break-inside: avoid !important;
-    }
-
-    .folio-header-azul {
-        background: #0f4c81 !important;
-        color: #ffffff !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        border: 1px solid #0f4c81 !important;
-        padding: 6px 10px !important;
-    }
-
-    /* ==========================================================================
-       🔒 ESCUDO ANTI-DUPLICADOS MÁSTER: ELIMINA EL MEDIO QR EN IMPRESIÓN
-       ========================================================================== */
-    #qrcode_real_render canvas {
-        display: none !important; /* Fulmina el canvas flotante que causa el medio QR */
-    }
-    #qrcode_real_render img {
-        display: block !important;
-        width: 90px !important;
-        height: 90px !important;
-        max-width: 90px !important;
-        max-height: 90px !important;
-        margin: 0 auto !important;
-    }
-
-
-    /* Dimensiones oficiales estrictas del papel A4 vertical */
-    @page {
-        size: A4 portrait;
-        margin: 0;
-    }
+#qrcode_real_render {
+    width: 100% !important;
+    max-width: 110px !important; /* Capado elegante para que no desborde hacia arriba */
+    height: auto !important;
+    margin: 0 auto;
+    cursor: pointer; /* Mano interactiva que avisa que es pulsable */
+    transition: transform 0.15s ease;
+}
+#qrcode_real_render:active {
+    transform: scale(0.95); /* Efecto hundimiento al tocarlo con el dedo */
+}
+#qrcode_real_render canvas, #qrcode_real_render img {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
 }
 
+/* El nuevo contenedor flotante para el código QR ampliado */
+.deca-modal-qr-gigante {
+    display: none;
+    position: fixed;
+    z-index: 999999 !important; /* Por encima de cualquier otra capa del sistema */
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(11, 16, 26, 0.9); /* Fondo oscuro atenuado premium */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.qr-gigante-contenido {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    text-align: center;
+    width: 85%;
+    max-width: 350px;
+    box-sizing: border-box;
+}
+.qr-gigante-render {
+    width: 280px;
+    height: 280px;
+    margin: 0 auto 15px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.qr-gigante-render canvas, .qr-gigante-render img {
+    width: 280px !important;
+    height: 280px !important;
+    display: block !important;
+}
+.btn-cerrar-qr-gigante {
+    width: 100%;
+    padding: 12px;
+    background: #0f4c81;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.btn-cerrar-qr-gigante:active { background: #0b3459; }
 
 
 
@@ -1218,78 +1174,211 @@ function invertirCargadorTransportista() {
 
 
 
-// =========================================================================
-// 📄 VISOR MÁSTER DEFINITIVO: PREVISUALIZACIÓN CON QR UNIVERSAL GITHUB v1.36
-// =========================================================================
+// Variable global para alimentar al clonador gigante
+let urlControlQRGiganteActivo = "";
+
+// ==========================================
+// 📄 VISOR MÁSTER DEFINITIVO: VISUALIZACIÓN
+// ==========================================
 function verFichaDocumento(idFirebase) {
-    const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
+    const doc = documentosDeCA.find(
+        item => item.id_firebase === idFirebase
+    );
     if (!doc) return;
 
-    // Enganche de seguridad para recordar qué documento está activo en pantalla
     idDocumentoEnEdicion = idFirebase;
+    console.log("📋 Cargando Folio:", doc.numero_documento);
 
-    console.log("📋 Cargando en el Folio el documento activo:", doc.numero_documento);
+    // Volcar campos dinámicos en el Folio Blanco
+    document.getElementById("prev_top_numero").innerText =
+        doc.numero_documento || "---";
+    document.getElementById("prev_folio_numero").innerText =
+        doc.numero_documento || "---";
 
-    // Volcar los campos dinámicamente en el Folio Blanco del HTML
-    document.getElementById("prev_top_numero").innerText = doc.numero_documento || "---";
-    document.getElementById("prev_folio_numero").innerText = doc.numero_documento || "---";
+    document.getElementById("prev_carg_razon").innerText =
+        doc.cargador_razon || "---";
+    document.getElementById("prev_carg_nif").innerText =
+        doc.cargador_nif || "---";
+    document.getElementById("prev_carg_domicilio").innerText =
+        doc.cargador_domicilio || "---";
 
-    document.getElementById("prev_carg_razon").innerText = doc.cargador_razon || "---";
-    document.getElementById("prev_carg_nif").innerText = doc.cargador_nif || "---";
-    document.getElementById("prev_carg_domicilio").innerText = doc.cargador_domicilio || "---";
+    document.getElementById("prev_transp_razon").innerText =
+        misDatosPerfilAutonomo ?
+        (misDatosPerfilAutonomo.razon_social || "---") : "---";
+    document.getElementById("prev_transp_nif").innerText =
+        misDatosPerfilAutonomo ?
+        (misDatosPerfilAutonomo.nif_cif || "---") : "---";
 
-    document.getElementById("prev_transp_razon").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : "---";
-    document.getElementById("prev_transp_nif").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : "---";
+    document.getElementById("prev_fecha_transporte").innerText =
+        doc.fecha_transporte ?
+        doc.fecha_transporte.split("-").reverse().join("/") : "";
+    document.getElementById("prev_matricula_tractor").innerText =
+        doc.matricula_tractor || "---";
+    document.getElementById("prev_matricula_remolque").innerText =
+        doc.matricula_remolque || "---";
 
-    document.getElementById("prev_fecha_transporte").innerText = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "";
-    document.getElementById("prev_matricula_tractor").innerText = doc.matricula_tractor || "---";
-    document.getElementById("prev_matricula_remolque").innerText = doc.matricula_remolque || "---";
+    document.getElementById("prev_origen_plaza").innerText =
+        doc.origen_plaza || "---";
+    document.getElementById("prev_destino_plaza").innerText =
+        doc.destino_plaza || "---";
 
-    document.getElementById("prev_origen_plaza").innerText = doc.origen_plaza || "---";
-    document.getElementById("prev_destino_plaza").innerText = doc.destino_plaza || "---";
+    document.getElementById("prev_mercan_nombre").innerText =
+        doc.mercancia_nombre || "---";
+    document.getElementById("prev_mercan_peso").innerText =
+        doc.mercancia_peso || "---";
+    document.getElementById("prev_mercan_bultos").innerText =
+        doc.mercancia_bultos || doc.mercan_bultos || "---";
 
-    document.getElementById("prev_mercan_nombre").innerText = doc.mercancia_nombre || "---";
-    document.getElementById("prev_mercan_peso").innerText = doc.mercancia_peso || "---";
-    document.getElementById("prev_mercan_bultos").innerText = doc.mercancia_bultos || doc.mercan_bultos || "---";
+    document.getElementById("prev_qr_caducidad").innerText =
+        doc.qr_caducidad ?
+        doc.qr_caducidad.split("-").reverse().join("/") : "";
 
-    document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
-
-    // === GATILLO DE INYECCIÓN DE QR INTERACTIVO GLOBAL DE ALTA DEFINICIÓN ===
-    const contenedorQR = document.getElementById("qrcode_real_render");
+    // === INYECCIÓN DE QR INTERACTIVO GLOBAL ===
+    const contenedorQR = document.getElementById(
+        "qrcode_real_render"
+    );
     if (contenedorQR) {
-        contenedorQR.innerHTML = ""; // Limpieza preventiva del lienzo anterior
+        contenedorQR.innerHTML = "";
 
-        // 🚀 PASARELA GLOBAL: Enlace público universal construido por suma clásica inmune a fallos de comillas
-        // Redirige al agente directamente a vuestra pasarela de control en internet
         const miUsuarioGitHubOficial = "fulerdeca";
-        const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
+        const enlaceInspeccionReal = "https://" +
+            miUsuarioGitHubOficial +
+            ".github.io/gestor-decas/?verificar=" +
+            idFirebase + "&user=" + miUsuarioUIDActivo;
+
+        // Guardamos en la memoria RAM el enlace
+        urlControlQRGiganteActivo = enlaceInspeccionReal;
 
         try {
-            // Generamos el código a 160px de matriz para asegurar que las esquinas y puntos se enfoquen al vuelo
+            // Generamos el código proporcional a 140px
             new QRCode(contenedorQR, {
                 text: enlaceInspeccionReal,
-                width: 160,
-                height: 160,
+                width: 140,
+                height: 140,
                 colorDark : "#000000",
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.M
             });
 
-            // Forzamos el acople estético inline a 90px en la pantalla gris para no descuadrar el pie del papel
-            const qrImg = contenedorQR.querySelector("img");
-            if (qrImg) {
-                qrImg.style.width = "90px";
-                qrImg.style.height = "90px";
-                qrImg.style.margin = "0 auto";
-            }
+            // GATILLO TÁCTIL: Al pulsar el QR, salta en grande
+            contenedorQR.onclick = function() {
+                abrirModalQRGiganteNativo();
+            };
         } catch (e) {
-            console.warn("Aviso: Inicializando librería QR en el DOM...", e);
+            console.warn("Librería QR ocupada...", e);
             contenedorQR.innerText = "🔳";
         }
     }
 
-    // Levantamos el modal en pantalla
     document.getElementById("modal_preview_deca").style.display = "flex";
+}
+
+// ==========================================
+// 🔳 DISPARADOR LÓGICO: GESTIÓN QR GIGANTE
+// ==========================================
+function abrirModalQRGiganteNativo() {
+    const contenedorEspejo = document.getElementById(
+        "canvas_render_qr_gigante"
+    );
+    const numeroDeCA = document.getElementById(
+        "prev_top_numero"
+    ).innerText || "DeCA";
+
+    if (!contenedorEspejo || !urlControlQRGiganteActivo) return;
+
+    contenedorEspejo.innerHTML = "";
+    document.getElementById("txt_titulo_qr_gigante").innerText =
+        "VALIDACIÓN: " + numeroDeCA;
+
+    try {
+        new QRCode(contenedorEspejo, {
+            text: urlControlQRGiganteActivo + "&cache=" + Date.now(),
+            width: 280,
+            height: 280,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+
+        document.getElementById(
+            "modal_qr_pantalla_gigante"
+        ).style.display = "flex";
+        mostrarAvisoToast("🔳 QR ampliado para lectura rápida");
+    } catch(err) {
+        console.error("Error al expandir QR:", err);
+    }
+}
+
+function cerrarModalQRGiganteNativo() {
+    const modalQr = document.getElementById(
+        "modal_qr_pantalla_gigante"
+    );
+    if(modalQr) modalQr.style.display = "none";
+}
+
+function cerrarVisorPreviewDeCA() {
+    document.getElementById("modal_preview_deca").style.display = "none";
+}
+
+// ==========================================
+// 📥 MOTOR NATIVO: COMPAGINACIÓN PDF A4 1PAG
+// ==========================================
+function ejecutarDescargaPDFCompleto() {
+    const numeroDeCA = document.getElementById(
+        "prev_top_numero"
+    ).innerText || "Documento_DeCA";
+    const tituloOriginalPestaña = document.title;
+    document.title = numeroDeCA;
+
+    mostrarAvisoToast("⏳ Generando compaginación A4...");
+
+    setTimeout(() => {
+        const capaToast = document.getElementById("toast_deca");
+        if (capaToast) capaToast.style.display = "none";
+
+        window.print();
+        document.title = tituloOriginalPestaña;
+    }, 400);
+}
+
+// ==========================================
+// 🔗 SIMULADOR: PLATAFORMA COTEJO DE TRÁFICO
+// ==========================================
+function abrirPaginaVerificacion() {
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText;
+    const matriculaTractor = document.getElementById("prev_matricula_tractor").innerText;
+
+    if (!numeroDeCA || numeroDeCA === "---") {
+        return mostrarAlertaCorporativaDeca(
+            "Acción Denegada",
+            "No hay documento activo.", "⚠️"
+        );
+    }
+
+    mostrarAvisoToast("🔗 Abriendo pasarela de verificación...");
+
+    const viajeActivo = documentosDeCA.find(
+        item => item.numero_documento === numeroDeCA
+    );
+    const idRealFirebase = viajeActivo ?
+        viajeActivo.id_firebase : idDocumentoEnEdicion;
+
+    const miUsuarioGitHubOficial = "fulerdeca";
+    const miLlaveUsuarioFirebase = miUsuarioUIDActivo;
+    const marcaTiempoBucle = Date.now();
+
+    const urlConstructor = new URL(
+        "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/"
+    );
+    urlConstructor.searchParams.set("verificar", idRealFirebase);
+    urlConstructor.searchParams.set("user", miLlaveUsuarioFirebase);
+    urlConstructor.searchParams.set("doc", numeroDeCA);
+    urlConstructor.searchParams.set("tractor", matriculaTractor);
+    urlConstructor.searchParams.set("cache", marcaTiempoBucle);
+
+    setTimeout(() => {
+        window.open(urlConstructor.toString(), '_blank');
+    }, 300);
 }
 
 
@@ -2380,106 +2469,331 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
 </div>
 
-<!-- ==========================================================================
-     📦 BLOQUE CONSOLIDADO MÁSTER: VISOR DE DOCUMENTO DECA (100% ELÁSTICO SIN TABLAS COLA)
-     ========================================================================== -->
-<div id="modal_preview_deca" class="modal-preview-deca">
-    <div class="preview-container">
-
-        <!-- Cabecera Fija del Moldure -->
-        <div class="deca-modal-cabecera">
-            <h3 id="prev_top_numero">DeCA-2026-000001</h3>
-            <button class="deca-modal-cerrar" onclick="cerrarVisorPreviewDeCA()">✕</button>
-        </div>
-
-        <!-- Cuerpo del Folio con Scroll Controlado y Aislamiento Perimetral -->
-        <div class="preview-cuerpo-scroll">
-            <div class="folio-deca">
-
-                <!-- 1. IDENTIFICACIÓN Y LOGO DEL FOLIO -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
-                    <div style="max-width: 75%; box-sizing: border-box; text-align: left;">
-                        <h2 style="margin: 0; font-size: 13px; color: #0f4c81; font-weight: bold; font-family: sans-serif; text-transform: uppercase;">DOCUMENTO ELECTRÓNICO DE CONTROL ADMINISTRATIVO (DeCA)</h2>
-                        <p style="margin: 4px 0 0 0; font-size: 9px; color: #666; line-height: 1.2; font-family: sans-serif;">
-                            Transporte público de mercancías por carretera - Orden FOM/2861/2012, de 13 de diciembre - Ley 8/2025, de Movilidad Sostenible - Resolución de 5 de junio de 2026 (BOE-A-2026-12784)
-                        </p>
-                    </div>
-                    <div style="font-size: 14px; font-weight: 900; color: #111; text-align: right; width: 25%; box-sizing: border-box; font-family: monospace;" id="prev_folio_numero">---</div>
-                </div>
-
-                <!-- 2. BLOQUE: CARGADOR CONTRACTUAL -->
-                <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box; font-family: sans-serif; text-align: left;">
-                    <div class="folio-header-azul" style="border: 1px solid #0f4c81 !important; width: 100%; box-sizing: border-box;">Cargador Contractual (Art. 6.A)</div>
-                    <div style="display: flex; width: 100%; box-sizing: border-box;">
-                        <div style="width: 50%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Razón Social</span><span id="prev_carg_razon">---</span></div>
-                        <div style="width: 50%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">CIF/NIF</span><span id="prev_carg_nif">---</span></div>
-                    </div>
-                    <div style="width: 100%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Domicilio</span><span id="prev_carg_domicilio">---</span></div>
-                </div>
-
-                <!-- 3. BLOQUE: TRANSPORTISTA EFECTIVO -->
-                <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box; font-family: sans-serif; text-align: left;">
-                    <div class="folio-header-azul" style="border: 1px solid #0f4c81 !important; width: 100%; box-sizing: border-box;">Transportista Efectivo (Art. 6.B)</div>
-                    <div style="display: flex; width: 100%; box-sizing: border-box;">
-                        <div style="width: 50%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Razón Social</span><span id="prev_transp_razon">---</span></div>
-                        <div style="width: 50%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">CIF/NIF</span><span id="prev_transp_nif">---</span></div>
-                    </div>
-                </div>
-
-                <!-- 4. BLOQUE: DATOS DEL TRANSPORTE -->
-                <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box; font-family: sans-serif; text-align: left;">
-                    <div class="folio-header-azul" style="border: 1px solid #0f4c81 !important; width: 100%; box-sizing: border-box;">Datos del Transporte (Art. 6.C, 6.E, 6.F, 6.G)</div>
-                    <div style="display: flex; width: 100%; box-sizing: border-box;">
-                        <div style="width: 33.33%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Fecha del Transporte</span><span id="prev_fecha_transporte">---</span></div>
-                        <div style="width: 33.33%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Matrícula Tractora</span><span id="prev_matricula_tractor" style="font-weight: bold;">---</span></div>
-                        <div style="width: 34%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Matrícula Remolque</span><span id="prev_matricula_remolque" style="font-weight: bold;">---</span></div>
-                    </div>
-                    <div style="width: 100%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Lugar de Origen</span><span id="prev_origen_plaza">---</span></div>
-                    <div style="width: 100%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Lugar de Destino</span><span id="prev_destino_plaza">---</span></div>
-                </div>
-
-                <!-- 5. BLOQUE: MERCANCÍA -->
-                <div style="width: 100%; margin-bottom: 18px; box-sizing: border-box; font-family: sans-serif; text-align: left;">
-                    <div class="folio-header-azul" style="border: 1px solid #0f4c81 !important; width: 100%; box-sizing: border-box;">Mercancía (Art. 6.D)</div>
-                    <div style="display: flex; width: 100%; box-sizing: border-box;">
-                        <div style="width: 50%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Naturaleza</span><span id="prev_mercan_nombre">---</span></div>
-                        <div style="width: 25%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Peso / Magnitud</span><span id="prev_mercan_peso" style="font-weight: bold;">---</span></div>
-                        <div style="width: 25%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Bultos</span><span id="prev_mercan_bultos">---</span></div>
-                    </div>
-                </div>
-
-                <!-- 6. BLOQUE INFERIOR: QR Y VALIDEZ LEGAL -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; box-sizing: border-box; gap: 15px;">
-                    <div style="flex-grow: 1; max-width: 75%; box-sizing: border-box; text-align: left;">
-                        <span style="font-size: 10px; font-weight: bold; color: #0f4c81; display: block; margin-bottom: 4px; font-family: sans-serif;">DISPONIBILIDAD DE DESCARGA (Res. 5/6/2026)</span>
-                        <div style="border: 1px solid #111; padding: 8px; text-align: center; width: 180px; box-sizing: border-box; background: #fafafa; font-family: sans-serif;">
-                            <span class="folio-subetiqueta" style="margin-bottom: 1px;">QR Activo Hasta</span>
-                            <strong style="font-size: 13px;" id="prev_qr_caducidad">---</strong>
-                        </div>
-                        <p style="font-size: 7.5px; color: #666; margin: 8px 0 0 0; line-height: 1.2; text-align: left; font-family: sans-serif;">
-                            Documento electrónico de control administrativo generado de forma nativa digital a través de DeCA... Conforme al artículo 6 de la Orden FOM/2861/2012 y la Resolución de 5 de junio de 2026... La descarga mediante QR permanece activa durante el servicio y hasta 7 días naturales tras su finalización.
-                        </p>
-                    </div>
-
-                    <!-- Receptor Dinámico de la librería QR -->
-                    <div style="text-align: center; width: 100px; flex-shrink: 0; box-sizing: border-box; font-family: sans-serif;">
-                        <div id="qrcode_real_render" style="width: 90px; height: 90px; margin: 0 auto; display: flex; align-items: center; justify-content: center;"></div>
-                        <span style="font-size: 7px; color: #666; display: block; margin-top: 6px; line-height: 1.1; text-align: center;">El escaneo del QR produce la descarga directa del PDF</span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Pie de Botones Fijos Inferiores -->
-        <div class="preview-pie-botones">
-            <button class="btn-preview-accion pdf-azul" onclick="ejecutarDescargaPDFCompleto()">📥 Documento completo (PDF)</button>
-            <button class="btn-preview-accion" onclick="ejecutarImpresionHojaQR()">📄 Hoja con QR (1 página)</button>
-            <button class="btn-preview-accion" onclick="abrirPaginaVerificacion()">🔗 Página de verificación</button>
-        </div>
-
+<!-- === VISOR GESTOR DE DECAS v1.80 === -->
+<div id="modal_preview_deca"
+     class="modal-preview-deca">
+  <div class="preview-container">
+    <div class="deca-modal-cabecera">
+      <h3 id="prev_top_numero">DeCA</h3>
+      <button class="deca-modal-cerrar"
+              onclick="cerrarVisorPreviewDeCA()">✕</button>
     </div>
+    <div class="preview-cuerpo-scroll">
+      <div class="folio-deca">
+        <div style="display:flex;
+                    justify-content:space-between;
+                    align-items:flex-start;
+                    margin-bottom:15px;
+                    width:100%;
+                    box-sizing:border-box;">
+          <div style="max-width:75%;
+                      box-sizing:border-box;
+                      text-align:left;">
+            <h2 style="margin:0;
+                       font-size:12px;
+                       color:#0f4c81;
+                       font-weight:bold;
+                       font-family:sans-serif;
+                       text-transform:uppercase;">
+              DOCUMENTO DE CONTROL (DeCA)
+            </h2>
+            <p style="margin:4px 0 0 0;
+                      font-size:8.5px;
+                      color:#666;
+                      line-height:1.2;
+                      font-family:sans-serif;">
+              Orden FOM/2861/2012 - Res. 5/6/2026
+            </p>
+          </div>
+          <div style="font-size:13px;
+                      font-weight:900;
+                      color:#111;
+                      text-align:right;
+                      width:25%;
+                      box-sizing:border-box;
+                      font-family:monospace;"
+               id="prev_folio_numero">---</div>
+        </div>
+        <div style="width:100%;
+                    margin-bottom:12px;
+                    box-sizing:border-box;
+                    font-family:sans-serif;
+                    text-align:left;">
+          <div class="folio-header-azul"
+               style="border:1px solid #0f4c81 !important;
+                      width:100%;
+                      box-sizing:border-box;
+                      padding:6px 8px !important;">
+            Cargador Contractual (Art. 6.A)
+          </div>
+          <div style="display:flex;
+                      width:100%;
+                      box-sizing:border-box;">
+            <div style="width:50%;
+                        border:1px solid #111;
+                        border-top:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">Razón Social</span>
+              <span id="prev_carg_razon">---</span>
+            </div>
+            <div style="width:50%;
+                        border:1px solid #111;
+                        border-top:none;
+                        border-left:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">CIF/NIF</span>
+              <span id="prev_carg_nif">---</span>
+            </div>
+          </div>
+          <div style="width:100%;
+                      border:1px solid #111;
+                      border-top:none;
+                      padding:6px;
+                      box-sizing:border-box;">
+            <span class="folio-subetiqueta">Domicilio</span>
+            <span id="prev_carg_domicilio">---</span>
+          </div>
+        </div>
+        <div style="width:100%;
+                    margin-bottom:12px;
+                    box-sizing:border-box;
+                    font-family:sans-serif;
+                    text-align:left;">
+          <div class="folio-header-azul"
+               style="border:1px solid #0f4c81 !important;
+                      width:100%;
+                      box-sizing:border-box;
+                      padding:6px 8px !important;">
+            Transportista Efectivo (Art. 6.B)
+          </div>
+          <div style="display:flex;
+                      width:100%;
+                      box-sizing:border-box;">
+            <div style="width:50%;
+                        border:1px solid #111;
+                        border-top:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">Razón Social</span>
+              <span id="prev_transp_razon">---</span>
+            </div>
+            <div style="width:50%;
+                        border:1px solid #111;
+                        border-top:none;
+                        border-left:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">CIF/NIF</span>
+              <span id="prev_transp_nif">---</span>
+            </div>
+          </div>
+        </div>
+        <div style="width:100%;
+                    margin-bottom:12px;
+                    box-sizing:border-box;
+                    font-family:sans-serif;
+                    text-align:left;">
+          <div class="folio-header-azul"
+               style="border:1px solid #0f4c81 !important;
+                      width:100%;
+                      box-sizing:border-box;
+                      padding:6px 8px !important;">
+            Datos del Transporte (Art. 6)
+          </div>
+          <div style="display:flex;
+                      width:100%;
+                      box-sizing:border-box;">
+            <div style="width:33.33%;
+                        border:1px solid #111;
+                        border-top:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">Fecha</span>
+              <span id="prev_fecha_transporte">---</span>
+            </div>
+            <div style="width:33.33%;
+                        border:1px solid #111;
+                        border-top:none;
+                        border-left:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">Tractor</span>
+              <span id="prev_matricula_tractor"
+                    style="font-weight:bold;">---</span>
+            </div>
+            <div style="width:34%;
+                        border:1px solid #111;
+                        border-top:none;
+                        border-left:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">Remolque</span>
+              <span id="prev_matricula_remolque"
+                    style="font-weight:bold;">---</span>
+            </div>
+          </div>
+          <div style="width:100%;
+                      border:1px solid #111;
+                      border-top:none;
+                      padding:6px;
+                      box-sizing:border-box;">
+            <span class="folio-subetiqueta">Origen</span>
+            <span id="prev_origen_plaza">---</span>
+          </div>
+          <div style="width:100%;
+                      border:1px solid #111;
+                      border-top:none;
+                      padding:6px;
+                      box-sizing:border-box;">
+            <span class="folio-subetiqueta">Destino</span>
+            <span id="prev_destino_plaza">---</span>
+          </div>
+        </div>
+        <div style="width:100%;
+                    margin-bottom:14px;
+                    box-sizing:border-box;
+                    font-family:sans-serif;
+                    text-align:left;">
+          <div class="folio-header-azul"
+               style="border:1px solid #0f4c81 !important;
+                      width:100%;
+                      box-sizing:border-box;
+                      padding:6px 8px !important;">
+            Mercancía (Art. 6.D)
+          </div>
+          <div style="display:flex;
+                      width:100%;
+                      box-sizing:border-box;">
+            <div style="width:50%;
+                        border:1px solid #111;
+                        border-top:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">Naturaleza</span>
+              <span id="prev_mercan_nombre">---</span>
+            </div>
+            <div style="width:25%;
+                        border:1px solid #111;
+                        border-top:none;
+                        border-left:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">Peso</span>
+              <span id="prev_mercan_peso"
+                    style="font-weight:bold;">---</span>
+            </div>
+            <div style="width:25%;
+                        border:1px solid #111;
+                        border-top:none;
+                        border-left:none;
+                        padding:6px;
+                        box-sizing:border-box;">
+              <span class="folio-subetiqueta">Bultos</span>
+              <span id="prev_mercan_bultos">---</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    width:100%;
+                    box-sizing:border-box;
+                    gap:10px;">
+          <div style="flex-grow:1;
+                      max-width:65%;
+                      box-sizing:border-box;
+                      text-align:left;">
+            <span style="font-size:9px;
+                         font-weight:bold;
+                         color:#0f4c81;
+                         display:block;
+                         margin-bottom:2px;
+                         font-family:sans-serif;">
+              DISPONIBILIDAD (Res. 5/6/2026)
+            </span>
+            <div style="border:1px solid #111;
+                        padding:4px;
+                        text-align:center;
+                        width:140px;
+                        box-sizing:border-box;
+                        background:#fafafa;
+                        font-family:sans-serif;">
+              <span class="folio-subetiqueta"
+                    style="margin-bottom:1px;
+                           font-size:8px;">
+                QR Activo Hasta
+              </span>
+              <strong style="font-size:11px;"
+                      id="prev_qr_caducidad">---</strong>
+            </div>
+          </div>
+          <!-- Receptor Elástico del QR -->
+          <div style="text-align:center;
+                      width:30%;
+                      max-width:100px;
+                      flex-shrink:0;
+                      box-sizing:border-box;
+                      font-family:sans-serif;">
+            <div id="qrcode_real_render"
+                 title="Toca para ampliar"></div>
+            <span style="font-size:6px;
+                         color:#0f4c81;
+                         font-weight:bold;
+                         display:block;
+                         margin-top:4px;
+                         line-height:1;
+                         text-align:center;
+                         text-transform:uppercase;">
+              🔍 AMPLIAR
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="preview-pie-botones">
+      <button class="btn-preview-accion pdf-azul"
+              onclick="ejecutarDescargaPDFCompleto()">
+        📥 Documento completo (PDF)
+      </button>
+      <button class="btn-preview-accion"
+              onclick="ejecutarImpresionHojaQR()">
+        🔳 QR Pantalla Gigante
+      </button>
+      <button class="btn-preview-accion"
+              onclick="abrirPaginaVerificacion()">
+        🔗 Página de verificación
+      </button>
+    </div>
+  </div>
 </div>
+
+<!-- === VISOR FLOTANTE QR GIGANTE v1.80 === -->
+<div id="modal_qr_pantalla_gigante"
+     class="deca-modal-qr-gigante">
+  <div class="qr-gigante-contenido">
+    <h3 id="txt_titulo_qr_gigante"
+        style="margin:0 0 5px 0;
+               font-size:15px;
+               font-weight:bold;
+               color:#0f4c81;">
+      VALIDACIÓN DIGITAL DeCA
+    </h3>
+    <p style="margin:0 0 15px 0;
+              font-size:11px;
+              color:#555;">
+      Enseña este código para control inmediato
+    </p>
+    <div id="canvas_render_qr_gigante"
+         class="qr-gigante-render"></div>
+    <button class="btn-cerrar-qr-gigante"
+            onclick="cerrarModalQRGiganteNativo()">
+      ✕ Cerrar Visor Ampliado
+    </button>
+  </div>
+</div>
+
 
 
 <!-- === MODAL PREMIUM INTERACTIVO GIGANTE: PANEL GENERAL "MIS DATOS / CONFIGURACIÓN" === -->
