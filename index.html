@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.60</title>
+    <title>Gestor de DeCAs Transportes v1.65</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -620,7 +620,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* ==========================================================================
-   🖨️ CONTROLADOR GEOMÉTRICO OFICIAL: IMPRESIÓN IMPERIOSA EN 1 PÁGINA (v1.40)
+   🖨️ CONTROLADOR GEOMÉTRICO OFICIAL: IMPRESIÓN IMPERIOSA EN 1 PÁGINA (v1.65)
    ========================================================================== */
 @media print {
     /* 1. Apagamos de forma estricta los componentes y el cartel emergente para la imprenta */
@@ -631,7 +631,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     .deca-modal-cabecera,
     .preview-pie-botones,
     .deca-modal-cerrar,
-    #toast_deca, /* 🚀 EL ESCUDO: Hace que el mensaje flotante sea invisible para el PDF */
+    #toast_deca,
     #modal_nuevo_deca,
     #modal_perfil_camionero,
     #modal_alerta_deca,
@@ -692,17 +692,15 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         box-shadow: none !important;
         background: #ffffff !important;
         color: #111111 !important;
-        padding: 10mm 12mm !important; /* Margen oficial de respiración */
+        padding: 10mm 12mm !important;
         page-break-inside: avoid !important;
         page-break-after: avoid !important;
     }
 
-    /* Evitamos rupturas raras en las celdas fiscales */
     .folio-tabla, .folio-tabla tr, .folio-tabla td {
         page-break-inside: avoid !important;
     }
 
-    /* 5. Mantenemos el color azul corporativo de las cabeceras en el papel físico */
     .folio-header-azul {
         background: #0f4c81 !important;
         color: #ffffff !important;
@@ -712,16 +710,21 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 6px 10px !important;
     }
 
-    /* 6. Candado anti-duplicados para el Código QR */
+    /* ==========================================================================
+       🔒 ESCUDO ANTI-DUPLICADOS MÁSTER: ELIMINA EL MEDIO QR EN IMPRESIÓN
+       ========================================================================== */
     #qrcode_real_render canvas {
-        display: none !important;
+        display: none !important; /* Fulmina el canvas flotante que causa el medio QR */
     }
     #qrcode_real_render img {
         display: block !important;
         width: 90px !important;
         height: 90px !important;
+        max-width: 90px !important;
+        max-height: 90px !important;
         margin: 0 auto !important;
     }
+
 
     /* Dimensiones oficiales estrictas del papel A4 vertical */
     @page {
