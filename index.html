@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.30</title>
+    <title>Gestor de DeCAs Transportes v1.35</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -619,7 +619,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* ==========================================================================
-   🖨️ CONTROLADOR GEOMÉTRICO MÁSTER: AJUSTE DE IMPRESIÓN A4 SIN DUPLICADOS
+   🖨️ CONTROLADOR GEOMÉTRICO MÁSTER: IMPRESIÓN IMPERIOSA EN 1 SOLA PÁGINA
    ========================================================================== */
 @media print {
     /* 1. Ocultamos de golpe todo el dashboard, botones y menús del gestor */
@@ -640,9 +640,19 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         color: #111111 !important;
     }
 
-    /* 3. 📏 COLCHÓN PERIMETRAL: Evita que las tablas se peguen de forma abrupta a los bordes del papel */
+    /* 3. ✂️ EL CANDADO DE UNA SOLA HOJA: Bloquea el lienzo e impide que se genere la página en blanco */
+    html, body {
+        height: 100% !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* Colchón perimetral elástico para que respire el folio */
     .folio-deca {
-        padding: 12mm 15mm !important;
+        padding: 10mm 12mm !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
     }
 
     /* 4. Mantenemos el color azul rígido de las cabeceras en el folio físico */
@@ -655,7 +665,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 6px 10px !important;
     }
 
-    /* 5. 🔒 ESCUDO ANTI-DUPLICADOS: Fulmina el segundo QR fantasma/medio que saca el navegador */
+    /* 5. Escudo anti-duplicados del QR */
     #qrcode_real_render canvas {
         display: none !important;
     }
@@ -666,12 +676,13 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         margin: 0 auto !important;
     }
 
-    /* Dimensiones oficiales del folio vertical */
+    /* Dimensiones oficiales estrictas del folio vertical */
     @page {
         size: A4 portrait;
         margin: 0;
     }
 }
+
 
 
  </style>
@@ -845,6 +856,13 @@ function verificarExistenciaPerfilCamionero() {
                     if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.display = "none";
                     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
 
+                    // 🚀 COMPROBACIÓN INSPECTOR: Escondemos los dos botones sobrantes del pie del folio para el agente externo
+                    const botonesPiePreview = document.querySelectorAll(".preview-pie-botones .btn-preview-accion");
+                    if (botonesPiePreview.length >= 3) {
+                        botonesPiePreview[1].style.display = "none"; // Esconde "Hoja con QR"
+                        botonesPiePreview[2].style.display = "none"; // Esconde "Página de verificación"
+                    }
+
                     const btnCerrarVisor = document.querySelector(".preview-container .deca-modal-cerrar");
                     if(btnCerrarVisor) btnCerrarVisor.style.display = "none";
                 } else {
@@ -912,11 +930,11 @@ function registrarNuevoCamioneroEcosistema() {
             const deCADemostracionPrivado = {
                 numero_documento: "DeCA-2026-000001",
                 fecha_transporte: "2026-10-02",
-                matricula_tractor: "2058 JSY",
-                matricula_remolque: "R 1874 BCP",
+                matricula_tractor: "2222 JJJ",
+                matricula_remolque: "R 1111 BBB",
                 origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
-                destino_plaza: "VIA VENEZIANO, 28 - 45010 GAVELLO (ROVIGO) - ITALIA",
-                mercancia_nombre: "AJO SPRING (MUESTRA PRIVADA)",
+                destino_plaza: "CTRA. EL PEDERNOSO, 2 - 16650 LAS MESAS (CUENCA) - ESPAÑA",
+                mercancia_nombre: "AJO SPRING VIOLETA",
                 mercancia_peso: "23.000 kg",
                 mercancia_bultos: "23",
                 qr_caducidad: "2026-10-09",
