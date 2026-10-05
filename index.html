@@ -1261,11 +1261,14 @@ function ejecutarDescargaPDFCompleto() {
 
     mostrarAvisoToast("⏳ Eliminando márgenes residuales para página única...");
 
-    // 🚀 EL CANDADO MAESTRO ANTI-HOJA EN BLANCO: Forzamos la rigidez del contenedor del scroll al vuelo
+    // 🚀 EL CANDADO ANTI-HOJA EN BLANCO: Forzamos la rigidez de los contenedores al vuelo antes de imprimir
     const contenedorScroll = document.querySelector(".preview-cuerpo-scroll");
     const contenedorPrincipal = document.querySelector(".preview-container");
 
-    if (contenedorScroll) contenedorScroll.style.overflowY = "visible";
+    if (contenedorScroll) {
+        contenedorScroll.style.overflowY = "visible";
+        contenedorScroll.style.height = "auto";
+    }
     if (contenedorPrincipal) {
         contenedorPrincipal.style.height = "auto";
         contenedorPrincipal.style.maxHeight = "100%";
@@ -1275,7 +1278,10 @@ function ejecutarDescargaPDFCompleto() {
         window.print();
 
         // Al terminar de guardar, devolvemos el visor a su estado elástico normal de pantalla
-        if (contenedorScroll) contenedorScroll.style.overflowY = "auto";
+        if (contenedorScroll) {
+            contenedorScroll.style.overflowY = "auto";
+            contenedorScroll.style.height = "100%";
+        }
         if (contenedorPrincipal) {
             contenedorPrincipal.style.height = "92vh";
             contenedorPrincipal.style.maxHeight = "none";
@@ -1283,6 +1289,7 @@ function ejecutarDescargaPDFCompleto() {
         document.title = tituloOriginalPestaña;
     }, 350);
 }
+
 
 
 // =========================================================================
@@ -1319,7 +1326,7 @@ function ejecutarImpresionHojaQR() {
 
 
 // =========================================================================
-// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (REPARADO POR SUMAS INTEGRAL)
+// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (CORREGIDO AL 100% v1.36)
 // =========================================================================
 function abrirPaginaVerificacion() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText;
@@ -1331,18 +1338,20 @@ function abrirPaginaVerificacion() {
 
     mostrarAvisoToast("🔗 Abriendo pasarela de verificación de Tráfico...");
 
-    // Buscamos de forma robusta el ID en la memoria RAM usando el número de DeCA visible en el folio
+    // Rescatamos de forma robusta el ID real de Firebase de la memoria RAM buscando por el número de documento
     const viajeActivo = documentosDeCA.find(item => item.numero_documento === numeroDeCA);
     const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : idDocumentoEnEdicion;
     const usuarioPropietario = miUsuarioUIDActivo;
 
-    // Composición limpia e inmune a fallos de comillas
-    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + usuarioPropietario;
+    // 🚀 REPARACIÓN BRUTAL: Estructura exacta por sumas unificada con vuestra dirección web de producción
+    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + usuarioPropietario + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor);
 
+    // Abrimos la pestaña simulada para la inspección de la Guardia Civil
     setTimeout(() => {
         window.open(enlaceCotejoAgente, '_blank');
     }, 300);
 }
+
 
 
 
