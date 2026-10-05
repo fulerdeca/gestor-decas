@@ -641,35 +641,17 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* ==========================================================================
-   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.80)
+   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.85)
    ========================================================================== */
-#qrcode_real_render {
-    width: 100% !important;
-    max-width: 110px !important; /* Capado elegante para que no desborde hacia arriba */
-    height: auto !important;
-    margin: 0 auto;
-    cursor: pointer; /* Mano interactiva que avisa que es pulsable */
-    transition: transform 0.15s ease;
-}
-#qrcode_real_render:active {
-    transform: scale(0.95); /* Efecto hundimiento al tocarlo con el dedo */
-}
-#qrcode_real_render canvas, #qrcode_real_render img {
-    width: 100% !important;
-    height: auto !important;
-    display: block !important;
-}
-
-/* El nuevo contenedor flotante para el código QR ampliado */
 .deca-modal-qr-gigante {
     display: none;
     position: fixed;
-    z-index: 999999 !important; /* Por encima de cualquier otra capa del sistema */
+    z-index: 999999 !important;
     left: 0;
     top: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(11, 16, 26, 0.9); /* Fondo oscuro atenuado premium */
+    background-color: rgba(11, 16, 26, 0.9);
     align-items: center;
     justify-content: center;
     flex-direction: column;
@@ -692,11 +674,6 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     align-items: center;
     justify-content: center;
 }
-.qr-gigante-render canvas, .qr-gigante-render img {
-    width: 280px !important;
-    height: 280px !important;
-    display: block !important;
-}
 .btn-cerrar-qr-gigante {
     width: 100%;
     padding: 12px;
@@ -711,35 +688,23 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 .btn-cerrar-qr-gigante:active { background: #0b3459; }
 
-
-/* === REPARACIÓN DE DOBLE RENDERIZADO DEL QR (EFECTO 1 Y MEDIO) === */
-#qrcode_real_render canvas {
+/* === BLINDAJE DE SEGURIDAD ABSOLUTO ANTI-QR DUPLICADOS (LOCAL, GITHUB Y VISORES) === */
+#qrcode_real_render canvas,
+#canvas_render_qr_gigante canvas,
+.modal-preview-deca canvas {
     display: none !important;
 }
 
 #qrcode_real_render img {
     width: 100% !important;
+    max-width: 110px !important;
     height: auto !important;
+    margin: 0 auto;
+    cursor: pointer;
+    transition: transform 0.15s ease;
     display: block !important;
-    margin: 0 auto !important;
 }
-
-/* Duplicamos el blindaje dentro del render de impresión para el PDF */
-@media print {
-    #qrcode_real_render canvas {
-        display: none !important;
-    }
-    #qrcode_real_render img {
-        display: block !important;
-        width: 100px !important; /* Forzamos un tamaño estricto y limpio en el papel */
-        height: 100px !important;
-    }
-}
-
-/* === REPARACIÓN DE DOBLE RENDERIZADO EN EL VISOR DEL QR GIGANTE === */
-#canvas_render_qr_gigante canvas {
-    display: none !important;
-}
+#qrcode_real_render img:active { transform: scale(0.95); }
 
 #canvas_render_qr_gigante img {
     width: 280px !important;
@@ -748,53 +713,49 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     margin: 0 auto !important;
 }
 
-
-        /* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
-        @media print {
-            /* 1. Ocultar los elementos del fondo del panel de control */
-            .cabecera-dashboard, .grid-contadores, .contenedor-filtros, .contenedor-tabla, .deca-modal-cabecera, .preview-pie-botones {
-                display: none !important;
-            }
-
-            /* 2. Neutralizar el fondo oscuro flotante del modal para que sea transparente */
-            .modal-preview-deca {
-                position: absolute !important;
-                background: none !important;
-                display: block !important;
-                width: 100% !important;
-                height: auto !important;
-                overflow: visible !important;
-            }
-
-            /* 3. Liberar el contenedor interior del scroll rígido */
-            .preview-container, .preview-cuerpo-scroll {
-                display: block !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                height: auto !important;
-                overflow: visible !important;
-                background: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            /* 4. Forzar al papel blanco del documento a ocupar todo el A4 */
-            .folio-deca {
-                display: block !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-                box-shadow: none !important;
-                background: #ffffff !important;
-                color: #000000 !important;
-            }
-        }
+/* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
+@media print {
+    .cabecera-dashboard, .grid-contadores, .contenedor-filtros, .contenedor-tabla, .deca-modal-cabecera, .preview-pie-botones {
+        display: none !important;
+    }
+    .modal-preview-deca {
+        position: absolute !important;
+        background: none !important;
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .preview-container, .preview-cuerpo-scroll {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .folio-deca {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    #qrcode_real_render img {
+        display: block !important;
+        width: 100px !important;
+        height: 100px !important;
+    }
+}
+</style>
 
 
-
- </style>
 
     <!-- === CONTENEDOR DE LA TABLA DE RESULTADOS === -->
     <div class="contenedor-tabla">
