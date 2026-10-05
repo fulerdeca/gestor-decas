@@ -1326,7 +1326,7 @@ function ejecutarImpresionHojaQR() {
 
 
 // =========================================================================
-// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (CORREGIDO AL 100% v1.36)
+// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (SANEADO INTERNET v1.37)
 // =========================================================================
 function abrirPaginaVerificacion() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText;
@@ -1341,16 +1341,20 @@ function abrirPaginaVerificacion() {
     // Rescatamos de forma robusta el ID real de Firebase de la memoria RAM buscando por el número de documento
     const viajeActivo = documentosDeCA.find(item => item.numero_documento === numeroDeCA);
     const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : idDocumentoEnEdicion;
-    const usuarioPropietario = miUsuarioUIDActivo;
 
-    // 🚀 REPARACIÓN BRUTAL: Estructura exacta por sumas unificada con vuestra dirección web de producción
-    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + usuarioPropietario + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor);
+    // Variables de identidad comercial fijas del ecosistema
+    const miUsuarioGitHubOficial = "fulerdeca";
+    const miLlaveUsuarioFirebase = miUsuarioUIDActivo;
+
+    // 🚀 EL BLINDAJE DE SUMAS: Unimos las piezas de forma milimétrica asegurando la barra "/" y el "?verificar="
+    const enlaceCotejoAgente = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idRealFirebase + "&user=" + miLlaveUsuarioFirebase + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor);
 
     // Abrimos la pestaña simulada para la inspección de la Guardia Civil
     setTimeout(() => {
         window.open(enlaceCotejoAgente, '_blank');
     }, 300);
 }
+
 
 
 
