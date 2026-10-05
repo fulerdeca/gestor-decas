@@ -13,8 +13,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <!-- Motor oficial de renderizado de códigos QR rápidos y ligeros -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<!-- Puente nativo oficial para que el APK se comunique con el almacenamiento del móvil -->
-<script src="capacitor.js"></script>
 
 
     <style>
@@ -643,26 +641,8 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* ==========================================================================
-   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.85 ORIGINAL)
+   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.85)
    ========================================================================== */
-#qrcode_real_render {
-    width: 100% !important;
-    max-width: 110px !important;
-    height: auto !important;
-    margin: 0 auto;
-    cursor: pointer;
-    transition: transform 0.15s ease;
-}
-#qrcode_real_render:active {
-    transform: scale(0.95);
-}
-#qrcode_real_render canvas, #qrcode_real_render img {
-    width: 100% !important;
-    height: auto !important;
-    display: block !important;
-}
-
-/* El contenedor flotante para el código QR ampliado */
 .deca-modal-qr-gigante {
     display: none;
     position: fixed;
@@ -694,11 +674,6 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     align-items: center;
     justify-content: center;
 }
-.qr-gigante-render canvas, .qr-gigante-render img {
-    width: 280px !important;
-    height: 280px !important;
-    display: block !important;
-}
 .btn-cerrar-qr-gigante {
     width: 100%;
     padding: 12px;
@@ -712,6 +687,31 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     margin-top: 10px;
 }
 .btn-cerrar-qr-gigante:active { background: #0b3459; }
+
+/* === BLINDAJE DE SEGURIDAD ABSOLUTO ANTI-QR DUPLICADOS (LOCAL, GITHUB Y VISORES) === */
+#qrcode_real_render canvas,
+#canvas_render_qr_gigante canvas,
+.modal-preview-deca canvas {
+    display: none !important;
+}
+
+#qrcode_real_render img {
+    width: 100% !important;
+    max-width: 110px !important;
+    height: auto !important;
+    margin: 0 auto;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    display: block !important;
+}
+#qrcode_real_render img:active { transform: scale(0.95); }
+
+#canvas_render_qr_gigante img {
+    width: 280px !important;
+    height: 280px !important;
+    display: block !important;
+    margin: 0 auto !important;
+}
 
 /* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
 @media print {
@@ -747,10 +747,13 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         background: #ffffff !important;
         color: #000000 !important;
     }
+    #qrcode_real_render img {
+        display: block !important;
+        width: 100px !important;
+        height: 100px !important;
+    }
 }
 </style>
-
-
 
 
 
@@ -1270,20 +1273,11 @@ function verFichaDocumento(idFirebase) {
                 correctLevel : QRCode.CorrectLevel.M
             });
 
-            // 🚀 LIMPIEZA INMEDIATA ANTI-DUPLICADOS (UNIVERSAL WEB Y APK)
-            // Borramos el canvas sobrante por código para evitar que se pinte doble en ningún sistema
-            const canvasDuplicado = contenedorQR.querySelector("canvas");
-            if (canvasDuplicado) {
-                canvasDuplicado.remove();
-            }
-
             // GATILLO TÁCTIL: Al pulsar el QR, salta en grande
             contenedorQR.onclick = function() {
                 abrirModalQRGiganteNativo();
             };
         } catch (e) {
-
-
             console.warn("Librería QR ocupada...", e);
             contenedorQR.innerText = "🔳";
         }
@@ -1296,13 +1290,18 @@ function verFichaDocumento(idFirebase) {
 // 🔳 DISPARADOR LÓGICO: GESTIÓN QR GIGANTE
 // ==========================================
 function abrirModalQRGiganteNativo() {
-    const contenedorEspejo = document.getElementById("canvas_render_qr_gigante");
-    const numeroDeCA = document.getElementById("prev_top_numero").innerText || "DeCA";
+    const contenedorEspejo = document.getElementById(
+        "canvas_render_qr_gigante"
+    );
+    const numeroDeCA = document.getElementById(
+        "prev_top_numero"
+    ).innerText || "DeCA";
 
     if (!contenedorEspejo || !urlControlQRGiganteActivo) return;
 
     contenedorEspejo.innerHTML = "";
-    document.getElementById("txt_titulo_qr_gigante").innerText = "VALIDACIÓN: " + numeroDeCA;
+    document.getElementById("txt_titulo_qr_gigante").innerText =
+        "VALIDACIÓN: " + numeroDeCA;
 
     try {
         new QRCode(contenedorEspejo, {
@@ -1314,23 +1313,14 @@ function abrirModalQRGiganteNativo() {
             correctLevel : QRCode.CorrectLevel.H
         });
 
-        // 🚀 LIMPIEZA INMEDIATA ANTI-DUPLICADOS EN PANTALLA GIGANTE
-        // Eliminamos el canvas para que solo la imagen limpia de 280px se muestre en pantalla
-        const canvasGiganteDuplicado = contenedorEspejo.querySelector("canvas");
-        if (canvasGiganteDuplicado) {
-            canvasGiganteDuplicado.remove();
-        }
-
         document.getElementById(
             "modal_qr_pantalla_gigante"
         ).style.display = "flex";
         mostrarAvisoToast("🔳 QR ampliado para lectura rápida");
     } catch(err) {
-
         console.error("Error al expandir QR:", err);
     }
 }
-
 
 function cerrarModalQRGiganteNativo() {
     const modalQr = document.getElementById(
@@ -1387,43 +1377,23 @@ function abrirPaginaVerificacion() {
 
 // Pasarelas interactivas asociadas a vuestra nueva botonera reducida
 // =========================================================================
-// 📥 MOTOR UNIVERSAL HÍBRIDO: PDF REAL EN WEB / VISTA LIMPIA EN APK
+// 📥 MOTOR NATIVO: COMPAGINACIÓN PDF A4 1PAG (OPTIMIZADO WEB/SERVER)
 // =========================================================================
 function ejecutarDescargaPDFCompleto() {
-        const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
-        const pieBotones = document.querySelector(".preview-pie-botones");
-        const tituloOriginalPestaña = document.title;
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
+    const tituloOriginalPestaña = document.title;
+    document.title = numeroDeCA;
 
-        // Apagamos cualquier aviso toast para que no moleste visualmente
+    mostrarAvisoToast("⏳ Generando compaginación A4...");
+
+    setTimeout(() => {
         const capaToast = document.getElementById("toast_deca");
         if (capaToast) capaToast.style.display = "none";
 
-        // 🚀 DETECTOR DE ENTORNO SEGURO Y COMPATIBLE
-        // Detecta si está en el WebView del móvil o en una pantalla táctil pequeña de smartphone
-        const esEntornoMovilAPK = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-                                                            (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
-
-        if (esEntornoMovilAPK) {
-                // --- FLUJO PARA EL APK DE TUS AMIGOS EN EL MÓVIL ---
-                // Ocultamos la botonera para dejar el folio 100% limpio en la pantalla ante el agente
-                if (pieBotones) pieBotones.style.display = "none";
-                mostrarAvisoToast("📋 Vista limpia para el agente. Toca la '✕' superior para volver.");
-                return;
-        }
-
-        // --- FLUJO PARA TI EN LA EMPRESA (VERSION WEB / SERVER / EXE) ---
-        document.title = numeroDeCA;
-        mostrarAvisoToast("⏳ Generando compaginación A4...");
-
-        // Pequeño retardo para que el navegador asimile el cambio visual antes de imprimir
-        setTimeout(() => {
-                window.print();
-                document.title = tituloOriginalPestaña;
-        }, 250);
+        window.print();
+        document.title = tituloOriginalPestaña;
+    }, 250);
 }
-
-
-
 
 
 
@@ -2342,8 +2312,7 @@ document.addEventListener("DOMContentLoaded", function() {
         <!-- Cabecera Fija -->
         <div class="deca-modal-cabecera">
             <h3>Nuevo Documento electrónico de Control Administrativo</h3>
-<!-- 🚀 ASÍ DEBE QUEDAR PARA RECUPERAR LA INTERFAZ: -->
-<button class="deca-modal-cerrar" onclick="const pie = document.querySelector('.preview-pie-botones'); if(pie) pie.style.display = 'flex'; cerrarVisorPreviewDeCA();">✕</button>
+            <button class="deca-modal-cerrar" onclick="cerrarModalNuevoDeCA()">✕</button>
         </div>
 
         <!-- Cuerpo Desplazable -->
