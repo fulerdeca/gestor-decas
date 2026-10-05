@@ -1256,7 +1256,12 @@ function verFichaDocumento(idFirebase) {
         contenedorQR.innerHTML = ""; // Vaciado estricto anti-duplicados previos
 
         const miUsuarioGitHubOficial = "fulerdeca";
-        const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
+        //const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
+        // Busca esta línea en tu código:
+        // Línea corregida anti-caché:
+        const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo + "&v=" + Date.now();
+
+
         urlControlQRGiganteActivo = enlaceInspeccionReal;
 
         // Mostramos la interfaz primero
