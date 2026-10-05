@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.70</title>
+    <title>Gestor de DeCAs Transportes v1.85</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -74,6 +74,27 @@
             box-shadow: 0 4px 6px rgba(15, 76, 129, 0.2);
         }
         .btn-nuevo-deca:active { background: #0b3459 !important; }
+
+
+/* === REPARACIÓN DE BOTONES CORPORATIVOS DE MODAL === */
+.btn-top-principal {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    background: var(--blue-primary);
+    color: #ffffff;
+    transition: transform 0.1s, background 0.15s;
+    box-shadow: 0 4px 6px rgba(15, 76, 129, 0.2);
+}
+.btn-top-principal:active {
+    transform: scale(0.96);
+    background: #0b3459;
+}
+
+
 
         /* === NOTIFICACIÓN TOAST FLOTANTE === */
         .notificacion-toast-deca {
@@ -691,6 +712,87 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 .btn-cerrar-qr-gigante:active { background: #0b3459; }
 
 
+/* === REPARACIÓN DE DOBLE RENDERIZADO DEL QR (EFECTO 1 Y MEDIO) === */
+#qrcode_real_render canvas {
+    display: none !important;
+}
+
+#qrcode_real_render img {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    margin: 0 auto !important;
+}
+
+/* Duplicamos el blindaje dentro del render de impresión para el PDF */
+@media print {
+    #qrcode_real_render canvas {
+        display: none !important;
+    }
+    #qrcode_real_render img {
+        display: block !important;
+        width: 100px !important; /* Forzamos un tamaño estricto y limpio en el papel */
+        height: 100px !important;
+    }
+}
+
+/* === REPARACIÓN DE DOBLE RENDERIZADO EN EL VISOR DEL QR GIGANTE === */
+#canvas_render_qr_gigante canvas {
+    display: none !important;
+}
+
+#canvas_render_qr_gigante img {
+    width: 280px !important;
+    height: 280px !important;
+    display: block !important;
+    margin: 0 auto !important;
+}
+
+
+        /* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
+        @media print {
+            /* 1. Ocultar los elementos del fondo del panel de control */
+            .cabecera-dashboard, .grid-contadores, .contenedor-filtros, .contenedor-tabla, .deca-modal-cabecera, .preview-pie-botones {
+                display: none !important;
+            }
+
+            /* 2. Neutralizar el fondo oscuro flotante del modal para que sea transparente */
+            .modal-preview-deca {
+                position: absolute !important;
+                background: none !important;
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            /* 3. Liberar el contenedor interior del scroll rígido */
+            .preview-container, .preview-cuerpo-scroll {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                background: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* 4. Forzar al papel blanco del documento a ocupar todo el A4 */
+            .folio-deca {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+        }
+
+
 
  </style>
 
@@ -906,56 +1008,6 @@ function conmutarVistaRecuperacionPerfil(mostrarRecuperacion) {
     document.getElementById("vista_recuperacion_perfil").style.display = mostrarRecuperacion ? "block" : "none";
 }
 
-// =========================================================================
-// ✍️ OPERACIONES DE ESCRITURA: ALTA PRIVADA Y DECA DE MUESTRA INITIAL
-// =========================================================================
-function registrarNuevoCamioneroEcosistema() {
-    const razon = document.getElementById("reg_transp_razon").value.trim().toUpperCase();
-    const nif = document.getElementById("reg_transp_nif").value.trim().toUpperCase();
-
-    if (!razon || !nif) {
-        return alert("⚠ Por favor, rellena todos los campos obligatorios del perfil.");
-    }
-
-    const estructuraPerfil = {
-        razon_social: razon,
-        nif_cif: nif,
-        fecha_registro: new Date().toLocaleString(),
-        clave_recuperacion: miUsuarioUIDActivo // El UID actúa de llave por defecto
-    };
-
-    mostrarAvisoToast("💾 Creando tu espacio privado en el servidor central...");
-
-    // 1. Guardamos el perfil en la sub-rama del UID
-    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').set(estructuraPerfil)
-        .then(() => {
-            // 2. Inyectamos el viaje de muestra privado inicial
-            const deCADemostracionPrivado = {
-                numero_documento: "DeCA-2026-000001",
-                fecha_transporte: "2026-10-02",
-                matricula_tractor: "2222 JJJ",
-                matricula_remolque: "R 1111 BBB",
-                origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
-                destino_plaza: "CTRA. EL PEDERNOSO, 2 - 16650 LAS MESAS (CUENCA) - ESPAÑA",
-                mercancia_nombre: "AJO SPRING VIOLETA",
-                mercancia_peso: "23.000 kg",
-                mercancia_bultos: "23",
-                qr_caducidad: "2026-10-09",
-                estado: "EN_CURSO",
-                cargador_razon: "CARGADOR EJEMPLO, S.L.",
-                cargador_nif: "A00000000",
-                cargador_domicilio: "CALLE CENTRAL, 10"
-            };
-
-            return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(deCADemostracionPrivado);
-        })
-        .then(() => {
-            // 3. Levantar el nuevo modal integrado inyectando el código largo
-            document.getElementById("txt_clave_maestra_pantalla").innerText = miUsuarioUIDActivo;
-            document.getElementById("modal_clave_seguridad_deca").style.display = "flex";
-        })
-        .catch(err => alert("Error al inicializar la subestructura: " + err.message));
-}
 
 function cerrarModalClaveMaestraYEntrar() {
     document.getElementById("modal_clave_seguridad_deca").style.display = "none";
@@ -1321,27 +1373,6 @@ function cerrarVisorPreviewDeCA() {
 }
 
 // ==========================================
-// 📥 MOTOR NATIVO: COMPAGINACIÓN PDF A4 1PAG
-// ==========================================
-function ejecutarDescargaPDFCompleto() {
-    const numeroDeCA = document.getElementById(
-        "prev_top_numero"
-    ).innerText || "Documento_DeCA";
-    const tituloOriginalPestaña = document.title;
-    document.title = numeroDeCA;
-
-    mostrarAvisoToast("⏳ Generando compaginación A4...");
-
-    setTimeout(() => {
-        const capaToast = document.getElementById("toast_deca");
-        if (capaToast) capaToast.style.display = "none";
-
-        window.print();
-        document.title = tituloOriginalPestaña;
-    }, 400);
-}
-
-// ==========================================
 // 🔗 SIMULADOR: PLATAFORMA COTEJO DE TRÁFICO
 // ==========================================
 function abrirPaginaVerificacion() {
@@ -1383,36 +1414,26 @@ function abrirPaginaVerificacion() {
 
 
 
-
-
-
-
-
-function cerrarVisorPreviewDeCA() {
-    document.getElementById("modal_preview_deca").style.display = "none";
-}
-
 // Pasarelas interactivas asociadas a vuestra nueva botonera reducida
 // =========================================================================
-// 📥 MOTOR NATIVO: GENERAR Y DESCARGAR PORTES EN 1 SOLA PÁGINA RÍGIDA
+// 📥 MOTOR NATIVO: COMPAGINACIÓN PDF A4 1PAG (OPTIMIZADO WEB/SERVER)
 // =========================================================================
 function ejecutarDescargaPDFCompleto() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
     const tituloOriginalPestaña = document.title;
     document.title = numeroDeCA;
 
-    mostrarAvisoToast("⏳ Generando compaginación A4 de página única...");
+    mostrarAvisoToast("⏳ Generando compaginación A4...");
 
-    // 🚀 BLINDAJE INTERNO: Apagamos el aviso toast por código antes de que abra la ventana
-    // Esto impide al 100% que se quede congelado por debajo en la pantalla del navegador
     setTimeout(() => {
         const capaToast = document.getElementById("toast_deca");
         if (capaToast) capaToast.style.display = "none";
 
         window.print();
         document.title = tituloOriginalPestaña;
-    }, 300);
+    }, 250);
 }
+
 
 
 
@@ -1971,22 +1992,25 @@ function filtrarProvinciasCargadorPredictivo(inputElement) {
     dropdown.style.display = "block";
 }
 
-// Ampliamos el escudo global para que también cierre este dropdown al pinchar fuera
+// === ESCUDO PERIMETRAL ÚNICO: CIERRE DE TODOS LOS DROPDOWNS AL PINCHAR FUERA ===
 document.addEventListener("click", function(e) {
+    // Cerrar provincias del cargador
     if (e.target.id !== "deca_carg_provincia") {
-        const drop = document.getElementById("lista_provincias_carg_drop");
-        if (drop) drop.style.display = "none";
+        const dropCargProv = document.getElementById("lista_provincias_carg_drop");
+        if (dropCargProv) dropCargProv.style.display = "none";
     }
-});
-
-
-// Escudo global para cerrar el desplegable si se hace clic en cualquier otro lado
-document.addEventListener("click", function(e) {
+    // Cerrar provincias del transportista
     if (e.target.id !== "reg_transp_provincia") {
-        const drop = document.getElementById("lista_provincias_drop");
-        if (drop) drop.style.display = "none";
+        const dropTranspProv = document.getElementById("lista_provincias_drop");
+        if (dropTranspProv) dropTranspProv.style.display = "none";
+    }
+    // Cerrar cargadores habituales
+    if (e.target.id !== "deca_carg_razon") {
+        const dropCargHab = document.getElementById("lista_cargadores_habituales_drop");
+        if (dropCargHab) dropCargHab.style.display = "none";
     }
 });
+
 
 
 
@@ -2752,20 +2776,19 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
       </div>
     </div>
-    <div class="preview-pie-botones">
-      <button class="btn-preview-accion pdf-azul"
-              onclick="ejecutarDescargaPDFCompleto()">
-        📥 Documento completo (PDF)
-      </button>
-      <button class="btn-preview-accion"
-              onclick="ejecutarImpresionHojaQR()">
-        🔳 QR Pantalla Gigante
-      </button>
-      <button class="btn-preview-accion"
-              onclick="abrirPaginaVerificacion()">
-        🔗 Página de verificación
-      </button>
-    </div>
+        <!-- === BOTONERA INFERIOR DEL VISOR CORREGIDA === -->
+        <div class="preview-pie-botones">
+            <button class="btn-preview-accion pdf-azul" onclick="ejecutarDescargaPDFCompleto()">
+                📥 Documento completo (PDF)
+            </button>
+            <button class="btn-preview-accion" onclick="abrirModalQRGiganteNativo()">
+                🔳 QR Pantalla Gigante
+            </button>
+            <button class="btn-preview-accion" onclick="abrirPaginaVerificacion()">
+                🔗 Página de verificación
+            </button>
+        </div>
+
   </div>
 </div>
 
