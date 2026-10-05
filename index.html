@@ -1302,7 +1302,7 @@ function cerrarVisorPreviewDeCA() {
 
 // Pasarelas interactivas asociadas a vuestra nueva botonera reducida
 // =========================================================================
-// 📥 MOTOR NATIVO: GENERAR Y DESCARGAR PORTES EN 1 SOLA PÁGINA RÍGIDA (MÓVIL)
+// 📥 MOTOR NATIVO: GENERAR Y DESCARGAR PORTES EN 1 SOLA PÁGINA RÍGIDA
 // =========================================================================
 function ejecutarDescargaPDFCompleto() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
@@ -1311,18 +1311,21 @@ function ejecutarDescargaPDFCompleto() {
 
     mostrarAvisoToast("⏳ Generando compaginación A4 de página única...");
 
-    // 🚀 RETARDO ELÁSTICO: Damos 600ms para asegurar la limpieza total del lienzo antes de congelar el PDF
+    // 🚀 BLINDAJE INTERNO: Apagamos el aviso toast por código antes de que abra la ventana
+    // Esto impide al 100% que se quede congelado por debajo en la pantalla del navegador
     setTimeout(() => {
+        const capaToast = document.getElementById("toast_deca");
+        if (capaToast) capaToast.style.display = "none";
+
         window.print();
         document.title = tituloOriginalPestaña;
-    }, 600);
+    }, 300);
 }
 
 
 
-
 // =========================================================================
-// 📄 COMPROBANTE RÁPIDO: GENERAR VALE DE DESCARGA (1 HÁGINA CON QR GIGANTE)
+// 📄 COMPROBANTE RÁPIDO: GENERAR VALE DE DESCARGA (1 PÁGINA CON QR GIGANTE)
 // =========================================================================
 function ejecutarImpresionHojaQR() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Comprobante_QR";
@@ -1333,17 +1336,20 @@ function ejecutarImpresionHojaQR() {
     const tituloOriginalPestaña = document.title;
     document.title = numeroDeCA + "_VALE_QR";
 
+    // Mismo blindaje de apagado preventivo para el vale rápido
     setTimeout(() => {
+        const capaToast = document.getElementById("toast_deca");
+        if (capaToast) capaToast.style.display = "none";
+
         window.print();
         document.title = tituloOriginalPestaña;
-    }, 250);
+    }, 300);
 }
 
 
 
-
 // =========================================================================
-// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (SANEADO INTERNET v1.37)
+// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (REPARADO POR SUMAS FULERDECA)
 // =========================================================================
 function abrirPaginaVerificacion() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText;
@@ -1358,16 +1364,10 @@ function abrirPaginaVerificacion() {
     // Rescatamos de forma robusta el ID real de Firebase de la memoria RAM buscando por el número de documento
     const viajeActivo = documentosDeCA.find(item => item.numero_documento === numeroDeCA);
     const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : idDocumentoEnEdicion;
+    const usuarioPropietario = miUsuarioUIDActivo;
 
-    // Variables de identidad comercial fijas del ecosistema
-    const miUsuarioGitHubOficial = "fulerdeca";
-    const miLlaveUsuarioFirebase = miUsuarioUIDActivo;
-
-    // 🚀 EL BLINDAJE DE SUMAS: Unimos las piezas de forma milimétrica asegurando la barra "/" y el "?verificar="
-    //const enlaceCotejoAgente = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idRealFirebase + "&user=" + miLlaveUsuarioFirebase + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor);
-     // 🚀 ROMPE-CACHÉS AUTOMÁTICO: Añadimos un número aleatorio de tiempo al final de la suma (+ Date.now())
-    // Esto obliga a GitHub a entregar el PDF maquetado en 1 sola página siempre, sin esperas y en cualquier móvil
-    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + miUsuarioUIDActivo + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor) + "&cache=" + Date.now();
+    // 🚀 RESTAURADO: Tu pasarela por sumas exacta que te funcionaba perfectamente a vuestra web pública
+    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + usuarioPropietario + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor) + "&cache=" + Date.now();
 
     // Abrimos la pestaña simulada para la inspección de la Guardia Civil
     setTimeout(() => {
