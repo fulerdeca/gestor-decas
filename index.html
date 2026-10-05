@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.85</title>
+    <title>Gestor de DeCAs Transportes v1.95</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -13,6 +13,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <!-- Motor oficial de renderizado de códigos QR rápidos y ligeros -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- Puente nativo oficial para que el APK se comunique con el almacenamiento del móvil -->
+<script src="capacitor.js"></script>
 
 
     <style>
@@ -641,7 +643,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* ==========================================================================
-   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.85)
+   🔳 MAQUETACIÓN ELÁSTICA DEL QR Y MODAL DE AMPLIACIÓN TÁCTIL (v1.90)
    ========================================================================== */
 .deca-modal-qr-gigante {
     display: none;
@@ -688,17 +690,15 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 .btn-cerrar-qr-gigante:active { background: #0b3459; }
 
-/* === BLINDAJE DE SEGURIDAD ABSOLUTO ANTI-QR DUPLICADOS (LOCAL, GITHUB Y VISORES) === */
+/* === BLINDAJE INTELIGENTE: OCULTACIÓN COMPATIBLE CON ANDROID WEBVIEW === */
 #qrcode_real_render canvas,
-#canvas_render_qr_gigante canvas,
-.modal-preview-deca canvas {
+#canvas_render_qr_gigante canvas {
     display: none !important;
 }
 
 #qrcode_real_render img {
-    width: 100% !important;
-    max-width: 110px !important;
-    height: auto !important;
+    width: 110px !important;
+    height: 110px !important;
     margin: 0 auto;
     cursor: pointer;
     transition: transform 0.15s ease;
@@ -754,6 +754,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     }
 }
 </style>
+
 
 
 
@@ -1263,7 +1264,7 @@ function verFichaDocumento(idFirebase) {
         urlControlQRGiganteActivo = enlaceInspeccionReal;
 
         try {
-            // Generamos el código proporcional a 140px
+            // Generamos el código forzado
             new QRCode(contenedorQR, {
                 text: enlaceInspeccionReal,
                 width: 140,
@@ -1273,11 +1274,24 @@ function verFichaDocumento(idFirebase) {
                 correctLevel : QRCode.CorrectLevel.M
             });
 
+            // 🚀 DETECTOR DE SOCORRO PARA ANDROID: Forzamos la visualización de la imagen
+            setTimeout(() => {
+                const imgQR = contenedorQR.querySelector("img");
+                const canvasQR = contenedorQR.querySelector("canvas");
+                if (canvasQR) canvasQR.style.display = "none";
+                if (imgQR) {
+                    imgQR.style.setProperty("display", "block", "important");
+                    imgQR.style.width = "110px";
+                    imgQR.style.height = "110px";
+                }
+            }, 50);
+
             // GATILLO TÁCTIL: Al pulsar el QR, salta en grande
             contenedorQR.onclick = function() {
                 abrirModalQRGiganteNativo();
             };
         } catch (e) {
+
             console.warn("Librería QR ocupada...", e);
             contenedorQR.innerText = "🔳";
         }
@@ -1290,18 +1304,13 @@ function verFichaDocumento(idFirebase) {
 // 🔳 DISPARADOR LÓGICO: GESTIÓN QR GIGANTE
 // ==========================================
 function abrirModalQRGiganteNativo() {
-    const contenedorEspejo = document.getElementById(
-        "canvas_render_qr_gigante"
-    );
-    const numeroDeCA = document.getElementById(
-        "prev_top_numero"
-    ).innerText || "DeCA";
+    const contenedorEspejo = document.getElementById("canvas_render_qr_gigante");
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText || "DeCA";
 
     if (!contenedorEspejo || !urlControlQRGiganteActivo) return;
 
     contenedorEspejo.innerHTML = "";
-    document.getElementById("txt_titulo_qr_gigante").innerText =
-        "VALIDACIÓN: " + numeroDeCA;
+    document.getElementById("txt_titulo_qr_gigante").innerText = "VALIDACIÓN: " + numeroDeCA;
 
     try {
         new QRCode(contenedorEspejo, {
@@ -1313,14 +1322,25 @@ function abrirModalQRGiganteNativo() {
             correctLevel : QRCode.CorrectLevel.H
         });
 
-        document.getElementById(
-            "modal_qr_pantalla_gigante"
-        ).style.display = "flex";
+        // 🚀 REFUERZO ANDROID GIGANTE
+        setTimeout(() => {
+            const imgQRG = contenedorEspejo.querySelector("img");
+            const canvasQRG = contenedorEspejo.querySelector("canvas");
+            if (canvasQRG) canvasQRG.style.display = "none";
+            if (imgQRG) {
+                imgQRG.style.setProperty("display", "block", "important");
+                imgQRG.style.width = "280px";
+                imgQRG.style.height = "280px";
+            }
+        }, 50);
+
+        document.getElementById("modal_qr_pantalla_gigante").style.display = "flex";
         mostrarAvisoToast("🔳 QR ampliado para lectura rápida");
     } catch(err) {
         console.error("Error al expandir QR:", err);
     }
 }
+
 
 function cerrarModalQRGiganteNativo() {
     const modalQr = document.getElementById(
@@ -1377,15 +1397,71 @@ function abrirPaginaVerificacion() {
 
 // Pasarelas interactivas asociadas a vuestra nueva botonera reducida
 // =========================================================================
-// 📥 MOTOR NATIVO: COMPAGINACIÓN PDF A4 1PAG (OPTIMIZADO WEB/SERVER)
+// 📥 MOTOR UNIVERSAL HÍBRIDO: PDF WEB / MOTOR EXPORTADOR PARA CAPACITOR APK
 // =========================================================================
 function ejecutarDescargaPDFCompleto() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
     const tituloOriginalPestaña = document.title;
     document.title = numeroDeCA;
 
-    mostrarAvisoToast("⏳ Generando compaginación A4...");
+    // Verificar si la aplicación se está ejecutando dentro del búnker nativo de Capacitor
+    const esEntornoCapacitorAPK = window.Capacitor && window.Capacitor.isNativePlatform();
 
+    if (esEntornoCapacitorAPK) {
+        mostrarAvisoToast("⏳ Generando copia digital para el teléfono...");
+
+        // Capturamos el código HTML limpio del folio blanco para exportarlo
+        const estructuraFolioHTML = document.querySelector(".folio-deca").innerHTML;
+
+        // Componemos un documento limpio con los mismos estilos corporativos
+        const documentoExportableCompleto = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>${numeroDeCA}</title>
+                <style>
+                    body { font-family: sans-serif; padding: 20px; color: #111; background: #fff; }
+                    .folio-header-azul { background: #0f4c81 !important; color: #ffffff !important; font-weight: bold; font-size: 11px; padding: 8px 10px; text-transform: uppercase; }
+                    .folio-subetiqueta { font-size: 10px; color: #555; text-transform: uppercase; display: block; font-weight: bold; margin-bottom: 3px; }
+                    canvas { display: none !important; }
+                    img { display: block !important; width: 140px !important; height: 140px !important; margin: 10px auto; }
+                    div { box-sizing: border-box; }
+                </style>
+            </head>
+            <body>
+                ${estructuraFolioHTML}
+            </body>
+            </html>
+        `;
+
+        // Utilizamos el puente de Capacitor para forzar la descarga del archivo en el terminal
+        try {
+            const blobDeCA = new Blob([documentoExportableCompleto], { type: 'text/html' });
+            const urlDescargaVirtual = URL.createObjectURL(blobDeCA);
+
+            // Creamos un gatillo de descarga invisible compatible con WebView
+            const enlaceDisparador = document.createElement('a');
+            enlaceDisparador.href = urlDescargaVirtual;
+            enlaceDisparador.download = `${numeroDeCA}.html`;
+            document.body.appendChild(enlaceDisparador);
+            enlaceDisparador.click();
+            document.body.removeChild(enlaceDisparador);
+
+            mostrarAlertaCorporativaDeca(
+                "Documento Guardado",
+                "El DeCA se ha descargado en tu carpeta de 'Descargas' del móvil. Puedes abrirlo con cualquier navegador del teléfono o enviárselo por WhatsApp al cliente en el acto.",
+                "💾"
+            );
+        } catch (error) {
+            console.error("Fallo en la exportación Capacitor:", error);
+            abrirModalQRGiganteNativo();
+        }
+        return;
+    }
+
+    // Flujo clásico para tu servidor local Web / EXE en la oficina
+    mostrarAvisoToast("⏳ Generando documento de transporte...");
     setTimeout(() => {
         const capaToast = document.getElementById("toast_deca");
         if (capaToast) capaToast.style.display = "none";
@@ -1394,6 +1470,8 @@ function ejecutarDescargaPDFCompleto() {
         document.title = tituloOriginalPestaña;
     }, 250);
 }
+
+
 
 
 
