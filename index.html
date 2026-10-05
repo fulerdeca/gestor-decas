@@ -1,0 +1,2561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de DeCAs Transportes v1.25</title>
+
+    <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
+<!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<!-- 🔥 LA LÍNEA QUE TE FALTABA: Descarga el motor de seguridad/autenticación de Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<!-- Motor oficial de renderizado de códigos QR rápidos y ligeros -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+
+    <style>
+        /* === VARIABLES DE COLOR DE ALTA VISIBILIDAD === */
+        :root {
+            --blue-primary: #0f4c81;
+            --blue-light: #eef5fc;
+            --green-success: #28a745;
+            --green-light: #e8f5e9;
+            --orange-alert: #fd7e14;
+            --orange-light: #fff3cd;
+            --gray-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-main: #212529;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, Arial, sans-serif;
+            margin: 0;
+            padding: 15px;
+            background: #f4f6f9;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === CONFIGURACIÓN ERGONÓMICA DE LA CABECERA === */
+        .cabecera-dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .marca-app { display: flex; align-items: center; gap: 10px; }
+        .logo-app { width: 32px; height: 32px; object-fit: contain; }
+        .titulo-seccion h1 { margin: 0 0 4px 0; font-size: 24px; font-weight: 800; color: #1a202c; }
+        .titulo-seccion p { margin: 0; font-size: 13px; color: #718096; max-width: 650px; line-height: 1.4; }
+
+        /* BOTONERA PREMIUM */
+        .grupo-botones-top { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-top {
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid #cbd5e0;
+            background: var(--card-bg);
+            color: #4a5568;
+            transition: transform 0.1s, background 0.15s;
+        }
+        .btn-top:active { transform: scale(0.96); }
+        .btn-nuevo-deca {
+            background: var(--blue-primary) !important;
+            color: #ffffff !important;
+            border: none !important;
+            box-shadow: 0 4px 6px rgba(15, 76, 129, 0.2);
+        }
+        .btn-nuevo-deca:active { background: #0b3459 !important; }
+
+        /* === NOTIFICACIÓN TOAST FLOTANTE === */
+        .notificacion-toast-deca {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #212529;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 6px;
+            z-index: 999999;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* ==========================================================================
+           REPARACIÓN INTEGRAL MODO OSCURO (ESTABILIZADO)
+           ========================================================================== */
+        body.dark-mode {
+            --gray-bg: #1e1e1e;
+            --border-color: #333336;
+            --text-main: #e0e0e0;
+            --card-bg: #1c1c1e;
+            background: #121212 !important;
+        }
+        body.dark-mode .titulo-seccion h1 { color: #ffffff; }
+        body.dark-mode .titulo-seccion p { color: #a0aec0; }
+        body.dark-mode .btn-top { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
+    </style>
+    <!-- === CONTINUACIÓN DE ESTILOS CSS (Añadir dentro de <style>) === -->
+    <style>
+        /* === GRID DE CONTADORES SUPERIORES === */
+        .grid-contadores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .tarjeta-contador {
+            background: var(--card-bg);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+            border-left: 6px solid #cbd5e0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        /* Colores del Semáforo corporativo */
+        .tarjeta-contador.total { border-left-color: var(--blue-primary); }
+        .tarjeta-contador.en-curso { border-left-color: var(--green-success); }
+        .tarjeta-contador.programados { border-left-color: var(--orange-alert); }
+        .tarjeta-contador.post-viaje { border-left-color: #17a2b8; }
+
+        .contador-numero { font-size: 30px; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 4px; }
+        .contador-etiqueta { font-size: 11px; font-weight: bold; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* === BARRA DE FILTROS INTEGRADA === */
+        .contenedor-filtros {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .filtro-input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            box-sizing: border-box;
+            height: 38px;
+        }
+        .buscar-texto { flex-grow: 2; min-width: 220px; }
+        .select-estado { min-width: 160px; font-weight: 500; }
+        .fecha-input { width: 135px; text-align: center; }
+        .label-rango { font-size: 13px; color: #718096; font-weight: bold; }
+
+        body.dark-mode .tarjeta-contador { box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        body.dark-mode .filtro-input { background: #2c2c2e !important; border-color: #444446 !important; }
+
+
+
+/* === ESTILOS DEL MODAL GIGANTE NUEVO DECA === */
+.modal-deca-gigante {
+    display: none;
+    position: fixed;
+    z-index: 500000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.deca-modal-contenido {
+    background-color: #f0f4f8;
+    border-radius: 12px;
+    width: 94%;
+    max-width: 800px;
+    height: 92vh;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.deca-modal-cabecera {
+    background: #ffffff;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+}
+.deca-modal-cabecera h3 { margin: 0; font-size: 16px; font-weight: bold; color: #333; }
+.deca-modal-cerrar { background: none; border: none; font-size: 18px; font-weight: bold; cursor: pointer; color: #999; }
+
+/* Cuerpo intermedio con scroll propio */
+.deca-modal-cuerpo {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Bloques contenedores numerados */
+.bloque-formulario-deca {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.deca-num-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #0f4c81;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+.deca-num-circulo {
+    background: #0f4c81;
+    color: #ffffff;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+}
+
+/* Distribución en Grid de los campos */
+.deca-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+.deca-form-grupo { display: flex; flex-direction: column; }
+.deca-form-grupo.ancho-completo { grid-column: 1 / -1; }
+.deca-form-grupo label { font-size: 11px; font-weight: bold; color: #4a5568; text-transform: uppercase; margin-bottom: 4px; }
+.deca-form-grupo label span { color: #dc3545; }
+
+.deca-input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #333333;
+    box-sizing: border-box;
+}
+.deca-input:focus { border-color: #0f4c81; outline: none; }
+
+/* Botones inferiores fijos */
+.deca-modal-pie {
+    background: #ffffff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #dee2e6;
+}
+.deca-btn-pie { padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; border: none; }
+.deca-btn-cancelar { background: #e2e8f0; color: #4a5568; }
+.deca-btn-guardar { background: #0f4c81; color: #ffffff; }
+
+/* Ajustes Modo Oscuro para el formulario */
+body.dark-mode .deca-modal-contenido { background-color: #121212; }
+body.dark-mode .deca-modal-cabecera, body.dark-mode .deca-modal-pie { background: #1c1c1e; border-color: #333336; }
+body.dark-mode .deca-modal-cabecera h3 { color: #fff; }
+body.dark-mode .bloque-formulario-deca { background: #1c1c1e; border: 1px solid #333336; }
+body.dark-mode .deca-input { background: #2c2c2e; border-color: #444446; color: #fff; }
+body.dark-mode .deca-form-grupo label { color: #a0aec0; }
+body.dark-mode .deca-num-titulo { color: #63b3ed; }
+body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
+
+
+
+
+    </style>
+</head>
+<body>
+
+    <!-- CAPA 1: CABECERA FIJA SUPERIOR DE ACCIONES -->
+    <div class="cabecera-dashboard">
+        <div class="titulo-seccion">
+            <div class="marca-app">
+
+<!-- === LOGOTIPO CORPORATIVO LOCAL OFICIAL DE LA APP (v1.22) === -->
+<img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin-right: 4px; vertical-align: middle;" onerror="console.warn('⚠ Asegúrate de que el archivo se llame exactamente icono_transporte.jpg en tu carpeta');">
+
+
+                <h1>Mis DeCAs</h1>
+            </div>
+            <p>La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).</p>
+        </div>
+
+
+
+        <!-- === BOTONERA PREMIUM SUPERIOR CON CONMUTADOR NOCTURNO === -->
+        <div class="grupo-botones-top">
+            <!-- 🌙 EL NUEVO BOTÓN: Cambia el brillo de la pantalla con un solo toque en cabina -->
+            <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer;">🌙 Modo Noche</button>
+            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()">👤 Mis Datos / Clave</button>
+            <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()">+ Nuevo DeCA</button>
+        </div>
+
+
+
+
+
+    </div>
+
+    <!-- === TOAST NOTIFICADOR NATIVO === -->
+    <div id="toast_deca" class="notificacion-toast-deca"></div>
+
+    <!-- === REJILLA DINÁMICA DE CONTADORES === -->
+    <div class="grid-contadores">
+        <div class="tarjeta-contador total">
+            <span class="contador-numero" id="num_total">0</span>
+            <span class="contador-etiqueta">Total</span>
+        </div>
+        <div class="tarjeta-contador en-curso">
+            <span class="contador-numero" id="num_en_curso">0</span>
+            <span class="contador-etiqueta">En curso hoy</span>
+        </div>
+        <div class="tarjeta-contador programados">
+            <span class="contador-numero" id="num_programados">0</span>
+            <span class="contador-etiqueta">Programados</span>
+        </div>
+        <div class="tarjeta-contador post-viaje">
+            <span class="contador-numero" id="num_post_viaje">0</span>
+            <span class="contador-etiqueta">Finalizados</span>
+        </div>
+    </div>
+
+    <!-- === BARRA DE FILTROS DE BÚSQUEDA === -->
+    <div class="contenedor-filtros">
+        <input type="text" id="buscador_global_deca" class="filtro-input buscar-texto" placeholder="Buscar por nº, matrícula, lugar, mercancía o cargador..." oninput="filtrarCatalogoDeCAs()">
+
+        <select id="filtro_estado_deca" class="filtro-input select-estado" onchange="filtrarCatalogoDeCAs()">
+            <option value="TODOS">Todos los estados</option>
+            <option value="EN_CURSO">🟢 En Curso</option>
+            <option value="PROGRAMADO">🟡 Programados</option>
+            <option value="CERRADO">⚪ Cerrados</option>
+        </select>
+
+        <span class="label-rango">Salida desde</span>
+        <input type="date" id="filtro_fecha_desde" class="filtro-input fecha-input" onchange="filtrarCatalogoDeCAs()">
+
+        <span class="label-rango">hasta</span>
+        <input type="date" id="filtro_fecha_hasta" class="filtro-input fecha-input" onchange="filtrarCatalogoDeCAs()">
+    </div>
+    <!-- === CONTINUACIÓN DE ESTILOS CSS (Añadir dentro de <style>) === -->
+    <style>
+        /* === CONTENEDOR ESTRUCTURAL DE LA TABLA === */
+        .contenedor-tabla {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 8px 8px;
+            overflow-x: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            -webkit-overflow-scrolling: touch;
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; min-width: 950px; }
+        th { background: var(--gray-bg); color: #4a5568; padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; border-bottom: 2px solid var(--border-color); }
+        td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; color: var(--text-main); }
+
+        /* DETALLES DE FILAS ESTILIZADAS */
+        .doc-numero { font-weight: 800; color: var(--blue-primary); cursor: pointer; text-decoration: none; }
+        .doc-numero:hover { text-decoration: underline; }
+
+        /* Matrículas estilo placa de coche real */
+        .badge-matricula { display: inline-flex; align-items: center; background: #ffffff; color: #111111; border: 1px solid #111111; padding: 3px 6px; font-size: 12px; font-weight: bold; border-radius: 4px; margin-right: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .badge-matricula.remolque { border-color: #fd7e14; background: #fffdf5; }
+
+        .ruta-texto { font-size: 13px; line-height: 1.4; max-width: 320px; }
+        .ruta-flecha { color: var(--orange-alert); margin: 0 4px; font-weight: bold; }
+        .mercancia-peso { font-size: 11px; color: #718096; display: block; margin-top: 2px; font-weight: bold; }
+
+        /* Etiquetas de Estado */
+        .estado-badge { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: bold; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .estado-badge.en-curso { background: var(--green-light); color: #155724; border: 1px solid #c3e6cb; }
+        .estado-badge.programado { background: var(--orange-light); color: #856404; border: 1px solid #ffeeba; }
+        .estado-badge.cerrado { background: #e2e8f0; color: #4a5568; border: 1px solid #cbd5e0; }
+
+        /* Botones de acción rápidos */
+
+/* ==========================================================================
+   🎛️ BOTONERA DE ACCIONES COMPACTA Y MINIMALISTA (CUADRADOS MODERNOS)
+   ========================================================================== */
+.btn-accion-icono {
+    background: #ffffff; /* Fondo blanco limpio de inicio */
+    border: 1px solid #cbd5e0; /* Borde sutil a juego con los selectores */
+    font-size: 15px;
+    cursor: pointer;
+    width: 34px !important;    /* 🔒 CUADRANTE RÍGIDO SEGURO */
+    height: 34px !important;   /* 🔒 CUADRANTE RÍGIDO SEGURO */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;        /* Esquinas suavizadas estilo iOS/Android */
+    color: #4a5568;
+    padding: 0 !important;     /* Quita paddings residuales que deforman el cuadrado */
+    margin-right: 4px;
+    transition: all 0.15s ease;
+    box-sizing: border-box !important;
+}
+
+/* Efecto sutil al pasar el ratón por encima */
+.btn-accion-icono:hover {
+    background: #eef5fc !important;
+    border-color: #0f4c81 !important;
+    color: #0f4c81 !important;
+}
+
+/* Efecto de hundimiento táctil inmediato al presionar en el móvil/tablet */
+.btn-accion-icono:active {
+    transform: scale(0.92);
+}
+
+/* Ajustes visuales de la botonera en Modo Oscuro (Uso nocturno en cabina) */
+body.dark-mode .btn-accion-icono {
+    background: #2c2c2e !important;
+    border-color: #444446 !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .btn-accion-icono:hover {
+    background: #1c1c1e !important;
+    border-color: #63b3ed !important;
+    color: #63b3ed !important;
+}
+
+
+        .select-acciones-rapidas { padding: 6px 10px; font-size: 13px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; font-weight: bold; color: #4a5568; cursor: pointer; }
+
+        /* PIE DE TABLA / PAGINACIÓN */
+        .pie-tabla { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--gray-bg); border-top: 1px solid var(--border-color); font-size: 13px; color: #718096; }
+        .btn-paginacion { background: var(--blue-primary); color: white; border: none; width: 30px; height: 30px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-left: 4px; }
+
+        /* Ajustes nocturnos para la tabla */
+        body.dark-mode th { background: #1c1c1e; color: #a0aec0; }
+        body.dark-mode td { border-bottom-color: #2c2c2e; }
+        body.dark-mode .doc-numero { color: #63b3ed; }
+        body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
+        body.dark-mode .pie-tabla { background: #1c1c1e; }
+
+
+/* ==========================================================================
+   REPARACIÓN GEOMÉTRICA INTEGRAL DEL VISOR DECA (SIN SCROLL HORIZONTAL)
+   ========================================================================== */
+.modal-preview-deca {
+    display: none;
+    position: fixed;
+    z-index: 500000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   ENSANCHAMIENTO DE SEGURIDAD GENERAL DEL VISOR DECA (MÁRGENES CORREGIDOS)
+   ========================================================================== */
+.preview-container {
+    background-color: #f0f4f8;
+    border-radius: 12px;
+    width: 96% !important;
+
+    /* 🚀 LA CLAVE: Ampliamos de 740px a 780px para dar pasillo y aire en el lateral derecho */
+    max-width: 780px !important;
+
+    height: 92vh;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    box-sizing: border-box !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+}
+
+/* === REPARACIÓN GEOMÉTRICA DE ALTA FIDELIDAD: PASILLO DE RESPIRACIÓN SIMÉTRICO === */
+.preview-cuerpo-scroll {
+    flex-grow: 1;
+
+    /* 📏 LA CLAVE: Añadimos un padding elástico de 30px en el lateral derecho */
+    /* Esto compensa el espacio que ocupa la barra de scroll y deja respirar al folio */
+    padding: 20px 30px 20px 20px !important;
+
+    overflow-y: auto !important; /* Caída elástica vertical */
+    overflow-x: hidden !important; /* Blindaje total anti-scroll horizontal */
+    -webkit-overflow-scrolling: touch;
+    display: block !important; /* Bloque puro para evitar colisiones flexbox */
+    box-sizing: border-box !important;
+    width: 100% !important;
+}
+
+
+
+/* === REPARACIÓN DE MÁRGENES INTERNOS SIMÉTRICOS DEL PAPEL DECA === */
+.folio-deca {
+    background: #ffffff !important;
+
+    /* 🚀 LA CLAVE: Forzamos al papel a medir el 100% pero restándole los márgenes */
+    width: 100% !important;
+    max-width: 660px !important;
+
+    /* 📏 Forzamos un colchón interior estricto idéntico en los 4 costados */
+    padding: 30px !important;
+
+    margin: 0 auto !important; /* Centrado de bloque en la pantalla gris */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+
+    /* 🔒 CANDADO MAESTRO: Obliga al navegador a calcular los bordes hacia ADENTRO */
+    box-sizing: border-box !important;
+
+    color: #111111 !important;
+    font-size: 12px !important;
+    overflow: hidden !important; /* Bloquea cualquier fuga visual */
+}
+
+/* Redundancia de seguridad para asegurar que las tablas no hereden anchos fantasma */
+.folio-tabla {
+    width: 100% !important;
+    max-width: 100% !important; /* 🔥 Bloquea la tabla para que no pueda medir más que el padding interior */
+    border-collapse: collapse !important;
+    margin-bottom: 16px;
+    table-layout: fixed !important;
+    box-sizing: border-box !important;
+}
+
+
+.folio-tabla td {
+    border: 1px solid #111111 !important;
+    padding: 8px !important;
+    vertical-align: top;
+    color: #111111 !important;
+    box-sizing: border-box !important;
+    word-break: break-word !important;
+}
+
+/* Cabecera azul corporativa corregida con texto blanco forzado */
+.folio-header-azul {
+    background: #0f4c81 !important;
+    color: #ffffff !important; /* 🔥 CORREGIDO: Texto blanco nítido */
+    font-weight: bold;
+    font-size: 11px;
+    padding: 8px 10px !important;
+    text-transform: uppercase;
+    box-sizing: border-box !important;
+    font-family: sans-serif;
+}
+
+.folio-subetiqueta {
+    font-size: 10px;
+    color: #555555;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 3px;
+    font-weight: bold;
+}
+
+
+/* Botonera Inferior Simplificada */
+.preview-pie-botones {
+    background: #ffffff;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    border-top: 1px solid #dee2e6;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+
+.btn-preview-accion {
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #cbd5e0;
+    background: #ffffff;
+    color: #4a5568;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-sizing: border-box;
+}
+
+.btn-preview-accion.pdf-azul {
+    background: #0f4c81 !important;
+    color: #ffffff !important;
+    border: none;
+}
+
+body.dark-mode .preview-container { background-color: #121212; }
+body.dark-mode .preview-pie-botones { background: #1c1c1e; border-color: #333336; }
+body.dark-mode .btn-preview-accion { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
+body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
+
+
+/* ==========================================================================
+   🖨️ CONTROLADOR GEOMÉTRICO MÁSTER: AJUSTE DE IMPRESIÓN A4 SIN DUPLICADOS
+   ========================================================================== */
+@media print {
+    /* 1. Ocultamos de golpe todo el dashboard, botones y menús del gestor */
+    body *, .cabecera-dashboard, .grid-contadores, .contenedor-filtros, .contenedor-tabla, .deca-modal-cabecera, .preview-pie-botones {
+        display: none !important;
+    }
+
+    /* 2. Forzamos el folio blanco a ser el único elemento vivo en la hoja */
+    #modal_preview_deca, .preview-container, .preview-cuerpo-scroll, .folio-deca, .folio-deca * {
+        display: block !important;
+        position: relative !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        color: #111111 !important;
+    }
+
+    /* 3. 📏 COLCHÓN PERIMETRAL: Evita que las tablas se peguen de forma abrupta a los bordes del papel */
+    .folio-deca {
+        padding: 12mm 15mm !important;
+    }
+
+    /* 4. Mantenemos el color azul rígido de las cabeceras en el folio físico */
+    .folio-header-azul {
+        background: #0f4c81 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        border: 1px solid #0f4c81 !important;
+        padding: 6px 10px !important;
+    }
+
+    /* 5. 🔒 ESCUDO ANTI-DUPLICADOS: Fulmina el segundo QR fantasma/medio que saca el navegador */
+    #qrcode_real_render canvas {
+        display: none !important;
+    }
+    #qrcode_real_render img {
+        display: block !important;
+        width: 90px !important;
+        height: 90px !important;
+        margin: 0 auto !important;
+    }
+
+    /* Dimensiones oficiales del folio vertical */
+    @page {
+        size: A4 portrait;
+        margin: 0;
+    }
+}
+
+
+ </style>
+
+    <!-- === CONTENEDOR DE LA TABLA DE RESULTADOS === -->
+    <div class="contenedor-tabla">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nº Documento</th>
+                    <th>Fecha Transporte</th>
+                    <th>Matrículas</th>
+                    <th>Ruta Comercial</th>
+                    <th>Mercancía</th>
+                    <th>QR Activo Hasta</th>
+                    <th>Estado</th>
+                    <th style="text-align: right;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla_resultados_body">
+                <!-- Se inyectará dinámicamente desde el Bloque 5 de Firebase -->
+                <tr id="fila_vacia_loader">
+                    <td colspan="8" style="text-align: center; color: #888; padding: 30px; font-style: italic;">
+                        Sincronizando con el archivo central de transportes...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="pie-tabla">
+            <span id="texto_paginacion_deca">Mostrando 0-0 de 0 documentos</span>
+            <div id="contenedor_paginas_deca">
+                <!-- Botones de página dinámicos -->
+            </div>
+        </div>
+    </div>
+
+
+
+<script>
+
+// Array global en memoria RAM que almacena los documentos descargados de la nube
+let documentosDeCA = [];
+let database = null;
+let miUsuarioUIDActivo = null;
+let misDatosPerfilAutonomo = null;
+// Variable global que almacena el ID del DeCA que se está modificando (null = modo Crear)
+let idDocumentoEnEdicion = null;
+
+
+// =========================================================================
+// 🔒 ARRANQUE DINÁMICO MEDIANTE PASARELA GATEWAY (SINCRO ANÓNIMA FIJADA)
+// =========================================================================
+function iniciarEcosistemaDeCAs() {
+    console.log("🛠️ Conectando terminal con la pasarela remota DeCA...");
+
+    // 🔥 PON AQUÍ TU RUTA REAL: Sustituye este enlace por tu URL "Raw" de GitHub que ya te funcionaba
+    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/c8a9c150434e391b231173786d3b636a/raw/de72f7986d066000a5bd38dbe0fe1aba84f8d640/Firebase-DeCa.json";
+
+    // Si se borran los datos locales, el sistema rescata automáticamente la urlPorDefectoGateway
+    let urlDestinoFinal = localStorage.getItem("cfg_gateway_url_deca") || urlPorDefectoGateway;
+    localStorage.setItem("cfg_gateway_url_deca", urlDestinoFinal);
+
+    // Consultamos la pasarela de forma asíncrona antes de tocar Firebase
+    fetch(urlDestinoFinal)
+    .then(res => {
+        if (!res.ok) throw new Error("La pasarela remota no responde.");
+        return res.json();
+    })
+    .then(configFirebase => {
+        // Inicialización dinámica con los datos descargados de GitHub
+        if (firebase.apps.length === 0) {
+            firebase.initializeApp(configFirebase);
+        }
+        database = firebase.database();
+
+        // Disparar el túnel de seguridad anónimo una vez conectados
+        return firebase.auth().signInAnonymously();
+    })
+    .then((usuarioCredencial) => {
+        // ASIGNACIÓN CRÍTICA EN ORDEN: Guardamos primero la identidad
+        const bypassUID = localStorage.getItem("cfg_uid_recuperado_deca");
+        if (bypassUID) {
+            miUsuarioUIDActivo = bypassUID;
+        } else {
+            miUsuarioUIDActivo = usuarioCredencial.user.uid;
+        }
+        console.log("✅ Conexión Gateway establecida y autenticada. Llave activa:", miUsuarioUIDActivo);
+
+        // Con la autenticación confirmada (auth != null), atacamos la lectura de la base de datos
+        verificarExistenciaPerfilCamionero();
+    })
+    .catch(error => {
+        console.error("❌ Error crítico en el Gateway de arranque:", error);
+        alert("Error crítico de red / Gateway: " + error.message);
+    });
+
+    if (localStorage.getItem("modo_oscuro_deca") === "si") {
+        document.body.classList.add("dark-mode");
+    }
+
+    // 🚀 RADAR INTERNACIONAL: Detecta si quien entra es un agente o una consulta externa del QR
+    const parametrosRuta = new URLSearchParams(window.location.search);
+    const idDecaInspeccionar = parametrosRuta.get("verificar");
+    const idUsuarioInspeccionar = parametrosRuta.get("user");
+
+    if (idDecaInspeccionar && idUsuarioInspeccionar) {
+        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando folio público...");
+
+        // Esperamos un segundo a que impacte la conexión inicial de Firebase
+        setTimeout(() => {
+            miUsuarioUIDActivo = idUsuarioInspeccionar;
+
+            // Consultamos directamente el documento en la nube de forma aislada
+            database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // Almacenamos el viaje en el array general para que el visor lo localice en RAM
+                        documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
+
+                        // Lanzamos la visualización inmediata en pantalla
+                        verFichaDocumento(idDecaInspeccionar);
+
+                        // CLÁUSULA DE PRIVACIDAD: Ocultamos todo el dashboard del transportista
+                        // y las cruces de cerrar para que el agente SOLO pueda ver e imprimir su folio
+                        if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
+                        if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
+                        if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
+                        if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.display = "none";
+                        if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
+
+                        const btnCerrarVisor = document.querySelector(".preview-container .deca-modal-cerrar");
+                        if(btnCerrarVisor) btnCerrarVisor.style.display = "none";
+                    }
+                });
+        }, 800);
+    }
+
+
+
+}
+
+
+
+
+// =========================================================================
+// 🕵️ CONTROL DE ACCESO MULTI-INQUILINO (Bifurcador de registro/portes)
+// =========================================================================
+function verificarExistenciaPerfilCamionero() {
+    // Escudo para recordar un UID importado de mudanza o cambio de móvil si existiese
+    const bypassUID = localStorage.getItem("cfg_uid_recuperado_deca");
+    if (bypassUID) {
+        miUsuarioUIDActivo = bypassUID;
+    }
+
+    // Consultamos la rama específica de este transportista en Firebase
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').once('value')
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                misDatosPerfilAutonomo = snapshot.val();
+                console.log("🚚 Transportista verificado:", misDatosPerfilAutonomo.razon_social);
+
+                // Ocultar modal de registro y abrir su base de datos privada
+                document.getElementById("modal_perfil_camionero").style.display = "none";
+                activarEscuchaRealtimeDeCAs();
+            } else {
+                // Dispositivo nuevo: Desplegar el modal oscuro de captura de forma obligatoria
+                console.log("🌱 Terminal nuevo detectado. Solicitando perfil de autónomo...");
+                document.getElementById("modal_perfil_camionero").style.display = "flex";
+            }
+        })
+        .catch(err => {
+            console.error("🚨 Error de lectura de perfil:", err);
+            // Si Firebase rechaza la lectura inicial, forzamos por seguridad la vista de registro
+            document.getElementById("modal_perfil_camionero").style.display = "flex";
+        });
+}
+
+function conmutarVistaRecuperacionPerfil(mostrarRecuperacion) {
+    document.getElementById("vista_registro_nuevo").style.display = mostrarRecuperacion ? "none" : "block";
+    document.getElementById("vista_recuperacion_perfil").style.display = mostrarRecuperacion ? "block" : "none";
+}
+
+// =========================================================================
+// ✍️ OPERACIONES DE ESCRITURA: ALTA PRIVADA Y DECA DE MUESTRA INITIAL
+// =========================================================================
+function registrarNuevoCamioneroEcosistema() {
+    const razon = document.getElementById("reg_transp_razon").value.trim().toUpperCase();
+    const nif = document.getElementById("reg_transp_nif").value.trim().toUpperCase();
+
+    if (!razon || !nif) {
+        return alert("⚠ Por favor, rellena todos los campos obligatorios del perfil.");
+    }
+
+    const estructuraPerfil = {
+        razon_social: razon,
+        nif_cif: nif,
+        fecha_registro: new Date().toLocaleString(),
+        clave_recuperacion: miUsuarioUIDActivo // El UID actúa de llave por defecto
+    };
+
+    mostrarAvisoToast("💾 Creando tu espacio privado en el servidor central...");
+
+    // 1. Guardamos el perfil en la sub-rama del UID
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').set(estructuraPerfil)
+        .then(() => {
+            // 2. Inyectamos el viaje de muestra privado inicial
+            const deCADemostracionPrivado = {
+                numero_documento: "DeCA-2026-000001",
+                fecha_transporte: "2026-10-02",
+                matricula_tractor: "2058 JSY",
+                matricula_remolque: "R 1874 BCP",
+                origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
+                destino_plaza: "VIA VENEZIANO, 28 - 45010 GAVELLO (ROVIGO) - ITALIA",
+                mercancia_nombre: "AJO SPRING (MUESTRA PRIVADA)",
+                mercancia_peso: "23.000 kg",
+                mercancia_bultos: "23",
+                qr_caducidad: "2026-10-09",
+                estado: "EN_CURSO",
+                cargador_razon: "CARGADOR EJEMPLO, S.L.",
+                cargador_nif: "A00000000",
+                cargador_domicilio: "CALLE CENTRAL, 10"
+            };
+
+            return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(deCADemostracionPrivado);
+        })
+        .then(() => {
+            // 3. Levantar el nuevo modal integrado inyectando el código largo
+            document.getElementById("txt_clave_maestra_pantalla").innerText = miUsuarioUIDActivo;
+            document.getElementById("modal_clave_seguridad_deca").style.display = "flex";
+        })
+        .catch(err => alert("Error al inicializar la subestructura: " + err.message));
+}
+
+function cerrarModalClaveMaestraYEntrar() {
+    document.getElementById("modal_clave_seguridad_deca").style.display = "none";
+    // Forzamos el relanzamiento de la verificación para quitar el fondo y activar la escucha
+    verificarExistenciaPerfilCamionero();
+}
+
+
+// =========================================================================
+// 📡 ESCUCHA REALTIME DINÁMICA AISLADA POR CONDUCTOR
+// =========================================================================
+function activarEscuchaRealtimeDeCAs() {
+    if (!database || !miUsuarioUIDActivo) return;
+
+    // Escuchamos de forma exclusiva la sub-rama de portes que pertenece a este usuario
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').on('value', (snapshot) => {
+        const datosCloud = snapshot.val() || {};
+
+        documentosDeCA = Object.keys(datosCloud).map(key => {
+            return { id_firebase: key, ...datosCloud[key] };
+        }).reverse();
+
+        actualizarContadoresSuperiores();
+        renderizarTablaResultados(documentosDeCA);
+    }, (error) => {
+        console.error("Error en la escucha aislada del transportista:", error);
+    });
+}
+
+// =========================================================================
+// 🎛️ RECALCULADOR DICTATORIAL DE CONTADORES SUPERIORES (SEMÁFORO SINCRO)
+// =========================================================================
+function actualizarContadoresSuperiores() {
+    let total = documentosDeCA.length;
+    let enCurso = 0, programados = 0, finalizados = 0;
+
+    documentosDeCA.forEach(doc => {
+        if (doc.estado === "EN_CURSO") enCurso++;
+        if (doc.estado === "PROGRAMADO") programados++;
+        // 🚀 SINCRO: Cuenta de forma directa todos vuestros portes cerrados de la nube
+        if (doc.estado === "CERRADO") finalizados++;
+    });
+
+    document.getElementById("num_total").innerText = total;
+    document.getElementById("num_en_curso").innerText = enCurso;
+    document.getElementById("num_programados").innerText = programados;
+    document.getElementById("num_post_viaje").innerText = finalizados; // Modifica el valor del cuarto nodo
+}
+
+
+// =========================================================================
+// 🖌️ RENDERIZADOR COMPACTO DE FILAS (BOTONES CUADRADOS MINIMALISTAS v1.21)
+// =========================================================================
+function renderizarTablaResultados(listaFiltrada) {
+    const bodyTabla = document.getElementById("tabla_resultados_body");
+    if (!bodyTabla) return;
+
+    if (listaFiltrada.length === 0) {
+        bodyTabla.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888; padding:30px; font-style:italic;">🔍 No se encontraron documentos con los filtros aplicados.</td></tr>`;
+        document.getElementById("texto_paginacion_deca").innerText = "Mostrando 0-0 de 0 documentos";
+        return;
+    }
+
+    let htmlFinal = "";
+    listaFiltrada.forEach(doc => {
+        const fTxt = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "";
+        const fQrTxt = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
+
+        let claseEstado = "cerrado", textoEstado = "⚪ Cerrado";
+        if (doc.estado === "EN_CURSO") { claseEstado = "en-curso"; textoEstado = "🟢 En Curso"; }
+        if (doc.estado === "PROGRAMADO") { claseEstado = "programado"; textoEstado = "🟡 Programado"; }
+
+        let badgeRemolqueHTML = "";
+        if (doc.matricula_remolque && doc.matricula_remolque.trim() !== "" && doc.matricula_remolque.trim() !== "---") {
+            badgeRemolqueHTML = `<span class="badge-matricula remolque">🚚 ${doc.matricula_remolque}</span>`;
+        }
+
+        htmlFinal += `
+        <tr>
+            <td><span class="doc-numero" onclick="verFichaDocumento('${doc.id_firebase}')">${doc.numero_documento}</span></td>
+            <td>${fTxt}</td>
+            <td>
+                <span class="badge-matricula">📋 ${doc.matricula_tractor || '---'}</span>
+                ${badgeRemolqueHTML}
+            </td>
+            <td class="ruta-texto">
+                <strong>${doc.origen_plaza || '---'}</strong>
+                <span class="ruta-flecha">➔</span> ${doc.destino_plaza || '---'}
+            </td>
+            <td>
+                ${doc.mercancia_nombre || '---'}
+                <span class="mercancia-peso">${doc.mercancia_peso || ''}</span>
+            </td>
+            <td>${fQrTxt}</td>
+            <td><span class="estado-badge ${claseEstado}">${textoEstado}</span></td>
+            <td style="text-align: right; white-space: nowrap; vertical-align: middle;">
+                <!-- 👁️ BOTÓN VER CUADRADO MINIMALISTA -->
+                <button class="btn-accion-icono" onclick="verFichaDocumento('${doc.id_firebase}')" title="Visualizar Folio Oficial">👁️</button>
+
+                <!-- 📥 BOTÓN DESCARGA DIRECTA INTELIGENTE CUADRADO -->
+                <button class="btn-accion-icono" onclick="verFichaDocumento('${doc.id_firebase}'); setTimeout(ejecutarDescargaPDFCompleto, 350);" title="Descargar Documento PDF">📥</button>
+
+                <select class="select-acciones-rapidas" onchange="ejecutarAccionFila(this, '${doc.id_firebase}')" style="vertical-align: middle; height: 34px;">
+                    <option value="">Acciones</option>
+                    <option value="editar">✏️ Editar</option>
+                    <option value="duplicar">📋 Duplicar Porte</option>
+                    <option value="cambiar_estado">🏁 Finalizar Viaje (Cerrar)</option>
+                    <option value="borrar">🗑️ Eliminar</option>
+                </select>
+            </td>
+        </tr>`;
+    });
+
+    bodyTabla.innerHTML = htmlFinal;
+    document.getElementById("texto_paginacion_deca").innerText = `Mostrando 1-${listaFiltrada.length} de ${listaFiltrada.length} documentos`;
+}
+
+
+
+// =========================================================================
+// 🔍 MOTOR DE FILTRADO HÍBRIDO INTELIGENTE (RANGOS CORREGIDOS)
+// =========================================================================
+function filtrarCatalogoDeCAs() {
+    const rawBuscar = document.getElementById("buscador_global_deca").value.toLowerCase().trim();
+    const estadoSel = document.getElementById("filtro_estado_deca").value;
+    const fDesde = document.getElementById("filtro_fecha_desde").value;
+    const fHasta = document.getElementById("filtro_fecha_hasta").value;
+
+    function normalizarBusqueda(texto) {
+        if (!texto) return "";
+        return texto.toLowerCase().trim()
+            .replace(/[áàäâ]/g, "a").replace(/[éèëê]/g, "e")
+            .replace(/[íìïî]/g, "i").replace(/[óòöô]/g, "o").replace(/[úùüû]/g, "u");
+    }
+
+    const textoLimpio = normalizarBusqueda(rawBuscar);
+
+    let resultados = documentosDeCA.filter(doc => {
+        const matchTexto = textoLimpio === "" ||
+            normalizarBusqueda(doc.numero_documento).includes(textoLimpio) ||
+            normalizarBusqueda(doc.matricula_tractor).includes(textoLimpio) ||
+            normalizarBusqueda(doc.matricula_remolque).includes(textoLimpio) ||
+            normalizarBusqueda(doc.origen_plaza).includes(textoLimpio) ||
+            normalizarBusqueda(doc.destino_plaza).includes(textoLimpio) ||
+            normalizarBusqueda(doc.mercancia_nombre).includes(textoLimpio);
+
+        const matchEstado = estadoSel === "TODOS" || doc.estado === estadoSel;
+
+        // 🚀 CORRECCIÓN DE RANGOS: Si fHasta está vacío, no bloquea las fechas posteriores a fDesde
+        let matchFechas = true;
+        if (doc.fecha_transporte) {
+            if (fDesde && doc.fecha_transporte < fDesde) matchFechas = false;
+            if (fHasta && doc.fecha_transporte > fHasta) matchFechas = false;
+        }
+
+        return matchTexto && matchEstado && matchFechas;
+    });
+
+    renderizarTablaResultados(resultados);
+}
+
+
+
+// =========================================================================
+// 🔥 APERTURA DE FORMULARIO EN MODO CREAR (RESET COMPLETO)
+// =========================================================================
+function abrirFormularioNuevoDeCA() {
+    // 1. Reseteamos el control para asegurar que el formulario se abra en modo CREAR
+    idDocumentoEnEdicion = null;
+
+    // Cambiamos el título y el texto del botón de acción en caliente al formato de alta
+    document.querySelector("#modal_nuevo_deca h3").innerText = "Nuevo Documento electrónico de Control Administrativo";
+    document.querySelector(".deca-btn-guardar").innerText = "Generar DeCA";
+
+    // Clavar la fecha de transporte al día de hoy automáticamente
+    document.getElementById("deca_fecha_transporte").value = "2026-10-04";
+
+    if (misDatosPerfilAutonomo) {
+        document.getElementById("deca_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
+        document.getElementById("deca_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
+        document.getElementById("deca_vehiculo").value = misDatosPerfilAutonomo.matricula_tractor_defecto || "";
+        document.getElementById("deca_remolque").value = misDatosPerfilAutonomo.matricula_remolque_defecto || "";
+    } else {
+        document.getElementById("deca_transp_razon").value = "SIN CONFIGURAR";
+        document.getElementById("deca_transp_nif").value = "---";
+        document.getElementById("deca_vehiculo").value = "";
+        document.getElementById("deca_remolque").value = "";
+    }
+
+    // Vaciamos el resto de campos para que no arrastre restos de ediciones previas
+    limpiarCamposFormularioGigante();
+
+    document.getElementById("modal_nuevo_deca").style.display = "flex";
+}
+
+
+
+
+
+
+function cerrarModalNuevoDeCA() {
+    document.getElementById("modal_nuevo_deca").style.display = "none";
+}
+
+function invertirCargadorTransportista() {
+    const razonCargador = document.getElementById("deca_carg_razon").value;
+    const nifCargador = document.getElementById("deca_carg_nif").value;
+
+    document.getElementById("deca_carg_razon").value = document.getElementById("deca_transp_razon").value;
+    document.getElementById("deca_carg_nif").value = document.getElementById("deca_transp_nif").value;
+
+    document.getElementById("deca_transp_razon").value = razonCargador;
+    document.getElementById("deca_transp_nif").value = nifCargador;
+    mostrarAvisoToast("🔄 Posiciones invertidas");
+}
+
+
+// =========================================================================
+// 📄 VISOR MÁSTER: PREVISUALIZACIÓN CON QR UNIVERSAL DE GITHUB (SIN INTERNET LOC)
+// =========================================================================
+function verFichaDocumento(idFirebase) {
+    const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
+    if (!doc) return;
+
+    // Enganche de seguridad para recordar qué documento está en pantalla
+    idDocumentoEnEdicion = idFirebase;
+
+    console.log("📋 Cargando en el Folio el documento activo:", doc.numero_documento);
+
+    // Volcar los campos dinámicamente en el Folio Blanco del HTML
+    document.getElementById("prev_top_numero").innerText = doc.numero_documento || "---";
+    document.getElementById("prev_folio_numero").innerText = doc.numero_documento || "---";
+
+    document.getElementById("prev_carg_razon").innerText = doc.cargador_razon || "---";
+    document.getElementById("prev_carg_nif").innerText = doc.cargador_nif || "---";
+    document.getElementById("prev_carg_domicilio").innerText = doc.cargador_domicilio || "---";
+
+    document.getElementById("prev_transp_razon").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : "---";
+    document.getElementById("prev_transp_nif").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : "---";
+
+    document.getElementById("prev_fecha_transporte").innerText = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "";
+    document.getElementById("prev_matricula_tractor").innerText = doc.matricula_tractor || "---";
+    document.getElementById("prev_matricula_remolque").innerText = doc.matricula_remolque || "---";
+
+    document.getElementById("prev_origen_plaza").innerText = doc.origen_plaza || "---";
+    document.getElementById("prev_destino_plaza").innerText = doc.destino_plaza || "---";
+
+    document.getElementById("prev_mercan_nombre").innerText = doc.mercancia_nombre || "---";
+    document.getElementById("prev_mercan_peso").innerText = doc.mercancia_peso || "---";
+    document.getElementById("prev_mercan_bultos").innerText = doc.mercancia_bultos || doc.mercan_bultos || "---";
+
+    document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
+
+    // === GATILLO DE INYECCIÓN DE QR INTERACTIVO GLOBAL ===
+    const contenedorQR = document.getElementById("qrcode_real_render");
+    if (contenedorQR) {
+        contenedorQR.innerHTML = ""; // Limpieza preventiva
+
+        // 🚀 PASARELA GLOBAL GRATUITA: Enlace público universal para que cualquier móvil del mundo vea el folio
+        // Usamos vuestro nombre de usuario real de GitHub ('fulerdeca') y el repositorio
+        const nombreUsuarioGitHub = "fulerdeca";
+        const enlaceInspeccionReal = "https://" + nombreUsuarioGitHub + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
+
+        try {
+            // Generamos el código a 160px para que la densidad de puntos sea perfectamente legible
+            new QRCode(contenedorQR, {
+                text: enlaceInspeccionReal,
+                width: 160,
+                height: 160,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
+            // Forzamos el acople estético a 90px en pantalla para no descuadrar el pie del papel
+            const qrImg = contenedorQR.querySelector("img");
+            if (qrImg) {
+                qrImg.style.width = "90px";
+                qrImg.style.height = "90px";
+                qrImg.style.margin = "0 auto";
+            }
+        } catch (e) {
+            console.warn("Aviso: Inicializando librería QR en el DOM...", e);
+            contenedorQR.innerText = "🔳";
+        }
+    }
+
+    // Levantar el modal en pantalla
+    document.getElementById("modal_preview_deca").style.display = "flex";
+}
+
+
+
+
+
+
+
+function cerrarVisorPreviewDeCA() {
+    document.getElementById("modal_preview_deca").style.display = "none";
+}
+
+// Pasarelas interactivas asociadas a vuestra nueva botonera reducida
+// =========================================================================
+// 📥 MOTOR NATIVO: GENERAR Y DESCARGAR PORTES EN FORMATO PDF OFICIAL
+// =========================================================================
+function ejecutarDescargaPDFCompleto() {
+    // Capturamos el número del documento activo que está en pantalla para nombrar el archivo
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
+
+    // Cambiamos temporalmente el título de la pestaña del navegador
+    // Esto hace que cuando el sistema operativo guarde el PDF, le ponga el nombre correcto automáticamente
+    const tituloOriginalPestaña = document.title;
+    document.title = numeroDeCA;
+
+    mostrarAvisoToast("⏳ Preparando compaginación A4 del documento...");
+
+    // Retardamos un milisegundo el disparo para dejar que el Toast se dibuje en pantalla
+    setTimeout(() => {
+        // Invocamos el puente nativo de renderizado del sistema (Abre la ventana de PDF/Imprimir)
+        window.print();
+
+        // Al cerrar o guardar el PDF, restauramos el título original de la pestaña para el operador
+        document.title = tituloOriginalPestaña;
+    }, 250);
+}
+
+// =========================================================================
+// 📄 COMPROBANTE RÁPIDO: GENERAR VALE DE DESCARGA (1 HÁGINA CON QR GIGANTE)
+// =========================================================================
+function ejecutarImpresionHojaQR() {
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Comprobante_QR";
+    const contenedorQRReal = document.getElementById("qrcode_real_render");
+
+    if (!contenedorQRReal) return;
+
+    mostrarAvisoToast("📄 Compaginando vale rápido de descarga (1 página)...");
+
+    // Guardamos el título original de la pestaña para el nombre del PDF
+    const tituloOriginalPestaña = document.title;
+    document.title = `${numeroDeCA}_VALE_QR`;
+
+    // 🚀 ESTÉTICA INTEGRADA: Truco de escalado para la impresión rápida de una página
+    // Duplicamos el tamaño visual del QR en el papel para que los operarios del muelle lo lean a distancia
+    contenedorQRReal.style.transform = "scale(1.4)";
+    contenedorQRReal.style.margin = "20px auto";
+
+    setTimeout(() => {
+        // Lanzamos la ventana nativa de guardado PDF
+        window.print();
+
+        // Al cerrar el PDF, devolvemos el QR a su tamaño simétrico original de pantalla
+        contenedorQRReal.style.transform = "none";
+        contenedorQRReal.style.margin = "0 auto";
+        document.title = tituloOriginalPestaña;
+    }, 300);
+}
+
+
+
+// =========================================================================
+// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (REPARADO POR SUMAS v1.28)
+// =========================================================================
+function abrirPaginaVerificacion() {
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText;
+    const matriculaTractor = document.getElementById("prev_matricula_tractor").innerText;
+
+    if (!numeroDeCA || numeroDeCA === "---") {
+        return mostrarAlertaCorporativaDeca("Acción Denegada", "No hay ningún documento activo cargado en el visor.", "⚠️");
+    }
+
+    mostrarAvisoToast("🔗 Abriendo pasarela de verificación de Tráfico...");
+
+    // Rescatamos el ID real de Firebase de la memoria RAM buscando por el número de documento
+    const viajeActivo = documentosDeCA.find(item => item.numero_documento === numeroDeCA);
+    const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : "";
+
+    // 🚀 UNIFICACIÓN REAL: Sumamos las cadenas de texto apuntando al servidor gratuito de GitHub Pages
+    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + miUsuarioUIDActivo;
+
+    // Abrimos la pestaña simulada para la inspección de la Guardia Civil
+    setTimeout(() => {
+        window.open(enlaceCotejoAgente, '_blank');
+    }, 300);
+}
+
+
+
+
+
+
+
+// =========================================================================
+// ✍️ MOTOR DE FACTURACIÓN: PROCESAR GUARDADO ONLINE (ESTADOS AUTOMÁTICOS)
+// =========================================================================
+function procesarGuardadoDeCAOnline() {
+    if (!database || !miUsuarioUIDActivo) {
+        return mostrarAlertaCorporativaDeca("Error de Red", "No hay una conexión activa con el servidor central de transportes.", "❌");
+    }
+
+    const cargRazon = document.getElementById("deca_carg_razon").value.trim().toUpperCase();
+    const cargNif = document.getElementById("deca_carg_nif").value.trim().toUpperCase();
+    const cargDomicilio = document.getElementById("deca_carg_domicilio").value.trim().toUpperCase();
+    const cargCp = document.getElementById("deca_carg_cp").value.trim();
+    const cargPoblacion = document.getElementById("deca_carg_poblacion").value.trim().toUpperCase();
+    const cargProvincia = document.getElementById("deca_carg_provincia").value.trim().toUpperCase();
+
+    const fechaTransp = document.getElementById("deca_fecha_transporte").value;
+    const fechaFin = document.getElementById("deca_fecha_fin").value;
+    const vehiculo = document.getElementById("deca_vehiculo").value.trim().toUpperCase();
+    const remolque = document.getElementById("deca_remolque").value.trim().toUpperCase();
+    const origen = document.getElementById("deca_origen").value.trim().toUpperCase();
+    const destino = document.getElementById("deca_destino").value.trim().toUpperCase();
+    const mercanNombre = document.getElementById("deca_mercan_nombre").value.trim().toUpperCase();
+    const mercanPeso = document.getElementById("deca_mercan_peso").value.trim();
+    const mercanUnidad = document.getElementById("deca_mercan_unidad").value;
+    const mercanBultos = document.getElementById("deca_mercan_bultos").value.trim();
+    const observaciones = document.getElementById("deca_observaciones").value.trim();
+
+    // Controlador radar de campos obligatorios
+    let camposFaltantes = [];
+    if (!cargRazon) camposFaltantes.push("Razón Social del Cargador");
+    if (!cargNif) camposFaltantes.push("NIF del Cargador");
+    if (!cargDomicilio) camposFaltantes.push("Domicilio del Cargador");
+    if (!cargCp) camposFaltantes.push("Código Postal");
+    if (!cargPoblacion) camposFaltantes.push("Población del Cargador");
+    if (!cargProvincia) camposFaltantes.push("Provincia del Cargador");
+    if (!fechaTransp) camposFaltantes.push("Fecha del Transporte");
+    if (!vehiculo) camposFaltantes.push("Matrícula del Vehículo (Tractor)");
+    if (!origen) camposFaltantes.push("Lugar de Origen / Carga");
+    if (!destino) camposFaltantes.push("Lugar de Destino / Descarga");
+    if (!mercanNombre) camposFaltantes.push("Naturaleza de la Mercancía");
+    if (!mercanPeso) camposFaltantes.push("Peso / Magnitud de la Carga");
+
+    if (camposFaltantes.length > 0) {
+        const mensajeError = "Para poder generar el documento electrónico legal (DeCA), es obligatorio cumplimentar las siguientes casillas:\n\n• " + camposFaltantes.join("\n• ");
+        mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", mensajeError, "⚠️");
+        return;
+    }
+
+    mostrarAvisoToast("⏳ Calculando marcas temporales del porte...");
+
+    if (typeof registrarCargadorEnHistorialFrecuente === "function") {
+        registrarCargadorEnHistorialFrecuente(cargRazon, cargNif, cargDomicilio, cargCp, cargPoblacion, cargProvincia);
+    }
+
+    const domicilioCargadorCompleto = `${cargDomicilio} (CP: ${cargCp} - ${cargPoblacion} - ${cargProvincia})`;
+
+    // Cálculo automático de caducidad (Sumar 7 días naturales)
+    let fechaBaseParaQR = new Date(fechaFin ? fechaFin : fechaTransp);
+    fechaBaseParaQR.setDate(fechaBaseParaQR.getDate() + 7);
+
+    const yyyy = fechaBaseParaQR.getFullYear();
+    const mm = String(fechaBaseParaQR.getMonth() + 1).padStart(2, '0');
+    const dd = String(fechaBaseParaQR.getDate()).padStart(2, '0');
+    const stringQRCaducidadFinal = `${yyyy}-${mm}-${dd}`;
+
+    // 🚀 ASIGNACIÓN AUTOMÁTICA DE ESTADO INTELIGENTE
+    let estadoCalculado = "EN_CURSO";
+    if (idDocumentoEnEdicion !== null) {
+        // Si estamos editando, respetamos el estado que ya tenía guardado previamente
+        const viajeEncontrado = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
+        if (viajeEncontrado) estadoCalculado = viajeEncontrado.estado || "EN_CURSO";
+    } else {
+        // Si es un alta nueva: Comparamos la fecha del viaje con la fecha del sistema de hoy (2026-10-04)
+        const hoyString = "2026-10-04";
+        if (fechaTransp > hoyString) {
+            estadoCalculado = "PROGRAMADO"; // El viaje es para el futuro
+        }
+    }
+
+    const paqueteDeCADatos = {
+        cargador_razon: cargRazon,
+        cargador_nif: cargNif,
+        cargador_calle: cargDomicilio,
+        cargador_cp: cargCp,
+        cargador_poblacion: cargPoblacion,
+        cargador_provincia: cargProvincia,
+        cargador_domicilio: domicilioCargadorCompleto,
+        matricula_tractor: vehiculo,
+        matricula_remolque: remolque,
+        fecha_transporte: fechaTransp,
+        fecha_fin_servicio: fechaFin ? fechaFin : "",
+        origen_plaza: origen,
+        destino_plaza: destino,
+        mercancia_nombre: mercanNombre,
+        mercancia_peso: `${mercanPeso} ${mercanUnidad}`,
+        mercancia_bultos: mercanBultos ? mercanBultos : "---",
+        observaciones_indicaciones: observaciones,
+        qr_caducidad: stringQRCaducidadFinal,
+        estado: estadoCalculado,
+        fecha_creacion_sistema: new Date().toLocaleString()
+    };
+
+    if (idDocumentoEnEdicion !== null) {
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idDocumentoEnEdicion).update(paqueteDeCADatos)
+            .then(() => {
+                mostrarAvisoToast("✅ ¡Documento DeCA actualizado correctamente!");
+                cerrarModalNuevoDeCA();
+                limpiarCamposFormularioGigante();
+                idDocumentoEnEdicion = null;
+            })
+            .catch(error => {
+                mostrarAlertaCorporativaDeca("Error al actualizar", "No se pudo actualizar el registro: " + error.message, "❌");
+            });
+    } else {
+        ejecutarInyeccionCorrelativaDeCA(paqueteDeCADatos);
+    }
+}
+
+
+
+
+
+function ejecutarInyeccionCorrelativaDeCA(paqueteDatos) {
+    const añoActual = new Date().getFullYear();
+
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').once('value')
+        .then((snapshot) => {
+            let totalDocumentosEmitidos = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+            const númeroSiguienteSecuencial = totalDocumentosEmitidos + 1;
+            const numeroFormateadoDeCA = "DeCA-" + añoActual + "-" + String(númeroSiguienteSecuencial).padStart(6, '0');
+
+            paqueteDatos.numero_documento = numeroFormateadoDeCA;
+
+            return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(paqueteDatos);
+        })
+        .then(() => {
+            mostrarAvisoToast("✅ ¡Documento DeCA generado con éxito!");
+            cerrarModalNuevoDeCA();
+            limpiarCamposFormularioGigante();
+        })
+        .catch(error => {
+            alert("Error al guardar el documento: " + error.message);
+        });
+}
+
+function limpiarCamposFormularioGigante() {
+    document.getElementById("deca_carg_razon").value = "";
+    document.getElementById("deca_carg_nif").value = "";
+    document.getElementById("deca_carg_domicilio").value = "";
+
+    if(document.getElementById("deca_carg_cp")) document.getElementById("deca_carg_cp").value = "";
+    if(document.getElementById("deca_carg_poblacion")) document.getElementById("deca_carg_poblacion").value = "";
+    if(document.getElementById("deca_carg_provincia")) document.getElementById("deca_carg_provincia").value = "";
+
+    document.getElementById("deca_fecha_fin").value = "";
+    document.getElementById("deca_vehiculo").value = "";
+    document.getElementById("deca_remolque").value = "";
+    document.getElementById("deca_origen").value = "";
+    document.getElementById("deca_destino").value = "";
+    document.getElementById("deca_mercan_nombre").value = "";
+    document.getElementById("deca_mercan_peso").value = "";
+    document.getElementById("deca_mercan_bultos").value = "";
+    document.getElementById("deca_observaciones").value = "";
+
+    // 🚀 ESTÉTICA: Asegura que el botón recupere su texto nativo de alta al limpiar
+    const btnGuardar = document.querySelector(".deca-btn-guardar");
+    if (btnGuardar) btnGuardar.innerText = "Generar DeCA";
+}
+
+
+
+// =========================================================================
+// ✏️ MAPEO INVERSO: CARGAR DECA EXISTENTE EN EL FORMULARIO GIGANTE
+// =========================================================================
+function abrirFormularioEditarDeCA(idFirebase) {
+    const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
+    if (!doc) return;
+
+    // Asignación de control para indicarle al motor que estamos editando
+    idDocumentoEnEdicion = idFirebase;
+
+    // Modificamos el título y el texto del botón azul para avisar al conductor en cabina
+    document.querySelector("#modal_nuevo_deca h3").innerText = `✏️ Modificar Documento: ${doc.numero_documento}`;
+    document.querySelector(".deca-btn-guardar").innerText = "Guardar DeCA";
+
+    // Volcado de datos identificativos del cargador
+    document.getElementById("deca_carg_razon").value = doc.cargador_razon || "";
+    document.getElementById("deca_carg_nif").value = doc.cargador_nif || "";
+
+    // Rellenamos las casillas desglosadas de dirección de la v1.13
+    document.getElementById("deca_carg_domicilio").value = doc.cargador_calle || doc.cargador_domicilio || "";
+    document.getElementById("deca_carg_cp").value = doc.cargador_cp || "";
+    document.getElementById("deca_carg_poblacion").value = doc.cargador_poblacion || "";
+    document.getElementById("deca_carg_provincia").value = doc.cargador_provincia || "";
+
+    // Datos del Transportista (Seguridad de lectura)
+    document.getElementById("deca_transp_razon").value = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "") : (doc.transportista_razon || "");
+    document.getElementById("deca_transp_nif").value = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "") : (doc.transportista_nif || "");
+
+    // Datos del Transporte
+    document.getElementById("deca_fecha_transporte").value = doc.fecha_transporte || "";
+    document.getElementById("deca_fecha_fin").value = doc.fecha_fin_servicio || "";
+    document.getElementById("deca_vehiculo").value = doc.matricula_tractor || "";
+    document.getElementById("deca_remolque").value = doc.matricula_remolque || "";
+    document.getElementById("deca_origen").value = doc.origen_plaza || "";
+    document.getElementById("deca_destino").value = doc.destino_plaza || "";
+
+    // Desglose elástico seguro de la magnitud del peso sin romper el script
+    if (doc.mercancia_peso && doc.mercancia_peso.includes(" ")) {
+        const partesPeso = doc.mercancia_peso.split(" ");
+    // 🔥 REPARACIÓN: Indicamos los trozos exactos del array (0 para el número y 1 para kg/litros)
+        document.getElementById("deca_mercan_peso").value = partesPeso[0] || "";
+        document.getElementById("deca_mercan_unidad").value = partesPeso[1] || "kg";
+    } else {
+        document.getElementById("deca_mercan_peso").value = doc.mercancia_peso || "";
+        document.getElementById("deca_mercan_unidad").value = "kg";
+    }
+
+    document.getElementById("deca_mercan_nombre").value = doc.mercancia_nombre || "";
+    document.getElementById("deca_mercan_bultos").value = doc.mercancia_bultos !== "---" ? doc.mercancia_bultos : "";
+    document.getElementById("deca_observaciones").value = doc.observaciones_indicaciones || "";
+
+    // Levantamos el modal gigante en modo Edición
+    document.getElementById("modal_nuevo_deca").style.display = "flex";
+}
+
+
+
+// =========================================================================
+// 🎛️ LOGÍSTICA DE ACCIONES RÁPIDAS (AUTOMATIZADA Y AMPLIADA CON CLONADO)
+// =========================================================================
+function ejecutarAccionFila(selectElement, idFirebase) {
+    const accion = selectElement.value;
+    if (!accion) return;
+
+    // Camino A: Borrado definitivo integrado con vuestro Modal Corporativo
+    if (accion === "borrar") {
+        const mensajePregunta = "¿Estás seguro de que deseas eliminar este documento electrónico de tu historial online de forma permanente?";
+        mostrarConfirmacionCorporateDeca(mensajePregunta, idFirebase);
+
+    // Camino B: Finalizar Viaje AUTOMÁTICO (Jubila al prompt de texto)
+    } else if (accion === "cambiar_estado") {
+        const mensajeFinalizar = "¿Ha llegado la mercancía a su destino comercial? Confirmar esta acción marcará el DeCA como CERRADO de forma definitiva.";
+
+        mostrarConfirmacionCorporativaDeca("Finalizar Servicio", mensajeFinalizar, function() {
+            mostrarAvisoToast("🔄 Cerrando porte en el archivo central...");
+
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idFirebase).update({
+                estado: "CERRADO",
+                fecha_fin_servicio: "2026-10-04" // Registra la fecha de llegada real de hoy
+            })
+            .then(() => mostrarAvisoToast("🏁 Servicio finalizado. Viaje guardado como Cerrado."))
+            .catch(err => mostrarAlertaCorporativaDeca("Error de Red", "No se pudo cerrar el porte: " + err.message, "❌"));
+        });
+
+    // Camino C: Apertura del Mapeo inverso de edición
+    } else if (accion === "editar") {
+        abrirFormularioEditarDeCA(idFirebase);
+
+    // 🔥 CAMINO D: CLONADO INTELIGENTE DE PORTES HISTÓRICOS (DUPLICAR)
+    } else if (accion === "duplicar") {
+        const viajeOrigen = documentosDeCA.find(item => item.id_firebase === idFirebase);
+        if (!viajeOrigen) return;
+
+        const mensajeClonar = `¿Deseas clonar la retícula de este viaje? Se generará un DeCA correlativo nuevo para HOY con los mismos datos de ${viajeOrigen.cargador_razon || 'Cargador'}.`;
+
+        mostrarConfirmacionCorporativaDeca("Duplicar Documento", mensajeClonar, function() {
+            mostrarAvisoToast("📋 Clonando estructura del viaje...");
+
+            // Calculamos la caducidad del nuevo QR sumando 7 días a la fecha de hoy
+            let fechaBaseNueva = new Date("2026-10-04");
+            fechaBaseNueva.setDate(fechaBaseNueva.getDate() + 7);
+            const aaaa = fechaBaseNueva.getFullYear();
+            const mm = String(fechaBaseNueva.getMonth() + 1).padStart(2, '0');
+            const dd = String(fechaBaseNueva.getDate()).padStart(2, '0');
+            const nuevaCaducidadQR = `${aaaa}-${mm}-${dd}`;
+
+            // Recomponemos el paquete elástico clonando los nodos fiscales y de transporte
+            const paqueteDuplicado = {
+                cargador_razon: viajeOrigen.cargador_razon || "",
+                cargador_nif: viajeOrigen.cargador_nif || "",
+                cargador_calle: viajeOrigen.cargador_calle || "",
+                cargador_cp: viajeOrigen.cargador_cp || "",
+                cargador_poblacion: viajeOrigen.cargador_poblacion || "",
+                cargador_provincia: viajeOrigen.cargador_provincia || "",
+                cargador_domicilio: viajeOrigen.cargador_domicilio || "",
+                matricula_tractor: viajeOrigen.matricula_tractor || "",
+                matricula_remolque: viajeOrigen.matricula_remolque || "",
+                fecha_transporte: "2026-10-04", // Forzado automático a la jornada de hoy
+                fecha_fin_servicio: "",          // Nace en blanco listo para el nuevo viaje
+                origen_plaza: viajeOrigen.origen_plaza || "",
+                destino_plaza: viajeOrigen.destino_plaza || "",
+                mercancia_nombre: viajeOrigen.mercancia_nombre || "",
+                mercancia_peso: viajeOrigen.mercancia_peso || "",
+                mercancia_bultos: viajeOrigen.mercancia_bultos || "---",
+                observaciones_indicaciones: viajeOrigen.observaciones_indicaciones || "",
+                qr_caducidad: nuevaCaducidadQR,
+                estado: "EN_CURSO", // Nace activo y verde listo para arrancar ruta
+                fecha_creacion_sistema: new Date().toLocaleString()
+            };
+
+            // Invocamos vuestro generador secuencial original para meter el duplicado en red
+            ejecutarInyeccionCorrelativaDeCA(paqueteDuplicado);
+        });
+    }
+
+    selectElement.value = ""; // Reseteo táctil del selector
+}
+
+
+
+
+// Función auxiliar elástica para conectar el borrado con el modal de confirmación
+function mostrarConfirmacionCorporateDeca(mensaje, idFirebase) {
+    mostrarConfirmacionCorporativaDeca("Eliminar Documento", mensaje, function() {
+        mostrarAvisoToast("🗑️ Eliminando registro de la nube...");
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idFirebase).remove()
+            .then(() => mostrarAvisoToast("✅ Registro eliminado correctamente"))
+            .catch(err => mostrarAlertaCorporativaDeca("Error de Red", "No se pudo eliminar: " + err.message, "❌"));
+    });
+}
+
+function mostrarAvisoToast(msg) {
+    const t = document.getElementById("toast_deca");
+    if (t) {
+        t.innerHTML = msg;
+        t.style.display = "block";
+        setTimeout(() => { t.style.display = "none"; }, 2500);
+    }
+}
+
+
+// =========================================================================
+// 🚨 PASARELA MÁSTER: MODALES INTERACTIVOS REUTILIZABLES (ESTILO TPV)
+// =========================================================================
+
+// Función que despierta el modal de Alerta (Reemplaza a los alert nativos)
+function mostrarAlertaCorporativaDeca(titulo, mensaje, tipoIcono = "⚠️") {
+    const modal = document.getElementById("modal_alerta_deca");
+    if (!modal) return;
+
+    document.getElementById("alerta_deca_icono").innerText = tipoIcono;
+    document.getElementById("alerta_deca_titulo").innerText = titulo.toUpperCase();
+    document.getElementById("alerta_deca_texto").innerText = mensaje;
+
+    // Activamos el botón de cierre para que apague el modal al pulsar
+    document.getElementById("btn_alerta_deca_aceptar").onclick = function() {
+        modal.style.display = "none";
+    };
+
+    modal.style.display = "flex";
+}
+
+// Función que despierta el modal de Confirmación (Reemplaza a los confirm nativos)
+function mostrarConfirmacionCorporativaDeca(titulo, mensaje, accionSi, accionNo = null) {
+    const modal = document.getElementById("modal_confirm_deca");
+    if (!modal) return;
+
+    document.getElementById("confirm_deca_icono").innerText = "❓";
+    document.getElementById("confirm_deca_titulo").innerText = titulo.toUpperCase();
+    document.getElementById("confirm_deca_texto").innerText = mensaje;
+
+    // Configuración del botón SÍ
+    document.getElementById("btn_confirm_deca_aceptar").onclick = function() {
+        modal.style.display = "none";
+        if (typeof accionSi === "function") accionSi();
+    };
+
+    // Configuración del botón NO
+    document.getElementById("btn_confirm_deca_cancelar").onclick = function() {
+        modal.style.display = "none";
+        if (typeof accionNo === "function") accionNo();
+    };
+
+    modal.style.display = "flex";
+}
+
+
+// =========================================================================
+// 🚀 CENTINELAS DE CARGA DEL DOM (Garantizan el arranque síncrono en red)
+// =========================================================================
+if (document.readyState === "complete" || document.readyState === "interactive") {
+    iniciarEcosistemaDeCAs();
+} else {
+    document.addEventListener("DOMContentLoaded", iniciarEcosistemaDeCAs);
+}
+
+
+// =========================================================================
+// 👤 CONFIGURACIÓN DEL PANEL "MIS DATOS" COMPLETO EXTENDIDO
+// =========================================================================
+
+
+// Listado oficial elástico de provincias españolas para el buscador predictivo
+const PROVINCIAS_ESPANA = [
+    "ÁLAVA", "ALBACETE", "ALICANTE", "ALMERÍA", "ASTURIAS", "ÁVILA", "BADAJOZ", "BALEARES", "BARCELONA", "BURGOS",
+    "CÁCERES", "CÁDIZ", "CANTABRIA", "CASTELLÓN", "CIUDAD REAL", "CÓRDOBA", "A CORUÑA", "CUENCA", "GIRONA", "GRANADA",
+    "GUADALAJARA", "GUIPÚZCOA", "HUELVA", "HUESCA", "JAÉN", "LEÓN", "LLEIDA", "LUGO", "MADRID", "MÁLAGA", "MURCIA",
+    "NAVARRA", "OURENSE", "PALENCIA", "LAS PALMAS", "PONTEVEDRA", "LA RIOJA", "SALAMANCA", "SANTA CRUZ DE TENERIFE",
+    "SEGOVIA", "SEVILLA", "SORIA", "TARRAGONA", "TERUEL", "TOLEDO", "VALENCIA", "VALLADOLID", "VIZCAYA", "ZAMORA",
+    "ZARAGOZA", "CEUTA", "MELILLA"
+];
+
+// =========================================================================
+// 🔍 MOTOR PREDICTIVO DE PROVINCIAS (SELECT DINÁMICO EN ESCRITURA)
+// =========================================================================
+function filtrarProvinciasPredictivo(inputElement) {
+    const textoBuscar = inputElement.value.toUpperCase().trim();
+    const dropdown = document.getElementById("lista_provincias_drop");
+
+    if (!dropdown) return;
+    dropdown.innerHTML = "";
+
+    const filtradas = PROVINCIAS_ESPANA.filter(prov => prov.includes(textoBuscar));
+
+    if (filtradas.length === 0 || textoBuscar === "") {
+        dropdown.style.display = "none";
+        return;
+    }
+
+    filtradas.forEach(prov => {
+        const item = document.createElement("div");
+        item.innerText = prov;
+        item.style.padding = "8px 12px";
+        item.style.cursor = "pointer";
+        item.style.fontSize = "13px";
+        item.style.borderBottom = "1px solid #f0f0f0";
+        item.style.color = "#333";
+
+        item.onmouseover = function() { this.style.background = "#eef5fc"; };
+        item.onmouseout = function() { this.style.background = "white"; };
+
+        item.onclick = function() {
+            inputElement.value = prov;
+            dropdown.style.display = "none";
+        };
+
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = "block";
+}
+
+
+// =========================================================================
+// 🔍 MOTOR PREDICTIVO DE PROVINCIAS PARA EL CARGADOR CONTRACTUAL
+// =========================================================================
+function filtrarProvinciasCargadorPredictivo(inputElement) {
+    const textoBuscar = inputElement.value.toUpperCase().trim();
+    const dropdown = document.getElementById("lista_provincias_carg_drop");
+
+    if (!dropdown) return;
+    dropdown.innerHTML = "";
+
+    const filtradas = PROVINCIAS_ESPANA.filter(prov => prov.includes(textoBuscar));
+
+    if (filtradas.length === 0 || textoBuscar === "") {
+        dropdown.style.display = "none";
+        return;
+    }
+
+    filtradas.forEach(prov => {
+        const item = document.createElement("div");
+        item.innerText = prov;
+        item.style.padding = "8px 12px";
+        item.style.cursor = "pointer";
+        item.style.fontSize = "13px";
+        item.style.borderBottom = "1px solid #f0f0f0";
+        item.style.color = "#333";
+        item.style.textAlign = "left";
+
+        item.onmouseover = function() { this.style.background = "#eef5fc"; };
+        item.onmouseout = function() { this.style.background = "white"; };
+
+        item.onclick = function() {
+            inputElement.value = prov;
+            dropdown.style.display = "none";
+        };
+
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = "block";
+}
+
+// Ampliamos el escudo global para que también cierre este dropdown al pinchar fuera
+document.addEventListener("click", function(e) {
+    if (e.target.id !== "deca_carg_provincia") {
+        const drop = document.getElementById("lista_provincias_carg_drop");
+        if (drop) drop.style.display = "none";
+    }
+});
+
+
+// Escudo global para cerrar el desplegable si se hace clic en cualquier otro lado
+document.addEventListener("click", function(e) {
+    if (e.target.id !== "reg_transp_provincia") {
+        const drop = document.getElementById("lista_provincias_drop");
+        if (drop) drop.style.display = "none";
+    }
+});
+
+
+
+// =========================================================================
+// 👤 CONFIGURACIÓN DEL PANEL "MIS DATOS" GIGANTE EXTENDIDO CORREGIDO
+// =========================================================================
+function abrirPanelMisDatosCamionero() {
+    conmutarVistaRecuperacionPerfil(false);
+    document.getElementById("link_conmutar_recuperar").style.display = "none";
+    document.getElementById("btn_cerrar_perfil").style.display = "block";
+
+    // Encendemos el búnker gigante de bloques extendidos
+    document.getElementById("bloque_datos_extendidos_camionero").style.display = "flex";
+
+    document.getElementById("titulo_perfil_dinamico").innerText = "👤 PANEL GENERAL DE MIS DATOS COMERCIALES";
+    document.getElementById("btn_guardar_perfil_ejecutar").innerText = "💾 Guardar Cambios en Servidor";
+
+    // Auto-relleno de campos desde la memoria RAM sincronizada con Firebase
+    if (misDatosPerfilAutonomo) {
+        document.getElementById("reg_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
+        document.getElementById("reg_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
+        document.getElementById("reg_transp_domicilio").value = misDatosPerfilAutonomo.domicilio_calle || "";
+        document.getElementById("reg_transp_cp").value = misDatosPerfilAutonomo.codigo_postal || "";
+        document.getElementById("reg_transp_poblacion").value = misDatosPerfilAutonomo.poblacion || "";
+        document.getElementById("reg_transp_provincia").value = misDatosPerfilAutonomo.provincia || "";
+
+        // 🚀 CORREGIDO: Lee de forma estricta las claves que tienes guardadas en Firebase
+        document.getElementById("reg_transp_tractor").value = misDatosPerfilAutonomo.matricula_tractor || "";
+        document.getElementById("reg_transp_remolque").value = misDatosPerfilAutonomo.matricula_remolque || "";
+
+        document.getElementById("reg_transp_telefono").value = misDatosPerfilAutonomo.telefono || "";
+        document.getElementById("reg_transp_email").value = misDatosPerfilAutonomo.email || "";
+        document.getElementById("reg_transp_password").value = misDatosPerfilAutonomo.clave_personalizada_alias || "";
+    }
+
+    document.getElementById("modal_perfil_camionero").style.display = "flex";
+}
+
+
+
+// =========================================================================
+// ✍️ PROCESADOR INTEGRADO DE IDENTIDAD EXPRES / GIGANTE CORREGIDO
+// =========================================================================
+function registrarNuevoCamioneroEcosistema() {
+    const razon = document.getElementById("reg_transp_razon").value.trim().toUpperCase();
+    const nif = document.getElementById("reg_transp_nif").value.trim().toUpperCase();
+
+    if (!razon || !nif) {
+        return alert("⚠ Por favor, rellena los campos obligatorios del perfil (*).");
+    }
+
+    // Captura del bloque elástico segmentado
+    const domicilio = document.getElementById("reg_transp_domicilio").value.trim().toUpperCase();
+    const cp = document.getElementById("reg_transp_cp").value.trim();
+    const poblacion = document.getElementById("reg_transp_poblacion").value.trim().toUpperCase();
+    const provincia = document.getElementById("reg_transp_provincia").value.trim().toUpperCase();
+    const tractor = document.getElementById("reg_transp_tractor").value.trim().toUpperCase();
+    const remolque = document.getElementById("reg_transp_remolque").value.trim().toUpperCase();
+    const telefono = document.getElementById("reg_transp_telefono").value.trim();
+    const email = document.getElementById("reg_transp_email").value.trim().toLowerCase();
+    const passwordAlias = document.getElementById("reg_transp_password").value.trim();
+
+    // Componer la dirección completa oficial para los informes fiscales del DeCA (Mantiene compatibilidad)
+    let domicilioFiscalCompleto = domicilio || "";
+    if (cp || poblacion || provincia) {
+        domicilioFiscalCompleto += ` (CP: ${cp || '---'} - ${poblacion || '---'} - ${provincia || '---'})`;
+    }
+
+    const estructuraPerfil = {
+        razon_social: razon,
+        nif_cif: nif,
+        domicilio_calle: domicilio || "",
+        codigo_postal: cp || "",
+        poblacion: poblacion || "",
+        provincia: provincia || "",
+        domicilio_fiscal: domicilioFiscalCompleto, // Cadena unificada para el folio
+
+        // 🚀 CORREGIDO: Guarda con las claves nativas reales de tu Firebase
+        matricula_tractor: tractor || "",
+        matricula_remolque: remolque || "",
+
+        telefono: telefono || "",
+        email: email || "",
+        fecha_registro: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.fecha_registro || new Date().toLocaleString()) : new Date().toLocaleString(),
+        clave_recuperacion: miUsuarioUIDActivo,
+        clave_personalizada_alias: passwordAlias || ""
+    };
+
+    mostrarAvisoToast("⏳ Sincronizando ficha comercial en la nube...");
+
+    // 1. Guardamos los datos completos del transportista en su nodo
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').set(estructuraPerfil)
+        .then(() => {
+            // 2. Si hay contraseña propia (alias), creamos el puente exacto
+            if (passwordAlias !== "") {
+                return database.ref('alias_claves/' + passwordAlias).set(miUsuarioUIDActivo);
+            } else {
+                return Promise.resolve();
+            }
+        })
+        .then(() => {
+            if (!misDatosPerfilAutonomo) {
+                // Registro inicial virgen: Inyectamos el porte de muestra
+                const deCADemostracionPrivado = {
+                    numero_documento: "DeCA-2026-000001",
+                    fecha_transporte: "2026-10-02",
+                    matricula_tractor: tractor || "2058 JSY",
+                    matricula_remolque: remolque || "R 1874 BCP",
+                    origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
+                    destino_plaza: "VIA VENEZIANO, 28 - 45010 GAVELLO (ROVIGO) - ITALIA",
+                    mercancia_nombre: "AJO SPRING (MUESTRA PRIVADA)",
+                    mercancia_peso: "23.000 kg",
+                    mercancia_bultos: "23",
+                    qr_caducidad: "2026-10-09",
+                    estado: "EN_CURSO",
+                    cargador_razon: "CARGADOR EJEMPLO, S.L.",
+                    cargador_nif: "A00000000",
+                    cargador_domicilio: "CALLE CENTRAL, 10"
+                };
+                return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(deCADemostracionPrivado);
+            } else {
+                return Promise.resolve();
+            }
+        })
+        .then(() => {
+            // Sincronizamos la RAM antes de cerrar para activar el auto-relleno inmediato
+            misDatosPerfilAutonomo = estructuraPerfil;
+            document.getElementById("modal_perfil_camionero").style.display = "none";
+
+            if (document.getElementById("modal_clave_seguridad_deca").style.display !== "flex") {
+                mostrarAvisoToast("✅ Datos comerciales actualizados correctamente.");
+                verificarExistenciaPerfilCamionero();
+            }
+        })
+        .catch(err => alert("Error de red al guardar: " + err.message));
+}
+
+
+
+// =========================================================================
+// 🕵️ MOTOR DE RECUPERACIÓN SENSIBLE A MAYÚSCULAS/MINÚSCULAS
+// =========================================================================
+function recuperarPerfilCamioneroExistente() {
+    // 🔥 ELIMINADO EL .toUpperCase() -> Lee exactamente la combinación que introduce el conductor
+    const claveAValidar = document.getElementById("reg_clave_recuperar").value.trim();
+    if (!claveAValidar) return alert("⚠ Introduce un código válido.");
+
+    mostrarAvisoToast("🔍 Buscando tus portes en el clúster...");
+
+    // CAMINO A: Comprobar primero en el nodo puente de contraseñas exactas (alias)
+    database.ref('alias_claves/' + claveAValidar).once('value').then((snapshotAlias) => {
+        if (snapshotAlias.exists()) {
+            const uidRealAsociado = snapshotAlias.val();
+            localStorage.setItem("cfg_uid_recuperado_deca", uidRealAsociado);
+            miUsuarioUIDActivo = uidRealAsociado;
+            mostrarAvisoToast("✅ Perfil recuperado mediante contraseña propia");
+            verificarExistenciaPerfilCamionero();
+        } else {
+            // CAMINO B: Comprobar si introdujo el código largo maestro UID de Firebase directo
+            database.ref('usuarios/' + claveAValidar + '/datos_perfil').once('value').then((snapshotUID) => {
+                if (snapshotUID.exists()) {
+                    localStorage.setItem("cfg_uid_recuperado_deca", claveAValidar);
+                    miUsuarioUIDActivo = claveAValidar;
+                    mostrarAvisoToast("✅ Perfil recuperado mediante código maestro");
+                    verificarExistenciaPerfilCamionero();
+                } else {
+                    alert("❌ La contraseña o código introducido no coincide con ningún transportista activo.");
+                }
+            }).catch(err => alert("Error de validación UID: " + err.message));
+        }
+    }).catch(err => alert("Error de validación Alias: " + err.message));
+}
+
+// =========================================================================
+// 🏢 SISTEMA DE AUTO-RELLENO PREDICTIVO DE CARGADORES FRECUENTES (LOCAL)
+// =========================================================================
+
+// Extrae el array de empresas memorizadas en el disco local de este terminal
+function obtenerHistorialCargadoresLocales() {
+    try {
+        return JSON.parse(localStorage.getItem("cfg_deca_almacen_cargadores")) || [];
+    } catch(e) {
+        return [];
+    }
+}
+
+// =========================================================================
+// 🏢 REGISTRO SEGURO DE CARGADORES FRECUENTES (CORREGIDO DE RAÍZ)
+// =========================================================================
+function registrarCargadorEnHistorialFrecuente(razon, nif, calle, cp, poblacion, provincia) {
+    if (!razon || !nif) return;
+
+    let listaHabituales = obtenerHistorialCargadoresLocales();
+
+    // 🚀 REPARADO: Cambiamos 'c.nif' por 'empresa.nif' para que el navegador no se congele
+    const yaExistePerfil = listaHabituales.some(empresa => empresa.nif === nif);
+
+    if (!yaExistePerfil) {
+        listaHabituales.push({
+            razon: razon,
+            nif: nif,
+            calle: calle,
+            cp: cp,
+            poblacion: poblacion,
+            provincia: provincia
+        });
+
+        // Conservamos un tope de 30 cargadores para proteger el rendimiento del terminal
+        if (listaHabituales.length > 30) listaHabituales.shift();
+
+        localStorage.setItem("cfg_deca_almacen_cargadores", JSON.stringify(listaHabituales));
+        console.log("💾 Empresa cargadora guardada en historial local:", razon);
+    }
+}
+
+
+// Filtra las empresas sugeridas en tiempo real mientras el conductor escribe
+function filtrarCargadoresFrecuentesPredictivo(inputElement) {
+    const textoInyectado = inputElement.value.toUpperCase().trim();
+    const dropdownCargadores = document.getElementById("lista_cargadores_habituales_drop");
+
+    if (!dropdownCargadores) return;
+    dropdownCargadores.innerHTML = "";
+
+    const catalogoEmpresas = obtenerHistorialCargadoresLocales();
+
+    // Si el archivo está limpio o el input está vacío, apagamos el visor flotante
+    if (catalogoEmpresas.length === 0 || textoInyectado === "") {
+        dropdownCargadores.style.display = "none";
+        return;
+    }
+
+    const sugerenciasFiltradas = catalogoEmpresas.filter(c =>
+        c.razon.includes(textoInyectado) || c.nif.includes(textoInyectado)
+    );
+
+    if (sugerenciasFiltradas.length === 0) {
+        dropdownCargadores.style.display = "none";
+        return;
+    }
+
+    sugerenciasFiltradas.forEach(c => {
+        const celdaSugerencia = document.createElement("div");
+        celdaSugerencia.innerHTML = `<strong style="color:#0f4c81;">🏢 ${c.razon}</strong> <span style="font-size:11px; color:#666; margin-left:6px;">(${c.nif})</span>`;
+        celdaSugerencia.style.padding = "10px 14px";
+        celdaSugerencia.style.cursor = "pointer";
+        celdaSugerencia.style.fontSize = "13px";
+        celdaSugerencia.style.borderBottom = "1px solid #f0f0f0";
+        celdaSugerencia.style.textAlign = "left";
+        celdaSugerencia.style.color = "#212529";
+
+        celdaSugerencia.onmouseover = function() { this.style.background = "#eef5fc"; };
+        celdaSugerencia.onmouseout = function() { this.style.background = "white"; };
+
+        // 🚀 AUTO-RELLENO BRUTAL EN CASCADA: Escribe los 6 campos de golpe al hacer clic
+        celdaSugerencia.onclick = function() {
+            document.getElementById("deca_carg_razon").value = c.razon || "";
+            document.getElementById("deca_carg_nif").value = c.nif || "";
+            document.getElementById("deca_carg_domicilio").value = c.calle || "";
+            document.getElementById("deca_carg_cp").value = c.cp || "";
+            document.getElementById("deca_carg_poblacion").value = c.poblacion || "";
+            document.getElementById("deca_carg_provincia").value = c.provincia || "";
+
+            dropdownCargadores.style.display = "none";
+            mostrarAvisoToast("⚡ Cargador habitual auto-rellenado con éxito");
+        };
+
+        dropdownCargadores.appendChild(celdaSugerencia);
+    });
+
+    dropdownCargadores.style.display = "block";
+}
+
+// Escudo perimetral táctil para cerrar el desplegable si se pincha fuera del campo
+document.addEventListener("click", function(evento) {
+    if (evento.target.id !== "deca_carg_razon") {
+        const dropCarg = document.getElementById("lista_cargadores_habituales_drop");
+        if (dropCarg) dropCarg.style.display = "none";
+    }
+});
+
+
+// =========================================================================
+// 🌙 INTERRUPTOR CORPORATIVO: CONTROL DE MODO OSCURO MANUAL
+// =========================================================================
+function conmutarModoOscuroManual() {
+    const cuerpoCapa = document.body;
+    const botonEfecto = document.getElementById("btn_modo_oscuro_switch");
+    if (!cuerpoCapa || !botonEfecto) return;
+
+    // Conmutamos la clase nativa del CSS que invierte los colores
+    cuerpoCapa.classList.toggle("dark-mode");
+
+    // Evaluamos el estado final para actualizar la interfaz y memorizarlo
+    if (cuerpoCapa.classList.contains("dark-mode")) {
+        botonEfecto.innerText = "☀️ Modo Día";
+        localStorage.setItem("modo_oscuro_deca", "si");
+        mostrarAvisoToast("🌙 Modo noche activado");
+    } else {
+        botonEfecto.innerText = "🌙 Modo Noche";
+        localStorage.setItem("modo_oscuro_deca", "no");
+        mostrarAvisoToast("☀️ Modo día activado");
+    }
+}
+
+// 🔥 INYECTOR DE ARRANQUE SEGURIDAD: Sincroniza el texto del botón al abrir la app
+// Busca tu función iniciarEcosistemaDeCAs() y asegúrate de que al final la lógica del tema llame a esto:
+function sincronizarBotonOscuroAlArrancar() {
+    const botonEfecto = document.getElementById("btn_modo_oscuro_switch");
+    if (!botonEfecto) return;
+
+    if (localStorage.getItem("modo_oscuro_deca") === "si") {
+        document.body.classList.add("dark-mode");
+        botonEfecto.innerText = "☀️ Modo Día";
+    } else {
+        document.body.classList.remove("dark-mode");
+        botonEfecto.innerText = "🌙 Modo Noche";
+    }
+}
+
+// Enganchamos la sincronización estética en el cargador general del sistema
+document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(sincronizarBotonOscuroAlArrancar, 300);
+});
+
+
+
+</script>
+
+
+
+
+
+<!-- === MODAL INTERACTIVO GIGANTE: NUEVO DECA === -->
+<div id="modal_nuevo_deca" class="modal-deca-gigante">
+    <div class="deca-modal-contenido">
+
+        <!-- Cabecera Fija -->
+        <div class="deca-modal-cabecera">
+            <h3>Nuevo Documento electrónico de Control Administrativo</h3>
+            <button class="deca-modal-cerrar" onclick="cerrarModalNuevoDeCA()">✕</button>
+        </div>
+
+        <!-- Cuerpo Desplazable -->
+        <div class="deca-modal-cuerpo">
+
+            <!-- BLOQUE 1: CARGADOR CONTRACTUAL (DIRECCIÓN SEGMENTADA) -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">1</span> Cargador Contractual</div>
+                <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+<!-- Reemplazo el grupo de la Razón Social del Cargador Contractual por este con buscador local -->
+<div class="deca-form-grupo" style="position: relative;">
+    <label>Razón Social del Cargador <span>*</span></label>
+    <input type="text" id="deca_carg_razon" class="deca-input" placeholder="Empresa que contrata el transporte" oninput="filtrarCargadoresFrecuentesPredictivo(this)" onfocus="filtrarCargadoresFrecuentesPredictivo(this)">
+    <!-- Menú desplegable elástico para seleccionar cargadores históricos -->
+    <div id="lista_cargadores_habituales_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 185px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></div>
+</div>
+
+                    <div class="deca-form-grupo">
+                        <label>NIF del Cargador <span>*</span></label>
+                        <input type="text" id="deca_carg_nif" class="deca-input" placeholder="B-00000000">
+                    </div>
+                    <div class="deca-form-grupo" style="grid-column: 1 / -1;">
+                        <label>Domicilio (Calle, Plaza, Número, Piso) <span>*</span></label>
+                        <input type="text" id="deca_carg_domicilio" class="deca-input" placeholder="p. ej. Avenida del Transporte, 24">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Código Postal <span>*</span></label>
+                        <input type="text" id="deca_carg_cp" class="deca-input" placeholder="p. ej. 16630">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Población / Localidad <span>*</span></label>
+                        <input type="text" id="deca_carg_poblacion" class="deca-input" placeholder="p. ej. LAS MESAS">
+                    </div>
+                    <div class="deca-form-grupo" style="position: relative;">
+                        <label>Provincia (España) <span>*</span></label>
+                        <!-- Buscador predictivo elástico de provincias para el cargador -->
+                        <input type="text" id="deca_carg_provincia" class="deca-input" placeholder="Escribe para buscar..." oninput="filtrarProvinciasCargadorPredictivo(this)" onfocus="filtrarProvinciasCargadorPredictivo(this)">
+                        <div id="lista_provincias_carg_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 99999; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- BLOQUE 2: TRANSPORTISTA EFECTIVO -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo" style="justify-content: space-between; width: 100%;">
+                    <div><span class="deca-num-circulo">2</span> Transportista Efectivo <span style="background:#fff3cd; color:#856404; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:5px;">TU EMPRESA</span></div>
+                    <button type="button" onclick="invertirCargadorTransportista()" style="background:none; border:none; color:#0f4c81; font-size:11px; font-weight:bold; cursor:pointer;">⇄ Invertir Transportista por Cargador</button>
+                </div>
+                <div class="deca-form-grid">
+                    <div class="deca-form-grupo">
+                        <label>Razón Social del Transportista <span>*</span></label>
+                        <input type="text" id="deca_transp_razon" class="deca-input" readonly>
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>NIF del Transportista <span>*</span></label>
+                        <input type="text" id="deca_transp_nif" class="deca-input" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE 3: DATOS DEL TRANSPORTE -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">3</span> Datos del Transporte</div>
+                <div class="deca-form-grid">
+                    <div class="deca-form-grupo">
+                        <label>Fecha del Transporte <span>*</span></label>
+                        <input type="date" id="deca_fecha_transporte" class="deca-input">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Fecha Fin del Servicio</label>
+                        <input type="date" id="deca_fecha_fin" class="deca-input">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Vehículo <span>*</span></label>
+                        <input type="text" id="deca_vehiculo" class="deca-input" placeholder="0000 XXX">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Remolque</label>
+                        <input type="text" id="deca_remolque" class="deca-input" placeholder="R-0000 XXX">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Lugar de Origen <span>*</span></label>
+                        <input type="text" id="deca_origen" class="deca-input" placeholder="Localidad (provincia)">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Lugar de Destino <span>*</span></label>
+                        <input type="text" id="deca_destino" class="deca-input" placeholder="Localidad (provincia)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE 4: MERCANCÍA -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">4</span> Mercancía</div>
+                <div class="deca-form-grid">
+                    <div class="deca-form-grupo" style="flex: 2;">
+                        <label>Naturaleza de la Mercancía <span>*</span></label>
+                        <input type="text" id="deca_mercan_nombre" class="deca-input" placeholder="p. ej. Perfil de aluminio paletizado">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Peso / Magnitud <span>*</span></label>
+                        <input type="number" id="deca_mercan_peso" class="deca-input" placeholder="14500">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Unidad <span>*</span></label>
+                        <select id="deca_mercan_unidad" class="deca-input">
+                            <option value="kg">kg</option>
+                            <option value="unidades">unidades</option>
+                            <option value="litros">litros</option>
+                        </select>
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Bultos</label>
+                        <input type="number" id="deca_mercan_bultos" class="deca-input" placeholder="22">
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE 5: OBSERVACIONES -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">5</span> Observaciones</div>
+                <div class="deca-form-grupo ancho-completo">
+                    <textarea id="deca_observaciones" class="deca-input" rows="3" placeholder="Reservas o indicaciones de los intervinientes" style="resize: none; font-family: inherit;"></textarea>
+                </div>
+            </div>
+
+            <p style="font-size: 11px; color: #718096; line-height: 1.4; margin: 5px 0 0 0;">
+                <strong>Disponibilidad automática:</strong> el PDF se genera antes del inicio del servicio con fecha y hora de creación registradas. La descarga por QR queda activa durante el servicio y hasta <strong>7 días naturales</strong> después de su finalización. El documento se conserva 1 año.
+            </p>
+        </div>
+
+        <!-- Pie de Botones Fijo -->
+        <div class="deca-modal-pie">
+            <button class="deca-btn-pie deca-btn-cancelar" onclick="cerrarModalNuevoDeCA()">Cancelar</button>
+            <button class="deca-btn-pie deca-btn-guardar" onclick="procesarGuardadoDeCAOnline()">Generar DeCA</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ==========================================================================
+     📦 BLOQUE CONSOLIDADO MÁSTER: VISOR DE DOCUMENTO DECA (100% ELÁSTICO SIN TABLAS COLA)
+     ========================================================================== -->
+<div id="modal_preview_deca" class="modal-preview-deca">
+    <div class="preview-container">
+
+        <!-- Cabecera Fija del Moldure -->
+        <div class="deca-modal-cabecera">
+            <h3 id="prev_top_numero">DeCA-2026-000001</h3>
+            <button class="deca-modal-cerrar" onclick="cerrarVisorPreviewDeCA()">✕</button>
+        </div>
+
+        <!-- Cuerpo del Folio con Scroll Controlado y Aislamiento Perimetral -->
+        <div class="preview-cuerpo-scroll">
+            <div class="folio-deca">
+
+                <!-- 1. IDENTIFICACIÓN Y LOGO DEL FOLIO -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
+                    <div style="max-width: 75%; box-sizing: border-box; text-align: left;">
+                        <h2 style="margin: 0; font-size: 13px; color: #0f4c81; font-weight: bold; font-family: sans-serif; text-transform: uppercase;">DOCUMENTO ELECTRÓNICO DE CONTROL ADMINISTRATIVO (DeCA)</h2>
+                        <p style="margin: 4px 0 0 0; font-size: 9px; color: #666; line-height: 1.2; font-family: sans-serif;">
+                            Transporte público de mercancías por carretera - Orden FOM/2861/2012, de 13 de diciembre - Ley 8/2025, de Movilidad Sostenible - Resolución de 5 de junio de 2026 (BOE-A-2026-12784)
+                        </p>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 900; color: #111; text-align: right; width: 25%; box-sizing: border-box; font-family: monospace;" id="prev_folio_numero">---</div>
+                </div>
+
+                <!-- 2. BLOQUE: CARGADOR CONTRACTUAL -->
+                <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box; font-family: sans-serif; text-align: left;">
+                    <div class="folio-header-azul" style="border: 1px solid #0f4c81 !important; width: 100%; box-sizing: border-box;">Cargador Contractual (Art. 6.A)</div>
+                    <div style="display: flex; width: 100%; box-sizing: border-box;">
+                        <div style="width: 50%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Razón Social</span><span id="prev_carg_razon">---</span></div>
+                        <div style="width: 50%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">CIF/NIF</span><span id="prev_carg_nif">---</span></div>
+                    </div>
+                    <div style="width: 100%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Domicilio</span><span id="prev_carg_domicilio">---</span></div>
+                </div>
+
+                <!-- 3. BLOQUE: TRANSPORTISTA EFECTIVO -->
+                <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box; font-family: sans-serif; text-align: left;">
+                    <div class="folio-header-azul" style="border: 1px solid #0f4c81 !important; width: 100%; box-sizing: border-box;">Transportista Efectivo (Art. 6.B)</div>
+                    <div style="display: flex; width: 100%; box-sizing: border-box;">
+                        <div style="width: 50%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Razón Social</span><span id="prev_transp_razon">---</span></div>
+                        <div style="width: 50%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">CIF/NIF</span><span id="prev_transp_nif">---</span></div>
+                    </div>
+                </div>
+
+                <!-- 4. BLOQUE: DATOS DEL TRANSPORTE -->
+                <div style="width: 100%; margin-bottom: 14px; box-sizing: border-box; font-family: sans-serif; text-align: left;">
+                    <div class="folio-header-azul" style="border: 1px solid #0f4c81 !important; width: 100%; box-sizing: border-box;">Datos del Transporte (Art. 6.C, 6.E, 6.F, 6.G)</div>
+                    <div style="display: flex; width: 100%; box-sizing: border-box;">
+                        <div style="width: 33.33%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Fecha del Transporte</span><span id="prev_fecha_transporte">---</span></div>
+                        <div style="width: 33.33%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Matrícula Tractora</span><span id="prev_matricula_tractor" style="font-weight: bold;">---</span></div>
+                        <div style="width: 34%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Matrícula Remolque</span><span id="prev_matricula_remolque" style="font-weight: bold;">---</span></div>
+                    </div>
+                    <div style="width: 100%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Lugar de Origen</span><span id="prev_origen_plaza">---</span></div>
+                    <div style="width: 100%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Lugar de Destino</span><span id="prev_destino_plaza">---</span></div>
+                </div>
+
+                <!-- 5. BLOQUE: MERCANCÍA -->
+                <div style="width: 100%; margin-bottom: 18px; box-sizing: border-box; font-family: sans-serif; text-align: left;">
+                    <div class="folio-header-azul" style="border: 1px solid #0f4c81 !important; width: 100%; box-sizing: border-box;">Mercancía (Art. 6.D)</div>
+                    <div style="display: flex; width: 100%; box-sizing: border-box;">
+                        <div style="width: 50%; border: 1px solid #111; border-top: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Naturaleza</span><span id="prev_mercan_nombre">---</span></div>
+                        <div style="width: 25%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Peso / Magnitud</span><span id="prev_mercan_peso" style="font-weight: bold;">---</span></div>
+                        <div style="width: 25%; border: 1px solid #111; border-top: none; border-left: none; padding: 8px; box-sizing: border-box;"><span class="folio-subetiqueta">Bultos</span><span id="prev_mercan_bultos">---</span></div>
+                    </div>
+                </div>
+
+                <!-- 6. BLOQUE INFERIOR: QR Y VALIDEZ LEGAL -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%; box-sizing: border-box; gap: 15px;">
+                    <div style="flex-grow: 1; max-width: 75%; box-sizing: border-box; text-align: left;">
+                        <span style="font-size: 10px; font-weight: bold; color: #0f4c81; display: block; margin-bottom: 4px; font-family: sans-serif;">DISPONIBILIDAD DE DESCARGA (Res. 5/6/2026)</span>
+                        <div style="border: 1px solid #111; padding: 8px; text-align: center; width: 180px; box-sizing: border-box; background: #fafafa; font-family: sans-serif;">
+                            <span class="folio-subetiqueta" style="margin-bottom: 1px;">QR Activo Hasta</span>
+                            <strong style="font-size: 13px;" id="prev_qr_caducidad">---</strong>
+                        </div>
+                        <p style="font-size: 7.5px; color: #666; margin: 8px 0 0 0; line-height: 1.2; text-align: left; font-family: sans-serif;">
+                            Documento electrónico de control administrativo generado de forma nativa digital a través de DeCA... Conforme al artículo 6 de la Orden FOM/2861/2012 y la Resolución de 5 de junio de 2026... La descarga mediante QR permanece activa durante el servicio y hasta 7 días naturales tras su finalización.
+                        </p>
+                    </div>
+
+                    <!-- Receptor Dinámico de la librería QR -->
+                    <div style="text-align: center; width: 100px; flex-shrink: 0; box-sizing: border-box; font-family: sans-serif;">
+                        <div id="qrcode_real_render" style="width: 90px; height: 90px; margin: 0 auto; display: flex; align-items: center; justify-content: center;"></div>
+                        <span style="font-size: 7px; color: #666; display: block; margin-top: 6px; line-height: 1.1; text-align: center;">El escaneo del QR produce la descarga directa del PDF</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Pie de Botones Fijos Inferiores -->
+        <div class="preview-pie-botones">
+            <button class="btn-preview-accion pdf-azul" onclick="ejecutarDescargaPDFCompleto()">📥 Documento completo (PDF)</button>
+            <button class="btn-preview-accion" onclick="ejecutarImpresionHojaQR()">📄 Hoja con QR (1 página)</button>
+            <button class="btn-preview-accion" onclick="abrirPaginaVerificacion()">🔗 Página de verificación</button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- === MODAL PREMIUM INTERACTIVO GIGANTE: PANEL GENERAL "MIS DATOS / CONFIGURACIÓN" === -->
+<div id="modal_perfil_camionero" class="modal-deca-gigante" style="z-index: 600000; background: rgba(11, 14, 23, 0.85);">
+    <div class="deca-modal-contenido" style="max-width: 800px; height: 92vh; margin: auto;">
+
+        <!-- Cabecera Corporativa Estilo Nuevo DeCA -->
+        <div class="deca-modal-cabecera" style="background: #0f4c81; color: white;">
+            <h3 id="titulo_perfil_dinamico" style="color: white !important; font-weight: bold; font-size: 16px;">🚚 CONFIGURACIÓN DE TRANSPORTISTA EFECTIVO</h3>
+            <button id="btn_cerrar_perfil" class="deca-modal-cerrar" onclick="document.getElementById('modal_perfil_camionero').style.display = 'none'" style="color: white; display: none;">✕</button>
+        </div>
+
+        <!-- Cuerpo Desplazable con Rejilla Elástica -->
+        <div class="deca-modal-cuerpo" style="padding: 20px; background: #f0f4f8;">
+
+            <!-- VISTA DE FORMULARIO GENERAL -->
+            <div id="vista_registro_nuevo">
+
+                <!-- SECCIÓN 1: DATOS FISCALES OBLIGATORIOS -->
+                <div class="bloque-formulario-deca">
+                    <div class="deca-num-titulo"><span class="deca-num-circulo">1</span> Identificación Fiscal (Obligatorio)</div>
+                    <div class="deca-form-grid">
+                        <div class="deca-form-grupo">
+                            <label>Razón Social / Nombre Autónomo <span>*</span></label>
+                            <input type="text" id="reg_transp_razon" class="deca-input" placeholder="p. ej. JUAN PÉREZ GÓMEZ">
+                        </div>
+                        <div class="deca-form-grupo">
+                            <label>NIF / CIF <span>*</span></label>
+                            <input type="text" id="reg_transp_nif" class="deca-input" placeholder="p. ej. 12345678Z">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: DIRECCIÓN POSTAL SEGMENTADA (Solo visible en edición "Mis Datos") -->
+                <div id="bloque_datos_extendidos_camionero" style="display: none; flex-direction: column; gap: 15px;">
+
+                    <div class="bloque-formulario-deca">
+                        <div class="deca-num-titulo"><span class="deca-num-circulo">2</span> Dirección Postal y Sede Fiscal</div>
+                        <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                            <div class="deca-form-grupo" style="grid-column: 1 / -1;">
+                                <label>Domicilio (Calle, Plaza, Avenida, Número, Piso)</label>
+                                <input type="text" id="reg_transp_domicilio" class="deca-input" placeholder="p. ej. Calle Central, 10 2ºB">
+                            </div>
+                            <div class="deca-form-grupo">
+                                <label>Código Postal</label>
+                                <input type="text" id="reg_transp_cp" class="deca-input" placeholder="p. ej. 16630">
+                            </div>
+                            <div class="deca-form-grupo">
+                                <label>Población / Localidad</label>
+                                <input type="text" id="reg_transp_poblacion" class="deca-input" placeholder="p. ej. LAS MESAS">
+                            </div>
+                            <div class="deca-form-grupo" style="position: relative;">
+                                <label>Provincia (España)</label>
+                                <!-- Buscador predictivo elástico de provincias -->
+                                <input type="text" id="reg_transp_provincia" class="deca-input" placeholder="Escribe para buscar..." oninput="filtrarProvinciasPredictivo(this)" onfocus="filtrarProvinciasPredictivo(this)">
+                                <div id="lista_provincias_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 99999; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 3: VEHÍCULO HABITUAL / REMOLQUE ASOCIADO -->
+                    <div class="bloque-formulario-deca">
+                        <div class="deca-num-titulo"><span class="deca-num-circulo">3</span> Equipo de Transporte Habitual (Auto-relleno)</div>
+                        <div class="deca-form-grid">
+                            <div class="deca-form-grupo">
+                                <label>Matrícula Tractora</label>
+                                <input type="text" id="reg_transp_tractor" class="deca-input" placeholder="p. ej. 0000 XXX">
+                            </div>
+                            <div class="deca-form-grupo">
+                                <label>Matrícula Remolque</label>
+                                <input type="text" id="reg_transp_remolque" class="deca-input" placeholder="p. ej. R-0000 XXX">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 4: CONTACTO Y PASARELA DE CONTRASEÑA DE ACCESO -->
+                    <div class="bloque-formulario-deca">
+                        <div class="deca-num-titulo"><span class="deca-num-circulo">4</span> Información de Contacto y Clave</div>
+                        <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                            <div class="deca-form-grupo">
+                                <label>Teléfono de Contacto</label>
+                                <input type="text" id="reg_transp_telefono" class="deca-input" placeholder="+34 600 000 000">
+                            </div>
+                            <div class="deca-form-grupo">
+                                <label>Correo Electrónico</label>
+                                <input type="email" id="reg_transp_email" class="deca-input" placeholder="conductor@empresa.com">
+                            </div>
+                        </div>
+
+                        <div style="background: #f0f4f8; padding: 14px; border-radius: 6px; border: 1px solid #cbd5e0;">
+                            <label style="color: #0f4c81; font-weight: bold; text-transform: none; display: block; margin-bottom: 4px; font-size: 12px;">🔑 Cambiar Clave de Acceso Personalizada (Alias)</label>
+                            <p style="font-size: 11px; color: #555; margin: 0 0 8px 0; line-height: 1.3;">Crea un alias para poder rescatar tu cuenta sin tener que usar el código maestro largo.</p>
+                            <input type="text" id="reg_transp_password" class="deca-input" placeholder="Ej: MiCamion2026" style="background: #ffffff !important; width: 100%;">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Botón de Acción Principal -->
+                <button type="button" id="btn_guardar_perfil_ejecutar" class="btn-top" style="width: 100%; padding: 14px; background: #0f4c81; color: white; border: none; margin-top: 15px; font-size: 14px;" onclick="registrarNuevoCamioneroEcosistema()">Activar mi Terminal Ahora</button>
+
+                <div id="link_conmutar_recuperar" style="text-align: center; margin-top: 15px; border-top: 1px dashed #dee2e6; padding-top: 15px;">
+                    <a href="#" style="font-size: 12px; color: #0f4c81; font-weight: bold; text-decoration: none;" onclick="conmutarVistaRecuperacionPerfil(true)">¿Ya tenías cuenta? Recuperar mi perfil</a>
+                </div>
+            </div>
+
+            <!-- INTERFAZ DE RECUPERACIÓN -->
+            <div id="vista_recuperacion_perfil" style="display: none;">
+                <div class="bloque-formulario-deca" style="margin-top: 40px;">
+                    <div class="deca-form-grupo" style="margin-bottom: 15px;">
+                        <label>Introduce tu Código Maestro o Contraseña <span>*</span></label>
+                        <input type="text" id="reg_clave_recuperar" class="deca-input" placeholder="Respeta mayúsculas/minúsculas o pega tu código largo...">
+                    </div>
+                    <button type="button" class="btn-top" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none;" onclick="recuperarPerfilCamioneroExistente()">Vincular mis Datos</button>
+                </div>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="#" style="font-size: 12px; color: #718096; text-decoration: none;" onclick="conmutarVistaRecuperacionPerfil(false)">Volver al panel principal</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<!-- === MODAL INTERACTIVO REUTILIZABLE DE AVISOS (REEMPLAZA A LOS ALERT) === -->
+<div id="modal_alerta_deca" class="modal-deca-gigante" style="z-index: 700000; background: rgba(0,0,0,0.6);">
+    <div class="deca-modal-contenido" style="max-width: 400px; height: auto; margin: auto; text-align: center; border-top: 5px solid #dc3545;">
+        <div class="deca-modal-cuerpo" style="padding: 25px; background: #ffffff;">
+            <span id="alerta_deca_icono" style="font-size: 45px; display: block; margin-bottom: 12px;">⚠️</span>
+            <h4 id="alerta_deca_titulo" style="margin: 0 0 10px 0; color: #212529; font-size: 16px; font-weight: bold;">Aviso del Sistema</h4>
+            <p id="alerta_deca_texto" style="font-size: 13px; color: #4a5568; line-height: 1.5; margin-bottom: 20px;"></p>
+            <button id="btn_alerta_deca_aceptar" class="btn-top-principal" style="width: 100%; padding: 12px; background: #dc3545; border: none;">ENTENDIDO</button>
+        </div>
+    </div>
+</div>
+
+<!-- === MODAL INTERACTIVO REUTILIZABLE DE PREGUNTAS (REEMPLAZA A LOS CONFIRM) === -->
+<div id="modal_confirm_deca" class="modal-deca-gigante" style="z-index: 690000; background: rgba(0,0,0,0.6);">
+    <div class="deca-modal-contenido" style="max-width: 400px; height: auto; margin: auto; text-align: center; border-top: 5px solid #0f4c81;">
+        <div class="deca-modal-cuerpo" style="padding: 25px; background: #ffffff;">
+            <span id="confirm_deca_icono" style="font-size: 45px; display: block; margin-bottom: 12px;">❓</span>
+            <h4 id="confirm_deca_titulo" style="margin: 0 0 10px 0; color: #212529; font-size: 16px; font-weight: bold;">¿Estás seguro?</h4>
+            <p id="confirm_deca_texto" style="font-size: 13px; color: #4a5568; line-height: 1.5; margin-bottom: 20px;"></p>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn_confirm_deca_aceptar" class="btn-top-principal" style="flex: 1; padding: 12px; background: #28a745; border: none;">SÍ</button>
+                <button id="btn_confirm_deca_cancelar" class="btn-top-principal" style="flex: 1; padding: 12px; background: #6c757d; border: none;">NO</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- === MODAL INTEGRADO: ENTREGA DE CLAVE DE RECUPERACIÓN === -->
+<div id="modal_clave_seguridad_deca" class="modal-deca-gigante" style="z-index: 610000; background: rgba(0,0,0,0.85);">
+    <div class="deca-modal-contenido" style="max-width: 440px; height: auto; margin: auto; text-align: center; border-top: 5px solid #28a745;">
+        <div class="deca-modal-cuerpo" style="padding: 25px; background: #ffffff;">
+            <span style="font-size: 50px; display: block; margin-bottom: 15px;">🔐</span>
+            <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: bold; color: #212529;">¡TERMINAL ACTIVADO CON ÉXITO!</h3>
+            <p style="color: #4a5568; font-size: 13px; line-height: 1.5; margin-bottom: 15px;">
+                Esta es tu <strong>Clave de Seguridad Maestra</strong>. Si cambias de móvil o reinstalas la app, te permitirá recuperar al instante todos tus DeCAs emitidos:
+            </p>
+
+            <!-- Contenedor del código copiable -->
+            <div style="background: #f8f9fa; border: 1px solid #cbd5e0; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 14px; font-weight: bold; color: #0f4c81; margin-bottom: 20px; word-break: break-all; select-all: true;" id="txt_clave_maestra_pantalla">
+                Cargando clave...
+            </div>
+
+            <button type="button" class="btn-top-principal" style="width: 100%; padding: 12px; background: #28a745;" onclick="cerrarModalClaveMaestraYEntrar()">Entrar a mi Panel</button>
+            <span style="font-size: 11px; color: #718096; display: block; margin-top: 10px; font-style: italic;">Puedes personalizar esta clave por una contraseña propia más adelante.</span>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
