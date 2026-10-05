@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.90</title>
+    <title>Gestor de DeCAs Transportes v1.92</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -688,13 +688,26 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 .btn-cerrar-qr-gigante:active { background: #0b3459; }
 
-/* === BLINDAJE DE SEGURIDAD ABSOLUTO ANTI-QR DUPLICADOS (LOCAL, GITHUB Y VISORES) === */
-#qrcode_real_render canvas,
-#canvas_render_qr_gigante canvas,
-.modal-preview-deca canvas {
-    display: none !important;
+/* === BLINDAJE DE SEGURIDAD AJUSTADO PARA APK, WEB Y COMPATIBILIDAD DE DISPOSITIVOS === */
+
+/* 1. Permitimos que el canvas sea visible (crucial para Android/APK) pero controlamos su tamaño */
+#qrcode_real_render canvas {
+    display: block !important;
+    width: 100% !important;
+    max-width: 110px !important;
+    height: auto !important;
+    margin: 0 auto;
+    cursor: pointer;
 }
 
+#canvas_render_qr_gigante canvas {
+    display: block !important;
+    width: 280px !important;
+    height: 280px !important;
+    margin: 0 auto !important;
+}
+
+/* 2. Controlamos las etiquetas <img> en caso de que el navegador web externo las genere */
 #qrcode_real_render img {
     width: 100% !important;
     max-width: 110px !important;
@@ -704,7 +717,10 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     transition: transform 0.15s ease;
     display: block !important;
 }
-#qrcode_real_render img:active { transform: scale(0.95); }
+#qrcode_real_render img:active,
+#qrcode_real_render canvas:active {
+    transform: scale(0.95); /* Efecto táctil de pulsación tanto para imagen como para canvas */
+}
 
 #canvas_render_qr_gigante img {
     width: 280px !important;
@@ -712,6 +728,14 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     display: block !important;
     margin: 0 auto !important;
 }
+
+/* 3. Truco maestro anti-duplicados: Si el navegador genera AMBOS (canvas e imagen a la vez),
+   ocultamos el canvas residual para que no se vea doble. Si solo genera uno, se verá perfecto. */
+#qrcode_real_render img + canvas,
+#canvas_render_qr_gigante img + canvas {
+    display: none !important;
+}
+
 
 /* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
 @media print {
@@ -1136,21 +1160,22 @@ function filtrarCatalogoDeCAs() {
 // 🔥 APERTURA DE FORMULARIO EN MODO CREAR (RESET COMPLETO)
 // =========================================================================
 function abrirFormularioNuevoDeCA() {
-    // 1. Reseteamos el control para asegurar que el formulario se abra en modo CREAR
     idDocumentoEnEdicion = null;
 
-    // Cambiamos el título y el texto del botón de acción en caliente al formato de alta
     document.querySelector("#modal_nuevo_deca h3").innerText = "Nuevo Documento electrónico de Control Administrativo";
     document.querySelector(".deca-btn-guardar").innerText = "Generar DeCA";
 
-    // Clavar la fecha de transporte al día de hoy automáticamente
-    document.getElementById("deca_fecha_transporte").value = "2026-10-04";
+    // FECHA CORREGIDA: Obtiene la fecha de hoy de forma dinámica en formato YYYY-MM-DD
+    const hoy = new Date();
+    const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
+    document.getElementById("deca_fecha_transporte").value = hoyString;
 
     if (misDatosPerfilAutonomo) {
         document.getElementById("deca_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
         document.getElementById("deca_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
-        document.getElementById("deca_vehiculo").value = misDatosPerfilAutonomo.matricula_tractor_defecto || "";
-        document.getElementById("deca_remolque").value = misDatosPerfilAutonomo.matricula_remolque_defecto || "";
+        // CLAVES CORREGIDAS: Coinciden exactamente con estructuraPerfil
+        document.getElementById("deca_vehiculo").value = misDatosPerfilAutonomo.matricula_tractor || "";
+        document.getElementById("deca_remolque").value = misDatosPerfilAutonomo.matricula_remolque || "";
     } else {
         document.getElementById("deca_transp_razon").value = "SIN CONFIGURAR";
         document.getElementById("deca_transp_nif").value = "---";
@@ -1158,11 +1183,10 @@ function abrirFormularioNuevoDeCA() {
         document.getElementById("deca_remolque").value = "";
     }
 
-    // Vaciamos el resto de campos para que no arrastre restos de ediciones previas
     limpiarCamposFormularioGigante();
-
     document.getElementById("modal_nuevo_deca").style.display = "flex";
 }
+
 
 
 
@@ -1193,134 +1217,110 @@ let urlControlQRGiganteActivo = "";
 // ==========================================
 // 📄 VISOR MÁSTER DEFINITIVO: VISUALIZACIÓN
 // ==========================================
+// ==========================================
+// 📄 VISOR MÁSTER DEFINITIVO: VISUALIZACIÓN (VERSIÓN APK BLINDADA)
+// ==========================================
 function verFichaDocumento(idFirebase) {
-    const doc = documentosDeCA.find(
-        item => item.id_firebase === idFirebase
-    );
+    const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
     if (!doc) return;
 
     idDocumentoEnEdicion = idFirebase;
     console.log("📋 Cargando Folio:", doc.numero_documento);
 
     // Volcar campos dinámicos en el Folio Blanco
-    document.getElementById("prev_top_numero").innerText =
-        doc.numero_documento || "---";
-    document.getElementById("prev_folio_numero").innerText =
-        doc.numero_documento || "---";
+    document.getElementById("prev_top_numero").innerText = doc.numero_documento || "---";
+    document.getElementById("prev_folio_numero").innerText = doc.numero_documento || "---";
 
-    document.getElementById("prev_carg_razon").innerText =
-        doc.cargador_razon || "---";
-    document.getElementById("prev_carg_nif").innerText =
-        doc.cargador_nif || "---";
-    document.getElementById("prev_carg_domicilio").innerText =
-        doc.cargador_domicilio || "---";
+    document.getElementById("prev_carg_razon").innerText = doc.cargador_razon || "---";
+    document.getElementById("prev_carg_nif").innerText = doc.cargador_nif || "---";
+    document.getElementById("prev_carg_domicilio").innerText = doc.cargador_domicilio || "---";
 
-    document.getElementById("prev_transp_razon").innerText =
-        misDatosPerfilAutonomo ?
-        (misDatosPerfilAutonomo.razon_social || "---") : "---";
-    document.getElementById("prev_transp_nif").innerText =
-        misDatosPerfilAutonomo ?
-        (misDatosPerfilAutonomo.nif_cif || "---") : "---";
+    document.getElementById("prev_transp_razon").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : "---";
+    document.getElementById("prev_transp_nif").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : "---";
 
-    document.getElementById("prev_fecha_transporte").innerText =
-        doc.fecha_transporte ?
-        doc.fecha_transporte.split("-").reverse().join("/") : "";
-    document.getElementById("prev_matricula_tractor").innerText =
-        doc.matricula_tractor || "---";
-    document.getElementById("prev_matricula_remolque").innerText =
-        doc.matricula_remolque || "---";
+    document.getElementById("prev_fecha_transporte").innerText = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "";
+    document.getElementById("prev_matricula_tractor").innerText = doc.matricula_tractor || "---";
+    document.getElementById("prev_matricula_remolque").innerText = doc.matricula_remolque || "---";
 
-    document.getElementById("prev_origen_plaza").innerText =
-        doc.origen_plaza || "---";
-    document.getElementById("prev_destino_plaza").innerText =
-        doc.destino_plaza || "---";
+    document.getElementById("prev_origen_plaza").innerText = doc.origen_plaza || "---";
+    document.getElementById("prev_destino_plaza").innerText = doc.destino_plaza || "---";
 
-    document.getElementById("prev_mercan_nombre").innerText =
-        doc.mercancia_nombre || "---";
-    document.getElementById("prev_mercan_peso").innerText =
-        doc.mercancia_peso || "---";
-    document.getElementById("prev_mercan_bultos").innerText =
-        doc.mercancia_bultos || doc.mercan_bultos || "---";
+    document.getElementById("prev_mercan_nombre").innerText = doc.mercancia_nombre || "---";
+    document.getElementById("prev_mercan_peso").innerText = doc.mercancia_peso || "---";
+    document.getElementById("prev_mercan_bultos").innerText = doc.mercancia_bultos || doc.mercan_bultos || "---";
 
-    document.getElementById("prev_qr_caducidad").innerText =
-        doc.qr_caducidad ?
-        doc.qr_caducidad.split("-").reverse().join("/") : "";
+    document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
 
-    // === INYECCIÓN DE QR INTERACTIVO GLOBAL ===
-    const contenedorQR = document.getElementById(
-        "qrcode_real_render"
-    );
+    // === INYECCIÓN DE QR CON COMPATIBILIDAD ASÍNCRONA PARA APK ===
+    const contenedorQR = document.getElementById("qrcode_real_render");
     if (contenedorQR) {
         contenedorQR.innerHTML = "";
 
         const miUsuarioGitHubOficial = "fulerdeca";
-        const enlaceInspeccionReal = "https://" +
-            miUsuarioGitHubOficial +
-            ".github.io/gestor-decas/?verificar=" +
-            idFirebase + "&user=" + miUsuarioUIDActivo;
+        const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
 
-        // Guardamos en la memoria RAM el enlace
         urlControlQRGiganteActivo = enlaceInspeccionReal;
 
-        try {
-            // Generamos el código proporcional a 140px
-            new QRCode(contenedorQR, {
-                text: enlaceInspeccionReal,
-                width: 140,
-                height: 140,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.M
-            });
+        // Mostramos el modal primero para que el contenedor adquiera dimensiones físicas en pantalla antes de dibujar el QR
+        document.getElementById("modal_preview_deca").style.display = "flex";
 
-            // GATILLO TÁCTIL: Al pulsar el QR, salta en grande
-            contenedorQR.onclick = function() {
-                abrirModalQRGiganteNativo();
-            };
-        } catch (e) {
-            console.warn("Librería QR ocupada...", e);
-            contenedorQR.innerText = "🔳";
-        }
+        // Le damos un pequeño respiro a Android (100ms) para inicializar el contenedor gráfico
+        setTimeout(() => {
+            try {
+                new QRCode(contenedorQR, {
+                    text: enlaceInspeccionReal,
+                    width: 140,
+                    height: 140,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+
+                // Asignar el trigger táctil para ampliar
+                contenedorQR.onclick = function() {
+                    abrirModalQRGiganteNativo();
+                };
+            } catch (e) {
+                console.warn("Error al generar el QR en APK:", e);
+                contenedorQR.innerHTML = "<span style='font-size:30px;'>🔳</span>";
+            }
+        }, 100);
     }
-
-    document.getElementById("modal_preview_deca").style.display = "flex";
 }
 
 // ==========================================
-// 🔳 DISPARADOR LÓGICO: GESTIÓN QR GIGANTE
+// 🔳 DISPARADOR LÓGICO: GESTIÓN QR GIGANTE (VERSIÓN APK BLINDADA)
 // ==========================================
 function abrirModalQRGiganteNativo() {
-    const contenedorEspejo = document.getElementById(
-        "canvas_render_qr_gigante"
-    );
-    const numeroDeCA = document.getElementById(
-        "prev_top_numero"
-    ).innerText || "DeCA";
+    const contenedorEspejo = document.getElementById("canvas_render_qr_gigante");
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText || "DeCA";
 
     if (!contenedorEspejo || !urlControlQRGiganteActivo) return;
 
     contenedorEspejo.innerHTML = "";
-    document.getElementById("txt_titulo_qr_gigante").innerText =
-        "VALIDACIÓN: " + numeroDeCA;
+    document.getElementById("txt_titulo_qr_gigante").innerText = "VALIDACIÓN: " + numeroDeCA;
 
-    try {
-        new QRCode(contenedorEspejo, {
-            text: urlControlQRGiganteActivo + "&cache=" + Date.now(),
-            width: 280,
-            height: 280,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
-        });
+    // Abrimos la capa del modal gigante primero
+    document.getElementById("modal_qr_pantalla_gigante").style.display = "flex";
 
-        document.getElementById(
-            "modal_qr_pantalla_gigante"
-        ).style.display = "flex";
-        mostrarAvisoToast("🔳 QR ampliado para lectura rápida");
-    } catch(err) {
-        console.error("Error al expandir QR:", err);
-    }
+    // Retardo síncrono para obligar al WebView a procesar el nuevo Canvas a 280px
+    setTimeout(() => {
+        try {
+            new QRCode(contenedorEspejo, {
+                text: urlControlQRGiganteActivo + "&cache=" + Date.now(),
+                width: 280,
+                height: 280,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+            mostrarAvisoToast("🔳 QR ampliado para lectura rápida");
+        } catch(err) {
+            console.error("Error al expandir QR en APK:", err);
+        }
+    }, 120);
 }
+
 
 function cerrarModalQRGiganteNativo() {
     const modalQr = document.getElementById(
@@ -1541,10 +1541,14 @@ function procesarGuardadoDeCAOnline() {
         if (viajeEncontrado) estadoCalculado = viajeEncontrado.estado || "EN_CURSO";
     } else {
         // Si es un alta nueva: Comparamos la fecha del viaje con la fecha del sistema de hoy (2026-10-04)
-        const hoyString = "2026-10-04";
+        // Cambiar el hoy estático por un cálculo dinámico real:
+        const hoy = new Date();
+        const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
+
         if (fechaTransp > hoyString) {
-            estadoCalculado = "PROGRAMADO"; // El viaje es para el futuro
+            estadoCalculado = "PROGRAMADO"; // El viaje es realmente para el futuro
         }
+
     }
 
     const paqueteDeCADatos = {
@@ -2062,10 +2066,8 @@ function registrarNuevoCamioneroEcosistema() {
 
     mostrarAvisoToast("⏳ Sincronizando ficha comercial en la nube...");
 
-    // 1. Guardamos los datos completos del transportista en su nodo
     database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').set(estructuraPerfil)
         .then(() => {
-            // 2. Si hay contraseña propia (alias), creamos el puente exacto
             if (passwordAlias !== "") {
                 return database.ref('alias_claves/' + passwordAlias).set(miUsuarioUIDActivo);
             } else {
@@ -2073,11 +2075,14 @@ function registrarNuevoCamioneroEcosistema() {
             }
         })
         .then(() => {
-            if (!misDatosPerfilAutonomo) {
-                // Registro inicial virgen: Inyectamos el porte de muestra
+            // Guardamos en RAM ANTES de evaluar la muestra para evitar colisiones de renderizado
+            misDatosPerfilAutonomo = estructuraPerfil;
+
+            if (!localStorage.getItem("cfg_uid_recuperado_deca")) {
+                // Es un registro totalmente nuevo, inyectamos la muestra de forma síncrona
                 const deCADemostracionPrivado = {
                     numero_documento: "DeCA-2026-000001",
-                    fecha_transporte: "2026-10-02",
+                    fecha_transporte: estructuraPerfil.fecha_registro.split(" ")[0].split("/").reverse().join("-"),
                     matricula_tractor: tractor || "2058 JSY",
                     matricula_remolque: remolque || "R 1874 BCP",
                     origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
@@ -2085,7 +2090,7 @@ function registrarNuevoCamioneroEcosistema() {
                     mercancia_nombre: "AJO SPRING (MUESTRA PRIVADA)",
                     mercancia_peso: "23.000 kg",
                     mercancia_bultos: "23",
-                    qr_caducidad: "2026-10-09",
+                    qr_caducidad: "2026-10-12",
                     estado: "EN_CURSO",
                     cargador_razon: "CARGADOR EJEMPLO, S.L.",
                     cargador_nif: "A00000000",
@@ -2097,13 +2102,14 @@ function registrarNuevoCamioneroEcosistema() {
             }
         })
         .then(() => {
-            // Sincronizamos la RAM antes de cerrar para activar el auto-relleno inmediato
-            misDatosPerfilAutonomo = estructuraPerfil;
+            // Cierre seguro del ecosistema de registro
             document.getElementById("modal_perfil_camionero").style.display = "none";
+            localStorage.setItem("cfg_uid_recuperado_deca", miUsuarioUIDActivo);
 
+            // Si el modal de la clave maestra no está activo, procedemos a liberar la app
             if (document.getElementById("modal_clave_seguridad_deca").style.display !== "flex") {
                 mostrarAvisoToast("✅ Datos comerciales actualizados correctamente.");
-                verificarExistenciaPerfilCamionero();
+                activarEscuchaRealtimeDeCAs(); // Llamada directa segura para pintar la tabla
             }
         })
         .catch(err => alert("Error de red al guardar: " + err.message));
