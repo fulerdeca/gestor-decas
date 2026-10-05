@@ -831,7 +831,6 @@ function iniciarEcosistemaDeCAs() {
 // 🕵️ CONTROL DE ACCESO INTELIGENTE (BIFURCADOR TRANSPORTISTA / INSPECTOR)
 // =========================================================================
 function verificarExistenciaPerfilCamionero() {
-    // 🚀 EL ESCUDO INSPECTOR: Si la URL trae datos de verificación, bloqueamos el modal de registro
     const parametrosRadar = new URLSearchParams(window.location.search);
     const idDecaInspeccionar = parametrosRadar.get("verificar");
     const idUsuarioInspeccionar = parametrosRadar.get("user");
@@ -839,41 +838,40 @@ function verificarExistenciaPerfilCamionero() {
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
         console.log("👮 Radar activado: Saltando control de acceso para visualización pública...");
 
-        // Ejecutamos la lectura libre directa de ese porte en Firebase sin pedir registrarse
         database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
-                    // Cargamos el viaje en la RAM simulada
+                    idDocumentoEnEdicion = idDecaInspeccionar;
+                    miUsuarioUIDActivo = idUsuarioInspeccionar;
                     documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
 
-                    // Forzamos al visor a abrir el folio blanco maquetado
                     verFichaDocumento(idDecaInspeccionar);
 
-                    // Ocultamos las herramientas de gestión del camionero para el agente
+                    // Ocultamos el dashboard privado del transportista
                     if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                     if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                     if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
                     if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.display = "none";
                     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
 
-                    // 🚀 COMPROBACIÓN INSPECTOR: Escondemos los dos botones sobrantes del pie del folio para el agente externo
-                    const botonesPiePreview = document.querySelectorAll(".preview-pie-botones .btn-preview-accion");
-                    if (botonesPiePreview.length >= 3) {
-                        botonesPiePreview[1].style.display = "none"; // Esconde "Hoja con QR"
-                        botonesPiePreview[2].style.display = "none"; // Esconde "Página de verificación"
-                    }
-
                     const btnCerrarVisor = document.querySelector(".preview-container .deca-modal-cerrar");
                     if(btnCerrarVisor) btnCerrarVisor.style.display = "none";
+
+                    // 🚀 CORREGIDO: Ocultación unitaria mediante bucle elástico de los botones sobrantes para el agente
+                    const botonesPiePreview = document.querySelectorAll(".preview-pie-botones .btn-preview-accion");
+                    botonesPiePreview.forEach((btn, index) => {
+                        if (index === 1 || index === 2) { // Oculta "Hoja con QR" y "Página de verificación"
+                            btn.style.display = "none";
+                        }
+                    });
                 } else {
-                    alert("❌ El documento electrónico consultado no existe o ha sido retirado del servidor central.");
+                    alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                 }
             })
             .catch(err => console.error("Error en lectura pública:", err));
-        return; // Corta la ejecución aquí para que no siga evaluando el perfil del chofer
+        return;
     }
 
-    // --- CAMINO CONVENCIONAL DE SEGURIDAD PARA EL CONDUCTOR ---
     const bypassUID = localStorage.getItem("cfg_uid_recuperado_deca");
     if (bypassUID) {
         miUsuarioUIDActivo = bypassUID;
@@ -883,19 +881,17 @@ function verificarExistenciaPerfilCamionero() {
         .then((snapshot) => {
             if (snapshot.exists()) {
                 misDatosPerfilAutonomo = snapshot.val();
-                console.log("🚚 Transportista verificado:", misDatosPerfilAutonomo.razon_social);
                 document.getElementById("modal_perfil_camionero").style.display = "none";
                 activarEscuchaRealtimeDeCAs();
             } else {
-                console.log("🌱 Terminal nuevo detectado. Solicatando perfil de autónomo...");
                 document.getElementById("modal_perfil_camionero").style.display = "flex";
             }
         })
         .catch(err => {
-            console.error("🚨 Error de lectura de perfil:", err);
             document.getElementById("modal_perfil_camionero").style.display = "flex";
         });
 }
+
 
 
 function conmutarVistaRecuperacionPerfil(mostrarRecuperacion) {
@@ -1256,28 +1252,38 @@ function cerrarVisorPreviewDeCA() {
 
 // Pasarelas interactivas asociadas a vuestra nueva botonera reducida
 // =========================================================================
-// 📥 MOTOR NATIVO: GENERAR Y DESCARGAR PORTES EN FORMATO PDF OFICIAL
+// 📥 MOTOR NATIVO: GENERAR Y DESCARGAR PORTES EN 1 SOLA PÁGINA RIGIDA
 // =========================================================================
 function ejecutarDescargaPDFCompleto() {
-    // Capturamos el número del documento activo que está en pantalla para nombrar el archivo
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
-
-    // Cambiamos temporalmente el título de la pestaña del navegador
-    // Esto hace que cuando el sistema operativo guarde el PDF, le ponga el nombre correcto automáticamente
     const tituloOriginalPestaña = document.title;
     document.title = numeroDeCA;
 
-    mostrarAvisoToast("⏳ Preparando compaginación A4 del documento...");
+    mostrarAvisoToast("⏳ Eliminando márgenes residuales para página única...");
 
-    // Retardamos un milisegundo el disparo para dejar que el Toast se dibuje en pantalla
+    // 🚀 EL CANDADO MAESTRO ANTI-HOJA EN BLANCO: Forzamos la rigidez del contenedor del scroll al vuelo
+    const contenedorScroll = document.querySelector(".preview-cuerpo-scroll");
+    const contenedorPrincipal = document.querySelector(".preview-container");
+
+    if (contenedorScroll) contenedorScroll.style.overflowY = "visible";
+    if (contenedorPrincipal) {
+        contenedorPrincipal.style.height = "auto";
+        contenedorPrincipal.style.maxHeight = "100%";
+    }
+
     setTimeout(() => {
-        // Invocamos el puente nativo de renderizado del sistema (Abre la ventana de PDF/Imprimir)
         window.print();
 
-        // Al cerrar o guardar el PDF, restauramos el título original de la pestaña para el operador
+        // Al terminar de guardar, devolvemos el visor a su estado elástico normal de pantalla
+        if (contenedorScroll) contenedorScroll.style.overflowY = "auto";
+        if (contenedorPrincipal) {
+            contenedorPrincipal.style.height = "92vh";
+            contenedorPrincipal.style.maxHeight = "none";
+        }
         document.title = tituloOriginalPestaña;
-    }, 250);
+    }, 350);
 }
+
 
 // =========================================================================
 // 📄 COMPROBANTE RÁPIDO: GENERAR VALE DE DESCARGA (1 HÁGINA CON QR GIGANTE)
@@ -1313,7 +1319,7 @@ function ejecutarImpresionHojaQR() {
 
 
 // =========================================================================
-// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (REPARADO POR SUMAS FULERDECA)
+// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (REPARADO POR SUMAS INTEGRAL)
 // =========================================================================
 function abrirPaginaVerificacion() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText;
@@ -1325,18 +1331,19 @@ function abrirPaginaVerificacion() {
 
     mostrarAvisoToast("🔗 Abriendo pasarela de verificación de Tráfico...");
 
-    // Rescatamos el ID real de Firebase de la memoria RAM buscando por el número de documento
+    // Buscamos de forma robusta el ID en la memoria RAM usando el número de DeCA visible en el folio
     const viajeActivo = documentosDeCA.find(item => item.numero_documento === numeroDeCA);
-    const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : "";
+    const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : idDocumentoEnEdicion;
+    const usuarioPropietario = miUsuarioUIDActivo;
 
-    // 🚀 REPARADO: Estructura exacta por sumas unificada con vuestro nuevo servidor público
-    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + miUsuarioUIDActivo;
+    // Composición limpia e inmune a fallos de comillas
+    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + usuarioPropietario;
 
-    // Abrimos la pestaña simulada para la inspección de la Guardia Civil
     setTimeout(() => {
         window.open(enlaceCotejoAgente, '_blank');
     }, 300);
 }
+
 
 
 
