@@ -693,19 +693,20 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
    ========================================================================== */
 #qrcode_real_render {
     display: block !important;
-    width: 140px !important; /* Volvemos a los 140px originales de tu folio web */
-    height: 140px !important;
+    width: 110px !important; /* Ajustado a 110px estricto para que encaje dentro del margen del papel */
+    height: 110px !important;
     margin: 0 auto !important;
     text-align: center !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 
 #qrcode_real_render canvas,
 #qrcode_real_render img {
-    width: 140px !important;
-    height: 140px !important;
-    max-width: 140px !important;
-    max-height: 140px !important;
+    width: 110px !important; /* Reducido ligeramente para evitar el desborde horizontal en la web */
+    height: 110px !important;
+    max-width: 110px !important;
+    max-height: 110px !important;
     margin: 0 auto !important;
     display: block !important;
     box-sizing: border-box !important;
