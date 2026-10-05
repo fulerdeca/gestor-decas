@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.45</title>
+    <title>Gestor de DeCAs Transportes v1.50</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1213,14 +1213,15 @@ function invertirCargadorTransportista() {
 }
 
 
+
 // =========================================================================
-// 📄 VISOR MÁSTER: PREVISUALIZACIÓN CON QR UNIVERSAL DE GITHUB (SIN INTERNET LOC)
+// 📄 VISOR MÁSTER DEFINITIVO: PREVISUALIZACIÓN CON QR UNIVERSAL GITHUB v1.36
 // =========================================================================
 function verFichaDocumento(idFirebase) {
     const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
     if (!doc) return;
 
-    // Enganche de seguridad para recordar qué documento está en pantalla
+    // Enganche de seguridad para recordar qué documento está activo en pantalla
     idDocumentoEnEdicion = idFirebase;
 
     console.log("📋 Cargando en el Folio el documento activo:", doc.numero_documento);
@@ -1249,18 +1250,18 @@ function verFichaDocumento(idFirebase) {
 
     document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
 
-    // === GATILLO DE INYECCIÓN DE QR INTERACTIVO GLOBAL ===
+    // === GATILLO DE INYECCIÓN DE QR INTERACTIVO GLOBAL DE ALTA DEFINICIÓN ===
     const contenedorQR = document.getElementById("qrcode_real_render");
     if (contenedorQR) {
-        contenedorQR.innerHTML = ""; // Limpieza preventiva
+        contenedorQR.innerHTML = ""; // Limpieza preventiva del lienzo anterior
 
-        // 🚀 PASARELA GLOBAL GRATUITA: Enlace público universal para que cualquier móvil del mundo vea el folio
-        // Usamos vuestro nombre de usuario real de GitHub ('fulerdeca') y el repositorio
-        const nombreUsuarioGitHub = "fulerdeca";
-        const enlaceInspeccionReal = "https://" + nombreUsuarioGitHub + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
+        // 🚀 PASARELA GLOBAL: Enlace público universal construido por suma clásica inmune a fallos de comillas
+        // Redirige al agente directamente a vuestra pasarela de control en internet
+        const miUsuarioGitHubOficial = "fulerdeca";
+        const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
 
         try {
-            // Generamos el código a 160px para que la densidad de puntos sea perfectamente legible
+            // Generamos el código a 160px de matriz para asegurar que las esquinas y puntos se enfoquen al vuelo
             new QRCode(contenedorQR, {
                 text: enlaceInspeccionReal,
                 width: 160,
@@ -1270,7 +1271,7 @@ function verFichaDocumento(idFirebase) {
                 correctLevel : QRCode.CorrectLevel.M
             });
 
-            // Forzamos el acople estético a 90px en pantalla para no descuadrar el pie del papel
+            // Forzamos el acople estético inline a 90px en la pantalla gris para no descuadrar el pie del papel
             const qrImg = contenedorQR.querySelector("img");
             if (qrImg) {
                 qrImg.style.width = "90px";
@@ -1283,9 +1284,10 @@ function verFichaDocumento(idFirebase) {
         }
     }
 
-    // Levantar el modal en pantalla
+    // Levantamos el modal en pantalla
     document.getElementById("modal_preview_deca").style.display = "flex";
 }
+
 
 
 
@@ -1361,7 +1363,10 @@ function abrirPaginaVerificacion() {
     const miLlaveUsuarioFirebase = miUsuarioUIDActivo;
 
     // 🚀 EL BLINDAJE DE SUMAS: Unimos las piezas de forma milimétrica asegurando la barra "/" y el "?verificar="
-    const enlaceCotejoAgente = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idRealFirebase + "&user=" + miLlaveUsuarioFirebase + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor);
+    //const enlaceCotejoAgente = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idRealFirebase + "&user=" + miLlaveUsuarioFirebase + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor);
+     // 🚀 ROMPE-CACHÉS AUTOMÁTICO: Añadimos un número aleatorio de tiempo al final de la suma (+ Date.now())
+    // Esto obliga a GitHub a entregar el PDF maquetado en 1 sola página siempre, sin esperas y en cualquier móvil
+    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + miUsuarioUIDActivo + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor) + "&cache=" + Date.now();
 
     // Abrimos la pestaña simulada para la inspección de la Guardia Civil
     setTimeout(() => {
