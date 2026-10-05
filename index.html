@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.25</title>
+    <title>Gestor de DeCAs Transportes v1.30</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -816,39 +816,69 @@ function iniciarEcosistemaDeCAs() {
 
 
 
-
 // =========================================================================
-// 🕵️ CONTROL DE ACCESO MULTI-INQUILINO (Bifurcador de registro/portes)
+// 🕵️ CONTROL DE ACCESO INTELIGENTE (BIFURCADOR TRANSPORTISTA / INSPECTOR)
 // =========================================================================
 function verificarExistenciaPerfilCamionero() {
-    // Escudo para recordar un UID importado de mudanza o cambio de móvil si existiese
+    // 🚀 EL ESCUDO INSPECTOR: Si la URL trae datos de verificación, bloqueamos el modal de registro
+    const parametrosRadar = new URLSearchParams(window.location.search);
+    const idDecaInspeccionar = parametrosRadar.get("verificar");
+    const idUsuarioInspeccionar = parametrosRadar.get("user");
+
+    if (idDecaInspeccionar && idUsuarioInspeccionar) {
+        console.log("👮 Radar activado: Saltando control de acceso para visualización pública...");
+
+        // Ejecutamos la lectura libre directa de ese porte en Firebase sin pedir registrarse
+        database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    // Cargamos el viaje en la RAM simulada
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
+
+                    // Forzamos al visor a abrir el folio blanco maquetado
+                    verFichaDocumento(idDecaInspeccionar);
+
+                    // Ocultamos las herramientas de gestión del camionero para el agente
+                    if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
+                    if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
+                    if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
+                    if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.display = "none";
+                    if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
+
+                    const btnCerrarVisor = document.querySelector(".preview-container .deca-modal-cerrar");
+                    if(btnCerrarVisor) btnCerrarVisor.style.display = "none";
+                } else {
+                    alert("❌ El documento electrónico consultado no existe o ha sido retirado del servidor central.");
+                }
+            })
+            .catch(err => console.error("Error en lectura pública:", err));
+        return; // Corta la ejecución aquí para que no siga evaluando el perfil del chofer
+    }
+
+    // --- CAMINO CONVENCIONAL DE SEGURIDAD PARA EL CONDUCTOR ---
     const bypassUID = localStorage.getItem("cfg_uid_recuperado_deca");
     if (bypassUID) {
         miUsuarioUIDActivo = bypassUID;
     }
 
-    // Consultamos la rama específica de este transportista en Firebase
     database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').once('value')
         .then((snapshot) => {
             if (snapshot.exists()) {
                 misDatosPerfilAutonomo = snapshot.val();
                 console.log("🚚 Transportista verificado:", misDatosPerfilAutonomo.razon_social);
-
-                // Ocultar modal de registro y abrir su base de datos privada
                 document.getElementById("modal_perfil_camionero").style.display = "none";
                 activarEscuchaRealtimeDeCAs();
             } else {
-                // Dispositivo nuevo: Desplegar el modal oscuro de captura de forma obligatoria
-                console.log("🌱 Terminal nuevo detectado. Solicitando perfil de autónomo...");
+                console.log("🌱 Terminal nuevo detectado. Solicatando perfil de autónomo...");
                 document.getElementById("modal_perfil_camionero").style.display = "flex";
             }
         })
         .catch(err => {
             console.error("🚨 Error de lectura de perfil:", err);
-            // Si Firebase rechaza la lectura inicial, forzamos por seguridad la vista de registro
             document.getElementById("modal_perfil_camionero").style.display = "flex";
         });
 }
+
 
 function conmutarVistaRecuperacionPerfil(mostrarRecuperacion) {
     document.getElementById("vista_registro_nuevo").style.display = mostrarRecuperacion ? "none" : "block";
@@ -1265,7 +1295,7 @@ function ejecutarImpresionHojaQR() {
 
 
 // =========================================================================
-// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (REPARADO POR SUMAS v1.28)
+// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (REPARADO POR SUMAS FULERDECA)
 // =========================================================================
 function abrirPaginaVerificacion() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText;
@@ -1281,7 +1311,7 @@ function abrirPaginaVerificacion() {
     const viajeActivo = documentosDeCA.find(item => item.numero_documento === numeroDeCA);
     const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : "";
 
-    // 🚀 UNIFICACIÓN REAL: Sumamos las cadenas de texto apuntando al servidor gratuito de GitHub Pages
+    // 🚀 REPARADO: Estructura exacta por sumas unificada con vuestro nuevo servidor público
     const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + miUsuarioUIDActivo;
 
     // Abrimos la pestaña simulada para la inspección de la Guardia Civil
@@ -1289,10 +1319,6 @@ function abrirPaginaVerificacion() {
         window.open(enlaceCotejoAgente, '_blank');
     }, 300);
 }
-
-
-
-
 
 
 
