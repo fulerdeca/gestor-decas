@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.35</title>
+    <title>Gestor de DeCAs Transportes v1.45</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -618,44 +618,90 @@ body.dark-mode .btn-preview-accion { background: #2c2c2e; border-color: #444446;
 body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
+
 /* ==========================================================================
-   🖨️ CONTROLADOR GEOMÉTRICO MÁSTER: IMPRESIÓN IMPERIOSA EN 1 SOLA PÁGINA
+   🖨️ CONTROLADOR GEOMÉTRICO OFICIAL: IMPRESIÓN IMPERIOSA EN 1 PÁGINA (SANEADO)
    ========================================================================== */
 @media print {
-    /* 1. Ocultamos de golpe todo el dashboard, botones y menús del gestor */
-    body *, .cabecera-dashboard, .grid-contadores, .contenedor-filtros, .contenedor-tabla, .deca-modal-cabecera, .preview-pie-botones {
+    /* 1. Apagamos con nombre y apellidos el dashboard y sus componentes externos */
+    .cabecera-dashboard,
+    .grid-contadores,
+    .contenedor-filtros,
+    .contenedor-tabla,
+    .deca-modal-cabecera,
+    .preview-pie-botones,
+    .deca-modal-cerrar,
+    #modal_nuevo_deca,
+    #modal_perfil_camionero,
+    #modal_alerta_deca,
+    #modal_confirm_deca,
+    #modal_clave_seguridad_deca {
         display: none !important;
     }
 
-    /* 2. Forzamos el folio blanco a ser el único elemento vivo en la hoja */
-    #modal_preview_deca, .preview-container, .preview-cuerpo-scroll, .folio-deca, .folio-deca * {
+    /* 2. Forzamos al cuerpo de la hoja a estar limpio y sin fondos oscuros */
+    html, body {
+        background: #ffffff !important;
+        color: #111111 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* 3. Colocamos el modal en el origen del papel eliminando capas oscuras */
+    #modal_preview_deca {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .preview-container {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .preview-cuerpo-scroll {
+        display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    /* 4. Forzamos al folio blanco a ocupar el papel A4 con colchón elástico */
+    .folio-deca {
         display: block !important;
         position: relative !important;
         width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        max-width: 660px !important;
+        margin: 0 auto !important;
         box-shadow: none !important;
         background: #ffffff !important;
         color: #111111 !important;
-    }
-
-    /* 3. ✂️ EL CANDADO DE UNA SOLA HOJA: Bloquea el lienzo e impide que se genere la página en blanco */
-    html, body {
-        height: 100% !important;
-        max-height: 100vh !important;
-        overflow: hidden !important;
-        page-break-inside: avoid !important;
-    }
-
-    /* Colchón perimetral elástico para que respire el folio */
-    .folio-deca {
-        padding: 10mm 12mm !important;
+        padding: 10mm 12mm !important; /* Margen oficial de respiración */
         page-break-inside: avoid !important;
         page-break-after: avoid !important;
     }
 
-    /* 4. Mantenemos el color azul rígido de las cabeceras en el folio físico */
+    /* Evitamos rupturas raras en las celdas fiscales */
+    .folio-tabla, .folio-tabla tr, .folio-tabla td {
+        page-break-inside: avoid !important;
+    }
+
+    /* 5. Mantenemos el color azul corporativo de las cabeceras en el papel físico */
     .folio-header-azul {
         background: #0f4c81 !important;
         color: #ffffff !important;
@@ -665,7 +711,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 6px 10px !important;
     }
 
-    /* 5. Escudo anti-duplicados del QR */
+    /* 6. Candado anti-duplicados para el Código QR */
     #qrcode_real_render canvas {
         display: none !important;
     }
@@ -676,12 +722,13 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         margin: 0 auto !important;
     }
 
-    /* Dimensiones oficiales estrictas del folio vertical */
+    /* Dimensiones oficiales estrictas del papel A4 vertical */
     @page {
         size: A4 portrait;
         margin: 0;
     }
 }
+
 
 
 
@@ -1259,36 +1306,15 @@ function ejecutarDescargaPDFCompleto() {
     const tituloOriginalPestaña = document.title;
     document.title = numeroDeCA;
 
-    mostrarAvisoToast("⏳ Eliminando márgenes residuales para página única...");
+    mostrarAvisoToast("⏳ Generando compaginación A4 de página única...");
 
-    // 🚀 EL CANDADO ANTI-HOJA EN BLANCO: Forzamos la rigidez de los contenedores al vuelo antes de imprimir
-    const contenedorScroll = document.querySelector(".preview-cuerpo-scroll");
-    const contenedorPrincipal = document.querySelector(".preview-container");
-
-    if (contenedorScroll) {
-        contenedorScroll.style.overflowY = "visible";
-        contenedorScroll.style.height = "auto";
-    }
-    if (contenedorPrincipal) {
-        contenedorPrincipal.style.height = "auto";
-        contenedorPrincipal.style.maxHeight = "100%";
-    }
-
+    // Lanzamos el menú oficial de guardado PDF de forma directa
     setTimeout(() => {
         window.print();
-
-        // Al terminar de guardar, devolvemos el visor a su estado elástico normal de pantalla
-        if (contenedorScroll) {
-            contenedorScroll.style.overflowY = "auto";
-            contenedorScroll.style.height = "100%";
-        }
-        if (contenedorPrincipal) {
-            contenedorPrincipal.style.height = "92vh";
-            contenedorPrincipal.style.maxHeight = "none";
-        }
         document.title = tituloOriginalPestaña;
-    }, 350);
+    }, 250);
 }
+
 
 
 
@@ -1298,30 +1324,18 @@ function ejecutarDescargaPDFCompleto() {
 function ejecutarImpresionHojaQR() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Comprobante_QR";
     const contenedorQRReal = document.getElementById("qrcode_real_render");
-
     if (!contenedorQRReal) return;
 
     mostrarAvisoToast("📄 Compaginando vale rápido de descarga (1 página)...");
-
-    // Guardamos el título original de la pestaña para el nombre del PDF
     const tituloOriginalPestaña = document.title;
-    document.title = `${numeroDeCA}_VALE_QR`;
-
-    // 🚀 ESTÉTICA INTEGRADA: Truco de escalado para la impresión rápida de una página
-    // Duplicamos el tamaño visual del QR en el papel para que los operarios del muelle lo lean a distancia
-    contenedorQRReal.style.transform = "scale(1.4)";
-    contenedorQRReal.style.margin = "20px auto";
+    document.title = numeroDeCA + "_VALE_QR";
 
     setTimeout(() => {
-        // Lanzamos la ventana nativa de guardado PDF
         window.print();
-
-        // Al cerrar el PDF, devolvemos el QR a su tamaño simétrico original de pantalla
-        contenedorQRReal.style.transform = "none";
-        contenedorQRReal.style.margin = "0 auto";
         document.title = tituloOriginalPestaña;
-    }, 300);
+    }, 250);
 }
+
 
 
 
