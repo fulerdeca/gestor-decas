@@ -1349,7 +1349,7 @@ function ejecutarImpresionHojaQR() {
 
 
 // =========================================================================
-// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (REPARADO POR SUMAS FULERDECA)
+// 🔗 SIMULADOR: PLATAFORMA DE COTEJO DE TRÁFICO (BLINDAJE ABSOLUTO v1.42)
 // =========================================================================
 function abrirPaginaVerificacion() {
     const numeroDeCA = document.getElementById("prev_top_numero").innerText;
@@ -1361,19 +1361,33 @@ function abrirPaginaVerificacion() {
 
     mostrarAvisoToast("🔗 Abriendo pasarela de verificación de Tráfico...");
 
-    // Rescatamos de forma robusta el ID real de Firebase de la memoria RAM buscando por el número de documento
+    // Buscamos el ID real de Firebase de la memoria RAM buscando por el número de documento
     const viajeActivo = documentosDeCA.find(item => item.numero_documento === numeroDeCA);
     const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : idDocumentoEnEdicion;
-    const usuarioPropietario = miUsuarioUIDActivo;
 
-    // 🚀 RESTAURADO: Tu pasarela por sumas exacta que te funcionaba perfectamente a vuestra web pública
-    const enlaceCotejoAgente = "https://github.io" + idRealFirebase + "&user=" + usuarioPropietario + "&doc=" + numeroDeCA + "&tractor=" + encodeURIComponent(matriculaTractor) + "&cache=" + Date.now();
+    // Variables de identidad comercial fijas del ecosistema
+    const miUsuarioGitHubOficial = "fulerdeca";
+    const miLlaveUsuarioFirebase = miUsuarioUIDActivo;
+    const marcaTiempoBucle = Date.now();
 
-    // Abrimos la pestaña simulada para la inspección de la Guardia Civil
+    // 🚀 BLINDAJE DE SEGURIDAD ABSOLUTO: Creamos la URL usando el motor nativo del navegador
+    // Esto destruye cualquier bug de comillas, barras o caracteres fantasma de raíz
+    const urlConstructor = new URL("https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/");
+    urlConstructor.searchParams.set("verificar", idRealFirebase);
+    urlConstructor.searchParams.set("user", miLlaveUsuarioFirebase);
+    urlConstructor.searchParams.set("doc", numeroDeCA);
+    urlConstructor.searchParams.set("tractor", matriculaTractor);
+    urlConstructor.searchParams.set("cache", marcaTiempoBucle);
+
+    // Convertimos el constructor en texto limpio para el navegador
+    const enlaceCotejoAgente = urlConstructor.toString();
+
+    // Abrimos la pestaña oficial para la inspección de la Guardia Civil
     setTimeout(() => {
         window.open(enlaceCotejoAgente, '_blank');
     }, 300);
 }
+
 
 
 
