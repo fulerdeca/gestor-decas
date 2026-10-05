@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.92</title>
+    <title>Gestor de DeCAs Transportes v1.93</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -688,15 +688,16 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 .btn-cerrar-qr-gigante:active { background: #0b3459; }
 
+
+
 /* === BLINDAJE DE SEGURIDAD AJUSTADO PARA APK, WEB Y COMPATIBILIDAD DE DISPOSITIVOS === */
 
-/* 1. Permitimos que el canvas sea visible (crucial para Android/APK) pero controlamos su tamaño */
+/* 1. Controlamos el tamaño y centrado del canvas (Crucial para que la APK no se quede en blanco) */
 #qrcode_real_render canvas {
     display: block !important;
-    width: 100% !important;
-    max-width: 110px !important;
-    height: auto !important;
-    margin: 0 auto;
+    width: 110px !important;
+    height: 110px !important;
+    margin: 0 auto !important;
     cursor: pointer;
 }
 
@@ -707,19 +708,19 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     margin: 0 auto !important;
 }
 
-/* 2. Controlamos las etiquetas <img> en caso de que el navegador web externo las genere */
+/* 2. Controlamos las etiquetas de imagen generadas en PC */
 #qrcode_real_render img {
-    width: 100% !important;
-    max-width: 110px !important;
-    height: auto !important;
-    margin: 0 auto;
+    width: 110px !important;
+    height: 110px !important;
+    margin: 0 auto !important;
     cursor: pointer;
     transition: transform 0.15s ease;
     display: block !important;
 }
+
 #qrcode_real_render img:active,
 #qrcode_real_render canvas:active {
-    transform: scale(0.95); /* Efecto táctil de pulsación tanto para imagen como para canvas */
+    transform: scale(0.95);
 }
 
 #canvas_render_qr_gigante img {
@@ -729,12 +730,15 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     margin: 0 auto !important;
 }
 
-/* 3. Truco maestro anti-duplicados: Si el navegador genera AMBOS (canvas e imagen a la vez),
-   ocultamos el canvas residual para que no se vea doble. Si solo genera uno, se verá perfecto. */
-#qrcode_real_render img + canvas,
-#canvas_render_qr_gigante img + canvas {
+/* 3. 🔥 EL TRUCO PARA EL PC: En navegadores de ordenador, la etiqueta <img> nace justo
+   después del <canvas>. Al usar el selector "+ img", le decimos al PC:
+   "Si ya has pintado el canvas, oculta la imagen sobrante". Así desaparece el segundo QR en PC
+   y la APK sigue mostrando su canvas perfectamente sin enterarse. */
+#qrcode_real_render canvas + img,
+#canvas_render_qr_gigante canvas + img {
     display: none !important;
 }
+
 
 
 /* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
