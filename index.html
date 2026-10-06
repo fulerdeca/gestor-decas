@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.08</title>
+    <title>Gestor de DeCAs Transportes v2.11</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -449,9 +449,39 @@ td {
         .doc-numero { font-weight: 800; color: var(--blue-primary); cursor: pointer; text-decoration: none; }
         .doc-numero:hover { text-decoration: underline; }
 
-        /* Matrículas estilo placa de coche real */
-        .badge-matricula { display: inline-flex; align-items: center; background: #ffffff; color: #111111; border: 1px solid #111111; padding: 3px 6px; font-size: 12px; font-weight: bold; border-radius: 4px; margin-right: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .badge-matricula.remolque { border-color: #fd7e14; background: #fffdf5; }
+
+/* === MAQUETACIÓN VERTICAL FIJA PARA MATRÍCULAS (APK Y PC SYNC) === */
+.celda-matriculas-flex {
+    display: flex !important;
+    flex-direction: column !important; /* 🔒 CLAVE: Fuerza la caída vertical una encima de otra siempre */
+    align-items: flex-start !important; /* Alinea los bloques al inicio de la celda */
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+.badge-matricula {
+    display: inline-flex !important;
+    align-items: center !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #111111 !important;
+    padding: 3px 6px !important;
+    font-size: 11.5px !important; /* Un pelín más compactas para que entren limpias */
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    margin: 0 !important; /* Limpiamos márgenes laterales antiguos */
+    margin-bottom: 5px !important; /* 📏 EL PASILLO: Separa la tractora del remolque para que no estén pegadas */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    width: fit-content !important;
+    white-space: nowrap !important;
+}
+
+/* El remolque no necesita margen inferior porque ya es el último elemento de la pila */
+.badge-matricula.remolque {
+    border-color: #fd7e14 !important;
+    background: #fffdf5 !important;
+    margin-bottom: 0 !important;
+}
 
         .ruta-texto { font-size: 13px; line-height: 1.4; max-width: 320px; }
         .ruta-flecha { color: var(--orange-alert); margin: 0 4px; font-weight: bold; }
@@ -1380,10 +1410,12 @@ function renderizarTablaResultados(listaFiltrada) {
         <tr>
             <td><span class="doc-numero" onclick="verFichaDocumento('${doc.id_firebase}')">${doc.numero_documento}</span></td>
             <td>${fTxt}</td>
-            <td>
+            <!-- CELDA DE MATRÍCULAS BLINDADA EN CAÍDA VERTICAL COMPLETA -->
+            <td class="celda-matriculas-flex">
                 <span class="badge-matricula">📋 ${doc.matricula_tractor || '---'}</span>
                 ${badgeRemolqueHTML}
             </td>
+
             <td class="ruta-texto">
                 <strong>${doc.origen_plaza || '---'}</strong>
                 <span class="ruta-flecha">➔</span> ${doc.destino_plaza || '---'}
@@ -2934,6 +2966,36 @@ document.addEventListener("click", function(evento) {
 });
 
 
+// =========================================================================
+// 📥 EXPORTADOR DE ALTA FIDELIDAD: DESCARGA DE PDF DESDE EL VISOR INTERNO
+// =========================================================================
+function forzarDescargaPDFDesdeVisorInterno() {
+    mostrarAvisoToast("⏳ Preparando descarga de PDF nativo...");
+
+    // Capturamos el número de documento que esté visible en ese momento en el folio
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
+    const tituloOriginalPestaña = document.title;
+
+    // Cambiamos el título de la pestaña temporalmente para bautizar el archivo final .pdf
+    document.title = numeroDeCA;
+
+    // Le damos 150ms para asegurar que el navegador asimile el cambio de título
+    setTimeout(() => {
+        try {
+            // Al nacer de una interacción táctil directa (el clic en el botón azul),
+            // Chrome, Firefox y el WebView de la APK autorizan la apertura del menú nativo
+            window.print();
+
+            // Restauramos la pestaña original
+            document.title = tituloOriginalPestaña;
+        } catch (err) {
+            console.warn("Aviso en el motor de descarga del visor:", err);
+            document.title = tituloOriginalPestaña;
+        }
+    }, 150);
+}
+
+
 </script>
 
 
@@ -3212,9 +3274,11 @@ document.addEventListener("click", function(evento) {
 
 
     </div>
+
         <!-- === BOTONERA INFERIOR DEL VISOR CORREGIDA === -->
         <div class="preview-pie-botones">
-            <button class="btn-preview-accion pdf-azul" onclick="ejecutarDescargaPDFCompleto()">
+            <!-- 🔥 REPARADO: Ahora llama al inyector síncrono para que funcione en la APK y en PC -->
+            <button class="btn-preview-accion pdf-azul" onclick="forzarDescargaPDFDesdeVisorInterno()">
                 📥 Documento completo (PDF)
             </button>
             <button class="btn-preview-accion" onclick="abrirModalQRGiganteNativo()">
@@ -3224,6 +3288,7 @@ document.addEventListener("click", function(evento) {
                 🔗 Página de verificación
             </button>
         </div>
+
 
   </div>
 </div>
