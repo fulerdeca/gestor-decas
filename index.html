@@ -1051,7 +1051,8 @@ function iniciarEcosistemaDeCAs() {
                             const folioContenedor = document.createElement("div");
                             folioContenedor.className = "folio-deca";
                             // Recuperamos toda la estructura exacta del papel que ya tienes maquetado abajo
-                            const estructuraOriginalFolio = document.querySelector(".modal-preview-deca .folio-deca");
+                            // 🔥 LÍNEA CORREGIDA: Apunta con almohadilla al ID real del modal para poder clonar el folio
+                            const estructuraOriginalFolio = document.querySelector("#modal_preview_deca .folio-deca");
                             if (estructuraOriginalFolio) {
                                 folioContenedor.innerHTML = estructuraOriginalFolio.innerHTML;
                                 cuerpoScroll.appendChild(folioContenedor);
