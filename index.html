@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.13</title>
+    <title>Gestor de DeCAs Transportes v2.15</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1666,36 +1666,31 @@ function verFichaDocumento(idFirebase) {
                 });
 
 
-                // 🔥 EL DISPARADOR MAESTRO DEL MINISTERIO: IMPRESIÓN LIMPIA DE FOLIO ANTES DE AMPLIAR
+                // 🔥 EL DISPARADOR DEL MINISTERIO REPARADO: Elimina el modal gigante en la vista de carretera
                 contenedorQR.onclick = function() {
-                    // 1. Si es una consulta externa de inspección en carretera, disparamos primero el PDF limpio
+                    // 🕵️ EVALUACIÓN: ¿Quién está tocando el código QR?
                     if (window.location.search.includes("verificar")) {
+                        // CASO A: Es el agente de la Guardia Civil en carretera (Página de validación)
+                        // Disparamos ÚNICAMENTE la descarga del PDF nativo limpio, sin abrir el modal gigante negro
                         try {
                             const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
                             const tituloOriginalPestaña = document.title;
 
-                            // Estampamos el número de DeCA real como nombre de archivo para el policía
                             document.title = numeroDocumentoOficial;
+                            console.log("📥 Inspector validado: Forzando descarga directa de PDF sin ampliación visual...");
 
-                            console.log("📥 Toque físico validado. Procesando folio limpio para el agente...");
-
-                            // Disparamos la impresión DIRECTAMENTE sobre el folio blanco de fondo
                             window.print();
-
-                            // Restauramos la pestaña
                             document.title = tituloOriginalPestaña;
                         } catch (err) {
-                            console.warn("Aviso en el hilo de impresión táctil:", err);
+                            console.warn("Aviso en el hilo de impresión táctil del inspector:", err);
                         }
-                    }
-
-                    // 2. 🔥 EL SECRETO: Retrasamos la apertura del modal gigante 300 milisegundos
-                    // Así le damos pasillo al navegador para capturar el folio blanco A4 por detrás
-                    // antes de que el cuadro negro del QR gigante tape la pantalla del teléfono
-                    setTimeout(() => {
+                    } else {
+                        // CASO B: Es el camionero dentro de su aplicación privada (Dashboard)
+                        // Aquí mantenemos el comportamiento original para que pueda ampliar el QR en su cabina si quiere
                         abrirModalQRGiganteNativo();
-                    }, 300);
+                    }
                 };
+
 
 
             } catch (e) {
