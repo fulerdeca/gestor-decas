@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.06</title>
+    <title>Gestor de DeCAs Transportes v2.07</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -343,7 +343,7 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
 <img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin-right: 4px; vertical-align: middle;" onerror="console.warn('⚠ Asegúrate de que el archivo se llame exactamente icono_transporte.jpg en tu carpeta');">
 
 
-                <h1>DeCa</h1>
+                <h1>DeCA</h1>
             </div>
             <p>La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).</p>
         </div>
@@ -1103,7 +1103,15 @@ function iniciarEcosistemaDeCAs() {
             .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
             .preview-container .deca-modal-cabecera { display: none !important; }
 
-            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
+            .preview-cuerpo-scroll {
+                background: #525659 !important;
+                padding: 20px 10px 60px 10px !important; /* 🔒 CLAVE: El tercer valor (60px) empuja el folio hacia arriba */
+                overflow: visible !important;
+                height: auto !important;
+                box-sizing: border-box !important;
+                width: 100% !important;
+                display: block !important;
+            }
             .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto !important; background: #ffffff !important; display: block !important; }
             .preview-pie-botones { display: none !important; }
 
