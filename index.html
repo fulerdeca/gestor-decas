@@ -593,26 +593,16 @@ body.dark-mode .btn-accion-icono:hover {
 
 
 /* === REPARACIÓN DE MÁRGENES INTERNOS SIMÉTRICOS DEL PAPEL DECA === */
-.folio-deca {
-    background: #ffffff !important;
+            /* Busca esta regla dentro del estiloPDFVirtual de tu función iniciarEcosistemaDeCAs */
+            .folio-deca {
+                box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+                margin: 10px auto !important;
+                background: #ffffff !important;
+                display: block !important;
+                overflow: visible !important; /* 🔒 CLAVE: Evita que el texto de abajo se corte en móviles */
+                height: auto !important;
+            }
 
-    /* 🚀 LA CLAVE: Forzamos al papel a medir el 100% pero restándole los márgenes */
-    width: 100% !important;
-    max-width: 660px !important;
-
-    /* 📏 Forzamos un colchón interior estricto idéntico en los 4 costados */
-    padding: 30px !important;
-
-    margin: 0 auto !important; /* Centrado de bloque en la pantalla gris */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-
-    /* 🔒 CANDADO MAESTRO: Obliga al navegador a calcular los bordes hacia ADENTRO */
-    box-sizing: border-box !important;
-
-    color: #111111 !important;
-    font-size: 12px !important;
-    overflow: hidden !important; /* Bloquea cualquier fuga visual */
-}
 
 /* Redundancia de seguridad para asegurar que las tablas no hereden anchos fantasma */
 .folio-tabla {
@@ -1486,6 +1476,13 @@ function verFichaDocumento(idFirebase) {
     // Volcar campos dinámicos en el Folio Blanco
     document.getElementById("prev_top_numero").innerText = doc.numero_documento || "---";
     document.getElementById("prev_folio_numero").innerText = doc.numero_documento || "---";
+
+    // 🔥 LA NUEVA ASIGNACIÓN: Estampa la fecha y hora de envío en la cabecera derecha
+    const campoHoraEnvio = document.getElementById("prev_fecha_hora_envio_sello");
+    if (campoHoraEnvio) {
+        // Si el documento ya tiene fecha de creación en el sistema de Firebase la usa, si no, estampa la de hoy
+        campoHoraEnvio.innerText = doc.fecha_creacion_sistema || new Date().toLocaleString();
+    }
 
     document.getElementById("prev_carg_razon").innerText = doc.cargador_razon || "---";
     document.getElementById("prev_carg_nif").innerText = doc.cargador_nif || "---";
@@ -3035,37 +3032,38 @@ document.addEventListener("click", function(evento) {
             </div>
 
 
-      <div class="folio-deca">
+        <!-- COLLAR DE RESPIRACIÓN DEL PAPEL DECA -->
+            <div class="folio-deca">
 
-          <!-- 🔥 EL NUEVO SELLO DE ANULACIÓN PARA EL INSPECTOR DE LA GUARDIA CIVIL -->
-        <div id="sello_anulado_alerta" class="sello-anulado-deca">⚠️ ATENCIÓN: ESTE DOCUMENTO ELECTRÓNICO HA SIDO ANULADO OFICIALMENTE POR EL TRANSPORTISTA ⚠️</div>
+                <!-- Sello de Anulación (Mantenlo como está) -->
+                <div id="sello_anulado_alerta" class="sello-anulado-deca">⚠️ ATENCIÓN: ESTE DOCUMENTO ELECTRÓNICO HA SIDO ANULADO OFICIALMENTE POR EL TRANSPORTISTA ⚠️</div>
 
+                <!-- 🏢 NUEVA CABECERA PREMIUM REORGANIZADA ESTILO NOVATRANS -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; width: 100%; box-sizing: border-box; font-family: sans-serif; text-align: left;">
+                        <!-- Izquierda: Logotipo o Sigla de la Plataforma -->
+                        <div style="font-size: 24px; font-weight: 900; color: #0f4c81; font-family: 'Segoe UI', Arial, sans-serif; letter-spacing: -0.5px;">
+                                DeCA <span style="font-size: 10px; color: #718096; font-weight: normal; letter-spacing: normal;">by NovaTrans</span>
+                        </div>
+                        <!-- Derecha: Identificador Correlativo y Marca de Tiempo Oficial de Envío -->
+                        <div style="text-align: right; font-family: monospace;">
+                                <div style="font-size: 16px; font-weight: 900; color: #111111;" id="prev_folio_numero">---</div>
+                                <div style="font-size: 9px; color: #4a5568; margin-top: 2px; font-family: sans-serif;">Emitido el <span id="prev_fecha_hora_envio_sello">---</span></div>
+                        </div>
+                </div>
 
-        <div style="display:flex;
-                    justify-content:space-between;
-                    align-items:flex-start;
-                    margin-bottom:15px;
-                    width:100%;
-                    box-sizing:border-box;">
-          <div style="max-width:75%;
-                      box-sizing:border-box;
-                      text-align:left;">
-            <h2 style="margin:0;
-                       font-size:12px;
-                       color:#0f4c81;
-                       font-weight:bold;
-                       font-family:sans-serif;
-                       text-transform:uppercase;">
-              DOCUMENTO DE CONTROL (DeCA)
-            </h2>
-            <p style="margin:4px 0 0 0;
-                      font-size:8.5px;
-                      color:#666;
-                      line-height:1.2;
-                      font-family:sans-serif;">
-              Orden FOM/2861/2012 - Res. 5/6/2026
-            </p>
-          </div>
+                <!-- Línea 2: Título máster expandido de alta fidelidad jurídica -->
+                <div style="width: 100%; text-align: left; margin-bottom: 6px; box-sizing: border-box; font-family: sans-serif;">
+                        <h2 style="margin: 0; font-size: 14px; color: #0f4c81; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px;">
+                                DOCUMENTO ELECTRÓNICO DE CONTROL ADMINISTRATIVO (DeCA)
+                        </h2>
+                        <p style="margin: 4px 0 10px 0; font-size: 9px; color: #718096; line-height: 1.3;">
+                                Transporte público de mercancías por carretera · Orden FOM/2861/2012 · Ley 9/2025 de Movilidad Sostenible · Resolución de 5 de junio de 2026 (BOE-A-2026-12784)
+                        </p>
+                </div>
+
+                <!-- 🔥 LA NUEVA LÍNEA DIVISORIA ESTILO PDF PROFESIONAL -->
+                <div style="width: 100%; height: 2px; background: #0f4c81; margin-bottom: 18px; box-sizing: border-box;"></div>
+
           <div style="font-size:13px;
                       font-weight:900;
                       color:#111;
@@ -3312,9 +3310,9 @@ document.addEventListener("click", function(evento) {
           </div>
         </div>
 
-                            <!-- 🔥 EL NUEVO SELLO LEGAL DE CIERRE DE FICHERO (LETRA PEQUEÑA BOE) -->
-                    <div style="width: 100%; border-top: 1px solid #dee2e6; margin-top: 25px; padding-top: 10px; font-family: sans-serif; font-size: 8px; color: #777777; line-height: 1.4; text-align: justify; box-sizing: border-box;">
-                            Documento electrónico de control administrativo generado de forma nativa digital a través de DeCA, plataforma de NovaTrans®, conforme al artículo 6 de la Orden FOM/2861/2012 y a la Resolución de 5 de junio de 2026, de la Dirección General de Transporte por Carretera y Ferrocarril. Fecha y hora de creación registradas como metadatos del fichero. La descarga mediante QR permanece activa durante el servicio y hasta 7 días naturales tras su finalización. El documento se conserva durante 1 año a disposición de la Inspección de Transporte Terrestre. Emisor: <strong id="prev_sello_legal_emisor" style="color: #444;">---</strong>
+                    <!-- 🔥 SELLO LEGAL DE CIERRE DE FICHERO CORREGIDO ANTI-CORTE -->
+                    <div style="width: 100% !important; max-width: 100% !important; border-top: 1px solid #dee2e6; margin-top: 25px; padding-top: 12px; padding-bottom: 10px; font-family: sans-serif; font-size: 8.5px; color: #718096; line-height: 1.4; text-align: justify; box-sizing: border-box !important; display: block !important; clear: both !important; overflow: visible !important;">
+                            Documento electrónico de control administrativo generado de forma nativa digital a través de DeCA, plataforma de NovaTrans®, conforme al artículo 6 de la Orden FOM/2861/2012 y a la Resolución de 5 de junio de 2026, de la Dirección General de Transporte por Carretera y Ferrocarril. Fecha y hora de creación registradas como metadatos del fichero. La descarga mediante QR permanece activa durante el servicio y hasta 7 días naturales tras su finalización. El documento se conserva durante 1 año a disposición de la Inspección de Transporte Terrestre. Emisor: <strong id="prev_sello_legal_emisor" style="color: #2d3748;">---</strong>
                     </div>
 
 
