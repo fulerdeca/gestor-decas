@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.03</title>
+    <title>Gestor de DeCAs Transportes v2.04</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1042,12 +1042,12 @@ function iniciarEcosistemaDeCAs() {
         // 🎨 MAQUETACIÓN ESTRICTA VISOR ESTILO ADOBE ACROBAT (CON QR BLINDADOS DE FORMA ABSOLUTA)
         const estiloPDFVirtual = document.createElement("style");
         estiloPDFVirtual.innerHTML = `
-            /* 1. TÉCNICA DE COORDENADAS ABSOLUTAS: Superpone canvas e imagen en el mismo píxel */
+            /* 1. TÉCNICA DE ALINEACIÓN: Reducido a 95px estrictos para clavarlo con el margen derecho */
             #qrcode_real_render {
                 position: relative !important;
-                width: 110px !important;
-                height: 110px !important;
-                margin: 0 auto !important;
+                width: 95px !important;
+                height: 95px !important;
+                margin: 0 0 0 auto !important; /* Fuerza al contenedor a pegarse a la derecha del todo */
                 display: block !important;
             }
             #qrcode_real_render canvas,
@@ -1055,10 +1055,10 @@ function iniciarEcosistemaDeCAs() {
                 position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
-                width: 110px !important;
-                height: 110px !important;
-                max-width: 110px !important;
-                max-height: 110px !important;
+                width: 95px !important;
+                height: 95px !important;
+                max-width: 95px !important;
+                max-height: 95px !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 display: block !important;
@@ -1070,6 +1070,7 @@ function iniciarEcosistemaDeCAs() {
             #qrcode_real_render canvas + img { display: none !important; }
             #canvas_render_qr_gigante canvas { display: none !important; }
             #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
+
 
             /* 3. Estructura del Visor de bloque a pantalla completa */
             .modal-preview-deca { display: block !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
