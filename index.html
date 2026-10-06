@@ -990,7 +990,7 @@ function iniciarEcosistemaDeCAs() {
     const idUsuarioInspeccionar = parametrosRuta.get("user");
 
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
-        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual con Notas Normativas...");
+        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual con Retardo Síncrono...");
 
         // 🎨 MAQUETACIÓN PREMIUM VISOR CON BANNER NORMATIVO OBLIGATORIO
         const estiloPDFVirtual = document.createElement("style");
@@ -1006,13 +1006,13 @@ function iniciarEcosistemaDeCAs() {
             .folio-deca { box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important; margin-bottom: 20px !important; margin-top: 10px !important; }
             .preview-pie-botones { display: none !important; }
 
-            /* Nuevos contenedores de notas obligatorias estilo BOE / Inspección */
             .banner-inspeccion-header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 12px; width: 100%; max-width: 660px; margin: 0 auto 12px auto; box-sizing: border-box; font-family: sans-serif; }
             .banner-inspeccion-badge { display: inline-flex; align-items: center; gap: 6px; background: #e8f5e9; color: #1b5e20; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 11px; text-transform: uppercase; border: 1px solid #c8e6c9; }
             .banner-inspeccion-nota { background: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; border-left: 5px solid #1565c0; padding: 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; text-align: left; width: 100%; max-width: 660px; margin: 0 auto 15px auto; box-sizing: border-box; font-family: sans-serif; }
         `;
         document.head.appendChild(estiloPDFVirtual);
 
+        // 🔥 LA CLAVE: El setTimeout de 800ms garantiza que todo el HTML de la página ya existe en la pantalla
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
@@ -1022,12 +1022,11 @@ function iniciarEcosistemaDeCAs() {
                         const viajeData = snapshot.val();
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...viajeData }];
 
-                        // 🚀 INYECCIÓN MAESTRA DE LAS DOS CAJAS DE TEXTO OBLIGATORIAS EN EL VISOR DEL AGENTE
                         const cuerpoScroll = document.querySelector(".preview-cuerpo-scroll");
                         if (cuerpoScroll) {
-                            cuerpoScroll.innerHTML = ""; // Limpieza total preventiva
+                            cuerpoScroll.innerHTML = ""; // Limpieza total de seguridad
 
-                            // Caja 1: Barra superior de estado oficial
+                            // 1. Inyectamos la barra de estado blanca
                             const cabeceraHTML = document.createElement("div");
                             cabeceraHTML.className = "banner-inspeccion-header";
                             cabeceraHTML.innerHTML = `
@@ -1039,7 +1038,7 @@ function iniciarEcosistemaDeCAs() {
                             `;
                             cuerpoScroll.appendChild(cabeceraHTML);
 
-                            // Caja 2: El texto informativo legal obligatorio
+                            // 2. Inyectamos la nota informativa obligatoria
                             const notaHTML = document.createElement("div");
                             notaHTML.className = "banner-inspeccion-nota";
                             notaHTML.innerHTML = `
@@ -1047,11 +1046,10 @@ function iniciarEcosistemaDeCAs() {
                             `;
                             cuerpoScroll.appendChild(notaHTML);
 
-                            // Volvemos a inyectar el contenedor del folio blanco original debajo de los textos
+                            // 3. Clonamos el folio de forma síncrona segura ahora que ya existe en el DOM
                             const folioContenedor = document.createElement("div");
                             folioContenedor.className = "folio-deca";
-                            // Recuperamos toda la estructura exacta del papel que ya tienes maquetado abajo
-                            // 🔥 LÍNEA CORREGIDA: Apunta con almohadilla al ID real del modal para poder clonar el folio
+
                             const estructuraOriginalFolio = document.querySelector("#modal_preview_deca .folio-deca");
                             if (estructuraOriginalFolio) {
                                 folioContenedor.innerHTML = estructuraOriginalFolio.innerHTML;
@@ -1059,10 +1057,10 @@ function iniciarEcosistemaDeCAs() {
                             }
                         }
 
-                        // Lanzamos el volcado de datos síncrono sobre el nuevo nodo
+                        // Lanzamos el volcado de datos sobre las celdas del folio clonado
                         verFichaDocumento(idDecaInspeccionar);
 
-                        // Ocultamos el panel privado del transportista por privacidad
+                        // Ocultamos el panel privado del transportista
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -1072,9 +1070,10 @@ function iniciarEcosistemaDeCAs() {
                         alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                     }
                 });
-        }, 800);
-        return;
+        }, 850);
+        return; // Fin estricto: Bloquea el resto del inicio para que no cargue el panel del camionero
     }
+
 
 }
 
