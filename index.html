@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.02</title>
+    <title>Gestor de DeCAs Transportes v2.03</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1039,12 +1039,39 @@ function iniciarEcosistemaDeCAs() {
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
         console.log("👮 MODO INSPECTOR GLOBAL: Activando Visor PDF Virtual Puro en Carretera...");
 
-        // 🎨 MAQUETACIÓN ESTRICTA VISOR ESTILO ADOBE ACROBAT (SÓLO EL FOLIO BLANCO)
+        // 🎨 MAQUETACIÓN ESTRICTA VISOR ESTILO ADOBE ACROBAT (CON QR BLINDADOS DE FORMA ABSOLUTA)
         const estiloPDFVirtual = document.createElement("style");
         estiloPDFVirtual.innerHTML = `
-            #qrcode_real_render canvas, #canvas_render_qr_gigante canvas { display: none !important; }
-            #qrcode_real_render img { display: block !important; width: 110px !important; height: 110px !important; margin: 0 auto !important; min-width: 110px !important; min-height: 110px !important; }
+            /* 1. TÉCNICA DE COORDENADAS ABSOLUTAS: Superpone canvas e imagen en el mismo píxel */
+            #qrcode_real_render {
+                position: relative !important;
+                width: 110px !important;
+                height: 110px !important;
+                margin: 0 auto !important;
+                display: block !important;
+            }
+            #qrcode_real_render canvas,
+            #qrcode_real_render img {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 110px !important;
+                height: 110px !important;
+                max-width: 110px !important;
+                max-height: 110px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+                box-sizing: border-box !important;
+            }
 
+            /* 2. Filtro cruzado anti-duplicados elástico */
+            #qrcode_real_render img + canvas { display: none !important; }
+            #qrcode_real_render canvas + img { display: none !important; }
+            #canvas_render_qr_gigante canvas { display: none !important; }
+            #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
+
+            /* 3. Estructura del Visor de bloque a pantalla completa */
             .modal-preview-deca { display: block !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
             .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
             .preview-container .deca-modal-cabecera { display: none !important; }
@@ -1053,10 +1080,11 @@ function iniciarEcosistemaDeCAs() {
             .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto !important; background: #ffffff !important; display: block !important; }
             .preview-pie-botones { display: none !important; }
 
-            /* 🔥 LA CLAVE: Esconde los letreros informativos para el agente en carretera */
+            /* Ocultación de los letreros informativos en la vista del QR en carretera */
             #bloque_banners_normativos_app { display: none !important; }
         `;
         document.head.appendChild(estiloPDFVirtual);
+
 
         // Conexión síncrona inmediata con los datos reales guardados en Firebase
         setTimeout(() => {
