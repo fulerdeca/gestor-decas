@@ -817,11 +817,20 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 
-/* === CORRECCIÓN MAESTRA DE IMPRESIÓN PARA NAVEGADOR Y SERVER === */
+
+/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF === */
 @media print {
-    .cabecera-dashboard, .grid-contadores, .contenedor-filtros, .contenedor-tabla, .deca-modal-cabecera, .preview-pie-botones {
-        display: none !important;
+    /* 🔥 LA REPARACIÓN: Añadimos el ID de las cajas para que desaparezcan por completo del papel PDF */
+    #bloque_banners_normativos_app,
+    .cabecera-dashboard,
+    .grid-contadores,
+    .contenedor-filtros,
+    .contenedor-tabla,
+    .deca-modal-cabecera,
+    .preview-pie-botones {
+        display: none !important; /* Esconde los elementos del panel privado en el archivo final */
     }
+
     .modal-preview-deca {
         position: absolute !important;
         background: none !important;
@@ -830,7 +839,9 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         height: auto !important;
         overflow: visible !important;
     }
-    .preview-container, .preview-cuerpo-scroll {
+
+    .preview-container,
+    .preview-cuerpo-scroll {
         display: block !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -841,6 +852,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 0 !important;
         margin: 0 !important;
     }
+
     .folio-deca {
         display: block !important;
         width: 100% !important;
@@ -851,12 +863,15 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         background: #ffffff !important;
         color: #000000 !important;
     }
-    #qrcode_real_render img {
+
+    #qrcode_real_render img,
+    #qrcode_real_render canvas {
         display: block !important;
         width: 100px !important;
         height: 100px !important;
     }
 }
+
 
 
 
@@ -2970,30 +2985,37 @@ document.addEventListener("click", function(evento) {
 // 📥 EXPORTADOR DE ALTA FIDELIDAD: DESCARGA DE PDF DESDE EL VISOR INTERNO
 // =========================================================================
 function forzarDescargaPDFDesdeVisorInterno() {
-    mostrarAvisoToast("⏳ Preparando descarga de PDF nativo...");
+    // 1. Apagamos de forma radical y fulminante cualquier cartel flotante activo en la pantalla
+    const capaToast = document.getElementById("toast_deca");
+    if (capaToast) {
+        capaToast.style.display = "none";
+        capaToast.innerHTML = "";
+    }
 
-    // Capturamos el número de documento que esté visible en ese momento en el folio
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
     const tituloOriginalPestaña = document.title;
 
     // Cambiamos el título de la pestaña temporalmente para bautizar el archivo final .pdf
     document.title = numeroDeCA;
 
-    // Le damos 150ms para asegurar que el navegador asimile el cambio de título
+    // Le damos los 150ms de pasillo al navegador para estabilizar la estructura
     setTimeout(() => {
         try {
-            // Al nacer de una interacción táctil directa (el clic en el botón azul),
-            // Chrome, Firefox y el WebView de la APK autorizan la apertura del menú nativo
+            // Disparamos la impresión con la pantalla 100% libre de carteles
             window.print();
 
             // Restauramos la pestaña original
             document.title = tituloOriginalPestaña;
+
+            // 2. Colocamos el aviso de éxito una vez que la cola de impresión ha cerrado
+            mostrarAvisoToast("✅ Captura PDF transferida correctamente.");
         } catch (err) {
             console.warn("Aviso en el motor de descarga del visor:", err);
             document.title = tituloOriginalPestaña;
         }
     }, 150);
 }
+
 
 
 </script>
