@@ -1484,6 +1484,12 @@ function verFichaDocumento(idFirebase) {
 
     document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
 
+    // 🔥 AUTOMATIZACIÓN DEL EMISOR LEGAL: Estampa la razón social del transportista activo
+    const campoEmisorSello = document.getElementById("prev_sello_legal_emisor");
+    if (campoEmisorSello) {
+        campoEmisorSello.innerText = doc.transportista_razon || (misDatosPerfilAutonomo ? misDatosPerfilAutonomo.razon_social : "---");
+    }
+
     // 🔥 DETECTOR MAESTRO DE ANULACIONES PARA EL FOLIO DEL INSPECTOR
     const capaSello = document.getElementById("sello_anulado_alerta");
     if (capaSello) {
@@ -3178,6 +3184,13 @@ function abrirPDFVirtualDesdeDashboard(idFirebase) {
             </span>
           </div>
         </div>
+
+                            <!-- 🔥 EL NUEVO SELLO LEGAL DE CIERRE DE FICHERO (LETRA PEQUEÑA BOE) -->
+                    <div style="width: 100%; border-top: 1px solid #dee2e6; margin-top: 25px; padding-top: 10px; font-family: sans-serif; font-size: 8px; color: #777777; line-height: 1.4; text-align: justify; box-sizing: border-box;">
+                            Documento electrónico de control administrativo generado de forma nativa digital a través de DeCA, plataforma de NovaTrans®, conforme al artículo 6 de la Orden FOM/2861/2012 y a la Resolución de 5 de junio de 2026, de la Dirección General de Transporte por Carretera y Ferrocarril. Fecha y hora de creación registradas como metadatos del fichero. La descarga mediante QR permanece activa durante el servicio y hasta 7 días naturales tras su finalización. El documento se conserva durante 1 año a disposición de la Inspección de Transporte Terrestre. Emisor: <strong id="prev_sello_legal_emisor" style="color: #444;">---</strong>
+                    </div>
+
+
       </div>
     </div>
         <!-- === BOTONERA INFERIOR DEL VISOR CORREGIDA === -->
