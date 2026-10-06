@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.15</title>
+    <title>Gestor de DeCAs Transportes v2.20</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1002,6 +1002,24 @@ body.dark-mode .select-plantilla-input {
 }
 
 
+/* Estilo del modal máster de bloqueo por licencia de transporte inactiva */
+.modal-licencia-bloqueo {
+    display: none;
+    position: fixed;
+    z-index: 800000 !important; /* Fuerza al búnker a posicionarse arriba del todo */
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(11, 16, 26, 0.96);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+
 </style>
 
 
@@ -1245,28 +1263,25 @@ function iniciarEcosistemaDeCAs() {
 }
 
 
-
 // =========================================================================
-// 🕵️ CONTROL DE ACCESO INTELIGENTE (BIFURCADOR TRANSPORTISTA / INSPECTOR)
+// 🕵️ CONTROL DE ACCESO INTELIGENTE (CON VALIDACIÓN DE LICENCIA ACTIVA)
 // =========================================================================
 function verificarExistenciaPerfilCamionero() {
     const parametrosRadar = new URLSearchParams(window.location.search);
     const idDecaInspeccionar = parametrosRadar.get("verificar");
     const idUsuarioInspeccionar = parametrosRadar.get("user");
 
+    // 👮 SECCIÓN A: RADAR DE INSPECCIÓN (MÓVIL DEL AGENTE - Pasillo libre sin licencia)
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
         console.log("👮 Radar activado: Saltando control de acceso para visualización pública...");
-
         database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
                     idDocumentoEnEdicion = idDecaInspeccionar;
                     miUsuarioUIDActivo = idUsuarioInspeccionar;
                     documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
-
                     verFichaDocumento(idDecaInspeccionar);
 
-                    // Ocultamos el dashboard privado del transportista
                     if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                     if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                     if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -1276,21 +1291,18 @@ function verificarExistenciaPerfilCamionero() {
                     const btnCerrarVisor = document.querySelector(".preview-container .deca-modal-cerrar");
                     if(btnCerrarVisor) btnCerrarVisor.style.display = "none";
 
-                    // 🚀 CORREGIDO: Ocultación unitaria mediante bucle elástico de los botones sobrantes para el agente
                     const botonesPiePreview = document.querySelectorAll(".preview-pie-botones .btn-preview-accion");
                     botonesPiePreview.forEach((btn, index) => {
-                        if (index === 1 || index === 2) { // Oculta "Hoja con QR" y "Página de verificación"
-                            btn.style.display = "none";
-                        }
+                        if (index === 1 || index === 2) btn.style.display = "none";
                     });
                 } else {
                     alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                 }
-            })
-            .catch(err => console.error("Error en lectura pública:", err));
+            }).catch(err => console.error("Error en lectura pública:", err));
         return;
     }
 
+    // 🚚 SECCIÓN B: PANEL PRIVADO (MÓVIL DEL TRANSPORTISTA)
     const bypassUID = localStorage.getItem("cfg_uid_recuperado_deca");
     if (bypassUID) {
         miUsuarioUIDActivo = bypassUID;
@@ -1300,9 +1312,23 @@ function verificarExistenciaPerfilCamionero() {
         .then((snapshot) => {
             if (snapshot.exists()) {
                 misDatosPerfilAutonomo = snapshot.val();
-                document.getElementById("modal_perfil_camionero").style.display = "none";
-                activarEscuchaRealtimeDeCAs();
+
+                // 🔥 EVALUACIÓN ESTRICTA DEL CANDADO DEL SERVIDOR CENTRAL
+                if (misDatosPerfilAutonomo.estado_activacion === "ACTIVADO") {
+                    // Licencia válida: Limpiamos bloqueos y encendemos el dashboard en tiempo real
+                    document.getElementById("modal_perfil_camionero").style.display = "none";
+                    document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
+                    activarEscuchaRealtimeDeCAs();
+                } else {
+                    // Licencia inactiva: Bloqueo absoluto instantáneo de la interfaz
+                    document.getElementById("modal_perfil_camionero").style.display = "none";
+                    const campoIDTerminal = document.getElementById("txt_licencia_uid_terminal");
+                    if (campoIDTerminal) campoIDTerminal.innerText = "ID TERMINAL: " + miUsuarioUIDActivo;
+                    document.getElementById("modal_bloqueo_licencia_deca").style.display = "flex";
+                    mostrarAvisoToast("⚠️ Licencia de emisión inactiva");
+                }
             } else {
+                // Si es un terminal totalmente en blanco, abre la ficha de registro
                 document.getElementById("modal_perfil_camionero").style.display = "flex";
             }
         })
@@ -1310,6 +1336,7 @@ function verificarExistenciaPerfilCamionero() {
             document.getElementById("modal_perfil_camionero").style.display = "flex";
         });
 }
+
 
 
 
@@ -2498,7 +2525,9 @@ function registrarNuevoCamioneroEcosistema() {
         email: email || "",
         fecha_registro: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.fecha_registro || new Date().toLocaleString()) : new Date().toLocaleString(),
         clave_recuperacion: miUsuarioUIDActivo,
-        clave_personalizada_alias: passwordAlias || ""
+        clave_personalizada_alias: passwordAlias || "",
+        // 🔥 REPARADO: Con la coma al final se quita el error en rojo del editor
+        estado_activacion: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.estado_activacion || "DESACTIVADO") : "DESACTIVADO"
     };
 
     mostrarAvisoToast("⏳ Sincronizando ficha comercial en la nube...");
@@ -3513,6 +3542,25 @@ function forzarDescargaPDFDesdeVisorInterno() {
 
             <button type="button" class="btn-top-principal" style="width: 100%; padding: 12px; background: #28a745;" onclick="cerrarModalClaveMaestraYEntrar()">Entrar a mi Panel</button>
             <span style="font-size: 11px; color: #718096; display: block; margin-top: 10px; font-style: italic;">Puedes personalizar esta clave por una contraseña propia más adelante.</span>
+        </div>
+    </div>
+</div>
+
+<!-- === 🚫 MODAL MÁSTER: CONTROL DE ACTIVACIÓN DE LICENCIA DE EMISIÓN === -->
+<div id="modal_bloqueo_licencia_deca" class="modal-licencia-bloqueo">
+    <div class="deca-modal-contenido" style="max-width: 440px; height: auto; text-align: center; border-top: 5px solid #dc3545; background: #ffffff; margin: auto;">
+        <div class="deca-modal-cuerpo" style="padding: 30px; background: #ffffff;">
+            <span style="font-size: 55px; display: block; margin-bottom: 15px;">🔒</span>
+            <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: bold; color: #212529; text-transform: uppercase;">Terminal No Activado</h3>
+            <p style="color: #4a5568; font-size: 13px; line-height: 1.5; margin-bottom: 20px; text-align: center;">
+                Este dispositivo no cuenta con una licencia de emisión autorizada en el archivo central.
+                <br><br>
+                Por favor, póngase en contacto con el administrador del gestor para solicitar la activación de su terminal de transportes.
+            </p>
+            <div style="background: #f8f9fa; border: 1px solid #cbd5e0; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 11px; font-weight: bold; color: #0f4c81; margin-bottom: 15px; word-break: break-all;" id="txt_licencia_uid_terminal">
+                UID: Cargando...
+            </div>
+            <p style="font-size: 11px; color: #a0aec0; font-style: italic; margin: 0;">Fuler® DeCA Platform</p>
         </div>
     </div>
 </div>
