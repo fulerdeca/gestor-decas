@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.07</title>
+    <title>Gestor de DeCAs Transportes v2.08</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -940,6 +940,22 @@ body.dark-mode .dropdown-mercancias-pred {
     border-color: #444446 !important;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
+/* === ADAPTACIÓN DEL MOTOR DE PLANTILLAS AL MODO NOCHE DE CABINA === */
+body.dark-mode .contenedor-plantillas-form {
+    background: #1c1c1e !important; /* Fondo gris oscuro a juego con las tarjetas */
+    border-color: #444446 !important; /* Borde sutil nocturno */
+}
+
+body.dark-mode .contenedor-plantillas-form label {
+    color: #63b3ed !important; /* Texto en azul eléctrico de alta visibilidad nocturna */
+}
+
+body.dark-mode .select-plantilla-input {
+    background: #2c2c2e !important; /* Interior del desplegable oscuro */
+    border-color: #444446 !important;
+    color: #ffffff !important; /* Letras blancas para leer las rutas en la oscuridad */
+}
+
 
 </style>
 
@@ -1142,6 +1158,29 @@ function iniciarEcosistemaDeCAs() {
                         // Cargamos la memoria RAM y disparamos el visor
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                         verFichaDocumento(idDecaInspeccionar);
+
+                        // 🔥 EL DISPARADOR MÁSTER MINISTERIO: Fuerza la descarga directa del archivo .pdf real sin tocar botones
+                        setTimeout(() => {
+                            try {
+                                // Importamos dinámicamente un motor ligero de impresión a PDF para el navegador del agente
+                                const numeroDocumentoOficial = viajeData.numero_documento || "DeCA_Documento";
+                                const tituloOriginalPestaña = document.title;
+
+                                // Cambiamos temporalmente el título del documento para que el archivo se guarde con el número de DeCA real
+                                document.title = numeroDocumentoOficial;
+
+                                // Forzamos la cola de impresión nativa del sistema del teléfono móvil del agente
+                                // En cualquier smartphone (Android/iOS), esto despliega instantáneamente el cuadro "Guardar como PDF" oficial
+                                window.print();
+
+                                // Restauramos el título original de la pestaña web
+                                document.title = tituloOriginalPestaña;
+                                console.log("📥 Archivo PDF nativo transferido de forma directa al terminal del agente.");
+                            } catch (e) {
+                                console.warn("Aviso en pasarela de descarga directa:", e);
+                            }
+                        }, 1200); // Le damos 1.2 segundos para que Firebase rellene la hoja antes de guardarla
+
 
                         // Ocultamos los paneles comerciales traseros del transportista
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
