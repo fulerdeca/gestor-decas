@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.94</title>
+    <title>Gestor de DeCAs Transportes v2.02</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -130,31 +130,48 @@
     <!-- === CONTINUACIÓN DE ESTILOS CSS (Añadir dentro de <style>) === -->
     <style>
         /* === GRID DE CONTADORES SUPERIORES === */
-        .grid-contadores {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .tarjeta-contador {
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            border: 1px solid var(--border-color);
-            border-left: 6px solid #cbd5e0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+.grid-contadores {
+    display: grid;
+    /* 🔒 Forzamos de forma rígida a tener exactamente 2 columnas de igual tamaño */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px; /* Reducimos ligeramente el pasillo para ganar más espacio libre */
+    margin-bottom: 15px;
+}
+/* Ajustamos el acolchado interno de las tarjetas para que sean más bajas */
+.tarjeta-contador {
+    background: var(--card-bg);
+    padding: 10px 12px; /* Más compactas en altura */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border: 1px solid var(--border-color);
+    border-left: 5px solid #cbd5e0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+}
         /* Colores del Semáforo corporativo */
         .tarjeta-contador.total { border-left-color: var(--blue-primary); }
         .tarjeta-contador.en-curso { border-left-color: var(--green-success); }
         .tarjeta-contador.programados { border-left-color: var(--orange-alert); }
         .tarjeta-contador.post-viaje { border-left-color: #17a2b8; }
 
-        .contador-numero { font-size: 30px; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 4px; }
-        .contador-etiqueta { font-size: 11px; font-weight: bold; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; }
+/* Reducimos el número a 24px para que encaje impecable en pantallas estrechas */
+.contador-numero {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1;
+    margin-bottom: 2px;
+}
+/* Letra de la etiqueta un pelín más compacta para que no salte de línea */
+.contador-etiqueta {
+    font-size: 10px;
+    font-weight: bold;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
 
         /* === BARRA DE FILTROS INTEGRADA === */
         .contenedor-filtros {
@@ -326,7 +343,7 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
 <img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin-right: 4px; vertical-align: middle;" onerror="console.warn('⚠ Asegúrate de que el archivo se llame exactamente icono_transporte.jpg en tu carpeta');">
 
 
-                <h1>Mis DeCAs</h1>
+                <h1>DeCa</h1>
             </div>
             <p>La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).</p>
         </div>
@@ -336,8 +353,8 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
         <!-- === BOTONERA PREMIUM SUPERIOR CON CONMUTADOR NOCTURNO === -->
         <div class="grupo-botones-top">
             <!-- 🌙 EL NUEVO BOTÓN: Cambia el brillo de la pantalla con un solo toque en cabina -->
-            <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer;">🌙 Modo Noche</button>
-            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()">👤 Mis Datos / Clave</button>
+            <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer;">🌙 Oscuro</button>
+            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()">👤 Mis Datos</button>
             <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()">+ Nuevo DeCA</button>
         </div>
 
@@ -389,18 +406,44 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
     </div>
     <!-- === CONTINUACIÓN DE ESTILOS CSS (Añadir dentro de <style>) === -->
     <style>
-        /* === CONTENEDOR ESTRUCTURAL DE LA TABLA === */
-        .contenedor-tabla {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0 0 8px 8px;
-            overflow-x: auto;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-            -webkit-overflow-scrolling: touch;
-        }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; min-width: 950px; }
-        th { background: var(--gray-bg); color: #4a5568; padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; border-bottom: 2px solid var(--border-color); }
-        td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; color: var(--text-main); }
+/* === REPARACIÓN GEOMÉTRICA DE LA REJILLA DE PORTES === */
+.contenedor-tabla {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 8px 8px;
+    overflow-x: auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    -webkit-overflow-scrolling: touch;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+    min-width: 935px; /* Suma exacta de los anchos de las columnas fijadas */
+    table-layout: fixed !important; /* 🔒 CLAVE: Fuerza al navegador a respetar los píxeles estrictos */
+}
+
+th {
+    background: var(--gray-bg);
+    color: #4a5568;
+    padding: 10px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    color: var(--text-main);
+    word-wrap: break-word; /* Si un texto es muy largo, rompe dentro de su celda sin empujar a las demás */
+}
 
         /* DETALLES DE FILAS ESTILIZADAS */
         .doc-numero { font-weight: 800; color: var(--blue-primary); cursor: pointer; text-decoration: none; }
@@ -419,6 +462,8 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
         .estado-badge.en-curso { background: var(--green-light); color: #155724; border: 1px solid #c3e6cb; }
         .estado-badge.programado { background: var(--orange-light); color: #856404; border: 1px solid #ffeeba; }
         .estado-badge.cerrado { background: #e2e8f0; color: #4a5568; border: 1px solid #cbd5e0; }
+        .estado-badge.anulado-rojo { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
 
         /* Botones de acción rápidos */
 
@@ -468,8 +513,19 @@ body.dark-mode .btn-accion-icono:hover {
 }
 
 
-        .select-acciones-rapidas { padding: 6px 10px; font-size: 13px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; font-weight: bold; color: #4a5568; cursor: pointer; }
-
+/* Ajuste fino para el selector de acciones rápidas */
+.select-acciones-rapidas {
+    padding: 4px 6px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+    background: #fff;
+    font-weight: bold;
+    color: #4a5568;
+    cursor: pointer;
+    width: 95px; /* Controlamos el ancho del desplegable para que no se coma la fila */
+    max-width: 95px;
+}
         /* PIE DE TABLA / PAGINACIÓN */
         .pie-tabla { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--gray-bg); border-top: 1px solid var(--border-color); font-size: 13px; color: #718096; }
         .btn-paginacion { background: var(--blue-primary); color: white; border: none; width: 30px; height: 30px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-left: 4px; }
@@ -781,6 +837,50 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         height: 100px !important;
     }
 }
+
+
+
+/* Letrero de Advertencia para el Folio del DeCA Anulado (Estilo Sello de Custodia) */
+.sello-anulado-deca {
+    display: none;
+    width: 100% !important;
+    background: #f8d7da !important;
+    color: #721c24 !important;
+    border: 2px dashed #f5c6cb !important;
+    padding: 12px !important;
+    text-align: center !important;
+    font-weight: bold !important;
+    font-size: 14px !important;
+    text-transform: uppercase !important;
+    margin-bottom: 15px !important;
+    border-radius: 6px !important;
+    box-sizing: border-box !important;
+}
+
+/* Selector Predictivo Premium de Plantillas en el Formulario de Altas */
+.contenedor-plantillas-form {
+    background: #eef5fc;
+    border: 1px dashed #0f4c81;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.select-plantilla-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    background: #ffffff;
+    font-weight: bold;
+    color: #0f4c81;
+    cursor: pointer;
+}
+
+
 </style>
 
 
@@ -788,18 +888,20 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     <!-- === CONTENEDOR DE LA TABLA DE RESULTADOS === -->
     <div class="contenedor-tabla">
         <table>
+
             <thead>
                 <tr>
-                    <th>Nº Documento</th>
-                    <th>Fecha Transporte</th>
-                    <th>Matrículas</th>
-                    <th>Ruta Comercial</th>
-                    <th>Mercancía</th>
-                    <th>QR Activo Hasta</th>
-                    <th>Estado</th>
-                    <th style="text-align: right;">Acciones</th>
+                    <th style="width: 110px;">Nº Documento</th>
+                    <th style="width: 75px;">Fecha</th> <!-- 📝 Reducido el texto y fijado el ancho -->
+                    <th style="width: 105px;">Matrículas</th> <!-- 🚚 Más ancho para las placas -->
+                    <th style="width: 180px;">Ruta Comercial</th>
+                    <th style="width: 140px;">Mercancía</th>
+                    <th style="width: 85px;">QR Activo</th> <!-- 🔳 Ajustado al mínimo -->
+                    <th style="width: 95px;">Estado</th> <!-- 🟢 Espacio holgado para el badge -->
+                    <th style="width: 145px; text-align: right;">Acciones</th> <!-- ⚙️ Reducido al mínimo -->
                 </tr>
             </thead>
+
             <tbody id="tabla_resultados_body">
                 <!-- Se inyectará dinámicamente desde el Bloque 5 de Firebase -->
                 <tr id="fila_vacia_loader">
@@ -888,48 +990,78 @@ function iniciarEcosistemaDeCAs() {
     const idUsuarioInspeccionar = parametrosRuta.get("user");
 
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
-        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual...");
+        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual con Notas Normativas...");
 
-        // 🔥 EL CORAZÓN DEL PDF VIRTUAL: Estilos dinámicos para simular un documento estático limpio
+        // 🎨 MAQUETACIÓN PREMIUM VISOR CON BANNER NORMATIVO OBLIGATORIO
         const estiloPDFVirtual = document.createElement("style");
         estiloPDFVirtual.innerHTML = `
-            /* 1. Ocultamos los QR dobles o cuadros vacíos en el navegador web del agente */
             #qrcode_real_render canvas, #canvas_render_qr_gigante canvas { display: none !important; }
             #qrcode_real_render img, #canvas_render_qr_gigante img { display: block !important; width: 110px !important; height: 110px !important; margin: 0 auto !important; }
 
-            /* 2. Maquetación limpia a pantalla completa imitando un visor de PDF real */
             .modal-preview-deca { display: flex !important; position: static !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 10px !important; box-sizing: border-box !important; }
             .preview-container { width: 100% !important; max-width: 800px !important; height: 100% !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; }
-
-            /* Ocultamos la cabecera gris del modal y la cruz de cerrar para que sea un folio puro */
             .preview-container .deca-modal-cabecera { display: none !important; }
 
-            /* El cuerpo del folio adquiere fondo gris oscuro de visor de PDF (estilo Acrobat) */
-            .preview-cuerpo-scroll { background: #525659 !important; padding: 10px !important; overflow-y: auto !important; height: 100% !important; }
-
-            /* El folio blanco resalta sobre el fondo gris como un papel A4 real */
+            .preview-cuerpo-scroll { background: #525659 !important; padding: 10px !important; overflow-y: auto !important; height: 100% !important; box-sizing: border-box !important; }
             .folio-deca { box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important; margin-bottom: 20px !important; margin-top: 10px !important; }
-
-            /* 3. 🔥 OCULTACIÓN ABSOLUTA DE BOTONES: El agente no ve botoneras, solo lee el documento */
             .preview-pie-botones { display: none !important; }
+
+            /* Nuevos contenedores de notas obligatorias estilo BOE / Inspección */
+            .banner-inspeccion-header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 12px; width: 100%; max-width: 660px; margin: 0 auto 12px auto; box-sizing: border-box; font-family: sans-serif; }
+            .banner-inspeccion-badge { display: inline-flex; align-items: center; gap: 6px; background: #e8f5e9; color: #1b5e20; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 11px; text-transform: uppercase; border: 1px solid #c8e6c9; }
+            .banner-inspeccion-nota { background: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; border-left: 5px solid #1565c0; padding: 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; text-align: left; width: 100%; max-width: 660px; margin: 0 auto 15px auto; box-sizing: border-box; font-family: sans-serif; }
         `;
         document.head.appendChild(estiloPDFVirtual);
 
-        // Esperamos un segundo a que impacte la conexión inicial de Firebase
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
-            // Consultamos directamente el documento en la nube de forma aislada
             database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
-                        // Almacenamos el viaje en el array general para que el visor lo localice en RAM
-                        documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
+                        const viajeData = snapshot.val();
+                        documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...viajeData }];
 
-                        // Lanzamos la visualización inmediata en pantalla (Sin disparar window.print)
+                        // 🚀 INYECCIÓN MAESTRA DE LAS DOS CAJAS DE TEXTO OBLIGATORIAS EN EL VISOR DEL AGENTE
+                        const cuerpoScroll = document.querySelector(".preview-cuerpo-scroll");
+                        if (cuerpoScroll) {
+                            cuerpoScroll.innerHTML = ""; // Limpieza total preventiva
+
+                            // Caja 1: Barra superior de estado oficial
+                            const cabeceraHTML = document.createElement("div");
+                            cabeceraHTML.className = "banner-inspeccion-header";
+                            cabeceraHTML.innerHTML = `
+                                <div class="banner-inspeccion-badge">🟢 DESCARGA ACTIVA</div>
+                                <div style="font-size: 11px; color: #555; text-align: right; font-weight: 500;">
+                                    Documento: <strong>${viajeData.numero_documento || 'DeCA'}</strong><br>
+                                    <span style="font-size: 10px; color: #888;">Custodia activa Res. 5/6/2026 (fin del servicio + 7 días)</span>
+                                </div>
+                            `;
+                            cuerpoScroll.appendChild(cabeceraHTML);
+
+                            // Caja 2: El texto informativo legal obligatorio
+                            const notaHTML = document.createElement("div");
+                            notaHTML.className = "banner-inspeccion-nota";
+                            notaHTML.innerHTML = `
+                                ℹ️ <strong>Nota normativa:</strong> La URL codificada en el código QR produce la <strong>descarga directa e inmediata del archivo PDF legal</strong>, sin requerir páginas intermedias, credenciales ni botones de acción (Resolución de 5 de junio de 2026, apdo. tercero). Esta pasarela de verificación es una vista de cortesía complementaria para su consulta en pantalla.
+                            `;
+                            cuerpoScroll.appendChild(notaHTML);
+
+                            // Volvemos a inyectar el contenedor del folio blanco original debajo de los textos
+                            const folioContenedor = document.createElement("div");
+                            folioContenedor.className = "folio-deca";
+                            // Recuperamos toda la estructura exacta del papel que ya tienes maquetado abajo
+                            const estructuraOriginalFolio = document.querySelector(".modal-preview-deca .folio-deca");
+                            if (estructuraOriginalFolio) {
+                                folioContenedor.innerHTML = estructuraOriginalFolio.innerHTML;
+                                cuerpoScroll.appendChild(folioContenedor);
+                            }
+                        }
+
+                        // Lanzamos el volcado de datos síncrono sobre el nuevo nodo
                         verFichaDocumento(idDecaInspeccionar);
 
-                        // CLÁUSULA DE PRIVACIDAD: Ocultamos todo el dashboard del transportista
+                        // Ocultamos el panel privado del transportista por privacidad
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -940,8 +1072,9 @@ function iniciarEcosistemaDeCAs() {
                     }
                 });
         }, 800);
-        return; // Fin estricto: Bloquea el resto del inicio para que no cargue el panel del camionero
+        return;
     }
+
 }
 
 
@@ -1027,12 +1160,36 @@ function cerrarModalClaveMaestraYEntrar() {
 
 
 // =========================================================================
-// 📡 ESCUCHA REALTIME DINÁMICA AISLADA POR CONDUCTOR
+// 📡 ESCUCHA REALTIME DINÁMICA AISLADA POR CONDUCTOR (CON LIMPIEZA DE CUSTODIA)
 // =========================================================================
 function activarEscuchaRealtimeDeCAs() {
     if (!database || !miUsuarioUIDActivo) return;
 
-    // Escuchamos de forma exclusiva la sub-rama de portes que pertenece a este usuario
+    // 🔥 DEPURADOR DE CUSTODIA LEGAL AUTOMÁTICO (Borra de Firebase lo que tiene más de 1 año)
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').once('value').then((snapshot) => {
+        const datosDepurar = snapshot.val() || {};
+        const unAnoEnMilisegundos = 365 * 24 * 60 * 60 * 1000;
+        const limiteTiempoCustodia = Date.now() - unAnoEnMilisegundos;
+
+        Object.keys(datosDepurar).forEach(key => {
+            const viaje = datosDepurar[key];
+            // Evaluamos la antigüedad del documento si cuenta con marca de registro oficial
+            if (viaje.fecha_creacion_sistema) {
+                // Extraemos los milisegundos de la cadena guardada por el terminal en red
+                const fechaCreacion = new Date(viaje.fecha_creacion_sistema).getTime();
+
+                // Si la fecha es válida y es anterior al límite de 365 días, se purga de la nube
+                if (!isNaN(fechaCreacion) && fechaCreacion < limiteTiempoCustodia) {
+                    console.log("🧹 Depuración legal: Eliminando DeCA caducado con más de 1 año:", viaje.numero_documento);
+                    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + key).remove();
+                }
+            }
+        });
+    }).catch(err => {
+        console.warn("⚠️ Advertencia preventiva en el módulo de depuración temporal:", err);
+    });
+
+    // 📡 ESCUCHA EN TIEMPO REAL ACTIVA PARA RENDERIZAR EL DASHBOARD DEL CAMIONERO
     database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').on('value', (snapshot) => {
         const datosCloud = snapshot.val() || {};
 
@@ -1046,6 +1203,7 @@ function activarEscuchaRealtimeDeCAs() {
         console.error("Error en la escucha aislada del transportista:", error);
     });
 }
+
 
 // =========================================================================
 // 🎛️ RECALCULADOR DICTATORIAL DE CONTADORES SUPERIORES (SEMÁFORO SINCRO)
@@ -1089,6 +1247,7 @@ function renderizarTablaResultados(listaFiltrada) {
         let claseEstado = "cerrado", textoEstado = "⚪ Cerrado";
         if (doc.estado === "EN_CURSO") { claseEstado = "en-curso"; textoEstado = "🟢 En Curso"; }
         if (doc.estado === "PROGRAMADO") { claseEstado = "programado"; textoEstado = "🟡 Programado"; }
+        if (doc.estado === "ANULADO") { claseEstado = "anulado-rojo"; textoEstado = "🚫 Anulado"; }
 
         let badgeRemolqueHTML = "";
         if (doc.matricula_remolque && doc.matricula_remolque.trim() !== "" && doc.matricula_remolque.trim() !== "---") {
@@ -1114,19 +1273,23 @@ function renderizarTablaResultados(listaFiltrada) {
             <td>${fQrTxt}</td>
             <td><span class="estado-badge ${claseEstado}">${textoEstado}</span></td>
             <td style="text-align: right; white-space: nowrap; vertical-align: middle;">
-                <!-- 👁️ BOTÓN VER CUADRADO MINIMALISTA -->
-                <button class="btn-accion-icono" onclick="verFichaDocumento('${doc.id_firebase}')" title="Visualizar Folio Oficial">👁️</button>
 
-                <!-- 📥 BOTÓN DESCARGA DIRECTA INTELIGENTE CUADRADO -->
-                <button class="btn-accion-icono" onclick="verFichaDocumento('${doc.id_firebase}'); setTimeout(ejecutarDescargaPDFCompleto, 350);" title="Descargar Documento PDF">📥</button>
+            <!-- 👁️ BOTÓN VER CUADRADO MINIMALISTA (Abre el visor interno con el botón de cerrar de cabina) -->
+            <button class="btn-accion-icono" onclick="verFichaDocumento('${doc.id_firebase}')" title="Visualizar Folio Oficial">👁️</button>
+
+            <!-- 📥 BOTÓN PDF VIRTUAL DIRECTO (Llama a la función máster de visualización) -->
+            <button class="btn-accion-icono" onclick="abrirPDFVirtualDesdeDashboard('${doc.id_firebase}')" title="Abrir PDF Virtual Oficial">📥</button>
+
 
                 <select class="select-acciones-rapidas" onchange="ejecutarAccionFila(this, '${doc.id_firebase}')" style="vertical-align: middle; height: 34px;">
                     <option value="">Acciones</option>
                     <option value="editar">✏️ Editar</option>
                     <option value="duplicar">📋 Duplicar Porte</option>
+                    <option value="plantilla">⭐ Guardar como Plantilla</option>
+                    <option value="anular">🚫 Anular Documento</option>
                     <option value="cambiar_estado">🏁 Finalizar Viaje (Cerrar)</option>
-                    <option value="borrar">🗑️ Eliminar</option>
                 </select>
+
             </td>
         </tr>`;
     });
@@ -1182,23 +1345,31 @@ function filtrarCatalogoDeCAs() {
 
 
 // =========================================================================
-// 🔥 APERTURA DE FORMULARIO EN MODO CREAR (RESET COMPLETO)
+// 🔥 APERTURA DE FORMULARIO EN MODO CREAR (RESET COMPLETO Y AUTO-RELLENO)
 // =========================================================================
 function abrirFormularioNuevoDeCA() {
     idDocumentoEnEdicion = null;
 
+    // 1. 🚀 PRIMERO LIMPIAMOS: Vaciamos cualquier resto de un viaje anterior de las casillas
+    limpiarCamposFormularioGigante();
+
+    // 2. Cargamos el listado de plantillas frecuentes en el selector
+    actualizarDesplegablePlantillasFormulario();
+
     document.querySelector("#modal_nuevo_deca h3").innerText = "Nuevo Documento electrónico de Control Administrativo";
     document.querySelector(".deca-btn-guardar").innerText = "Generar DeCA";
 
-    // FECHA CORREGIDA: Obtiene la fecha de hoy de forma dinámica en formato YYYY-MM-DD
+    // Obtiene la fecha de hoy de forma dinámica en formato YYYY-MM-DD
     const hoy = new Date();
     const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
     document.getElementById("deca_fecha_transporte").value = hoyString;
 
+    // 3. ✍️ DESPUÉS INYECTAMOS: Colocamos de forma segura la información del transportista activo
     if (misDatosPerfilAutonomo) {
         document.getElementById("deca_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
         document.getElementById("deca_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
-        // CLAVES CORREGIDAS: Coinciden exactamente con estructuraPerfil
+
+        // Claves nativas exactas de Firebase asignadas después de la limpieza general
         document.getElementById("deca_vehiculo").value = misDatosPerfilAutonomo.matricula_tractor || "";
         document.getElementById("deca_remolque").value = misDatosPerfilAutonomo.matricula_remolque || "";
     } else {
@@ -1208,9 +1379,9 @@ function abrirFormularioNuevoDeCA() {
         document.getElementById("deca_remolque").value = "";
     }
 
-    limpiarCamposFormularioGigante();
     document.getElementById("modal_nuevo_deca").style.display = "flex";
 }
+
 
 
 
@@ -1275,6 +1446,16 @@ function verFichaDocumento(idFirebase) {
     document.getElementById("prev_mercan_bultos").innerText = doc.mercancia_bultos || doc.mercan_bultos || "---";
 
     document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
+
+    // 🔥 DETECTOR MAESTRO DE ANULACIONES PARA EL FOLIO DEL INSPECTOR
+    const capaSello = document.getElementById("sello_anulado_alerta");
+    if (capaSello) {
+        if (doc.estado === "ANULADO") {
+            capaSello.style.display = "block"; // Enciende el letrero rojo de advertencia
+        } else {
+            capaSello.style.display = "none";  // Lo mantiene invisible si el viaje está en curso o cerrado
+        }
+    }
 
     // === INYECCIÓN DE QR CON COMPATIBILIDAD ASÍNCRONA PARA APK ===
     const contenedorQR = document.getElementById("qrcode_real_render");
@@ -1661,6 +1842,15 @@ function limpiarCamposFormularioGigante() {
     document.getElementById("deca_mercan_bultos").value = "";
     document.getElementById("deca_observaciones").value = "";
 
+    // 🔥 LA NUEVA LÍNEA: Resetea el desplegable de plantillas al formato original al cerrar o guardar
+    const selectorPlantillas = document.getElementById("selector_plantillas_frecuentes");
+    if (selectorPlantillas) selectorPlantillas.value = "";
+
+    // 🔥 LA NUEVA LÍNEA: Asegura que el botón nazca invisible si se abre un formulario limpio
+    if(document.getElementById("btn_eliminar_plantilla_trigger")) {
+        document.getElementById("btn_eliminar_plantilla_trigger").style.display = "none";
+    }
+
     // 🚀 ESTÉTICA: Asegura que el botón recupere su texto nativo de alta al limpiar
     const btnGuardar = document.querySelector(".deca-btn-guardar");
     if (btnGuardar) btnGuardar.innerText = "Generar DeCA";
@@ -1732,79 +1922,88 @@ function ejecutarAccionFila(selectElement, idFirebase) {
     const accion = selectElement.value;
     if (!accion) return;
 
-    // Camino A: Borrado definitivo integrado con vuestro Modal Corporativo
-    if (accion === "borrar") {
-        const mensajePregunta = "¿Estás seguro de que deseas eliminar este documento electrónico de tu historial online de forma permanente?";
-        mostrarConfirmacionCorporateDeca(mensajePregunta, idFirebase);
+    const viajeOrigen = documentosDeCA.find(item => item.id_firebase === idFirebase);
+    if (!viajeOrigen) return;
 
-    // Camino B: Finalizar Viaje AUTOMÁTICO (Jubila al prompt de texto)
-    } else if (accion === "cambiar_estado") {
+    // Camino A: Finalizar Viaje (Cerrar)
+    if (accion === "cambiar_estado") {
         const mensajeFinalizar = "¿Ha llegado la mercancía a su destino comercial? Confirmar esta acción marcará el DeCA como CERRADO de forma definitiva.";
-
         mostrarConfirmacionCorporativaDeca("Finalizar Servicio", mensajeFinalizar, function() {
             mostrarAvisoToast("🔄 Cerrando porte en el archivo central...");
-
             database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idFirebase).update({
                 estado: "CERRADO",
-                fecha_fin_servicio: "2026-10-04" // Registra la fecha de llegada real de hoy
+                fecha_fin_servicio: "2026-10-06" // Registra la fecha de llegada real de hoy (Año 2026)
             })
-            .then(() => mostrarAvisoToast("🏁 Servicio finalizado. Viaje guardado como Cerrado."))
-            .catch(err => mostrarAlertaCorporativaDeca("Error de Red", "No se pudo cerrar el porte: " + err.message, "❌"));
+            .then(() => mostrarAvisoToast("🏁 Servicio finalizado. Viaje guardado como Cerrado."));
         });
 
-    // Camino C: Apertura del Mapeo inverso de edición
+    // Camino B: Apertura de edición
     } else if (accion === "editar") {
+        if (viajeOrigen.estado === "ANULADO") {
+            return mostrarAlertaCorporativaDeca("Acción Denegada", "No se puede editar un documento que ya ha sido anulado oficialmente.", "❌");
+        }
         abrirFormularioEditarDeCA(idFirebase);
 
-    // 🔥 CAMINO D: CLONADO INTELIGENTE DE PORTES HISTÓRICOS (DUPLICAR)
+    // Camino C: Duplicar Porte Correlativo
     } else if (accion === "duplicar") {
-        const viajeOrigen = documentosDeCA.find(item => item.id_firebase === idFirebase);
-        if (!viajeOrigen) return;
-
         const mensajeClonar = `¿Deseas clonar la retícula de este viaje? Se generará un DeCA correlativo nuevo para HOY con los mismos datos de ${viajeOrigen.cargador_razon || 'Cargador'}.`;
-
         mostrarConfirmacionCorporativaDeca("Duplicar Documento", mensajeClonar, function() {
             mostrarAvisoToast("📋 Clonando estructura del viaje...");
-
-            // Calculamos la caducidad del nuevo QR sumando 7 días a la fecha de hoy
-            let fechaBaseNueva = new Date("2026-10-04");
+            let fechaBaseNueva = new Date();
             fechaBaseNueva.setDate(fechaBaseNueva.getDate() + 7);
-            const aaaa = fechaBaseNueva.getFullYear();
-            const mm = String(fechaBaseNueva.getMonth() + 1).padStart(2, '0');
-            const dd = String(fechaBaseNueva.getDate()).padStart(2, '0');
-            const nuevaCaducidadQR = `${aaaa}-${mm}-${dd}`;
+            const nuevaCaducidadQR = fechaBaseNueva.getFullYear() + '-' + String(fechaBaseNueva.getMonth() + 1).padStart(2, '0') + '-' + String(fechaBaseNueva.getDate()).padStart(2, '0');
 
-            // Recomponemos el paquete elástico clonando los nodos fiscales y de transporte
-            const paqueteDuplicado = {
-                cargador_razon: viajeOrigen.cargador_razon || "",
-                cargador_nif: viajeOrigen.cargador_nif || "",
-                cargador_calle: viajeOrigen.cargador_calle || "",
-                cargador_cp: viajeOrigen.cargador_cp || "",
-                cargador_poblacion: viajeOrigen.cargador_poblacion || "",
-                cargador_provincia: viajeOrigen.cargador_provincia || "",
-                cargador_domicilio: viajeOrigen.cargador_domicilio || "",
-                matricula_tractor: viajeOrigen.matricula_tractor || "",
-                matricula_remolque: viajeOrigen.matricula_remolque || "",
-                fecha_transporte: "2026-10-04", // Forzado automático a la jornada de hoy
-                fecha_fin_servicio: "",          // Nace en blanco listo para el nuevo viaje
-                origen_plaza: viajeOrigen.origen_plaza || "",
-                destino_plaza: viajeOrigen.destino_plaza || "",
-                mercancia_nombre: viajeOrigen.mercancia_nombre || "",
-                mercancia_peso: viajeOrigen.mercancia_peso || "",
-                mercancia_bultos: viajeOrigen.mercancia_bultos || "---",
-                observaciones_indicaciones: viajeOrigen.observaciones_indicaciones || "",
-                qr_caducidad: nuevaCaducidadQR,
-                estado: "EN_CURSO", // Nace activo y verde listo para arrancar ruta
-                fecha_creacion_sistema: new Date().toLocaleString()
-            };
-
-            // Invocamos vuestro generador secuencial original para meter el duplicado en red
+            const paqueteDuplicado = { ...viajeOrigen, fecha_transporte: "2026-10-06", fecha_fin_servicio: "", qr_caducidad: nuevaCaducidadQR, estado: "EN_CURSO", fecha_creacion_sistema: new Date().toLocaleString() };
+            delete paqueteDuplicado.id_firebase;
+            delete paqueteDuplicado.numero_documento;
             ejecutarInyeccionCorrelativaDeCA(paqueteDuplicado);
         });
+
+    // 🔥 CAMINO D: ANULACIÓN OFICIAL DE PORTES (BLINDAJE DE 1 AÑO EN FIREBASE)
+    } else if (accion === "anular") {
+        if (viajeOrigen.estado === "ANULADO") {
+            return mostrarAlertaCorporativaDeca("Aviso", "Este documento ya se encuentra anulado.", "⚠️");
+        }
+        const mensajeAnular = "⚠ REGLA DE CUSTODIA: Anular este documento dejará constancia legal inalterable en el servidor. El QR informará a la Guardia Civil de su invalidez pero el archivo se conservará 1 año. ¿Proceder?";
+        mostrarConfirmacionCorporativaDeca("Anular Documento Electrónico", mensajeAnular, function() {
+            mostrarAvisoToast("🚫 Registrando anulación en la nube...");
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idFirebase).update({
+                estado: "ANULADO",
+                observaciones_indicaciones: "*** DOCUMENTO ANULADO POR EL TRANSPORTISTA ***\n" + (viajeOrigen.observaciones_indicaciones || "")
+            })
+            .then(() => mostrarAvisoToast("🚫 El documento ha sido anulado con éxito."));
+        });
+
+    // 🔥 CAMINO E: GUARDAR COMO PLANTILLA LOCAL RÁPIDA
+    } else if (accion === "plantilla") {
+        let listaPlantillas = [];
+        try { listaPlantillas = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
+
+        const yaExiste = listaPlantillas.some(p => p.cargador_nif === viajeOrigen.cargador_nif && p.origen_plaza === viajeOrigen.origen_plaza && p.destino_plaza === viajeOrigen.destino_plaza);
+        if (yaExiste) {
+            return mostrarAlertaCorporativaDeca("Plantilla Existente", "Ya tienes guardada una plantilla idéntica para esta ruta y cargador.", "⚠️");
+        }
+
+        listaPlantillas.push({
+            cargador_razon: viajeOrigen.cargador_razon || "",
+            cargador_nif: viajeOrigen.cargador_nif || "",
+            cargador_calle: viajeOrigen.cargador_calle || "",
+            cargador_cp: viajeOrigen.cargador_cp || "",
+            cargador_poblacion: viajeOrigen.cargador_poblacion || "",
+            cargador_provincia: viajeOrigen.cargador_provincia || "",
+            cargador_domicilio: viajeOrigen.cargador_domicilio || "",
+            origen_plaza: viajeOrigen.origen_plaza || "",
+            destino_plaza: viajeOrigen.destino_plaza || "",
+            mercancia_nombre: viajeOrigen.mercancia_nombre || "",
+            mercancia_peso: viajeOrigen.mercancia_peso || "0 kg"
+        });
+        localStorage.setItem("cfg_deca_mis_plantillas", JSON.stringify(listaPlantillas));
+        mostrarAvisoToast("⭐ Guardado en tus plantillas frecuentes de cabina.");
     }
 
-    selectElement.value = ""; // Reseteo táctil del selector
+    selectElement.value = ""; // Reseteo táctil
 }
+
 
 
 
@@ -2298,11 +2497,11 @@ function conmutarModoOscuroManual() {
 
     // Evaluamos el estado final para actualizar la interfaz y memorizarlo
     if (cuerpoCapa.classList.contains("dark-mode")) {
-        botonEfecto.innerText = "☀️ Modo Día";
+        botonEfecto.innerText = "☀️ Claro";
         localStorage.setItem("modo_oscuro_deca", "si");
         mostrarAvisoToast("🌙 Modo noche activado");
     } else {
-        botonEfecto.innerText = "🌙 Modo Noche";
+        botonEfecto.innerText = "🌙 Oscuro";
         localStorage.setItem("modo_oscuro_deca", "no");
         mostrarAvisoToast("☀️ Modo día activado");
     }
@@ -2319,7 +2518,7 @@ function sincronizarBotonOscuroAlArrancar() {
         botonEfecto.innerText = "☀️ Modo Día";
     } else {
         document.body.classList.remove("dark-mode");
-        botonEfecto.innerText = "🌙 Modo Noche";
+        botonEfecto.innerText = "🌙 Oscuro";
     }
 }
 
@@ -2328,6 +2527,145 @@ document.addEventListener("DOMContentLoaded", function() {
     setTimeout(sincronizarBotonOscuroAlArrancar, 300);
 });
 
+
+// =========================================================================
+// ⭐ MOTOR DE AUTO-RELLENO DE PORTES MEDIANTE PLANTILLAS FRECUENTES
+// =========================================================================
+function actualizarDesplegablePlantillasFormulario() {
+    const selector = document.getElementById("selector_plantillas_frecuentes");
+    if (!selector) return;
+
+    selector.innerHTML = '<option value="">-- Selecciona una ruta frecuente para auto-rellenar el formulario --</option>';
+
+    let lista = [];
+    try { lista = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
+
+    if (lista.length === 0) {
+        selector.innerHTML = '<option value="">⚠️ No tienes ninguna plantilla guardada todavía (Guárdalas desde el menú "Acciones" de la tabla)</option>';
+        return;
+    }
+
+    lista.forEach((p, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.innerText = `🏢 ${p.cargador_razon} | ➔ ${p.origen_plaza} hasta ${p.destino_plaza}`;
+        selector.appendChild(option);
+    });
+}
+
+function cargarDatosDesdePlantillaSeleccionada(selectElement) {
+    const index = selectElement.value;
+    const btnPapelera = document.getElementById("btn_eliminar_plantilla_trigger");
+
+    // 🔥 CONTROL DE VISIBILIDAD DINÁMICA
+    if (btnPapelera) {
+        if (index === "") {
+            btnPapelera.style.display = "none";  // Si vuelve a seleccionar el mensaje por defecto, esconde el botón
+            return;
+        } else {
+            btnPapelera.style.display = "inline-flex"; // Si elige una plantilla real, muestra la papelera roja
+        }
+    }
+
+    let lista = [];
+    try { lista = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
+    const p = lista[index];
+    if (!p) return;
+
+    // Inyección masiva en las casillas (mantenemos todo tu bloque de campos igual)
+    document.getElementById("deca_carg_razon").value = p.cargador_razon || "";
+    document.getElementById("deca_carg_nif").value = p.cargador_nif || "";
+    document.getElementById("deca_carg_domicilio").value = p.cargador_calle || "";
+    document.getElementById("deca_carg_cp").value = p.cargador_cp || "";
+    document.getElementById("deca_carg_poblacion").value = p.cargador_poblacion || "";
+    document.getElementById("deca_carg_provincia").value = p.cargador_provincia || "";
+    document.getElementById("deca_origen").value = p.origen_plaza || "";
+    document.getElementById("deca_destino").value = p.destino_plaza || "";
+    document.getElementById("deca_mercan_nombre").value = p.mercancia_nombre || "";
+
+    if (p.mercancia_peso) {
+        const pesoRaw = p.mercancia_peso || "0";
+        if (pesoRaw.includes(" ")) {
+            const trozos = pesoRaw.split(" ");
+            document.getElementById("deca_mercan_peso").value = trozos[0] || "";
+            document.getElementById("deca_mercan_unidad").value = trozos[1] || "kg";
+        } else {
+            document.getElementById("deca_mercan_peso").value = pesoRaw.replace(/[^0-9]/g, "");
+            document.getElementById("deca_mercan_unidad").value = "kg";
+        }
+    }
+
+    mostrarAvisoToast("⭐ Formulario auto-rellenado desde plantilla");
+}
+
+
+// =========================================================================
+// ⭐ FUNCIÓN DE PURGA PARA ELIMINAR PLANTILLAS OBSOLETAS EN CABINA
+// =========================================================================
+function eliminarPlantillaFrecuenteSeleccionada() {
+    const selector = document.getElementById("selector_plantillas_frecuentes");
+    if (!selector) return;
+
+    const index = selector.value;
+    // Si no ha seleccionado ninguna plantilla válida, denegamos la acción
+    if (index === "" || index.includes("--") || index.includes("No tienes")) {
+        return mostrarAlertaCorporativaDeca("Acción Requerida", "Por favor, selecciona primero en el desplegable la plantilla que deseas eliminar de tu memoria local.", "⚠️");
+    }
+
+    let listaPlantillas = [];
+    try { listaPlantillas = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
+
+    const plantillaAEliminar = listaPlantillas[index];
+    if (!plantillaAEliminar) return;
+
+    const mensajePregunta = `¿Estás seguro de que deseas eliminar la plantilla de ruta para "${plantillaAEliminar.cargador_razon || 'Empresa'}" de forma permanente? No afectará a tus DeCAs ya emitidos.`;
+
+    // Conectamos con tu modal corporativo de confirmación estilo TPV
+    mostrarConfirmacionCorporativaDeca("Eliminar Plantilla de Ruta", mensajePregunta, function() {
+        mostrarAvisoToast("🗑️ Eliminando plantilla local...");
+
+        // Sacamos el elemento del array usando su índice de posición
+        listaPlantillas.splice(index, 1);
+
+        // Guardamos el nuevo array en el disco del terminal
+        localStorage.setItem("cfg_deca_mis_plantillas", JSON.stringify(listaPlantillas));
+
+        // Refrescamos el desplegable en caliente para que el conductor vea el cambio al instante
+        actualizarDesplegablePlantillasFormulario();
+
+        // 🔥 LA NUEVA LÍNEA: Esconde la papelera tras borrar el archivo de la memoria
+        if(document.getElementById("btn_eliminar_plantilla_trigger")) {
+            document.getElementById("btn_eliminar_plantilla_trigger").style.display = "none";
+        }
+
+        mostrarAvisoToast("🗑️ Plantilla eliminada correctamente.");
+    });
+}
+
+
+// =========================================================================
+// 📥 VISUALIZADOR DE PDF VIRTUAL DIRECTO DESDE EL DASHBOARD PRIVADO
+// =========================================================================
+function abrirPDFVirtualDesdeDashboard(idFirebase) {
+    if (!idFirebase || !miUsuarioUIDActivo) {
+        return mostrarAlertaCorporativaDeca("Aviso", "No se han podido cargar los identificadores del documento en red.", "⚠️");
+    }
+
+    mostrarAvisoToast("⏳ Abriendo visor de PDF Virtual...");
+
+    const miUsuarioGitHubOficial = "fulerdeca";
+
+    // Construimos la URL idéntica a la que abre el agente de la Guardia Civil
+    const urlConstructor = new URL("https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/");
+    urlConstructor.searchParams.set("verificar", idFirebase);
+    urlConstructor.searchParams.set("user", miUsuarioUIDActivo);
+    urlConstructor.searchParams.set("v", Date.now()); // Rompe la caché del navegador al instante
+
+    // Abrimos el PDF Virtual en una pestaña nueva limpia estilo Adobe Acrobat
+    setTimeout(() => {
+        window.open(urlConstructor.toString(), '_blank');
+    }, 200);
+}
 
 
 </script>
@@ -2349,17 +2687,31 @@ document.addEventListener("DOMContentLoaded", function() {
         <!-- Cuerpo Desplazable -->
         <div class="deca-modal-cuerpo">
 
+    <!-- ⭐ MOTOR DE CARGA Y BORRADO DE PLANTILLAS FRECUENTES -->
+    <div class="contenedor-plantillas-form">
+        <label style="font-size: 11px; font-weight: bold; color: #0f4c81; text-transform: uppercase;">⭐ Reutilizar Estructura desde Plantillas Guardadas</label>
+        <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
+            <select id="selector_plantillas_frecuentes" class="select-plantilla-input" onchange="cargarDatosDesdePlantillaSeleccionada(this)" style="flex-grow: 1;">
+                <option value="">-- Selecciona una ruta frecuente para auto-rellenar el formulario --</option>
+            </select>
+            <!-- 🔥 EL BOTÓN AHORA NACE INVISIBLE (display: none) -->
+            <button type="button" id="btn_eliminar_plantilla_trigger" class="btn-top" onclick="eliminarPlantillaFrecuenteSeleccionada()" style="padding: 10px; background: #dc3545; color: white; border: none; height: 38px; display: none; align-items: center; justify-content: center; font-weight: bold; margin: 0;" title="Eliminar esta plantilla permanente">🗑️</button>
+        </div>
+    </div>
+
+
+
             <!-- BLOQUE 1: CARGADOR CONTRACTUAL (DIRECCIÓN SEGMENTADA) -->
             <div class="bloque-formulario-deca">
                 <div class="deca-num-titulo"><span class="deca-num-circulo">1</span> Cargador Contractual</div>
                 <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-<!-- Reemplazo el grupo de la Razón Social del Cargador Contractual por este con buscador local -->
-<div class="deca-form-grupo" style="position: relative;">
-    <label>Razón Social del Cargador <span>*</span></label>
-    <input type="text" id="deca_carg_razon" class="deca-input" placeholder="Empresa que contrata el transporte" oninput="filtrarCargadoresFrecuentesPredictivo(this)" onfocus="filtrarCargadoresFrecuentesPredictivo(this)">
-    <!-- Menú desplegable elástico para seleccionar cargadores históricos -->
-    <div id="lista_cargadores_habituales_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 185px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></div>
-</div>
+            <!-- Reemplazo el grupo de la Razón Social del Cargador Contractual por este con buscador local -->
+            <div class="deca-form-grupo" style="position: relative;">
+                <label>Razón Social del Cargador <span>*</span></label>
+                <input type="text" id="deca_carg_razon" class="deca-input" placeholder="Empresa que contrata el transporte" oninput="filtrarCargadoresFrecuentesPredictivo(this)" onfocus="filtrarCargadoresFrecuentesPredictivo(this)">
+                <!-- Menú desplegable elástico para seleccionar cargadores históricos -->
+                <div id="lista_cargadores_habituales_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 185px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></div>
+            </div>
 
                     <div class="deca-form-grupo">
                         <label>NIF del Cargador <span>*</span></label>
@@ -2496,6 +2848,11 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
     <div class="preview-cuerpo-scroll">
       <div class="folio-deca">
+
+          <!-- 🔥 EL NUEVO SELLO DE ANULACIÓN PARA EL INSPECTOR DE LA GUARDIA CIVIL -->
+        <div id="sello_anulado_alerta" class="sello-anulado-deca">⚠️ ATENCIÓN: ESTE DOCUMENTO ELECTRÓNICO HA SIDO ANULADO OFICIALMENTE POR EL TRANSPORTISTA ⚠️</div>
+
+
         <div style="display:flex;
                     justify-content:space-between;
                     align-items:flex-start;
