@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v1.93</title>
+    <title>Gestor de DeCAs Transportes v1.94</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -888,7 +888,32 @@ function iniciarEcosistemaDeCAs() {
     const idUsuarioInspeccionar = parametrosRuta.get("user");
 
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
-        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando folio público...");
+        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual...");
+
+        // 🔥 EL CORAZÓN DEL PDF VIRTUAL: Estilos dinámicos para simular un documento estático limpio
+        const estiloPDFVirtual = document.createElement("style");
+        estiloPDFVirtual.innerHTML = `
+            /* 1. Ocultamos los QR dobles o cuadros vacíos en el navegador web del agente */
+            #qrcode_real_render canvas, #canvas_render_qr_gigante canvas { display: none !important; }
+            #qrcode_real_render img, #canvas_render_qr_gigante img { display: block !important; width: 110px !important; height: 110px !important; margin: 0 auto !important; }
+
+            /* 2. Maquetación limpia a pantalla completa imitando un visor de PDF real */
+            .modal-preview-deca { display: flex !important; position: static !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 10px !important; box-sizing: border-box !important; }
+            .preview-container { width: 100% !important; max-width: 800px !important; height: 100% !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; }
+
+            /* Ocultamos la cabecera gris del modal y la cruz de cerrar para que sea un folio puro */
+            .preview-container .deca-modal-cabecera { display: none !important; }
+
+            /* El cuerpo del folio adquiere fondo gris oscuro de visor de PDF (estilo Acrobat) */
+            .preview-cuerpo-scroll { background: #525659 !important; padding: 10px !important; overflow-y: auto !important; height: 100% !important; }
+
+            /* El folio blanco resalta sobre el fondo gris como un papel A4 real */
+            .folio-deca { box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important; margin-bottom: 20px !important; margin-top: 10px !important; }
+
+            /* 3. 🔥 OCULTACIÓN ABSOLUTA DE BOTONES: El agente no ve botoneras, solo lee el documento */
+            .preview-pie-botones { display: none !important; }
+        `;
+        document.head.appendChild(estiloPDFVirtual);
 
         // Esperamos un segundo a que impacte la conexión inicial de Firebase
         setTimeout(() => {
@@ -901,26 +926,22 @@ function iniciarEcosistemaDeCAs() {
                         // Almacenamos el viaje en el array general para que el visor lo localice en RAM
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
 
-                        // Lanzamos la visualización inmediata en pantalla
+                        // Lanzamos la visualización inmediata en pantalla (Sin disparar window.print)
                         verFichaDocumento(idDecaInspeccionar);
 
                         // CLÁUSULA DE PRIVACIDAD: Ocultamos todo el dashboard del transportista
-                        // y las cruces de cerrar para que el agente SOLO pueda ver e imprimir su folio
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
                         if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.display = "none";
                         if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
-
-                        const btnCerrarVisor = document.querySelector(".preview-container .deca-modal-cerrar");
-                        if(btnCerrarVisor) btnCerrarVisor.style.display = "none";
+                    } else {
+                        alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                     }
                 });
         }, 800);
+        return; // Fin estricto: Bloquea el resto del inicio para que no cargue el panel del camionero
     }
-
-
-
 }
 
 
