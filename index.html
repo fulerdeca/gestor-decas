@@ -990,17 +990,16 @@ function iniciarEcosistemaDeCAs() {
     const idUsuarioInspeccionar = parametrosRuta.get("user");
 
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
-        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual Estático Fijo...");
+        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando Visor PDF Virtual Puro...");
 
-        // 🎨 MAQUETACIÓN PREMIUM VISOR CON BANNER NORMATIVO OBLIGATORIO Y QR AJUSTADOS
+        // 🎨 MAQUETACIÓN ESTRICTA VISOR ESTILO ADOBE ACROBAT (SÓLO EL FOLIO BLANCO)
         const estiloPDFVirtual = document.createElement("style");
         estiloPDFVirtual.innerHTML = `
-            /* 1. Blindaje absoluto anti-duplicados y tamaño estricto de QR en el móvil */
+            /* 1. Bloqueo estricto del tamaño del QR para que no se deforme en móviles */
             #qrcode_real_render canvas, #canvas_render_qr_gigante canvas { display: none !important; }
-            #qrcode_real_render img { display: block !important; width: 100px !important; height: 100px !important; margin: 0 auto !important; min-width: 100px !important; min-height: 100px !important; }
-            #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 280px !important; margin: 0 auto !important; }
+            #qrcode_real_render img { display: block !important; width: 110px !important; height: 110px !important; margin: 0 auto !important; min-width: 110px !important; min-height: 110px !important; }
 
-            /* 2. Forzamos un contenedor de bloque puro que actúa como un visor de PDF (Acrobat Reader) */
+            /* 2. Convertimos la pantalla en un visor gris oscuro de PDF nativo */
             .modal-preview-deca {
                 display: block !important;
                 position: fixed !important;
@@ -1017,7 +1016,7 @@ function iniciarEcosistemaDeCAs() {
                 -webkit-overflow-scrolling: touch;
             }
 
-            /* El contenedor interior se vuelve transparente para no pisar el fondo gris */
+            /* El contenedor se alinea al centro de la pantalla gris */
             .preview-container {
                 width: 100% !important;
                 max-width: 780px !important;
@@ -1027,14 +1026,15 @@ function iniciarEcosistemaDeCAs() {
                 border-radius: 0 !important;
                 margin: 0 auto !important;
                 display: block !important;
-                overflow: visible !important;
             }
+
+            /* Ocultamos la barra superior gris con la cruz de cerrar original de la app */
             .preview-container .deca-modal-cabecera { display: none !important; }
 
-            /* El scroll se gestiona a nivel de pantalla completa, no en cajas internas */
+            /* Liberamos el scroll natural vertical para leer el folio completo */
             .preview-cuerpo-scroll {
                 background: #525659 !important;
-                padding: 15px 10px !important;
+                padding: 20px 10px !important;
                 overflow: visible !important;
                 height: auto !important;
                 box-sizing: border-box !important;
@@ -1042,59 +1042,31 @@ function iniciarEcosistemaDeCAs() {
                 display: block !important;
             }
 
-            /* El folio blanco resalta sobre el fondo gris con márgenes limpios */
+            /* El papel blanco resalta en el centro con sombra profesional estilo documento real */
             .folio-deca {
-                box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
-                margin: 15px auto !important;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+                margin: 10px auto !important;
                 background: #ffffff !important;
                 display: block !important;
             }
-            .preview-pie-botones { display: none !important; }
 
-            /* Estilos de las cajas informativas oficiales obligatorias */
-            .banner-inspeccion-header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin: 0 auto 12px auto; width: 100%; max-width: 660px; box-sizing: border-box; font-family: sans-serif; color: #111111; }
-            .banner-inspeccion-badge { display: inline-flex; align-items: center; gap: 6px; background: #e8f5e9; color: #1b5e20; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 11px; text-transform: uppercase; border: 1px solid #c8e6c9; }
-            .banner-inspeccion-nota { background: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; border-left: 5px solid #1565c0; padding: 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; text-align: left; width: 100%; max-width: 660px; margin: 0 auto 15px auto; box-sizing: border-box; font-family: sans-serif; }
+            /* Ocultamos de raíz la botonera inferior para que el agente no pueda tocar nada */
+            .preview-pie-botones { display: none !important; }
         `;
         document.head.appendChild(estiloPDFVirtual);
 
+        // Conexión síncrona inmediata con los datos reales guardados en Firebase
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
             database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
-                        const viajeData = snapshot.val();
-                        documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...viajeData }];
-
-                        const cuerpoScroll = document.querySelector(".preview-cuerpo-scroll");
-                        if (cuerpoScroll) {
-                            // Eliminamos cualquier duplicado previo si el radar se dispara dos veces
-                            const bannerViejo = document.getElementById("bloque_banners_inspector");
-                            if (bannerViejo) bannerViejo.remove();
-
-                            // 🚀 INYECCIÓN MAESTRA: Colocamos las notas informativas fijas arriba de la hoja
-                            const contenedorBanners = document.createElement("div");
-                            contenedorBanners.id = "bloque_banners_inspector";
-                            contenedorBanners.innerHTML = `
-                                <div class="banner-inspeccion-header">
-                                    <div class="banner-inspeccion-badge">🟢 DESCARGA ACTIVA</div>
-                                    <div style="font-size: 11px; color: #555; text-align: right; font-weight: 500; font-family:sans-serif;">
-                                        Documento: <strong>${viajeData.numero_documento || 'DeCA'}</strong><br>
-                                        <span style="font-size: 10px; color: #888;">Custodia activa Res. 5/6/2026</span>
-                                    </div>
-                                </div>
-                                <div class="banner-inspeccion-nota">
-                                    ℹ️ <strong>Nota normativa:</strong> La URL codificada en el código QR produce la <strong>descarga directa e inmediata del archivo PDF legal</strong>, sin requerir páginas intermedias, credenciales ni botones de acción (Resolución de 5 de junio de 2026, apdo. tercero). Esta pasarela de verificación es una vista de cortesía complementaria para su consulta en pantalla.
-                                </div>
-                            `;
-                            cuerpoScroll.insertBefore(contenedorBanners, cuerpoScroll.firstChild);
-                        }
-
-                        // Rellenamos las celdas del folio de forma natural con los datos de Firebase
+                        // Sincronizamos la RAM y disparamos el visor nativo de la app
+                        documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                         verFichaDocumento(idDecaInspeccionar);
 
-                        // Ocultamos los paneles privados del transportista para que no se vean de fondo
+                        // Ocultamos el dashboard privado del camionero por detrás
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -1104,7 +1076,7 @@ function iniciarEcosistemaDeCAs() {
                         alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                     }
                 });
-        }, 400);
+        }, 300);
         return;
     }
 
