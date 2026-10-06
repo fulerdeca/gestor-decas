@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.04</title>
+    <title>Gestor de DeCAs Transportes v2.05</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -928,6 +928,29 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 
 
+/* Menú desplegable elástico para sugerencias de mercancía frecuente */
+.dropdown-mercancias-pred {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 180px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #cbd5e0;
+    border-radius: 0 0 6px 6px;
+    z-index: 999999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-sizing: border-box;
+}
+/* Adaptación automática del buscador predictivo al Modo Noche de cabina */
+body.dark-mode .dropdown-mercancias-pred {
+    background: #2c2c2e !important;
+    border-color: #444446 !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
 </style>
 
 
@@ -1770,6 +1793,9 @@ function procesarGuardadoDeCAOnline() {
     if (typeof registrarCargadorEnHistorialFrecuente === "function") {
         registrarCargadorEnHistorialFrecuente(cargRazon, cargNif, cargDomicilio, cargCp, cargPoblacion, cargProvincia);
     }
+
+    // 🔥 LA NUEVA LÍNEA: Guarda la mercancía en el diccionario predictivo local
+    registrarMercanciaEnHistorialFrecuente(mercanNombre);
 
     const domicilioCargadorCompleto = `${cargDomicilio} (CP: ${cargCp} - ${cargPoblacion} - ${cargProvincia})`;
 
@@ -2711,6 +2737,101 @@ function abrirPDFVirtualDesdeDashboard(idFirebase) {
 }
 
 
+
+// =========================================================================
+// 📦 MOTOR PREDICTIVO INTELIGENTE: HISTORIAL DE MERCANCÍAS FRECUENTES
+// =========================================================================
+
+// 1. Extrae el array de cargas memorizadas en el terminal
+function obtenerHistorialMercanciasLocales() {
+    try {
+        return JSON.parse(localStorage.getItem("cfg_deca_almacen_mercancias")) || [];
+    } catch(e) {
+        return [];
+    }
+}
+
+// 2. Registra de forma segura la mercancía si es nueva (Límite 20 registros)
+function registrarMercanciaEnHistorialFrecuente(nombreMercancia) {
+    if (!nombreMercancia || nombreMercancia.trim() === "" || nombreMercancia.includes("MUESTRA PRIVADA")) return;
+
+    let listaMercancias = obtenerHistorialMercanciasLocales();
+    const nombreLimpio = nombreMercancia.trim().toUpperCase();
+
+    // Si la mercancía ya está registrada, no la duplicamos
+    if (!listaMercancias.includes(nombreLimpio)) {
+        listaMercancias.push(nombreLimpio);
+
+        // Mantenemos un tope de 20 para no saturar el rendimiento del móvil
+        if (listaMercancias.length > 20) listaMercancias.shift();
+
+        localStorage.setItem("cfg_deca_almacen_mercancias", JSON.stringify(listaMercancias));
+        console.log("💾 Mercancía registrada en el archivo local de cabina:", nombreLimpio);
+    }
+}
+
+// 3. Filtra y despliega las sugerencias mientras el conductor teclea
+function filtrarMercanciasFrecuentesPredictivo(inputElement) {
+    const textoBuscar = inputElement.value.toUpperCase().trim();
+    const dropdown = document.getElementById("lista_mercancias_frecuentes_drop");
+
+    if (!dropdown) return;
+    dropdown.innerHTML = "";
+
+    const catalogoMercancias = obtenerHistorialMercanciasLocales();
+
+    // Si no hay datos guardados o la casilla está vacía, mantenemos oculto el menú
+    if (catalogoMercancias.length === 0 || textoBuscar === "") {
+        dropdown.style.display = "none";
+        return;
+    }
+
+    // Filtramos las coincidencias
+    const sugerenciasFiltradas = catalogoMercancias.filter(m => m.includes(textoBuscar));
+
+    if (sugerenciasFiltradas.length === 0) {
+        dropdown.style.display = "none";
+        return;
+    }
+
+    sugerenciasFiltradas.forEach(mercancia => {
+        const item = document.createElement("div");
+        item.innerHTML = `<span style="color: #28a745; margin-right: 6px;">📦</span> <strong>${mercancia}</strong>`;
+        item.style.padding = "10px 14px";
+        item.style.cursor = "pointer";
+        item.style.fontSize = "13px";
+        item.style.borderBottom = "1px solid rgba(0,0,0,0.05)";
+        item.style.textAlign = "left";
+
+        // Estilos dinámicos adaptados para el uso diurno/nocturno
+        const esModoOscuro = document.body.classList.contains("dark-mode");
+        item.style.color = esModoOscuro ? "#e0e0e0" : "#212529";
+
+        item.onmouseover = function() { this.style.background = esModoOscuro ? "#1c1c1e" : "#eef5fc"; };
+        item.onmouseout = function() { this.style.background = "transparent"; };
+
+        // Al hacer clic, inyecta el texto completo y esconde el menú
+        item.onclick = function() {
+            inputElement.value = mercancia;
+            dropdown.style.display = "none";
+            mostrarAvisoToast("⚡ Mercancía habitual seleccionada");
+        };
+
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = "block";
+}
+
+// 4. ESCUDO TÁCTIL AUTOMÁTICO: Cierra el desplegable si se pincha en cualquier otra casilla
+document.addEventListener("click", function(evento) {
+    if (evento.target.id !== "deca_mercan_nombre") {
+        const dropMercan = document.getElementById("lista_mercancias_frecuentes_drop");
+        if (dropMercan) dropMercan.style.display = "none";
+    }
+});
+
+
 </script>
 
 
@@ -2835,10 +2956,16 @@ function abrirPDFVirtualDesdeDashboard(idFirebase) {
             <div class="bloque-formulario-deca">
                 <div class="deca-num-titulo"><span class="deca-num-circulo">4</span> Mercancía</div>
                 <div class="deca-form-grid">
-                    <div class="deca-form-grupo" style="flex: 2;">
+
+                    <!-- Reemplazo del grupo de Naturaleza con Buscador Predictivo Local -->
+                    <div class="deca-form-grupo" style="flex: 2; position: relative;">
                         <label>Naturaleza de la Mercancía <span>*</span></label>
-                        <input type="text" id="deca_mercan_nombre" class="deca-input" placeholder="p. ej. Perfil de aluminio paletizado">
+                        <input type="text" id="deca_mercan_nombre" class="deca-input" placeholder="p. ej. AJO SPRING" oninput="filtrarMercanciasFrecuentesPredictivo(this)" onfocus="filtrarMercanciasFrecuentesPredictivo(this)">
+                        <!-- Contenedor dinámico donde nacerán las sugerencias del histórico -->
+                        <div id="lista_mercancias_frecuentes_drop" class="dropdown-mercancias-pred"></div>
                     </div>
+
+
                     <div class="deca-form-grupo">
                         <label>Peso / Magnitud <span>*</span></label>
                         <input type="number" id="deca_mercan_peso" class="deca-input" placeholder="14500">
