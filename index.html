@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.01</title>
+    <title>Gestor de DeCAs Transportes v2.02</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -881,6 +881,53 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 
 
+/* Contenedores de notas informativas normativas para el visor privado */
+.banner-inspeccion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin: 0 auto 12px auto;
+    width: 100%;
+    max-width: 660px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    color: #111111;
+}
+.banner-inspeccion-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #e8f5e9;
+    color: #1b5e20;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 11px;
+    text-transform: uppercase;
+    border: 1px solid #c8e6c9;
+}
+.banner-inspeccion-nota {
+    background: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #bbdefb;
+    border-left: 5px solid #1565c0;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: left;
+    width: 100%;
+    max-width: 660px;
+    margin: 0 auto 15px auto;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+
 </style>
 
 
@@ -990,48 +1037,39 @@ function iniciarEcosistemaDeCAs() {
     const idUsuarioInspeccionar = parametrosRuta.get("user");
 
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
-        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual...");
+        console.log("👮 MODO INSPECTOR GLOBAL: Activando Visor PDF Virtual Puro en Carretera...");
 
-        // 🔥 EL CORAZÓN DEL PDF VIRTUAL: Estilos dinámicos para simular un documento estático limpio
+        // 🎨 MAQUETACIÓN ESTRICTA VISOR ESTILO ADOBE ACROBAT (SÓLO EL FOLIO BLANCO)
         const estiloPDFVirtual = document.createElement("style");
         estiloPDFVirtual.innerHTML = `
-            /* 1. Ocultamos los QR dobles o cuadros vacíos en el navegador web del agente */
             #qrcode_real_render canvas, #canvas_render_qr_gigante canvas { display: none !important; }
-            #qrcode_real_render img, #canvas_render_qr_gigante img { display: block !important; width: 110px !important; height: 110px !important; margin: 0 auto !important; }
+            #qrcode_real_render img { display: block !important; width: 110px !important; height: 110px !important; margin: 0 auto !important; min-width: 110px !important; min-height: 110px !important; }
 
-            /* 2. Maquetación limpia a pantalla completa imitando un visor de PDF real */
-            .modal-preview-deca { display: flex !important; position: static !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 10px !important; box-sizing: border-box !important; }
-            .preview-container { width: 100% !important; max-width: 800px !important; height: 100% !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; }
-
-            /* Ocultamos la cabecera gris del modal y la cruz de cerrar para que sea un folio puro */
+            .modal-preview-deca { display: block !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+            .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
             .preview-container .deca-modal-cabecera { display: none !important; }
 
-            /* El cuerpo del folio adquiere fondo gris oscuro de visor de PDF (estilo Acrobat) */
-            .preview-cuerpo-scroll { background: #525659 !important; padding: 10px !important; overflow-y: auto !important; height: 100% !important; }
-
-            /* El folio blanco resalta sobre el fondo gris como un papel A4 real */
-            .folio-deca { box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important; margin-bottom: 20px !important; margin-top: 10px !important; }
-
-            /* 3. 🔥 OCULTACIÓN ABSOLUTA DE BOTONES: El agente no ve botoneras, solo lee el documento */
+            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
+            .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto !important; background: #ffffff !important; display: block !important; }
             .preview-pie-botones { display: none !important; }
+
+            /* 🔥 LA CLAVE: Esconde los letreros informativos para el agente en carretera */
+            #bloque_banners_normativos_app { display: none !important; }
         `;
         document.head.appendChild(estiloPDFVirtual);
 
-        // Esperamos un segundo a que impacte la conexión inicial de Firebase
+        // Conexión síncrona inmediata con los datos reales guardados en Firebase
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
-            // Consultamos directamente el documento en la nube de forma aislada
             database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
-                        // Almacenamos el viaje en el array general para que el visor lo localice en RAM
+                        // Cargamos la memoria RAM y disparamos el visor
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
-
-                        // Lanzamos la visualización inmediata en pantalla (Sin disparar window.print)
                         verFichaDocumento(idDecaInspeccionar);
 
-                        // CLÁUSULA DE PRIVACIDAD: Ocultamos todo el dashboard del transportista
+                        // Ocultamos los paneles comerciales traseros del transportista
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -1041,9 +1079,10 @@ function iniciarEcosistemaDeCAs() {
                         alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                     }
                 });
-        }, 800);
-        return; // Fin estricto: Bloquea el resto del inicio para que no cargue el panel del camionero
+        }, 300);
+        return;
     }
+
 }
 
 
@@ -2815,7 +2854,25 @@ function abrirPDFVirtualDesdeDashboard(idFirebase) {
       <button class="deca-modal-cerrar"
               onclick="cerrarVisorPreviewDeCA()">✕</button>
     </div>
+
     <div class="preview-cuerpo-scroll">
+
+
+                <!-- 🔥 LOS NUEVOS BANNERS NORMATIVOS ASOCIADOS A VUESTRA PÁGINA DE DETALLE -->
+            <div id="bloque_banners_normativos_app">
+                    <div class="banner-inspeccion-header">
+                            <div class="banner-inspeccion-badge">🟢 DESCARGA ACTIVA</div>
+                            <div style="font-size: 11px; color: #555; text-align: right; font-weight: 500; font-family:sans-serif;">
+                                    Documento Oficial de Control<br>
+                                    <span style="font-size: 10px; color: #888;">Custodia activa según Res. 5/6/2026</span>
+                            </div>
+                    </div>
+                    <div class="banner-inspeccion-nota">
+                            ℹ️ <strong>Nota normativa:</strong> La URL codificada en el código QR produce la <strong>descarga directa e inmediata del archivo PDF legal</strong>, sin requerir páginas intermedias, credenciales ni botones de acción (Resolución de 5 de junio de 2026, apdo. tercero). Esta pasarela de verificación es una vista de cortesía complementaria para su consulta en pantalla.
+                    </div>
+            </div>
+
+
       <div class="folio-deca">
 
           <!-- 🔥 EL NUEVO SELLO DE ANULACIÓN PARA EL INSPECTOR DE LA GUARDIA CIVIL -->
