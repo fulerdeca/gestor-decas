@@ -990,30 +990,74 @@ function iniciarEcosistemaDeCAs() {
     const idUsuarioInspeccionar = parametrosRuta.get("user");
 
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
-        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual Estático...");
+        console.log("👮 MODO INSPECTOR GLOBAL: Renderizando PDF Virtual Estático Fijo...");
 
-        // 🎨 MAQUETACIÓN PREMIUM VISOR CON BANNER NORMATIVO OBLIGATORIO
+        // 🎨 MAQUETACIÓN PREMIUM VISOR CON BANNER NORMATIVO OBLIGATORIO Y QR AJUSTADOS
         const estiloPDFVirtual = document.createElement("style");
         estiloPDFVirtual.innerHTML = `
+            /* 1. Blindaje absoluto anti-duplicados y tamaño estricto de QR en el móvil */
             #qrcode_real_render canvas, #canvas_render_qr_gigante canvas { display: none !important; }
-            #qrcode_real_render img, #canvas_render_qr_gigante img { display: block !important; width: 110px !important; height: 110px !important; margin: 0 auto !important; }
+            #qrcode_real_render img { display: block !important; width: 100px !important; height: 100px !important; margin: 0 auto !important; min-width: 100px !important; min-height: 100px !important; }
+            #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 280px !important; margin: 0 auto !important; }
 
-            /* Forzamos el contenedor principal para que actúe como un visor de Acrobat Reader */
-            .modal-preview-deca { display: flex !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 10px !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; }
-            .preview-container { width: 100% !important; max-width: 800px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; }
+            /* 2. Forzamos un contenedor de bloque puro que actúa como un visor de PDF (Acrobat Reader) */
+            .modal-preview-deca {
+                display: block !important;
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                background: #525659 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+                z-index: 999999 !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* El contenedor interior se vuelve transparente para no pisar el fondo gris */
+            .preview-container {
+                width: 100% !important;
+                max-width: 780px !important;
+                height: auto !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin: 0 auto !important;
+                display: block !important;
+                overflow: visible !important;
+            }
             .preview-container .deca-modal-cabecera { display: none !important; }
 
-            .preview-cuerpo-scroll { background: #525659 !important; padding: 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; }
-            .folio-deca { box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important; margin-bottom: 20px !important; margin-top: 10px !important; background: #ffffff !important; display: block !important; }
+            /* El scroll se gestiona a nivel de pantalla completa, no en cajas internas */
+            .preview-cuerpo-scroll {
+                background: #525659 !important;
+                padding: 15px 10px !important;
+                overflow: visible !important;
+                height: auto !important;
+                box-sizing: border-box !important;
+                width: 100% !important;
+                display: block !important;
+            }
+
+            /* El folio blanco resalta sobre el fondo gris con márgenes limpios */
+            .folio-deca {
+                box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+                margin: 15px auto !important;
+                background: #ffffff !important;
+                display: block !important;
+            }
             .preview-pie-botones { display: none !important; }
 
-            .banner-inspeccion-header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 12px; width: 100%; max-width: 660px; margin: 0 auto 12px auto; box-sizing: border-box; font-family: sans-serif; color: #111111; }
+            /* Estilos de las cajas informativas oficiales obligatorias */
+            .banner-inspeccion-header { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 12px 16px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin: 0 auto 12px auto; width: 100%; max-width: 660px; box-sizing: border-box; font-family: sans-serif; color: #111111; }
             .banner-inspeccion-badge { display: inline-flex; align-items: center; gap: 6px; background: #e8f5e9; color: #1b5e20; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 11px; text-transform: uppercase; border: 1px solid #c8e6c9; }
             .banner-inspeccion-nota { background: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; border-left: 5px solid #1565c0; padding: 12px; border-radius: 4px; font-size: 11px; line-height: 1.4; text-align: left; width: 100%; max-width: 660px; margin: 0 auto 15px auto; box-sizing: border-box; font-family: sans-serif; }
         `;
         document.head.appendChild(estiloPDFVirtual);
 
-        // Creamos las cajas de texto oficiales de forma estática en la parte superior del scroll
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
@@ -1025,29 +1069,32 @@ function iniciarEcosistemaDeCAs() {
 
                         const cuerpoScroll = document.querySelector(".preview-cuerpo-scroll");
                         if (cuerpoScroll) {
-                            // 🚀 INYECCIÓN LIMPIA: Colocamos las notas informativas arriba del folio sin machacarlo
+                            // Eliminamos cualquier duplicado previo si el radar se dispara dos veces
+                            const bannerViejo = document.getElementById("bloque_banners_inspector");
+                            if (bannerViejo) bannerViejo.remove();
+
+                            // 🚀 INYECCIÓN MAESTRA: Colocamos las notas informativas fijas arriba de la hoja
                             const contenedorBanners = document.createElement("div");
                             contenedorBanners.id = "bloque_banners_inspector";
                             contenedorBanners.innerHTML = `
                                 <div class="banner-inspeccion-header">
                                     <div class="banner-inspeccion-badge">🟢 DESCARGA ACTIVA</div>
-                                    <div style="font-size: 11px; color: #555; text-align: right; font-weight: 500;">
+                                    <div style="font-size: 11px; color: #555; text-align: right; font-weight: 500; font-family:sans-serif;">
                                         Documento: <strong>${viajeData.numero_documento || 'DeCA'}</strong><br>
-                                        <span style="font-size: 10px; color: #888;">Custodia activa Res. 5/6/2026 (fin del servicio + 7 días)</span>
+                                        <span style="font-size: 10px; color: #888;">Custodia activa Res. 5/6/2026</span>
                                     </div>
                                 </div>
                                 <div class="banner-inspeccion-nota">
                                     ℹ️ <strong>Nota normativa:</strong> La URL codificada en el código QR produce la <strong>descarga directa e inmediata del archivo PDF legal</strong>, sin requerir páginas intermedias, credenciales ni botones de acción (Resolución de 5 de junio de 2026, apdo. tercero). Esta pasarela de verificación es una vista de cortesía complementaria para su consulta en pantalla.
                                 </div>
                             `;
-                            // Coloca los banners al principio del scroll, manteniendo el papel blanco intacto abajo
                             cuerpoScroll.insertBefore(contenedorBanners, cuerpoScroll.firstChild);
                         }
 
-                        // Rellenamos las celdas con los datos fiscales reales de Firebase
+                        // Rellenamos las celdas del folio de forma natural con los datos de Firebase
                         verFichaDocumento(idDecaInspeccionar);
 
-                        // Ocultamos los paneles privados del transportista por detrás
+                        // Ocultamos los paneles privados del transportista para que no se vean de fondo
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -1057,9 +1104,10 @@ function iniciarEcosistemaDeCAs() {
                         alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                     }
                 });
-        }, 300); // Reducimos el tiempo a 300ms porque ya no dependemos del renderizado del HTML
+        }, 400);
         return;
     }
+
 
 
 }
