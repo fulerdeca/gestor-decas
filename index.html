@@ -1618,10 +1618,35 @@ function verFichaDocumento(idFirebase) {
                     correctLevel : QRCode.CorrectLevel.M
                 });
 
-                // Asignar el trigger táctil para ampliar
+                // 🔥 EL DISPARADOR MAESTRO DEL MINISTERIO AUTOMATIZADO CON TOQUE FÍSICO REAL
                 contenedorQR.onclick = function() {
+                    // 1. Abrimos el modal gigante para que el agente vea el código en grande en carretera
                     abrirModalQRGiganteNativo();
+
+                    // 2. Si es una consulta externa de inspección (tiene parámetros en la URL), forzamos el PDF físico
+                    if (window.location.search.includes("verificar")) {
+                        setTimeout(() => {
+                            try {
+                                const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
+                                const tituloOriginalPestaña = document.title;
+
+                                // Estampamos el número de DeCA real como nombre de archivo para el policía
+                                document.title = numeroDocumentoOficial;
+
+                                console.log("📥 Toque físico validado. Transfiriendo archivo .pdf nativo al terminal del agente...");
+
+                                // Al haber interacción táctil previa, Chrome y Firefox autorizan al window.print() a saltar de inmediato
+                                window.print();
+
+                                // Restauramos la pestaña
+                                document.title = tituloOriginalPestaña;
+                            } catch (err) {
+                                console.warn("Aviso en el hilo de impresión táctil:", err);
+                            }
+                        }, 180); // Le damos 180ms para que la animación del QR gigante termine de abrirse en la pantalla
+                    }
                 };
+
             } catch (e) {
                 console.warn("Error al generar el QR en APK:", e);
                 contenedorQR.innerHTML = "<span style='font-size:30px;'>🔳</span>";
@@ -3172,7 +3197,7 @@ document.addEventListener("click", function(evento) {
                     <!-- BLOQUE INFERIOR: DISPONIBILIDAD Y GENERADOR DEL QR -->
                     <div style="display:flex; justify-content:space-between; align-items:center; width:100%; box-sizing:border-box; gap:10px; margin-bottom:15px;">
                             <div style="flex-grow:1; max-width:65%; box-sizing:border-box;"><span style="font-size:9px; font-weight:bold; color:#0f4c81; display:block; margin-bottom:2px; font-family:sans-serif;">DISPONIBILIDAD (Res. 5/6/2026)</span><div style="border:1px solid #111; padding:4px; text-align:center; width:140px; box-sizing:border-box; background:#fafafa; font-family:sans-serif;"><span class="folio-subetiqueta" style="margin-bottom:1px; font-size:8px;">QR Activo Hasta</span><strong style="font-size:11px;" id="prev_qr_caducidad">---</strong></div></div>
-                            <div style="text-align:center; width:30%; max-width:100px; flex-shrink:0; box-sizing:border-box; font-family:sans-serif;"><div id="qrcode_real_render" title="Toca para ampliar"></div><span style="font-size:6px; color:#0f4c81; font-weight:bold; display:block; margin-top:4px; line-height:1; text-align:center; text-transform:uppercase;">🔍 AMPLIAR</span></div>
+                            <div style="text-align:center; width:30%; max-width:100px; flex-shrink:0; box-sizing:border-box; font-family:sans-serif;"><div id="qrcode_real_render" title="Toca para ampliar"></div><span style="font-size:5.5px; color:#0f4c81; font-weight:bold; display:block; margin-top:4px; line-height:1.2; text-align:center; text-transform:uppercase;">🔍 TOCAR AQUÍ PARA<br>DESCARGAR PDF LEGAL</span></div>
                     </div>
 
                     <!-- SELLO LEGAL DE CIERRE DE FICHERO (LETRA PEQUEÑA BOE) -->
