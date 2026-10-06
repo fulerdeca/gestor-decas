@@ -1618,34 +1618,38 @@ function verFichaDocumento(idFirebase) {
                     correctLevel : QRCode.CorrectLevel.M
                 });
 
-                // 🔥 EL DISPARADOR MAESTRO DEL MINISTERIO AUTOMATIZADO CON TOQUE FÍSICO REAL
+
+                // 🔥 EL DISPARADOR MAESTRO DEL MINISTERIO: IMPRESIÓN LIMPIA DE FOLIO ANTES DE AMPLIAR
                 contenedorQR.onclick = function() {
-                    // 1. Abrimos el modal gigante para que el agente vea el código en grande en carretera
-                    abrirModalQRGiganteNativo();
-
-                    // 2. Si es una consulta externa de inspección (tiene parámetros en la URL), forzamos el PDF físico
+                    // 1. Si es una consulta externa de inspección en carretera, disparamos primero el PDF limpio
                     if (window.location.search.includes("verificar")) {
-                        setTimeout(() => {
-                            try {
-                                const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
-                                const tituloOriginalPestaña = document.title;
+                        try {
+                            const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
+                            const tituloOriginalPestaña = document.title;
 
-                                // Estampamos el número de DeCA real como nombre de archivo para el policía
-                                document.title = numeroDocumentoOficial;
+                            // Estampamos el número de DeCA real como nombre de archivo para el policía
+                            document.title = numeroDocumentoOficial;
 
-                                console.log("📥 Toque físico validado. Transfiriendo archivo .pdf nativo al terminal del agente...");
+                            console.log("📥 Toque físico validado. Procesando folio limpio para el agente...");
 
-                                // Al haber interacción táctil previa, Chrome y Firefox autorizan al window.print() a saltar de inmediato
-                                window.print();
+                            // Disparamos la impresión DIRECTAMENTE sobre el folio blanco de fondo
+                            window.print();
 
-                                // Restauramos la pestaña
-                                document.title = tituloOriginalPestaña;
-                            } catch (err) {
-                                console.warn("Aviso en el hilo de impresión táctil:", err);
-                            }
-                        }, 180); // Le damos 180ms para que la animación del QR gigante termine de abrirse en la pantalla
+                            // Restauramos la pestaña
+                            document.title = tituloOriginalPestaña;
+                        } catch (err) {
+                            console.warn("Aviso en el hilo de impresión táctil:", err);
+                        }
                     }
+
+                    // 2. 🔥 EL SECRETO: Retrasamos la apertura del modal gigante 300 milisegundos
+                    // Así le damos pasillo al navegador para capturar el folio blanco A4 por detrás
+                    // antes de que el cuadro negro del QR gigante tape la pantalla del teléfono
+                    setTimeout(() => {
+                        abrirModalQRGiganteNativo();
+                    }, 300);
                 };
+
 
             } catch (e) {
                 console.warn("Error al generar el QR en APK:", e);
