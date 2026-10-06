@@ -1517,10 +1517,11 @@ function verFichaDocumento(idFirebase) {
 
     document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
 
-    // 🔥 AUTOMATIZACIÓN DEL EMISOR LEGAL: Estampa la razón social del transportista activo
+    // === AUTOMATIZACIÓN DEL EMISOR LEGAL EN EL SELLO ===
     const campoEmisorSello = document.getElementById("prev_sello_legal_emisor");
     if (campoEmisorSello) {
-        campoEmisorSello.innerText = doc.transportista_razon || (misDatosPerfilAutonomo ? misDatosPerfilAutonomo.razon_social : "---");
+        // Primero busca en el viaje de la nube, luego en el perfil, y si no pone un genérico corporativo
+        campoEmisorSello.innerText = doc.transportista_razon || (misDatosPerfilAutonomo ? misDatosPerfilAutonomo.razon_social : "AGRICOLA RODRIVILLA, S.L.");
     }
 
     // 🔥 DETECTOR MAESTRO DE ANULACIONES PARA EL FOLIO DEL INSPECTOR
@@ -1844,6 +1845,9 @@ function procesarGuardadoDeCAOnline() {
         cargador_poblacion: cargPoblacion,
         cargador_provincia: cargProvincia,
         cargador_domicilio: domicilioCargadorCompleto,
+        // 🔥 LA LÍNEA QUE TE SALVA EN CARRETERA: Sube la Razón Social al viaje en la nube
+        transportista_razon: misDatosPerfilAutonomo ? misDatosPerfilAutonomo.razon_social : "TRANSPORTISTA EFECTIVO",
+
         matricula_tractor: vehiculo,
         matricula_remolque: remolque,
         fecha_transporte: fechaTransp,
