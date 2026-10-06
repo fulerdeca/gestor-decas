@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.11</title>
+    <title>Gestor de DeCAs Transportes v2.13</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2985,36 +2985,41 @@ document.addEventListener("click", function(evento) {
 // 📥 EXPORTADOR DE ALTA FIDELIDAD: DESCARGA DE PDF DESDE EL VISOR INTERNO
 // =========================================================================
 function forzarDescargaPDFDesdeVisorInterno() {
-    // 1. Apagamos de forma radical y fulminante cualquier cartel flotante activo en la pantalla
+    // 1. Apagamos de forma radical los carteles flotantes preventivos
     const capaToast = document.getElementById("toast_deca");
     if (capaToast) {
         capaToast.style.display = "none";
         capaToast.innerHTML = "";
     }
 
-    const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
-    const tituloOriginalPestaña = document.title;
+    // 2. 🔥 EL SECRETO HÍBRIDO: Evaluamos si estamos en una APK (Android nativo) o en PC
+    // Comprobamos si el agente de usuario del navegador es un dispositivo móvil
+    const esDispositivoMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // Cambiamos el título de la pestaña temporalmente para bautizar el archivo final .pdf
-    document.title = numeroDeCA;
+    if (esDispositivoMovil) {
+        // En el móvil (APK), para evitar el bloqueo del WebView, llamamos a vuestra función máster
+        // Esto abrirá la pasarela web en Chrome/Firefox y disparará el PDF nativo al momento
+        console.log("📱 Detectado entorno APK: Redirigiendo a pasarela web segura...");
+        abrirPDFVirtualDesdeDashboard(idDocumentoEnEdicion);
+    } else {
+        // En el ordenador (PC), mantenemos la ejecución directa que ya os funcionaba limpia
+        const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
+        const tituloOriginalPestaña = document.title;
+        document.title = numeroDeCA;
 
-    // Le damos los 150ms de pasillo al navegador para estabilizar la estructura
-    setTimeout(() => {
-        try {
-            // Disparamos la impresión con la pantalla 100% libre de carteles
-            window.print();
-
-            // Restauramos la pestaña original
-            document.title = tituloOriginalPestaña;
-
-            // 2. Colocamos el aviso de éxito una vez que la cola de impresión ha cerrado
-            mostrarAvisoToast("✅ Captura PDF transferida correctamente.");
-        } catch (err) {
-            console.warn("Aviso en el motor de descarga del visor:", err);
-            document.title = tituloOriginalPestaña;
-        }
-    }, 150);
+        setTimeout(() => {
+            try {
+                window.print();
+                document.title = tituloOriginalPestaña;
+                mostrarAvisoToast("✅ Captura PDF transferida correctamente.");
+            } catch (err) {
+                console.warn("Aviso en el motor de descarga del visor PC:", err);
+                document.title = tituloOriginalPestaña;
+            }
+        }, 150);
+    }
 }
+
 
 
 
