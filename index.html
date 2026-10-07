@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.00</title>
+    <title>Gestor de DeCAs Transportes v3.10</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -52,14 +52,53 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* === CONFIGURACIÓN ERGONÓMICA DE LA CABECERA EN TRES NIVELES === */
+        /* 📌 EL CINTURÓN DEL TECHO FIXED (ADAPTADO DE TU TPV COMANDAS v7.10) */
         .cabecera-dashboard {
             display: flex;
             flex-direction: column;
+            width: 100% !important;
+            box-sizing: border-box;
+
+            /* 🔒 Posicionamiento fijo absoluto independiente de las capas inferiores */
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            height: 60px !important; /* Altura compacta fija para el título y controles */
+            z-index: 9999 !important; /* Capa máxima: pasa por encima de todo */
+
+            background: #f4f6f9 !important; /* Fondo sólido diurno */
+            padding: 12px 15px !important;
+            margin: 0 !important; /* Limpieza total de márgenes negativos rebeldes */
+
+            border-bottom: 1px solid #cbd5e0 !important; /* Borde intermedio de contención */
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06) !important; /* Sombra de relieve */
+        }
+
+        /* Sincronización nocturna del cinturón del techo fijo */
+        body.dark-mode .cabecera-dashboard {
+            background: #121212 !important; /* Fondo negro opaco */
+            border-bottom: 1px solid #333336 !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45) !important;
+        }
+
+        /* 🚚 LA LONA MÓVIL (EQUIVALENTE AL BANNER_CAMARERO_ACTIVO DE TU TPV) */
+        .deca-bloque-operaciones-libre {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             width: 100%;
             margin-bottom: 15px !important;
             box-sizing: border-box;
+
+            /* 🚀 SEPARACIÓN DINÁMICA CORRECTA: Empuja los botones fuera del alcance del techo */
+            /* Como la visera mide 60px, al meter 75px creamos un pasillo libre de 15px */
+            margin-top: 75px !important;
+            padding-top: 0px !important;
         }
+
+
+
+
 
         /* Fila de marca superior */
         .deca-cabecera-marca-fila {
@@ -218,11 +257,50 @@
             text-overflow: ellipsis;
         }
 
-        /* Semáforo fiscal de vivos laterales */
-        .tarjeta-contador.total { border-left-color: var(--blue-primary) !important; }
-        .tarjeta-contador.en-curso { border-left-color: var(--green-success) !important; }
-        .tarjeta-contador.programados { border-left-color: var(--orange-alert) !important; }
-        .tarjeta-contador.post-viaje { border-left-color: #17a2b8 !important; }
+        /* 🎨 SEMÁFORO FISCAL DIURNO: CONFIGURACIÓN POR TRANSPARENCIAS EDITABLES (AL 15%) */
+        .tarjeta-contador.total {
+            border-left-color: #0f4c81 !important;
+            background-color: rgba(15, 76, 129, 0.05) !important; /* Azul corporativo diurno */
+        }
+        .tarjeta-contador.en-curso {
+            border-left-color: #28a745 !important;
+            background-color: rgba(40, 167, 69, 0.05) !important;  /* Verde éxito diurno */
+        }
+        .tarjeta-contador.programados {
+            border-left-color: #fd7e14 !important;
+            background-color: rgba(253, 126, 20, 0.05) !important; /* Naranja/Amarillo alerta diurno */
+        }
+        .tarjeta-contador.post-viaje {
+            border-left-color: #17a2b8 !important;
+            background-color: rgba(23, 162, 184, 0.05) !important;  /* Azul cian finalizados diurno */
+        }
+
+        /* 🌙 SEMÁFORO FISCAL NOCTURNO: FONDOS CON MÁXIMA TRANSLUCIDEZ (AL 5%) */
+        body.dark-mode .tarjeta-contador.total {
+            border-left-color: #63b3ed !important;
+            background-color: rgba(99, 179, 237, 0.15) !important; /* Fondo azul noche ultratransparente */
+        }
+        body.dark-mode .tarjeta-contador.en-curso {
+            border-left-color: var(--green-success) !important;
+            background-color: rgba(40, 167, 69, 0.15) !important; /* Fondo verde ultratransparente */
+        }
+        body.dark-mode .tarjeta-contador.programados {
+            border-left-color: var(--orange-alert) !important;
+            background-color: rgba(253, 126, 20, 0.15) !important; /* Fondo naranja ultratransparente */
+        }
+        body.dark-mode .tarjeta-contador.post-viaje {
+            border-left-color: #17a2b8 !important;
+            background-color: rgba(23, 162, 184, 0.15) !important; /* Fondo cian ultratransparente */
+        }
+
+        /* Garantiza el contraste nítido de los textos sobre el fondo negro */
+        body.dark-mode .contador-numero {
+            color: #ffffff !important;
+        }
+        body.dark-mode .contador-etiqueta {
+            color: #cbd5e0 !important;
+        }
+
 
         /* === BARRA DE FILTROS EVOLUCIONADA INDEPENDIENTE (AZUL SUAVE) === */
         .contenedor-filtros {
@@ -454,6 +532,50 @@
         body.dark-mode .deca-form-grupo label { color: #a0aec0; }
         body.dark-mode .deca-num-titulo { color: #63b3ed; }
         body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
+        /* 🌙 APAGADO DE BARRA DE FILTROS EN MODO OSCURO (CABINA NOCTURNA) */
+        body.dark-mode .contenedor-filtros {
+            background: #1c1c1e !important; /* Cambia el azul clarito por el gris oscuro de las tarjetas */
+            border-color: #333336 !important; /* Borde sutil integrado */
+        }
+
+        /* Fuerza a las etiquetas de fecha (Desde / Hasta) a volverse blancas/gris claro */
+        body.dark-mode .deca-caja-fecha-bloque label {
+            color: #e2e8f0 !important; /* Blanco hueso de alta lectura */
+        }
+
+        /* Corrige el texto del selector de estados en la oscuridad */
+        body.dark-mode .select-estado {
+            background-color: #2c2c2e !important;
+            color: #ffffff !important;
+        }
+        /* 🌙 ENCIENDE EL TÍTULO MAESTRO EN LA OSCURIDAD */
+        body.dark-mode .deca-titulo-texto-nocturno {
+            color: #ffffff !important; /* Blanco puro brillante de alta visibilidad */
+        }
+        /* 🌙 ENFRIAMIENTO NOCTURNO DE BADGES DE MATRÍCULAS (ANTI-DESLUMBRAMIENTO) */
+        body.dark-mode .badge-matricula {
+            background: #2c2c2e !important; /* Gris oscuro mitigado de fondo */
+            color: #e2e8f0 !important;      /* Letras en blanco hueso suave */
+            border-color: #444446 !important; /* Borde suave integrado */
+            box-shadow: none !important;
+        }
+
+        /* Remolque nocturno: tono óxido/naranja apagado translúcido */
+        body.dark-mode .badge-matricula.remolque {
+            background: rgba(253, 126, 20, 0.15) !important; /* Fondo naranja muy sutil */
+            color: #ff9e53 !important;                       /* Texto naranja pastel de alta lectura */
+            border-color: rgba(253, 126, 20, 0.4) !important; /* Borde naranja atenuado */
+        }
+        /* 🌙 APAGADO NOCTURNO DEL BOTÓN LIMPIAR FILTROS (ESCOBA) */
+        body.dark-mode .contenedor-filtros button.btn-top {
+            background: #444446 !important; /* Gris oscuro integrado con los inputs nocturnos */
+            border-color: #444446 !important; /* Borde sutil mitigado */
+            color: #a0aec0 !important; /* Atenúa el brillo del icono de la escoba */
+            box-shadow: none !important;
+        }
+        body.dark-mode .contenedor-filtros button.btn-top:hover {
+            background: #a0aec0 !important; /* Resalte sutil al pasar el dedo o ratón */
+        }
 
 </style>  <!-- === FIN DEL BLOQUE 1 DE ESTILOS === -->
 
@@ -529,20 +651,24 @@ body.dark-mode .deca-tabla-sincro-master tbody tr:hover {
     background-color: #2c2c2e !important;
 }
 
-/* 📌 CABECERA FIJA FLOTANTE (STICKY NATURALEZA): Permanece arriba al hacer scroll vertical */
+/* 📌 CABECERA DE TABLA CON BORDE DE CONTENCIÓN INMUNE AL SCROLL (MODO DÍA) */
 th {
     position: -webkit-sticky !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 10 !important;
-    background: var(--gray-bg) !important;
-    color: #4a5568;
-    padding: 12px 8px; /* Ajuste fino de confort */
-    font-size: 10px;
-    font-weight: 700;
+    background: #e2e8f0 !important; /* Gris intermedio sólido */
+    color: #2d3748 !important;     /* Texto gris oscuro */
+    padding: 12px 8px;
+    font-size: 11px;
+    font-weight: 800;
     text-transform: uppercase;
     box-sizing: border-box;
-    border-bottom: 2px solid var(--border-color) !important; /* Línea de contención nítida */
+
+    /* 🛡️ EL TRUCO INDESTRUCTIBLE: Sombra interna inferior que simula un borde de 2px.
+       Ninguna fila que suba haciendo scroll puede taparla, se queda 100% fija. */
+    box-shadow: inset 0 -2px 0 #cbd5e0 !important;
+    border-bottom: none !important; /* Limpiamos el borde nativo que fallaba */
 }
 
 /* 🧹 Desactivamos el scroll residual del bloque de datos antiguo */
@@ -577,8 +703,12 @@ td {
 
 
 /* Ajustes Nocturnos Síncronos */
-body.dark-mode th { background: #1c1c1e !important; color: #a0aec0; }
-body.dark-mode td { border-bottom-color: #2c2c2e; }
+        /* 🌙 CONTORNO INDESTRUCTIBLE PARA LA TABLA EN CABINA NOCTURNA */
+        body.dark-mode th {
+            background: #242426 !important;
+            color: #ffffff !important;
+            box-shadow: inset 0 -2px 0 #333336 !important; /* Línea de corte nocturna fija */
+        }body.dark-mode td { border-bottom-color: #2c2c2e; }
 body.dark-mode .doc-numero { color: #63b3ed; }
 
 /* 🎨 BARRA DE SCROLL MODERNA Y ELEGANTE */
@@ -635,7 +765,25 @@ body.dark-mode .contenedor-tabla::-webkit-scrollbar-thumb {
 .mercancia-peso { font-size: 11px; color: #718096; display: block; margin-top: 2px; font-weight: bold; }
 
 /* Etiquetas de Estado */
-.estado-badge { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: bold; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.3px; }
+        /* Etiquetas de Estado con Ancho Ampliado Anti-Saltos */
+        .estado-badge {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            width: 125px !important;    /* ⬆️ Ampliado de 110px a 125px para que la bolita y el texto quepan en una hilera recta */
+            max-width: 125px !important;
+            box-sizing: border-box !important;
+            text-align: center;
+            margin-right: 6px !important; /* Ajuste elástico simétrico para proteger el pasillo visual */
+        }
+
+
 .estado-badge.en-curso { background: var(--green-light); color: #155724; border: 1px solid #c3e6cb; }
 .estado-badge.programado { background: var(--orange-light); color: #856404; border: 1px solid #ffeeba; }
 .estado-badge.cerrado { background: #e2e8f0; color: #4a5568; border: 1px solid #cbd5e0; }
@@ -692,23 +840,28 @@ body.dark-mode .btn-accion-icono:hover {
 }
 body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
 
-/* === PIE DE TABLA / PAGINACIÓN CON BORDE SUPERIOR FLOTANTE BLINDADO === */
+/* 📌 PIE DE TABLA CON BORDE DE TOPE FLOTANTE (MODO DÍA) */
 .pie-tabla {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: var(--gray-bg);
+    background: #e2e8f0 !important; /* Gris intermedio sólido */
     font-size: 13px;
-    color: #718096;
+    color: #4a5568 !important;
     box-sizing: border-box !important;
     width: 100% !important;
-    box-shadow: inset 0 1px 0 var(--border-color) !important;
+
+    /* 🛡️ Sombra interna superior inmune que delimita el final de los datos */
+    box-shadow: inset 0 1px 0 #cbd5e0 !important;
+    border-top: none !important;
 }
-body.dark-mode .pie-tabla {
-    background: #1c1c1e !important;
-    box-shadow: inset 0 1px 0 #333336 !important;
-}
+
+        body.dark-mode .pie-tabla {
+            background: #242426 !important;
+            color: #a0aec0 !important;
+            box-shadow: inset 0 1px 0 #333336 !important; /* Línea superior del pie fija */
+        }
 
 /* RESTO DE ESTILOS DE PREVIEW Y MODALES SE MANTIENEN IGUAL... */
 
@@ -1239,6 +1392,73 @@ body.dark-mode .banner-inspeccion-nota {
     border-left-color: #63b3ed !important; /* El vivo izquierdo destaca en azul eléctrico */
 }
 
+        /* 🌙 APAGADO DEL FONDO DEL VISOR EN MODO OSCURO (SIN AFECTAR IMPRESIÓN) */
+        body.dark-mode .preview-container {
+            background-color: #4F4F4F !important; /* Cambia la lona exterior a negro profundo */
+        }
+
+        body.dark-mode .preview-cuerpo-scroll {
+            background-color: #4F4F4F !important; /* Apaga el fondo elástico de los avisos */
+        }
+
+        /* 🌙 DISEÑO NOCTURNO INTEGRAL PARA MODALES DE AVISO (FONDO OSCURO Y LETRAS BLANCAS) */
+        body.dark-mode #modal_alerta_deca .deca-modal-contenido,
+        body.dark-mode #modal_confirm_deca .deca-modal-contenido,
+        body.dark-mode #modal_clave_seguridad_deca .deca-modal-contenido,
+        body.dark-mode #modal_bloqueo_licencia_deca .deca-modal-contenido {
+            width: 90% !important;
+            max-width: 400px !important;
+            height: auto !important;
+            margin: auto !important;
+            background-color: #1c1c1e !important; /* Gris carbón de tarjeta nocturna */
+            border: 1px solid #333336 !important;  /* Borde sutil integrado */
+        }
+
+        /* Cambia el cuerpo interior al mismo fondo oscuro */
+        body.dark-mode #modal_alerta_deca .deca-modal-cuerpo,
+        body.dark-mode #modal_confirm_deca .deca-modal-cuerpo,
+        body.dark-mode #modal_clave_seguridad_deca .deca-modal-cuerpo,
+        body.dark-mode #modal_bloqueo_licencia_deca .deca-modal-cuerpo {
+            background-color: #1c1c1e !important;
+        }
+
+        /* 👁️ ENCIENDE LOS TEXTOS EN BLANCO NUEVA VERSIÓN */
+        body.dark-mode #modal_alerta_deca *,
+        body.dark-mode #modal_confirm_deca *,
+        body.dark-mode #modal_clave_seguridad_deca *,
+        body.dark-mode #modal_bloqueo_licencia_deca * {
+            color: #ffffff !important; /* Fuerza a todos los textos a ser blanco puro nítido */
+        }
+
+        /* Mantiene las subetiquetas informativas de letra pequeña en un gris claro limpio */
+        body.dark-mode #modal_alerta_deca p,
+        body.dark-mode #modal_confirm_deca p,
+        body.dark-mode #modal_clave_seguridad_deca span {
+            color: #cbd5e0 !important;
+        }
+
+        /* Ajuste especial para la caja gris del código maestro copiable en la oscuridad */
+        body.dark-mode #txt_clave_maestra_pantalla,
+        body.dark-mode #txt_licencia_uid_terminal {
+            background: #2c2c2e !important; /* Fondo gris intermedio para resaltar el código */
+            border-color: #444446 !important;
+            color: #63b3ed !important; /* El código resalta en el azul eléctrico de tu APK */
+        }
+        /* 🌙 COLOR DEL ENLACE DECA EN MODO OSCURO (ALTA VISIBILIDAD) */
+        body.dark-mode .doc-numero {
+            color: #b0c4de !important; /* Gris azulado claro brillante (estilo acero satinado) */
+        }
+        body.dark-mode .doc-numero:hover {
+            color: #63b3ed !important; /* Pasa a azul eléctrico brillante al tocarlo o pasar por encima */
+            text-decoration: underline !important;
+        }
+
+        /* 🌙 Adaptación nocturna del panel de control de administración */
+        body.dark-mode #modal_administrador_global_deca .deca-modal-contenido { background: #121212; border-color: #333336; }
+        body.dark-mode #modal_administrador_global_deca .deca-modal-cuerpo { background: #121212; }
+        body.dark-mode #lista_usuarios_admin_render { background: #1c1c1e; border-color: #333336; color: #fff; }
+        body.dark-mode #bloque_edicion_usuario_admin { background: #1c1c1e; border-color: #333336; color: #fff; }
+
 
 /* Estilo del modal máster de bloqueo por licencia de transporte inactiva */
 .modal-licencia-bloqueo {
@@ -1258,6 +1478,7 @@ body.dark-mode .banner-inspeccion-nota {
 }
 
 
+
 </style>
 
 
@@ -1267,10 +1488,9 @@ body.dark-mode .banner-inspeccion-nota {
 
 
     <!-- ==========================================================================
-       🏢 CAPA 1: NUEVA CABECERA MÁSTER ESTRUCTURADA POR NIVES (v2.93 PANELS)
+       🏢 CAPA 1: CINTURÓN SUPERIOR FIJO ULTRACOMPACTO (v3.01 MÁSTER)
        ========================================================================== -->
     <div class="cabecera-dashboard">
-
         <!-- NIVEL A: Identificación de la Plataforma + Controles de Esquina Superior Derecha -->
         <div class="deca-cabecera-marca-fila" style="display: flex !important; justify-content: space-between; align-items: center; width: 100%;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -1280,30 +1500,25 @@ body.dark-mode .banner-inspeccion-nota {
 
             <!-- Búnker de Control Superior Derecho -->
             <div style="display: flex; align-items: center; gap: 6px;">
-                <!-- Botón Interruptor Modo Noche/Día -->
                 <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer; margin: 0; font-weight: bold; padding: 10px 0;">🌙 Oscuro</button>
-                <!-- Botón Salir APK Fondo Rojo con Letras y Aspa Blancas -->
-                <!-- Botón Salir APK: Integrado con el sistema de alertas corporativas del panel -->
-                <button class="btn-top btn-salir-rojo" onclick="mostrarAlertaCorporativaDeca('Cerrar Aplicación', 'Para cerrar la aplicación en su totalidad, por favor cierre esta pestaña del navegador o la APK de su terminal de transportes.', '❌'); window.close();" style="margin: 0; color: #ffffff !important; padding: 10px 14px;">✕ Salir</button>
+                <button class="btn-top btn-salir-rojo" onclick="if(navigator.app){navigator.app.exitApp();} else if(window.Android){window.Android.closeApp();} else {mostrarAlertaCorporativaDeca('Cerrar Aplicación', 'Para cerrar la aplicación en su totalidad, por favor cierre esta pestaña del navegador o la APK de su terminal.', '❌'); window.close();}" style="margin: 0; color: #ffffff !important; padding: 10px 14px;">✕ Salir</button>
             </div>
         </div>
+    </div> <!-- 🔒 CIERRE SEGURO DEL CINTURÓN FIJO -->
 
-        <!-- NIVEL B: La Línea Divisoria Azul Corporativa -->
-        <div id="deca_linea_cabecera_master" class="deca-banda-divisoria-superior"></div>
-
-        <!-- NIVEL C: Contenido de Soporte (Subtítulo y Botonera Reducida de Operaciones) -->
-        <div class="deca-cabecera-soporte-bloque">
-            <p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
-                La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
-            </p>
-
-            <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
-                <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
-                <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
-            </div>
+    <!-- ==========================================================================
+       🚚 CAPA 2: BLOQUE COMERCIAL LIBRE (SE MUEVE CON EL SCROLL)
+       ========================================================================== -->
+    <div class="deca-bloque-operaciones-libre">
+        <p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
+            La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
+        </p>
+        <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
+            <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
+            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
         </div>
+    </div>
 
-    </div> <!-- 🔒 CIERRE SEGURO DE LA CABECERA-DASHBOARD -->
 
 
 
@@ -1375,20 +1590,20 @@ body.dark-mode .banner-inspeccion-nota {
        ========================================================================== -->
     <div class="contenedor-tabla">
         <table class="deca-tabla-sincro-master">
-            <!-- CABECERA DE TABLA SIMÉTRICA ANTIDESCUADRES v2.77 -->
+
+            <!-- CABECERA RECALCULADA CON MARGEN DE SEGURIDAD v2.99 -->
             <thead>
                 <tr>
                     <th style="width: 110px;">Nº Documento</th>
                     <th style="width: 75px;">Fecha</th>
                     <th style="width: 105px;">Matrículas</th>
                     <th style="width: 220px;">Ruta Comercial</th>
-                    <th style="width: 160px;">Mercancía</th>
+                    <th style="width: 135px;">Mercancía</th> <!-- ⬇️ Reducido de 160px a 135px (columna elástica de texto) -->
                     <th style="width: 85px;">QR Activo</th>
-                    <th style="width: 120px;">Estado</th> <!-- 🟢 Espacio holgado e independiente -->
-                    <th style="width: 180px; text-align: right; padding-right: 15px;">Acciones</th> <!-- ⚙️ Blindado anti-solapamiento -->
+                    <th style="width: 145px;">Estado</th> <!-- ⬆️ Conserva sus 145px ampliados para el texto -->
+                    <th style="width: 180px; text-align: left; padding-right: 15px;">Acciones</th> <!-- 🛡️ Recupera sus 180px originales para que quepa la botonera -->
                 </tr>
             </thead>
-
 
             <tbody id="tabla_resultados_body">
                 <tr id="fila_vacia_loader">
@@ -1680,7 +1895,8 @@ function verificarExistenciaPerfilCamionero() {
             const copiaPerfilRAM = snapshot.val();
 
             // Si el estado de la base de datos cambia a ACTIVADO (ya sea al arrancar o a mitad de una llamada)
-            if (copiaPerfilRAM.estado_activacion === "ACTIVADO") {
+            // 🔥 REEMPLÁZALA POR ESTA OTRA VERSIÓN CON PASAPORTE DE ADMINISTRADOR:
+            if (copiaPerfilRAM.estado_activacion === "ACTIVADO" || copiaPerfilRAM.estado_activacion === "ADMIN") {
                 console.log("🔓 Licencia validada: Liberando interfaz del terminal...");
 
                 // Desactivamos este sensor temporal de la licencia para que no consuma recursos en ruta
@@ -1729,6 +1945,257 @@ function verificarExistenciaPerfilCamionero() {
     });
 }
 
+
+// =========================================================================
+// 👑 MÓDULO MAESTRO DE ADMINISTRACIÓN GLOBAL DE LICENCIAS (FIREBASE REALTIME)
+// =========================================================================
+let arrayGlobalUsuariosAdmin = [];
+let idUsuarioAdminSeleccionado = null;
+let aliasOriginalUsuarioAdminSeleccionado = "";
+let contadorClicksLogoCamion = 0;
+let temporizadorClicksLogo;
+
+// centinela oculto táctil: Escucha los tres toques seguidos en el camión de la cabecera
+document.addEventListener("DOMContentLoaded", function() {
+    const logoCamion = document.querySelector(".deca-cabecera-marca-fila img");
+    if (logoCamion) {
+        logoCamion.style.cursor = "pointer";
+        logoCamion.addEventListener("click", function(e) {
+            e.stopPropagation();
+            contadorClicksLogoCamion++;
+            clearTimeout(temporizadorClicksLogo);
+
+            temporizadorClicksLogo = setTimeout(() => { contadorClicksLogoCamion = 0; }, 1000);
+
+            if (contadorClicksLogoCamion === 3) {
+                contadorClicksLogoCamion = 0;
+                solicitarAccesoPanelAdministradorGlobal();
+            }
+        });
+    }
+});
+
+// Comprueba si tu terminal tiene el flag de "ADMIN" autorizado en la nube
+function solicitarAccesoPanelAdministradorGlobal() {
+    if (!database || !miUsuarioUIDActivo) return;
+
+    mostrarAvisoToast("🔍 Verificando credenciales de Administrador...");
+
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil/estado_activacion').once('value')
+    .then((snapshot) => {
+        const flagEstado = snapshot.val();
+
+        if (flagEstado === "ADMIN") {
+            mostrarAvisoToast("👑 Llave Maestra aceptada. Accediendo al clúster...");
+            document.getElementById("modal_administrador_global_deca").style.display = "flex";
+            document.getElementById("bloque_edicion_usuario_admin").style.display = "none";
+            document.getElementById("bus_admin_usuarios").value = "";
+            descargarCatalogoUsuariosAdminCompleto();
+        } else {
+            mostrarAlertaCorporativaDeca("Acceso Denegado", "Este dispositivo no cuenta con permisos de Administrador Supremo.", "❌");
+        }
+    }).catch(err => console.error("Error de pasarela admin:", err));
+}
+
+// Descarga la lista completa de chóferes registrados en tu base de datos de Firebase
+// Descarga los terminales de forma segura resolviendo el mapa de alias autorizados
+function descargarCatalogoUsuariosAdminCompleto() {
+    const contenedorLista = document.getElementById("lista_usuarios_admin_render");
+    if (contenedorLista) contenedorLista.innerHTML = '<p style="color: #666; text-style: italic; text-align: center; padding: 15px;">Escaneando alias en red...</p>';
+
+    // 1. Atacamos el nodo público 'alias_claves' para ver qué chóferes tienen contraseña creada
+    database.ref('alias_claves').once('value').then((snapshotAlias) => {
+        if (!snapshotAlias.exists()) {
+            arrayGlobalUsuariosAdmin = [];
+            renderizarListaUsuariosAdmin();
+            return;
+        }
+
+        const mapaAliasUids = snapshotAlias.val(); // Estructura: { "MiCamion2026": "UID_LARGO_ABC", ... }
+        const listaClavesAlias = Object.keys(mapaAliasUids);
+
+        // Creamos una cola de consultas individuales para leer cada perfil de forma autorizada por su UID
+        let colaConsultasPerfiles = listaClavesAlias.map(aliasTexto => {
+            const uidAsociado = mapaAliasUids[aliasTexto];
+
+            // Leemos el perfil exacto bajando al nivel del $uid permitido por tus reglas
+            return database.ref('usuarios/' + uidAsociado + '/datos_perfil').once('value')
+                .then(snapPerfil => {
+                    if (snapPerfil.exists()) {
+                        const perfil = snapPerfil.val();
+                        return {
+                            uid_firebase: uidAsociado,
+                            razon_social: perfil.razon_social || "EMPRESA SIN NOMBRE",
+                            nif_cif: perfil.nif_cif || "---",
+                            estado_activacion: perfil.estado_activacion || "DESACTIVADO",
+                            clave_alias: perfil.clave_personalizada_alias || aliasTexto
+                        };
+                    }
+                    return null;
+                }).catch(() => null); // Ignora errores individuales si algún perfil está huérfano
+        });
+
+        // 2. Esperamos a que todas las consultas unitarias terminen en paralelo
+        Promise.all(colaConsultasPerfiles).then((resultadosValidos) => {
+            // Limpiamos los nulos y guardamos en el catálogo del administrador
+            arrayGlobalUsuariosAdmin = resultadosValidos.filter(u => u !== null);
+
+            // Refrescamos la lista elástica en pantalla
+            renderizarListaUsuariosAdmin();
+        });
+
+    }).catch(err => {
+        console.error("Error en puente de lectura admin:", err);
+        alert("Error de acceso al panel: " + err.message);
+    });
+}
+
+
+// Filtra e inyecta la lista elástica en el modal con un diseño hiper-limpio
+function renderizarListaUsuariosAdmin() {
+    // 🔒 RECOLECCIÓN DE SEGURIDAD: Esconde el formulario inferior al teclear arriba para evitar ediciones cruzadas
+    document.getElementById("bloque_edicion_usuario_admin").style.display = "none";
+
+    const contenedor = document.getElementById("lista_usuarios_admin_render");
+    const buscarTexto = document.getElementById("bus_admin_usuarios").value.toLowerCase().trim();
+    if (!contenedor) return;
+
+    const filtrados = arrayGlobalUsuariosAdmin.filter(u =>
+        u.uid_firebase.toLowerCase().includes(buscarTexto) ||
+        u.razon_social.toLowerCase().includes(buscarTexto) ||
+        u.nif_cif.toLowerCase().includes(buscarTexto) ||
+        u.clave_alias.toLowerCase().includes(buscarTexto)
+    );
+
+    if (filtrados.length === 0) {
+        contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:15px; font-style:italic;">No se encontraron terminales</p>';
+        return;
+    }
+
+    contenedor.innerHTML = filtrados.map(u => {
+        let bolaColor = "🔴";
+        if (u.estado_activacion === "ACTIVADO") bolaColor = "🟢";
+        if (u.estado_activacion === "ADMIN") bolaColor = "👑";
+
+        const esModoOscuro = document.body.classList.contains("dark-mode");
+        const colorTextoSecundario = esModoOscuro ? "#a0aec0" : "#555";
+        const colorBordeFila = esModoOscuro ? "#333336" : "#f0f0f0";
+
+        return `
+        <div style="padding: 10px 8px; border-bottom: 1px solid ${colorBordeFila}; cursor: pointer; text-align: left;"
+             onclick="seleccionarUsuarioParaEditarAdmin('${u.uid_firebase}')"
+             onmouseover="this.style.background='${esModoOscuro ? '#2c2c2e' : '#eef5fc'}'"
+             onmouseout="this.style.background='transparent'">
+            <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                <span>${bolaColor} ${u.razon_social}</span>
+                <span style="font-size:11px; color:${colorTextoSecundario}; font-family:monospace;">${u.nif_cif}</span>
+            </div>
+            <div style="font-size:10px; color:${colorTextoSecundario}; margin-top:2px; word-break:break-all;">
+                UID: ${u.uid_firebase} ${u.clave_alias ? ' | 🔑 ' + u.clave_alias : ''}
+            </div>
+        </div>`;
+    }).join("");
+}
+
+// Carga el chofer elegido en las casillas inferiores del formulario de control
+function seleccionarUsuarioParaEditarAdmin(uid) {
+    const u = arrayGlobalUsuariosAdmin.find(item => item.uid_firebase === uid);
+    if (!u) return;
+
+    idUsuarioAdminSeleccionado = uid;
+    aliasOriginalUsuarioAdminSeleccionado = u.clave_alias;
+
+    document.getElementById("lbl_admin_uid_seleccionado").innerText = "UID: " + uid;
+    document.getElementById("sel_admin_estado_activacion").value = u.estado_activacion;
+    document.getElementById("txt_admin_alias_usuario").value = u.clave_alias || "(Sin Contraseña Propia)";
+
+    document.getElementById("bloque_edicion_usuario_admin").style.display = "block";
+
+    // Desplazamiento táctil suave para enfocar el bloque de edición en teléfonos pequeños
+    const cuerpoModal = document.querySelector("#modal_administrador_global_deca .deca-modal-cuerpo");
+    if(cuerpoModal) cuerpoModal.scrollTo({ top: cuerpoModal.scrollHeight, behavior: 'smooth' });
+}
+
+// Modifica el estado de activación y permite sobreescribir la contraseña alias en caliente
+function ejecutarGuardadoCambiosUsuarioAdmin() {
+    if (!idUsuarioAdminSeleccionado) return;
+
+    const nuevoEstado = document.getElementById("sel_admin_estado_activacion").value;
+    const nuevoAlias = document.getElementById("txt_admin_alias_usuario").value.trim();
+
+    if (nuevoAlias === "") {
+        return alert("⚠ La contraseña alias no puede estar vacía. Si desea borrar al chófer por completo, use el botón rojo.");
+    }
+
+    mostrarAvisoToast("⏳ Sincronizando credenciales en la nube...");
+
+    let paqueteUpdatePerfil = { estado_activacion: nuevoEstado, clave_personalizada_alias: nuevoAlias };
+
+    database.ref('usuarios/' + idUsuarioAdminSeleccionado + '/datos_perfil').update(paqueteUpdatePerfil)
+    .then(() => {
+        if (nuevoAlias !== aliasOriginalUsuarioAdminSeleccionado) {
+            let colaOperacionesAlias = [];
+
+            if (aliasOriginalUsuarioAdminSeleccionado && aliasOriginalUsuarioAdminSeleccionado.trim() !== "") {
+                colaOperacionesAlias.push(database.ref('alias_claves/' + aliasOriginalUsuarioAdminSeleccionado).remove());
+            }
+
+            colaOperacionesAlias.push(database.ref('alias_claves/' + nuevoAlias).set(idUsuarioAdminSeleccionado));
+
+            return Promise.all(colaOperacionesAlias);
+        }
+        return Promise.resolve();
+    })
+    .then(() => {
+        mostrarAvisoToast("✅ Licencia y contraseña alias actualizadas correctamente.");
+
+        // 🔒 LIMPIEZA DE INTERFAZ: Resetea variables y esconde el panel de edición
+        document.getElementById("bloque_edicion_usuario_admin").style.display = "none";
+        idUsuarioAdminSeleccionado = null;
+        aliasOriginalUsuarioAdminSeleccionado = "";
+
+        descargarCatalogoUsuariosAdminCompleto(); // Refresca y vuelve al panel de control
+    })
+    .catch(err => {
+        console.error("Error al re-indexar contraseña admin:", err);
+        alert("Error de red al guardar: " + err.message);
+    });
+}
+
+
+
+// FULMINA AL CHOFER: Elimina al usuario de la tabla central y destruye su contraseña alias a la vez
+function ejecutarEliminacionCompletaUsuarioAdmin() {
+    if (!idUsuarioAdminSeleccionado) return;
+
+    const chofer = arrayGlobalUsuariosAdmin.find(item => item.uid_firebase === idUsuarioAdminSeleccionado);
+    const mensajeAlerta = `⚠️ ¿Deseas ELIMINAR por completo a "${chofer.razon_social}" del servidor?\n\nSe borrará de forma irreversible su ficha de empresa, todo su historial de DeCAs emitidos y se DESTRUIRÁ su contraseña alias "${aliasOriginalUsuarioAdminSeleccionado || '---'}" de la base de datos.`;
+
+    mostrarConfirmacionCorporativaDeca("Eliminación Total de Chófer", mensajeAlerta, function() {
+        mostrarAvisoToast("🗑️ Purgando registros y contraseñas alias de la nube...");
+
+        let colaOperacionesBorrado = [
+            database.ref('usuarios/' + idUsuarioAdminSeleccionado).remove()
+        ];
+
+        if (aliasOriginalUsuarioAdminSeleccionado && aliasOriginalUsuarioAdminSeleccionado.trim() !== "") {
+            colaOperacionesBorrado.push(database.ref('alias_claves/' + aliasOriginalUsuarioAdminSeleccionado).remove());
+        }
+
+        Promise.all(colaOperacionesBorrado)
+        .then(() => {
+            mostrarAvisoToast("🗑️ Chófer purgado y contraseña alias destruida con éxito.");
+
+            // 🔒 LIMPIEZA DE INTERFAZ: Esconde el bloque de edición tras borrar
+            document.getElementById("bloque_edicion_usuario_admin").style.display = "none";
+            idUsuarioAdminSeleccionado = null;
+            aliasOriginalUsuarioAdminSeleccionado = "";
+
+            descargarCatalogoUsuariosAdminCompleto();
+        })
+        .catch(err => alert("Error en purga: " + err.message));
+    });
+}
 
 
 
@@ -2961,7 +3428,7 @@ function abrirPanelMisDatosCamionero() {
     document.getElementById("bloque_datos_extendidos_camionero").style.display = "flex";
 
     document.getElementById("titulo_perfil_dinamico").innerText = "Mis Datos Comerciales";
-    document.getElementById("btn_guardar_perfil_ejecutar").innerText = "💾 Guardar Cambios en Servidor";
+    document.getElementById("btn_guardar_perfil_ejecutar").innerText = "💾 Guardar Cambios";
 
     // Auto-relleno de campos desde la memoria RAM sincronizada con Firebase
     if (misDatosPerfilAutonomo) {
@@ -3300,7 +3767,7 @@ function actualizarDesplegablePlantillasFormulario() {
     const selector = document.getElementById("selector_plantillas_frecuentes");
     if (!selector) return;
 
-    selector.innerHTML = '<option value="">-- Selecciona una ruta frecuente para auto-rellenar el formulario --</option>';
+    selector.innerHTML = '<option value="">-- Selecciona una plantilla de ruta --</option>';
 
     let lista = [];
     try { lista = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
@@ -4150,6 +4617,57 @@ document.addEventListener("click", registrarToqueInicialDeConfianzaSonido);
         </div>
     </div>
 </div>
+
+<!-- === 🚫 MODAL MAESTRO: PANEL DE CONTROL DE ADMINISTRACIÓN GLOBAL DE FLOTAS === -->
+<div id="modal_administrador_global_deca" class="modal-deca-gigante" style="z-index: 850000; background: rgba(11, 14, 23, 0.9);">
+    <div class="deca-modal-contenido" style="max-width: 600px; height: 88vh; margin: auto;">
+
+        <div class="deca-modal-cabecera" style="background: #111111; color: white;">
+            <h3 style="color: white !important;">🛠️ Panel Maestro: Control de Licencias</h3>
+            <button class="deca-modal-cerrar" onclick="document.getElementById('modal_administrador_global_deca').style.display='none'">✕</button>
+        </div>
+
+        <div class="deca-modal-cuerpo" style="padding: 15px; background: #f0f4f8;">
+            <!-- Buscador de terminales -->
+            <input type="text" id="bus_admin_usuarios" class="filtro-input" placeholder="🔍 Buscar por empresa, NIF, UID o clave..." oninput="renderizarListaUsuariosAdmin()" style="margin-bottom: 12px; background: white !important;">
+
+            <!-- Lista de chóferes registrados -->
+            <div id="lista_usuarios_admin_render" style="background: white; border: 1px solid #cbd5e0; border-radius: 8px; max-height: 40vh; overflow-y: auto; padding: 6px; box-sizing: border-box;">
+                <p style="color: #666; text-style: italic; text-align: center; padding: 15px;">Descargando catálogo de terminales...</p>
+            </div>
+
+            <!-- Ficha de edición del usuario seleccionado (v3.05 MÁSTER) -->
+            <div id="bloque_edicion_usuario_admin" class="bloque-formulario-deca" style="margin-top: 15px; display: none; border-top: 4px solid #0f4c81; box-sizing: border-box; width: 100%;">
+                <div class="deca-num-titulo" style="color: #111;"><span class="deca-num-circulo" style="background:#111;">📝</span> Modificar Licencia Activa</div>
+                <p style="font-size: 11px; color:#4a5568; margin: 0 0 12px 0; font-family: monospace; word-break: break-all;" id="lbl_admin_uid_seleccionado">UID: ---</p>
+
+                <!-- Campos apilados verticalmente de forma indestructible -->
+                <div class="deca-form-grupo" style="margin-bottom: 12px; width: 100%;">
+                    <label>Estado de Licencia</label>
+                    <select id="sel_admin_estado_activacion" class="deca-input" style="height: 38px; width: 100%;">
+                        <option value="ACTIVADO">🟢 ACTIVADO (Pase libre)</option>
+                        <option value="DESACTIVADO">🔴 DESACTIVADO (Bloqueado)</option>
+                        <option value="ADMIN">👑 ADMIN (Maestro)</option>
+                    </select>
+                </div>
+
+                    <div class="deca-form-grupo" style="margin-bottom: 15px; width: 100%;">
+                        <label>Contraseña / Alias de Recuperación</label>
+                        <!-- 🔓 CORREGIDO: Campo activo, editable y con fondo blanco limpio -->
+                        <input type="text" id="txt_admin_alias_usuario" class="deca-input" style="height: 38px; width: 100%; font-family: monospace; font-weight: bold; background: #ffffff;">
+                    </div>
+
+
+                <div style="display: flex; gap: 8px; margin-top: 15px; width: 100%;">
+                    <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoCambiosUsuarioAdmin()" style="flex: 1; margin: 0; background: #28a745 !important; box-shadow: none;">💾 Guardar Licencia</button>
+                    <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarEliminacionCompletaUsuarioAdmin()" style="flex: 1; margin: 0; background: #dc3545 !important; box-shadow: none;">🗑️ Eliminar Chofer</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 
 <!-- 🔊 REPRODUCTOR OCULTO MÁSTER: Motor acústico para los clics en cabina -->
 <audio id="sonido_snap_click" src="snap.mp3" preload="auto"></audio>
