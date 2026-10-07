@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.75</title>
+    <title>Gestor de DeCAs Transportes v3.00</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -15,8 +15,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 
-    <style>
-        /* === VARIABLES DE COLOR DE ALTA VISIBILIDAD === */
+<style>  /* === BLOQUE 1 DE ESTILOS OPTIMIZADO (PARTE 1 DE 2) === */
+        /* 🔒 CANDADO GEOMÉTRICO: Fija el tamaño del botón para que no baile al cambiar el texto */
+        #btn_modo_oscuro_switch {
+            width: 90px !important;
+            min-width: 90px !important;
+            max-width: 90px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important; /* Centra milimétricamente el texto e icono en el eje horizontal */
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            box-sizing: border-box !important;
+        }
+
+        /* === VARIABLES DE COLOR DE ALTA VISIBILIDAD UNIFICADAS === */
         :root {
             --blue-primary: #0f4c81;
             --blue-light: #eef5fc;
@@ -39,66 +52,59 @@
             -webkit-font-smoothing: antialiased;
         }
 
-/* === CONFIGURACIÓN ERGONÓMICA DE LA CABECERA EN TRES NIVELES === */
-.cabecera-dashboard {
-    display: flex;
-    flex-direction: column; /* Fuerza la caída vertical por capas estrictas en cualquier pantalla */
-    width: 100%;
-    margin-bottom: 15px !important;
-    box-sizing: border-box;
-}
+        /* === CONFIGURACIÓN ERGONÓMICA DE LA CABECERA EN TRES NIVELES === */
+        .cabecera-dashboard {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-bottom: 15px !important;
+            box-sizing: border-box;
+        }
 
-/* Fila de marca superior */
-.deca-cabecera-marca-fila {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    text-align: left;
-}
+        /* Fila de marca superior */
+        .deca-cabecera-marca-fila {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            text-align: left;
+        }
 
-/* 🔥 LA BANDA DIVISORIA: Control absoluto de los pasillos de aire */
-.deca-banda-divisoria-superior {
-    width: 100%;
-    height: 2px;
-    background: #0f4c81;
-    margin-top: 6px !important;    /* 📏 MINIMIZADO: Pega la barra justo debajo del icono */
-    margin-bottom: 14px !important; /* 📏 MAXIMIZADO: Da pasillo y aire hacia el texto inferior */
-    box-sizing: border-box;
-}
+        /* 🔥 LA BANDA DIVISORIA: Control absoluto de los pasillos de aire */
+        .deca-banda-divisoria-superior {
+            width: 100%;
+            height: 2px;
+            background: #0f4c81;
+            margin-top: 6px !important;
+            margin-bottom: 14px !important;
+            box-sizing: border-box;
+        }
 
-/* Bloque inferior elástico (Texto + Botones) */
-.deca-cabecera-soporte-bloque {
-    display: flex;
-    flex-direction: column;
-    gap: 12px; /* Espacio de separación entre el texto gris y los botones de abajo */
-    width: 100%;
-    align-items: flex-start; /* Alínea de forma nativa todo el bloque a la izquierda */
-}
+        /* Bloque inferior elástico (Texto + Botones) */
+        .deca-cabecera-soporte-bloque {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            align-items: flex-start;
+        }
 
-/* ==========================================================================
-   🖥️ RESPONSIVE PC: En pantallas grandes el bloque inferior se vuelve horizontal
-   ========================================================================== */
-@media (min-width: 768px) {
-    .deca-cabecera-soporte-bloque {
-        flex-direction: row !important; /* En PC se ponen en paralelo */
-        justify-content: space-between;
-        align-items: center;
-    }
-    .deca-cabecera-soporte-bloque p { max-width: 55%; }
-    .grupo-botones-top { width: auto !important; justify-content: flex-end !important; }
-}
+        /* ==========================================================================
+           🖥️ RESPONSIVE PC: En pantallas grandes el bloque inferior se vuelve horizontal
+           ========================================================================== */
+        @media (min-width: 768px) {
+            .deca-cabecera-soporte-bloque {
+                flex-direction: row !important;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .deca-cabecera-soporte-bloque p { max-width: 55%; }
+            .grupo-botones-top { width: auto !important; justify-content: flex-end !important; }
+        }
 
-/* SOPORTE COMPLETO MODO NOCHE */
-body.dark-mode .deca-titulo-texto-nocturno { color: #ffffff !important; }
-body.dark-mode #deca_linea_cabecera_master { background: #63b3ed !important; }
+        .logo-app { width: 34px; height: 34px; object-fit: cover; border-radius: 6px; }
 
-        .marca-app { display: flex; align-items: center; gap: 10px; }
-        .logo-app { width: 32px; height: 32px; object-fit: contain; }
-        .titulo-seccion h1 { margin: 0 0 4px 0; font-size: 24px; font-weight: 800; color: #1a202c; }
-        .titulo-seccion p { margin: 0; font-size: 13px; color: #718096; max-width: 650px; line-height: 1.4; }
-
-        /* BOTONERA PREMIUM */
+        /* BOTONERA PREMIUM DASHBOARD */
         .grupo-botones-top { display: flex; gap: 8px; flex-wrap: wrap; }
         .btn-top {
             padding: 10px 16px;
@@ -120,53 +126,313 @@ body.dark-mode #deca_linea_cabecera_master { background: #63b3ed !important; }
         }
         .btn-nuevo-deca:active { background: #0b3459 !important; }
 
-
-/* === REPARACIÓN DE BOTONES CORPORATIVOS DE MODAL === */
-.btn-top-principal {
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
-    border: none;
-    background: var(--blue-primary);
-    color: #ffffff;
-    transition: transform 0.1s, background 0.15s;
-    box-shadow: 0 4px 6px rgba(15, 76, 129, 0.2);
-}
-.btn-top-principal:active {
-    transform: scale(0.96);
-    background: #0b3459;
-}
+        .btn-salir-rojo {
+            background: #dc3545 !important;
+            color: #ffffff !important; /* Fuerza las letras a blanco puro */
+            border: none !important;
+            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+        }
+        .btn-salir-rojo:active {
+            background: #bd2130 !important;
+        }
 
 
+        /* === REPARACIÓN DE BOTONES CORPORATIVOS DE MODAL === */
+        .btn-top-principal {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            background: var(--blue-primary);
+            color: #ffffff;
+            transition: transform 0.1s, background 0.15s;
+            box-shadow: 0 4px 6px rgba(15, 76, 129, 0.2);
+        }
+        .btn-top-principal:active {
+            transform: scale(0.96);
+            background: #0b3459;
+        }
 
-/* === NOTIFICACIÓN TOAST FLOTANTE COMPACTA (BLINDADA EN UNA SOLA LÍNEA v2.71) === */
-.notificacion-toast-deca {
-    display: none;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #212529;
-    color: #fff;
+        /* === NOTIFICACIÓN TOAST FLOTANTE COMPACTA (BLINDADA EN UNA SOLA LÍNEA v2.71) === */
+        .notificacion-toast-deca {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #212529;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 6px;
+            z-index: 999999;
+            font-size: 13.5px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            white-space: nowrap !important;
+            width: fit-content !important;
+        }
+        /* === REJILLA DE CONTADORES CORPORATIVOS UNIFICADA EN UNA SOLA LÍNEA (4 COLUMNAS) === */
+        .grid-contadores {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 🔒 Fuerza el diseño en una única hilera recta */
+            gap: 6px;
+            margin-bottom: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-    /* 📏 REAJUSTADO: Reducimos el relleno lateral de 24px a 16px para dar aire al texto en móviles */
-    padding: 10px 16px;
-    border-radius: 6px;
-    z-index: 999999;
-    font-size: 13.5px; /* Un pelín más equilibrado para el uso en cabina */
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        .tarjeta-contador {
+            background: var(--card-bg);
+            padding: 8px 6px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid #cbd5e0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+            cursor: pointer; /* 👈 Hace que aparezca la mano interactiva al pasar por encima */
+        }
 
-    /* 🔒 EL CANDADO MÁSTER: Prohíbe terminantemente al navegador saltar a un segundo renglón */
-    white-space: nowrap !important;
-    width: fit-content !important; /* Se ajusta de forma matemática al tamaño exacto de las palabras */
-}
+        .contador-numero {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1;
+            margin-bottom: 3px;
+            text-align: left;
+        }
 
+        .contador-etiqueta {
+            font-size: 8.5px;
+            font-weight: bold;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.1px;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Semáforo fiscal de vivos laterales */
+        .tarjeta-contador.total { border-left-color: var(--blue-primary) !important; }
+        .tarjeta-contador.en-curso { border-left-color: var(--green-success) !important; }
+        .tarjeta-contador.programados { border-left-color: var(--orange-alert) !important; }
+        .tarjeta-contador.post-viaje { border-left-color: #17a2b8 !important; }
+
+        /* === BARRA DE FILTROS EVOLUCIONADA INDEPENDIENTE (AZUL SUAVE) === */
+        .contenedor-filtros {
+            background: #f2f7fc !important; /* 🔹 Azul clarito suave corporativo */
+            padding: 10px;
+            border-radius: 8px !important;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px !important;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .filtro-input {
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13.5px;
+            background: var(--card-bg);
+            color: var(--text-main);
+            box-sizing: border-box;
+            height: 38px;
+            width: 100% !important;
+        }
+
+        .deca-fechas-fila-mobi {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: flex-end !important; /* 🔒 Clava los calendarios y la escoba por su base horizontal */
+            gap: 6px !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        .deca-caja-fecha-bloque {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        .deca-caja-fecha-bloque label {
+            font-size: 9px;
+            font-weight: bold;
+            color: #718096;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            letter-spacing: 0.2px;
+        }
 
         /* ==========================================================================
-           REPARACIÓN INTEGRAL MODO OSCURO (ESTABILIZADO)
+           🖥️ RESPONSIVE PC: Volvemos a la línea horizontal única en pantallas grandes
+           ========================================================================== */
+        @media (min-width: 768px) {
+            .contenedor-filtros {
+                flex-direction: row !important;
+                align-items: center;
+                gap: 10px;
+            }
+            .buscar-texto { flex-grow: 2; max-width: 40%; }
+            .select-estado { max-width: 180px; }
+            .deca-fechas-fila-mobi { width: auto !important; flex-grow: 1; }
+            .deca-caja-fecha-bloque { flex-direction: row; align-items: center; gap: 6px; flex: none; }
+            .deca-caja-fecha-bloque label { margin-bottom: 0; }
+            .filtro-input.fecha-input { width: 130px !important; }
+        }
+
+        .buscar-texto { flex-grow: 2; min-width: 220px; }
+        .select-estado { min-width: 160px; font-weight: 500; }
+        .fecha-input { width: 135px; text-align: center; }
+        .label-rango { font-size: 13px; color: #718096; font-weight: bold; }
+
+        /* === ESTILOS ESTRUCTURALES DEL FORMULARIO GIGANTE DE EMISIÓN === */
+        .modal-deca-gigante {
+            display: none;
+            position: fixed;
+            z-index: 500000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .deca-modal-contenido {
+            background-color: #f0f4f8;
+            border-radius: 12px;
+            width: 94%;
+            max-width: 800px;
+            height: 92vh;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .deca-modal-cabecera {
+            background: #0f4c81 !important; /* 🔥 Fuerza el azul corporativo en todos los modales */
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+            box-sizing: border-box;
+        }
+        /* Garantiza que cualquier título h3 metido en la cabecera se pinte en blanco */
+        .deca-modal-cabecera h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffffff !important;
+        }
+
+        .deca-modal-cerrar {
+            background: #dc3545 !important;
+            color: #ffffff !important;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 28px !important;
+            height: 28px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 4px;
+            border: none !important;
+            transition: transform 0.1s, background 0.15s;
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.15);
+            padding: 0 !important;
+            box-sizing: border-box !important;
+        }
+        .deca-modal-cerrar:active {
+            transform: scale(0.92);
+            background: #bd2130 !important;
+        }
+
+        .deca-modal-cuerpo {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .bloque-formulario-deca {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .deca-num-titulo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #0f4c81;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .deca-num-circulo {
+            background: #0f4c81;
+            color: #ffffff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+        }
+
+        .deca-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .deca-form-grupo { display: flex; flex-direction: column; }
+        .deca-form-grupo.ancho-completo { grid-column: 1 / -1; }
+        .deca-form-grupo label { font-size: 11px; font-weight: bold; color: #4a5568; text-transform: uppercase; margin-bottom: 4px; }
+        .deca-form-grupo label span { color: #dc3545; }
+
+        .deca-input {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #333333;
+            box-sizing: border-box;
+        }
+        .deca-input:focus { border-color: #0f4c81; outline: none; }
+
+        .deca-modal-pie {
+            background: #ffffff;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #dee2e6;
+        }
+        .deca-btn-pie { padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; border: none; }
+        .deca-btn-cancelar { background: #e2e8f0; color: #4a5568; }
+        .deca-btn-guardar { background: #0f4c81; color: #ffffff; }
+
+        /* ==========================================================================
+           🌙 SINCRO RÍGIDA MODO NOCHE (BLINDAJE DE SEGURIDAD ESTABILIZADO)
            ========================================================================== */
         body.dark-mode {
             --gray-bg: #1e1e1e;
@@ -178,409 +444,144 @@ body.dark-mode #deca_linea_cabecera_master { background: #63b3ed !important; }
         body.dark-mode .titulo-seccion h1 { color: #ffffff; }
         body.dark-mode .titulo-seccion p { color: #a0aec0; }
         body.dark-mode .btn-top { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
-    </style>
-    <!-- === CONTINUACIÓN DE ESTILOS CSS (Añadir dentro de <style>) === -->
-
-
-<style>
-/* === REJILLA DE CONTADORES CORPORATIVOS UNIFICADA EN UNA SOLA LÍNEA HORIZONTAL (4 COLUMNAS) === */
-.grid-contadores {
-    display: grid;
-    /* 🔒 REPARADO: Forzamos de forma rígida a tener exactamente 4 columnas de igual tamaño siempre */
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px; /* Ajustamos el pasillo para ganar espacio horizontal en smartphones */
-    margin-bottom: 15px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Compactamos el acolchado interno para que las tarjetas sean bajitas y simétricas */
-.tarjeta-contador {
-    background: var(--card-bg);
-    padding: 8px 6px; /* Más estrechas y bajas para caber las 4 juntas de corrido */
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    border: 1px solid var(--border-color);
-    border-left: 4px solid #cbd5e0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-sizing: border-box;
-}
-
-/* Reducimos el número a 20px para que encaje impecable en pantallas estrechas sin desbordar */
-.contador-numero {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--text-main);
-    line-height: 1;
-    margin-bottom: 3px;
-    text-align: left;
-}
-
-/* Letra de la etiqueta micro de 8.5px para evitar saltos de renglón en móviles estrechos */
-.contador-etiqueta {
-    font-size: 8.5px;
-    font-weight: bold;
-    color: #718096;
-    text-transform: uppercase;
-    letter-spacing: 0.1px;
-    text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* Si en un móvil muy pequeño no cabe, pone puntos suspensivos sin romper la fila */
-}
-/* 🔥 REPARACIÓN DE COLORES: Devuelve el color original a los bordes izquierdos del semáforo */
-.tarjeta-contador.total { border-left-color: var(--blue-primary) !important; }
-.tarjeta-contador.en-curso { border-left-color: var(--green-success) !important; }
-.tarjeta-contador.programados { border-left-color: var(--orange-alert) !important; }
-.tarjeta-contador.post-viaje { border-left-color: #17a2b8 !important; }
-
-
-
-/* === BARRA DE FILTROS EVOLUCIONADA INDEPENDIENTE (CON PASILLO DE AIRE SIMÉTRICO) === */
-.contenedor-filtros {
-    background: var(--card-bg);
-    padding: 10px;
-    /* 1. Redondeamos las 4 esquinas por igual para que sea una tarjeta independiente */
-    border-radius: 8px !important;
-    border: 1px solid var(--border-color);
-    /* 2. 🔥 EL PASILLO SIMÉTRICO: Añadimos 15px de margen abajo para despegarlo de la tabla */
-    margin-bottom: 15px !important;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    box-sizing: border-box;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02); /* Sutil sombra a juego con los contadores */
-}
-
-
-.filtro-input {
-    padding: 8px 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 13.5px;
-    background: var(--card-bg);
-    color: var(--text-main);
-    box-sizing: border-box;
-    height: 38px;
-    width: 100% !important; /* Por defecto ocupan el ancho completo de su fila */
-}
-
-/* La fila de las fechas se vuelve una cuadrícula flexible horizontal alineada por la base */
-.deca-fechas-fila-mobi {
-    display: flex !important;
-    flex-direction: row !important; /* Fuerza a las fechas y al botón a estar juntos */
-    /* 🔒 REPARADO: Alinea los tres componentes por su base horizontal,
-       compensando la altura de los textos descriptivos 'Desde' y 'Hasta' */
-    align-items: flex-end !important;
-    gap: 6px !important;
-    width: 100% !important;
-    box-sizing: border-box;
-}
-
-.deca-caja-fecha-bloque {
-    display: flex;
-    flex-direction: column;
-    flex: 1; /* Reparte el espacio simétricamente entre Desde y Hasta */
-}
-.deca-caja-fecha-bloque label {
-    font-size: 9px;
-    font-weight: bold;
-    color: #718096;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-    letter-spacing: 0.2px;
-}
-
-/* ==========================================================================
-   🖥️ RESPONSIVE PC: Volvemos a la línea horizontal única en pantallas grandes
-   ========================================================================== */
-@media (min-width: 768px) {
-    .contenedor-filtros {
-        flex-direction: row !important; /* Línea recta horizontal en el ordenador */
-        align-items: center;
-        gap: 10px;
-    }
-    .buscar-texto { flex-grow: 2; max-width: 40%; }
-    .select-estado { max-width: 180px; }
-    .deca-fechas-fila-mobi { width: auto !important; flex-grow: 1; }
-    .deca-caja-fecha-bloque { flex-direction: row; align-items: center; gap: 6px; flex: none; }
-    .deca-caja-fecha-bloque label { margin-bottom: 0; }
-    .filtro-input.fecha-input { width: 130px !important; }
-}
-
-        .buscar-texto { flex-grow: 2; min-width: 220px; }
-        .select-estado { min-width: 160px; font-weight: 500; }
-        .fecha-input { width: 135px; text-align: center; }
-        .label-rango { font-size: 13px; color: #718096; font-weight: bold; }
-
         body.dark-mode .tarjeta-contador { box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         body.dark-mode .filtro-input { background: #2c2c2e !important; border-color: #444446 !important; }
+        body.dark-mode .deca-modal-contenido { background-color: #121212; }
+        body.dark-mode .deca-modal-cabecera, body.dark-mode .deca-modal-pie { background: #1c1c1e; border-color: #333336; }
+        body.dark-mode .deca-modal-cabecera h3 { color: #fff; }
+        body.dark-mode .bloque-formulario-deca { background: #1c1c1e; border: 1px solid #333336; }
+        body.dark-mode .deca-input { background: #2c2c2e; border-color: #444446; color: #fff; }
+        body.dark-mode .deca-form-grupo label { color: #a0aec0; }
+        body.dark-mode .deca-num-titulo { color: #63b3ed; }
+        body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
+
+</style>  <!-- === FIN DEL BLOQUE 1 DE ESTILOS === -->
 
 
 
-/* === ESTILOS DEL MODAL GIGANTE NUEVO DECA === */
-.modal-deca-gigante {
-    display: none;
-    position: fixed;
-    z-index: 500000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    align-items: center;
-    justify-content: center;
-}
+<style>    /* === BLOQUE 2 DE ESTILOS === */
 
-.deca-modal-contenido {
-    background-color: #f0f4f8;
-    border-radius: 12px;
-    width: 94%;
-    max-width: 800px;
-    height: 92vh;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+/* === REESTRUCTURACIÓN DE REJILLA UNIFICADA (v2.92 ALINEACIÓN FIJA) === */
 
-.deca-modal-cabecera {
-    background: #ffffff;
-    padding: 16px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #dee2e6;
-}
-.deca-modal-cabecera h3 { margin: 0; font-size: 16px; font-weight: bold; color: #333; }
-.deca-modal-cerrar { background: none; border: none; font-size: 18px; font-weight: bold; cursor: pointer; color: #999; }
-
-/* Cuerpo intermedio con scroll propio */
-.deca-modal-cuerpo {
-    flex-grow: 1;
-    padding: 20px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Bloques contenedores numerados */
-.bloque-formulario-deca {
-    background: #ffffff;
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-.deca-num-titulo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: bold;
-    color: #0f4c81;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-}
-.deca-num-circulo {
-    background: #0f4c81;
-    color: #ffffff;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-}
-
-/* Distribución en Grid de los campos */
-.deca-form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-}
-.deca-form-grupo { display: flex; flex-direction: column; }
-.deca-form-grupo.ancho-completo { grid-column: 1 / -1; }
-.deca-form-grupo label { font-size: 11px; font-weight: bold; color: #4a5568; text-transform: uppercase; margin-bottom: 4px; }
-.deca-form-grupo label span { color: #dc3545; }
-
-.deca-input {
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #cbd5e0;
-    border-radius: 6px;
-    background: #ffffff;
-    color: #333333;
-    box-sizing: border-box;
-}
-.deca-input:focus { border-color: #0f4c81; outline: none; }
-
-/* Botones inferiores fijos */
-.deca-modal-pie {
-    background: #ffffff;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    border-top: 1px solid #dee2e6;
-}
-.deca-btn-pie { padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; border: none; }
-.deca-btn-cancelar { background: #e2e8f0; color: #4a5568; }
-.deca-btn-guardar { background: #0f4c81; color: #ffffff; }
-
-/* Ajustes Modo Oscuro para el formulario */
-body.dark-mode .deca-modal-contenido { background-color: #121212; }
-body.dark-mode .deca-modal-cabecera, body.dark-mode .deca-modal-pie { background: #1c1c1e; border-color: #333336; }
-body.dark-mode .deca-modal-cabecera h3 { color: #fff; }
-body.dark-mode .bloque-formulario-deca { background: #1c1c1e; border: 1px solid #333336; }
-body.dark-mode .deca-input { background: #2c2c2e; border-color: #444446; color: #fff; }
-body.dark-mode .deca-form-grupo label { color: #a0aec0; }
-body.dark-mode .deca-num-titulo { color: #63b3ed; }
-body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
-
-
-
-
-    </style>
-</head>
-<body>
-
-
-    <!-- ==========================================================================
-       🏢 CAPA 1: NUEVA CABECERA MÁSTER ESTRUCTURADA POR NIVELES (v2.64)
-       ========================================================================== -->
-    <div class="cabecera-dashboard">
-
-        <!-- NIVEL A: Identificación de la Plataforma (Icono + Título) -->
-        <div class="deca-cabecera-marca-fila">
-            <img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin: 0;" onerror="console.warn('Icono no encontrado');">
-            <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a202c;" class="deca-titulo-texto-nocturno">DeCA</h1>
-        </div>
-
-        <!-- NIVEL B: La Línea Divisoria Azul Corporativa (Alineación Rígida) -->
-        <div id="deca_linea_cabecera_master" class="deca-banda-divisoria-superior"></div>
-
-        <!-- NIVEL C: Contenido de Soporte (Subtítulo y Botonera Premium alineada a la izquierda) -->
-        <div class="deca-cabecera-soporte-bloque">
-            <p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
-                La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
-            </p>
-
-            <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
-                <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
-                <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
-                <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer; margin: 0;">🌙 Oscuro</button>
-            </div>
-        </div>
-
-    </div> <!-- 🔒 CIERRE SEGURO DE LA CABECERA-DASHBOARD -->
-
-
-
-    <!-- === TOAST NOTIFICADOR NATIVO === -->
-    <div id="toast_deca" class="notificacion-toast-deca"></div>
-
-    <!-- === REJILLA DINÁMICA DE CONTADORES UNIFICADA EN UNA LÍNEA (4 COLUMNAS) === -->
-    <div class="grid-contadores">
-        <div class="tarjeta-contador total">
-            <span class="contador-numero" id="num_total">0</span>
-            <span class="contador-etiqueta">Total</span>
-        </div>
-        <div class="tarjeta-contador en-curso">
-            <span class="contador-numero" id="num_en_curso">0</span>
-            <span class="contador-etiqueta">En curso</span> <!-- 📝 RECORTADO: Pasamos de "En curso hoy" a "En curso" -->
-        </div>
-        <div class="tarjeta-contador programados">
-            <span class="contador-numero" id="num_programados">0</span>
-            <span class="contador-etiqueta">Programados</span>
-        </div>
-        <div class="tarjeta-contador post-viaje">
-            <span class="contador-numero" id="num_post_viaje">0</span>
-            <span class="contador-etiqueta">Finalizados</span>
-        </div>
-    </div>
-
-
-    <!-- === BARRA DE FILTROS DE BÚSQUEDA EVOLUCIONADA MÓVIL === -->
-    <div class="contenedor-filtros">
-        <!-- Fila 1: Buscador Global -->
-        <input type="text" id="buscador_global_deca" class="filtro-input buscar-texto" placeholder="Buscar por nº, matrícula, lugar, mercancía o cargador..." oninput="filtrarCatalogoDeCAs()">
-
-        <!-- Fila 2: Selector de Estados -->
-        <select id="filtro_estado_deca" class="filtro-input select-estado" onchange="filtrarCatalogoDeCAs()">
-            <option value="TODOS">Todos los estados</option>
-            <option value="EN_CURSO">🟢 En Curso</option>
-            <option value="PROGRAMADO">🟡 Programados</option>
-            <option value="ANULADO">🚫 Anulados</option>
-            <option value="CERRADO">⚪ Cerrados</option>
-        </select>
-
-        <!-- Fila 3: El búnker elástico de las fechas y el botón Limpiar -->
-        <div class="deca-fechas-fila-mobi">
-            <div class="deca-caja-fecha-bloque">
-                <label>Desde</label>
-                <input type="date" id="filtro_fecha_desde" class="filtro-input fecha-input" onchange="filtrarCatalogoDeCAs()">
-            </div>
-
-            <div class="deca-caja-fecha-bloque">
-                <label>Hasta</label>
-                <input type="date" id="filtro_fecha_hasta" class="filtro-input fecha-input" onchange="filtrarCatalogoDeCAs()">
-            </div>
-
-            <!-- Botón Limpiar compacto adaptado para la misma línea móvil -->
-            <button type="button" class="btn-top" onclick="restablecerTodosLosFiltrosDashboard()" style="padding: 0 10px; height: 38px; background: #e2e8f0; border-color: #cbd5e0; color: #4a5568; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin: 2px 0 0 0; width: auto !important; min-width: 44px;" title="Vaciar filtros de búsqueda">🧹</button>
-        </div>
-    </div>
-
-
-
-    <!-- === CONTINUACIÓN DE ESTILOS CSS (Añadir dentro de <style>) === -->
-    <style>
-
-
-/* === REPARACIÓN INTERNA CON SCROLL VERTICAL LIMITADO A 10 FILAS (v2.65) === */
-/* 1. La cabecera se vuelve una tarjeta estática con sus propios bordes redondeados arriba */
-.deca-bloque-cabecera-estatica {
-    width: 100%;
-    background: var(--gray-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px 8px 0 0 !important; /* 🔒 Redondeado superior estricto */
-    box-sizing: border-box;
-    overflow: hidden;
-}
+/* El contenedor gobierna tanto el scroll horizontal como el vertical de forma unificada */
 .contenedor-tabla {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-top: none !important; /* Evita doble línea de división con la cabecera de arriba */
-    border-radius: 0 !important; /* Esquinas rectas intermedias para engancharse limpiamente */
-
-    /* 🔒 EL FILTRO DE 10 FILAS: El scroll ahora solo afecta a los datos, la cabecera no se entera */
-    max-height: 390px !important;
-    overflow-y: auto !important;
-    overflow-x: auto !important;
-
+    border-radius: 8px 8px 0 0 !important;
+    overflow-x: auto !important; /* Mueve la cabecera y los datos juntos en horizontal */
+    overflow-y: auto !important;  /* 🔓 MUEVE EL SCROLL VERTICAL AQUÍ: Evita el descuadre de celdas */
+    max-height: 390px !important;  /* 📏 Altura de seguridad equivalente a 10 filas fijas */
     box-shadow: 0 4px 6px rgba(0,0,0,0.02);
     -webkit-overflow-scrolling: touch;
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Tablas rígidas sincronizadas por porcentajes */
+/* La tabla recupera su comportamiento tabular nativo para garantizar la alineación matemática */
 .deca-tabla-sincro-master {
     width: 100% !important;
     border-collapse: collapse;
     text-align: left;
     font-size: 13px;
-    min-width: 975px; /* Mantiene el ancho elástico seguro para el scroll horizontal en APK */
+    min-width: 1055px; /* 🔒 CANDADO: Suma exacta de píxeles para alinear las columnas */
     table-layout: fixed !important;
     box-sizing: border-box;
+    display: table !important; /* 🏢 Retorno a comportamiento nativo */
+}
+
+/* 🧼 LIMPIEZA DE FORZADOS EXTRAÑOS: Eliminamos los display artificiales que provocaban el descuadre */
+.deca-tabla-sincro-master thead {
+    display: table-header-group !important;
+}
+
+.deca-tabla-sincro-master tbody {
+    display: table-row-group !important;
+}
+
+.deca-tabla-sincro-master tbody tr {
+    display: table-row !important; /* Garantiza la coherencia visual absoluta */
+    width: 100% !important;
+}
+
+/* === 🦓 FILAS ALTERNAS DE ALTA LECTURA (TEMA DIURNO PREMIUM) === */
+.deca-tabla-sincro-master tbody tr:nth-child(even) {
+    background-color: #f2f7fc !important;
+}
+.deca-tabla-sincro-master tbody tr:nth-child(odd) {
+    background-color: #ffffff !important;
+}
+
+/* ==========================================================================
+   🌙 ADAPTACIÓN DE FILAS ALTERNAS AL MODO OSCURO DE CABINA
+   ========================================================================== */
+body.dark-mode .deca-tabla-sincro-master tbody tr:nth-child(even) {
+    background-color: #242426 !important;
+}
+body.dark-mode .deca-tabla-sincro-master tbody tr:nth-child(odd) {
+    background-color: #1c1c1e !important;
+}
+
+/* Efecto visual de resaltado sutil al pasar el ratón o el dedo encima */
+.deca-tabla-sincro-master tbody tr:hover {
+    background-color: #e6f0fa !important;
+}
+body.dark-mode .deca-tabla-sincro-master tbody tr:hover {
+    background-color: #2c2c2e !important;
+}
+
+/* 📌 CABECERA FIJA FLOTANTE (STICKY NATURALEZA): Permanece arriba al hacer scroll vertical */
+th {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 10 !important;
+    background: var(--gray-bg) !important;
+    color: #4a5568;
+    padding: 12px 8px; /* Ajuste fino de confort */
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-sizing: border-box;
+    border-bottom: 2px solid var(--border-color) !important; /* Línea de contención nítida */
+}
+
+/* 🧹 Desactivamos el scroll residual del bloque de datos antiguo */
+#tabla_resultados_body {
+    display: table-row-group !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    width: 100% !important;
+}
+
+td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    color: var(--text-main);
+    word-wrap: break-word;
+    box-sizing: border-box !important;
+}
+
+/* === ESTILO PREMIUM DEL ENLACE AL DOCUMENTO DECA === */
+.doc-numero {
+    font-weight: 800 !important;
+    color: var(--blue-primary) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    display: inline-block;
+}
+.doc-numero:hover {
+    text-decoration: underline !important;
+    color: #0b3459 !important; /* Azul un poco más oscuro al pasar por encima */
 }
 
 
-/* 🎨 BARRA DE SCROLL MODERNA Y ELEGANTE (Feedback visual sin molestar en la oscuridad) */
+/* Ajustes Nocturnos Síncronos */
+body.dark-mode th { background: #1c1c1e !important; color: #a0aec0; }
+body.dark-mode td { border-bottom-color: #2c2c2e; }
+body.dark-mode .doc-numero { color: #63b3ed; }
+
+/* 🎨 BARRA DE SCROLL MODERNA Y ELEGANTE */
 .contenedor-tabla::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -594,48 +595,87 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
     border-radius: 4px;
 }
 body.dark-mode .contenedor-tabla::-webkit-scrollbar-thumb {
-    background: #444446; /* Se mimetiza en el Modo Noche en cabina */
+    background: #444446;
 }
 
-
-
-table {
-    width: 100% !important;
-    border-collapse: collapse;
-    text-align: left;
-    font-size: 13px;
-    /* 🔒 CANDADO GEOMÉTRICO FIJO: Suma matemática exacta de todas las columnas (1055px) */
-    min-width: 1055px;
-    table-layout: fixed !important;
-    box-sizing: border-box;
-}
-
-/* Th limpios y opacos de una sola capa sin desborde vertical */
-th {
-    background: var(--gray-bg);
-    color: #4a5568;
-    padding: 10px 8px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    box-sizing: border-box;
-    border-bottom: 1px solid var(--border-color) !important;
-}
-
-td {
-    padding: 10px 8px;
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-    color: var(--text-main);
-    word-wrap: break-word;
+/* === BADGES DE MATRÍCULAS CON ANCHO FIJO SIMÉTRICO === */
+.celda-matriculas-flex {
+    display: table-cell !important;
+    vertical-align: middle !important;
+    padding: 10px 8px !important;
     box-sizing: border-box !important;
 }
+.badge-matricula {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #111111 !important;
+    padding: 3px 6px !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+    margin-bottom: 5px !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    white-space: nowrap !important;
+    width: 95px !important;
+    max-width: 95px !important;
+    min-width: 95px !important;
+    box-sizing: border-box !important;
+}
+.badge-matricula.remolque {
+    border-color: #fd7e14 !important;
+    background: #fffdf5 !important;
+    margin-bottom: 0 !important;
+}
 
-/* Ajustes Nocturnos Síncronos */
-body.dark-mode .deca-bloque-cabecera-estatica { background: #1c1c1e; border-color: #333336; }
-body.dark-mode th { background: #1c1c1e; color: #a0aec0; }
+.ruta-texto { font-size: 13px; line-height: 1.4; max-width: 320px; }
+.ruta-flecha { color: var(--orange-alert); margin: 0 4px; font-weight: bold; }
+.mercancia-peso { font-size: 11px; color: #718096; display: block; margin-top: 2px; font-weight: bold; }
 
+/* Etiquetas de Estado */
+.estado-badge { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: bold; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.3px; }
+.estado-badge.en-curso { background: var(--green-light); color: #155724; border: 1px solid #c3e6cb; }
+.estado-badge.programado { background: var(--orange-light); color: #856404; border: 1px solid #ffeeba; }
+.estado-badge.cerrado { background: #e2e8f0; color: #4a5568; border: 1px solid #cbd5e0; }
+.estado-badge.anulado-rojo { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
+/* 🎛️ BOTONERA DE ACCIONES COMPACTA */
+.btn-accion-icono {
+    background: #ffffff;
+    border: 1px solid #cbd5e0;
+    font-size: 15px;
+    cursor: pointer;
+    width: 34px !important;
+    height: 34px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: #4a5568;
+    padding: 0 !important;
+    margin-right: 4px;
+    transition: all 0.15s ease;
+    box-sizing: border-box !important;
+}
+.btn-accion-icono:hover {
+    background: #eef5fc !important;
+    border-color: #0f4c81 !important;
+    color: #0f4c81 !important;
+}
+.btn-accion-icono:active { transform: scale(0.92); }
+
+body.dark-mode .btn-accion-icono {
+    background: #2c2c2e !important;
+    border-color: #444446 !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .btn-accion-icono:hover {
+    background: #1c1c1e !important;
+    border-color: #63b3ed !important;
+    color: #63b3ed !important;
+}
 
 .select-acciones-rapidas {
     padding: 4px 6px;
@@ -648,120 +688,11 @@ body.dark-mode th { background: #1c1c1e; color: #a0aec0; }
     cursor: pointer;
     width: 95px;
     max-width: 95px;
+    height: 34px !important;
 }
+body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
 
-        /* DETALLES DE FILAS ESTILIZADAS */
-        .doc-numero { font-weight: 800; color: var(--blue-primary); cursor: pointer; text-decoration: none; }
-        .doc-numero:hover { text-decoration: underline; }
-
-
-/* 2. 🔥 REPARADO: Cambiamos flex por table-cell para destruir la línea rara flotante */
-.celda-matriculas-flex {
-    display: table-cell !important; /* Retorna a celda nativa para respetar la cuadrícula del borde */
-    vertical-align: middle !important;
-    padding: 10px 8px !important;
-    box-sizing: border-box !important;
-    border-bottom: 1px solid var(--border-color) !important;
-}
-
-.badge-matricula {
-    display: inline-flex !important;
-    align-items: center !important;
-    background: #ffffff !important;
-    color: #111111 !important;
-    border: 1px solid #111111 !important;
-    padding: 3px 6px !important;
-    font-size: 11.5px !important; /* Un pelín más compactas para que entren limpias */
-    font-weight: bold !important;
-    border-radius: 4px !important;
-    margin: 0 !important; /* Limpiamos márgenes laterales antiguos */
-    margin-bottom: 5px !important; /* 📏 EL PASILLO: Separa la tractora del remolque para que no estén pegadas */
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
-    width: fit-content !important;
-    white-space: nowrap !important;
-}
-
-/* El remolque no necesita margen inferior porque ya es el último elemento de la pila */
-.badge-matricula.remolque {
-    border-color: #fd7e14 !important;
-    background: #fffdf5 !important;
-    margin-bottom: 0 !important;
-}
-
-        .ruta-texto { font-size: 13px; line-height: 1.4; max-width: 320px; }
-        .ruta-flecha { color: var(--orange-alert); margin: 0 4px; font-weight: bold; }
-        .mercancia-peso { font-size: 11px; color: #718096; display: block; margin-top: 2px; font-weight: bold; }
-
-        /* Etiquetas de Estado */
-        .estado-badge { display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: bold; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.3px; }
-        .estado-badge.en-curso { background: var(--green-light); color: #155724; border: 1px solid #c3e6cb; }
-        .estado-badge.programado { background: var(--orange-light); color: #856404; border: 1px solid #ffeeba; }
-        .estado-badge.cerrado { background: #e2e8f0; color: #4a5568; border: 1px solid #cbd5e0; }
-        .estado-badge.anulado-rojo { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
-
-        /* Botones de acción rápidos */
-
-/* ==========================================================================
-   🎛️ BOTONERA DE ACCIONES COMPACTA Y MINIMALISTA (CUADRADOS MODERNOS)
-   ========================================================================== */
-.btn-accion-icono {
-    background: #ffffff; /* Fondo blanco limpio de inicio */
-    border: 1px solid #cbd5e0; /* Borde sutil a juego con los selectores */
-    font-size: 15px;
-    cursor: pointer;
-    width: 34px !important;    /* 🔒 CUADRANTE RÍGIDO SEGURO */
-    height: 34px !important;   /* 🔒 CUADRANTE RÍGIDO SEGURO */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px;        /* Esquinas suavizadas estilo iOS/Android */
-    color: #4a5568;
-    padding: 0 !important;     /* Quita paddings residuales que deforman el cuadrado */
-    margin-right: 4px;
-    transition: all 0.15s ease;
-    box-sizing: border-box !important;
-}
-
-/* Efecto sutil al pasar el ratón por encima */
-.btn-accion-icono:hover {
-    background: #eef5fc !important;
-    border-color: #0f4c81 !important;
-    color: #0f4c81 !important;
-}
-
-/* Efecto de hundimiento táctil inmediato al presionar en el móvil/tablet */
-.btn-accion-icono:active {
-    transform: scale(0.92);
-}
-
-/* Ajustes visuales de la botonera en Modo Oscuro (Uso nocturno en cabina) */
-body.dark-mode .btn-accion-icono {
-    background: #2c2c2e !important;
-    border-color: #444446 !important;
-    color: #e0e0e0 !important;
-}
-body.dark-mode .btn-accion-icono:hover {
-    background: #1c1c1e !important;
-    border-color: #63b3ed !important;
-    color: #63b3ed !important;
-}
-
-
-/* Ajuste fino para el selector de acciones rápidas */
-.select-acciones-rapidas {
-    padding: 4px 6px;
-    font-size: 12px;
-    border-radius: 6px;
-    border: 1px solid #cbd5e0;
-    background: #fff;
-    font-weight: bold;
-    color: #4a5568;
-    cursor: pointer;
-    width: 95px; /* Controlamos el ancho del desplegable para que no se coma la fila */
-    max-width: 95px;
-}
-/* === PIE DE TABLA / PAGINACIÓN CON BORDE SUPERIOR FLOTANTE BLINDADO (v2.71 MÁSTER) === */
+/* === PIE DE TABLA / PAGINACIÓN CON BORDE SUPERIOR FLOTANTE BLINDADO === */
 .pie-tabla {
     display: flex;
     justify-content: space-between;
@@ -772,18 +703,16 @@ body.dark-mode .btn-accion-icono:hover {
     color: #718096;
     box-sizing: border-box !important;
     width: 100% !important;
-    border-top: none !important; /* 🧹 Limpiamos el borde nativo que se rompía con el scroll vertical */
-
-    /* 🛡️ LA REPARACIÓN REAL: Sombra interna sólida que actúa como un borde superior de 1px inalterable.
-       No se corta, no se esconde y se mantiene 100% visible por encima de las filas de datos que bajan */
     box-shadow: inset 0 1px 0 var(--border-color) !important;
 }
-
-/* Forzamos que en el Modo Noche el tono de la línea fija superior cambie en la oscuridad */
 body.dark-mode .pie-tabla {
     background: #1c1c1e !important;
     box-shadow: inset 0 1px 0 #333336 !important;
 }
+
+/* RESTO DE ESTILOS DE PREVIEW Y MODALES SE MANTIENEN IGUAL... */
+
+
 
                 .btn-paginacion { background: var(--blue-primary); color: white; border: none; width: 30px; height: 30px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-left: 4px; }
 
@@ -906,42 +835,70 @@ body.dark-mode .pie-tabla {
 }
 
 
-/* Botonera Inferior Simplificada */
+/* === BOTONERA INFERIOR SIMPLIFICADA EN UNA SOLA FILA IMPERMEABLE === */
 .preview-pie-botones {
     background: #ffffff;
-    padding: 12px 20px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+    padding: 8px 10px !important; /* Pasillo interior reducido para ahorrar pantalla vertical */
+    display: flex !important;
+    flex-direction: row !important; /* Fuerza la distribución en hilera recta horizontal */
+    justify-content: space-between !important; /* Reparte los botones de forma equidistante */
+    gap: 6px !important; /* Separación mínima compacta entre botones */
     border-top: 1px solid #dee2e6;
-    flex-wrap: wrap;
+    flex-wrap: nowrap !important; /* 🔒 CANDADO GEOMÉTRICO: Prohíbe saltar a una segunda fila */
     box-sizing: border-box;
+    width: 100% !important;
 }
 
+/* El estilo original de los botones recuperado y vitaminado para pantallas elásticas */
 .btn-preview-accion {
-    padding: 10px 18px;
-    font-size: 13px;
-    font-weight: bold;
-    border-radius: 6px;
+    flex: 1 !important; /* Hace que los 3 botones midan exactamente el mismo ancho */
+    justify-content: center !important; /* Centra el icono y el texto dentro del botón */
+    padding: 10px 4px !important; /* Pasillo lateral mínimo para que quepan holgados en móviles */
+    font-size: 12px !important; /* Tamaño compacto premium para que no se desborde el texto */
+    font-weight: bold; /* Mantiene la tipografía en negrita original */
+    border-radius: 6px; /* Esquinas suavizadas idénticas al resto de la app */
     cursor: pointer;
-    border: 1px solid #cbd5e0;
-    background: #ffffff;
-    color: #4a5568;
+    border: 1px solid #cbd5e0; /* Borde fino gris original */
+    background: #ffffff; /* Fondo blanco limpio original */
+    color: #4a5568; /* Color de letra original */
     display: inline-flex;
     align-items: center;
     gap: 6px;
     box-sizing: border-box;
+    white-space: nowrap !important; /* Evita que el texto salte a dos líneas dentro del botón */
+    transition: transform 0.1s, background 0.15s;
 }
 
+/* Efecto de hundimiento táctil en cabina */
+.btn-preview-accion:active {
+    transform: scale(0.96);
+}
+
+/* El botón azul premium del PDF recuperado con máxima prioridad */
 .btn-preview-accion.pdf-azul {
     background: #0f4c81 !important;
     color: #ffffff !important;
-    border: none;
+    border: none !important;
+}
+.btn-preview-accion.pdf-azul:active {
+    background: #0b3459 !important;
 }
 
-body.dark-mode .preview-container { background-color: #121212; }
-body.dark-mode .preview-pie-botones { background: #1c1c1e; border-color: #333336; }
-body.dark-mode .btn-preview-accion { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
+/* Sincronización impecable con el Modo Oscuro Nocturno */
+body.dark-mode .preview-pie-botones {
+    background: #1c1c1e !important;
+    border-color: #333336 !important;
+}
+body.dark-mode .btn-preview-accion {
+    background: #2c2c2e !important;
+    border-color: #444446 !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .btn-preview-accion.pdf-azul {
+    background: #0f4c81 !important;
+    color: #ffffff !important;
+}
+
 body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
@@ -1305,14 +1262,120 @@ body.dark-mode .banner-inspeccion-nota {
 
 
 
-    <!-- === CONTENEDOR DE LA TABLA DE RESULTADOS === -->
-    <!-- ==========================================================================
-       🔳 CAPA 3: RETÍCULA DE DECAS EVOLUCIONADA ANTI-FILTRACIONES (v2.70 CLEAN)
-       ========================================================================== -->
+</head>
+<body>
 
-    <!-- 1. NIVEL SUPERIOR: Cabecera fija estática (FUERA DEL SCROLL VERTICAL) -->
-    <div class="deca-bloque-cabecera-estatica">
+
+    <!-- ==========================================================================
+       🏢 CAPA 1: NUEVA CABECERA MÁSTER ESTRUCTURADA POR NIVES (v2.93 PANELS)
+       ========================================================================== -->
+    <div class="cabecera-dashboard">
+
+        <!-- NIVEL A: Identificación de la Plataforma + Controles de Esquina Superior Derecha -->
+        <div class="deca-cabecera-marca-fila" style="display: flex !important; justify-content: space-between; align-items: center; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin: 0;" onerror="console.warn('Icono no encontrado');">
+                <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a202c;" class="deca-titulo-texto-nocturno">DeCA</h1>
+            </div>
+
+            <!-- Búnker de Control Superior Derecho -->
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <!-- Botón Interruptor Modo Noche/Día -->
+                <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer; margin: 0; font-weight: bold; padding: 10px 0;">🌙 Oscuro</button>
+                <!-- Botón Salir APK Fondo Rojo con Letras y Aspa Blancas -->
+                <!-- Botón Salir APK: Integrado con el sistema de alertas corporativas del panel -->
+                <button class="btn-top btn-salir-rojo" onclick="mostrarAlertaCorporativaDeca('Cerrar Aplicación', 'Para cerrar la aplicación en su totalidad, por favor cierre esta pestaña del navegador o la APK de su terminal de transportes.', '❌'); window.close();" style="margin: 0; color: #ffffff !important; padding: 10px 14px;">✕ Salir</button>
+            </div>
+        </div>
+
+        <!-- NIVEL B: La Línea Divisoria Azul Corporativa -->
+        <div id="deca_linea_cabecera_master" class="deca-banda-divisoria-superior"></div>
+
+        <!-- NIVEL C: Contenido de Soporte (Subtítulo y Botonera Reducida de Operaciones) -->
+        <div class="deca-cabecera-soporte-bloque">
+            <p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
+                La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
+            </p>
+
+            <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
+                <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
+                <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
+            </div>
+        </div>
+
+    </div> <!-- 🔒 CIERRE SEGURO DE LA CABECERA-DASHBOARD -->
+
+
+
+
+    <!-- === TOAST NOTIFICADOR NATIVO === -->
+    <div id="toast_deca" class="notificacion-toast-deca"></div>
+
+    <!-- === REJILLA DINÁMICA DE CONTADORES INTERACTIVOS (FILTRADO POR TOQUE DIGITAL) === -->
+    <div class="grid-contadores">
+        <!-- Tarjeta 1: TODOS -->
+        <div class="tarjeta-contador total" onclick="document.getElementById('filtro_estado_deca').value = 'TODOS'; filtrarCatalogoDeCAs();">
+            <span class="contador-numero" id="num_total">0</span>
+            <span class="contador-etiqueta">Total</span>
+        </div>
+        <!-- Tarjeta 2: EN CURSO -->
+        <div class="tarjeta-contador en-curso" onclick="document.getElementById('filtro_estado_deca').value = 'EN_CURSO'; filtrarCatalogoDeCAs();">
+            <span class="contador-numero" id="num_en_curso">0</span>
+            <span class="contador-etiqueta">En curso</span>
+        </div>
+        <!-- Tarjeta 3: PROGRAMADOS -->
+        <div class="tarjeta-contador programados" onclick="document.getElementById('filtro_estado_deca').value = 'PROGRAMADO'; filtrarCatalogoDeCAs();">
+            <span class="contador-numero" id="num_programados">0</span>
+            <span class="contador-etiqueta">Programados</span>
+        </div>
+        <!-- Tarjeta 4: FINALIZADOS (CERRADOS) -->
+        <div class="tarjeta-contador post-viaje" onclick="document.getElementById('filtro_estado_deca').value = 'CERRADO'; filtrarCatalogoDeCAs();">
+            <span class="contador-numero" id="num_post_viaje">0</span>
+            <span class="contador-etiqueta">Finalizados</span>
+        </div>
+    </div>
+
+
+
+    <!-- === BARRA DE FILTROS DE BÚSQUEDA EVOLUCIONADA MÓVIL === -->
+    <div class="contenedor-filtros">
+        <!-- Fila 1: Buscador Global -->
+        <input type="text" id="buscador_global_deca" class="filtro-input buscar-texto" placeholder="Buscar por nº, matrícula, lugar, mercancía o cargador..." oninput="filtrarCatalogoDeCAs()">
+
+        <!-- Fila 2: Selector de Estados -->
+        <select id="filtro_estado_deca" class="filtro-input select-estado" onchange="filtrarCatalogoDeCAs()">
+            <option value="TODOS">Todos los estados</option>
+            <option value="EN_CURSO">🟢 En Curso</option>
+            <option value="PROGRAMADO">🟡 Programados</option>
+            <option value="ANULADO">🚫 Anulados</option>
+            <option value="CERRADO">⚪ Cerrados</option>
+        </select>
+
+        <!-- Fila 3: El búnker elástico de las fechas y el botón Limpiar -->
+        <div class="deca-fechas-fila-mobi">
+            <div class="deca-caja-fecha-bloque">
+                <label>Desde</label>
+                <input type="date" id="filtro_fecha_desde" class="filtro-input fecha-input" onchange="filtrarCatalogoDeCAs()">
+            </div>
+
+            <div class="deca-caja-fecha-bloque">
+                <label>Hasta</label>
+                <input type="date" id="filtro_fecha_hasta" class="filtro-input fecha-input" onchange="filtrarCatalogoDeCAs()">
+            </div>
+
+            <!-- Botón Limpiar compacto adaptado para la misma línea móvil -->
+            <button type="button" class="btn-top" onclick="restablecerTodosLosFiltrosDashboard()" style="padding: 0 10px; height: 38px; background: #e2e8f0; border-color: #cbd5e0; color: #4a5568; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin: 2px 0 0 0; width: auto !important; min-width: 44px;" title="Vaciar filtros de búsqueda">🧹</button>
+        </div>
+    </div>
+
+
+
+    <!-- ==========================================================================
+       🔳 CAPA 3: RETÍCULA DE DECAS INTEGRADA CON SCROLL SINCRONIZADO (v2.76)
+       ========================================================================== -->
+    <div class="contenedor-tabla">
         <table class="deca-tabla-sincro-master">
+            <!-- CABECERA DE TABLA SIMÉTRICA ANTIDESCUADRES v2.77 -->
             <thead>
                 <tr>
                     <th style="width: 110px;">Nº Documento</th>
@@ -1321,18 +1384,11 @@ body.dark-mode .banner-inspeccion-nota {
                     <th style="width: 220px;">Ruta Comercial</th>
                     <th style="width: 160px;">Mercancía</th>
                     <th style="width: 85px;">QR Activo</th>
-                    <th style="width: 120px;">Estado</th>
-                    <th style="width: 180px; text-align: right; padding-right: 15px;">Acciones</th>
+                    <th style="width: 120px;">Estado</th> <!-- 🟢 Espacio holgado e independiente -->
+                    <th style="width: 180px; text-align: right; padding-right: 15px;">Acciones</th> <!-- ⚙️ Blindado anti-solapamiento -->
                 </tr>
             </thead>
-        </table>
-    </div>
 
-    <!-- 2. NIVEL INTERMEDIO: Contenedor con scroll vertical elástico exclusivo para los datos -->
-    <div class="contenedor-tabla">
-        <table class="deca-tabla-sincro-master">
-            <!-- Escondemos de forma estructural el thead aquí para mantener la alineación vertical exacta en el navegador -->
-            <thead style="visibility: collapse; height: 0;"><tr style="height: 0;"><th style="width: 110px; height: 0; padding: 0;"></th><th style="width: 75px; height: 0; padding: 0;"></th><th style="width: 105px; height: 0; padding: 0;"></th><th style="width: 220px; height: 0; padding: 0;"></th><th style="width: 160px; height: 0; padding: 0;"></th><th style="width: 85px; height: 0; padding: 0;"></th><th style="width: 120px; height: 0; padding: 0;"></th><th style="width: 180px; height: 0; padding: 0;"></th></tr></thead>
 
             <tbody id="tabla_resultados_body">
                 <tr id="fila_vacia_loader">
@@ -1344,13 +1400,16 @@ body.dark-mode .banner-inspeccion-nota {
         </table>
     </div>
 
-    <!-- 🔥 BASE ESTÁTICA CORPORATIVA: El contador cierra la tarjeta de la tabla abajo de forma fija -->
-    <div class="pie-tabla" style="border: 1px solid var(--border-color); border-radius: 0 0 8px 8px; margin-top: -1px; box-sizing: border-box !important;">
-        <span id="texto_paginacion_deca">Mostrando 0-0 de 0 documentos</span>
+    <!-- BASE ESTÁTICA CORPORATIVA: El contador cierra la tarjeta abajo de forma fija -->
+    <div class="pie-tabla" style="border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; margin-top: -1px; box-sizing: border-box !important;">
+        <!-- 📝 CORREGIDO: Formato estático inicial sincronizado -->
+        <span id="texto_paginacion_deca">Mostrando 0 documentos</span>
+
         <div id="contenedor_paginas_deca">
             <!-- Botones de página dinámicos residuales -->
         </div>
     </div>
+
 
 
 
@@ -1415,9 +1474,18 @@ function iniciarEcosistemaDeCAs() {
         alert("Error crítico de red / Gateway: " + error.message);
     });
 
+    // ☀️ REPARADO: Si el transportista abre la app por primera vez, el sistema fuerza el Modo Claro por defecto
+    if (localStorage.getItem("modo_oscuro_deca") === null) {
+        localStorage.setItem("modo_oscuro_deca", "no");
+    }
+
+    // Evaluamos de forma estricta el disco local del teléfono
     if (localStorage.getItem("modo_oscuro_deca") === "si") {
         document.body.classList.add("dark-mode");
+    } else {
+        document.body.classList.remove("dark-mode"); // Candado de seguridad de lona blanca
     }
+
 
     // 🚀 RADAR INTERNACIONAL: Detecta si quien entra es un agente o una consulta externa del QR
     const parametrosRuta = new URLSearchParams(window.location.search);
@@ -1746,7 +1814,7 @@ function actualizarContadoresSuperiores() {
 
 
 // =========================================================================
-// 🖌️ RENDERIZADOR COMPACTO DE FILAS (BOTONES CUADRADOS MINIMALISTAS v1.21)
+// 🖌️ RENDERIZADOR COMPACTO DE FILAS (SOLUCIÓN DEFINITIVA DE DATOS v2.97)
 // =========================================================================
 function renderizarTablaResultados(listaFiltrada) {
     const bodyTabla = document.getElementById("tabla_resultados_body");
@@ -1754,58 +1822,73 @@ function renderizarTablaResultados(listaFiltrada) {
 
     if (listaFiltrada.length === 0) {
         bodyTabla.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#888; padding:30px; font-style:italic;">🔍 No se encontraron documentos con los filtros aplicados.</td></tr>`;
-        document.getElementById("texto_paginacion_deca").innerText = "Mostrando 0-0 de 0 documentos";
+        document.getElementById("texto_paginacion_deca").innerText = "Mostrando 0 documentos";
         return;
     }
 
     let htmlFinal = "";
     listaFiltrada.forEach(doc => {
 
-    // 🔥 FORMATEO PREMIUM DD/MM/AA: Encoge el año a 2 dígitos para que nunca salte a dos líneas
+        // 📅 FORMATEO DE FECHA DEL VIAJE (CONCATENACIÓN INDESTRUCTIBLE)
         let fTxt = "";
         if (doc.fecha_transporte && doc.fecha_transporte.includes("-")) {
             const trozosF = doc.fecha_transporte.split("-"); // [YYYY, MM, DD]
-            fTxt = `${trozosF[2]}/${trozosF[1]}/${trozosF[0].slice(-2)}`; // Resultado: DD/MM/AA
+            fTxt = trozosF[2] + "/" + trozosF[1] + "/" + trozosF[0].slice(-2); // DD/MM/AA
+        } else {
+            fTxt = doc.fecha_transporte || "---";
         }
 
+        // 📅 FORMATEO DE FECHA DEL QR (CONCATENACIÓN INDESTRUCTIBLE)
         let fQrTxt = "";
         if (doc.qr_caducidad && doc.qr_caducidad.includes("-")) {
             const trozosQ = doc.qr_caducidad.split("-"); // [YYYY, MM, DD]
-            fQrTxt = `${trozosQ[2]}/${trozosQ[1]}/${trozosQ[0].slice(-2)}`; // Resultado: DD/MM/AA
+            fQrTxt = trozosQ[2] + "/" + trozosQ[1] + "/" + trozosQ[0].slice(-2); // DD/MM/AA
+        } else {
+            fQrTxt = doc.qr_caducidad || "---";
         }
-
 
         let claseEstado = "cerrado", textoEstado = "⚪ Cerrado";
         if (doc.estado === "EN_CURSO") { claseEstado = "en-curso"; textoEstado = "🟢 En Curso"; }
         if (doc.estado === "PROGRAMADO") { claseEstado = "programado"; textoEstado = "🟡 Programado"; }
         if (doc.estado === "ANULADO") { claseEstado = "anulado-rojo"; textoEstado = "🚫 Anulado"; }
 
+        // 🚚 BADGE DE REMOLQUE CONCATENADO LIMPIO
         let badgeRemolqueHTML = "";
         if (doc.matricula_remolque && doc.matricula_remolque.trim() !== "" && doc.matricula_remolque.trim() !== "---") {
-            badgeRemolqueHTML = `<span class="badge-matricula remolque">🚚 ${doc.matricula_remolque}</span>`;
+            badgeRemolqueHTML = '<span class="badge-matricula remolque">🚚 ' + doc.matricula_remolque + '</span>';
         }
 
-        // 🔥 VALIDACIÓN MAESTRA DE MUESTRA: Si el número es el 000000, le dejamos borrar el registro entero
-        let opcionBorradorMuestraHTML = `<option value="anular">🚫 Anular Documento</option>`;
+        // 🧠 MOTOR DE ACCIONES DINÁMICAS SEGÚN EL ESTADO
+        let opcionesMenuHTML = '<option value="">Acciones</option>';
+        const opcionDuplicar = '<option value="duplicar">📋 Duplicar Porte</option>';
+        const opcionPlantilla = '<option value="plantilla">⭐ Guardar Plantilla</option>';
+
+        let opcionBorradorMuestraHTML = "";
         if (doc.numero_documento && doc.numero_documento.includes("000000")) {
-            opcionBorradorMuestraHTML = `<option value="eliminar_muestra">🗑️ Eliminar Muestra</option>`;
+            opcionBorradorMuestraHTML = '<option value="eliminar_muestra">🗑️ Eliminar Muestra</option>';
         }
 
+        if (doc.estado === "EN_CURSO") {
+            opcionesMenuHTML += '<option value="editar">✏️ Editar</option><option value="cambiar_estado">🏁 Finalizar Viaje</option><option value="anular">🚫 Anular Documento</option>';
+        }
+        else if (doc.estado === "PROGRAMADO") {
+            opcionesMenuHTML += '<option value="editar">✏️ Editar</option><option value="anular">🚫 Anular Documento</option>';
+        }
+
+        opcionesMenuHTML += opcionDuplicar + opcionPlantilla + opcionBorradorMuestraHTML;
+
+        // INYECCIÓN DE LA FILA EN LA TABLA MÁSTER
         htmlFinal += `
         <tr>
             <td><span class="doc-numero" onclick="verFichaDocumento('${doc.id_firebase}')">${doc.numero_documento}</span></td>
             <td>${fTxt}</td>
-
-            <!-- 🔥 CELDA CORREGIDA: Encaja los badges de forma vertical limpia sin generar líneas raras flotantes abajo -->
             <td class="celda-matriculas-flex">
                 <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; width: 100%;">
                     <span class="badge-matricula">📋 ${doc.matricula_tractor || '---'}</span>
                     ${badgeRemolqueHTML}
                 </div>
             </td>
-
             <td class="ruta-texto">
-
                 <strong>${doc.origen_plaza || '---'}</strong>
                 <span class="ruta-flecha">➔</span> ${doc.destino_plaza || '---'}
             </td>
@@ -1814,39 +1897,23 @@ function renderizarTablaResultados(listaFiltrada) {
                 <span class="mercancia-peso">${doc.mercancia_peso || ''}</span>
             </td>
             <td>${fQrTxt}</td>
-
             <td><span class="estado-badge ${claseEstado}">${textoEstado}</span></td>
-
-            <!-- 🔥 REPARADO CON FLEXBOX RIGIDO: Alineación perfecta sin pisar al Estado y despegado del cristal derecho -->
             <td style="padding-right: 15px !important; box-sizing: border-box !important; vertical-align: middle;">
                 <div style="display: flex !important; justify-content: flex-end !important; align-items: center !important; gap: 5px !important; width: 100% !important; white-space: nowrap !important; box-sizing: border-box !important;">
-
-                    <!-- 👁️ BOTÓN VER CUADRADO MINIMALISTA -->
                     <button class="btn-accion-icono" onclick="verFichaDocumento('${doc.id_firebase}')" title="Visualizar Folio Oficial" style="margin: 0 !important; flex-shrink: 0 !important;">👁️</button>
-
-                    <!-- 📥 BOTÓN PDF VIRTUAL DIRECTO -->
                     <button class="btn-accion-icono" onclick="abrirPDFVirtualDesdeDashboard('${doc.id_firebase}')" title="Abrir PDF Virtual Oficial" style="margin: 0 !important; flex-shrink: 0 !important;">📥</button>
-
-                    <!-- Selector de acciones rápidas -->
                     <select class="select-acciones-rapidas" onchange="ejecutarAccionFila(this, '${doc.id_firebase}')" style="height: 34px !important; margin: 0 !important; box-sizing: border-box !important; flex-shrink: 0 !important;">
-                        <option value="">Acciones</option>
-                        <option value="editar">✏️ Editar</option>
-                        <option value="duplicar">📋 Duplicar Porte</option>
-                        <option value="plantilla">⭐ Guardar como Plantilla</option>
-                        ${opcionBorradorMuestraHTML}
-                        <option value="cambiar_estado">🏁 Finalizar Viaje (Cerrar)</option>
+                        ${opcionesMenuHTML}
                     </select>
-
                 </div>
             </td>
         </tr>`;
-
-
     });
 
     bodyTabla.innerHTML = htmlFinal;
-    document.getElementById("texto_paginacion_deca").innerText = `Mostrando 1-${listaFiltrada.length} de ${listaFiltrada.length} documentos`;
+    document.getElementById("texto_paginacion_deca").innerText = `Mostrando ${listaFiltrada.length} documentos`;
 }
+
 
 
 
@@ -1958,7 +2025,7 @@ function abrirFormularioNuevoDeCA() {
     // 2. Cargamos el listado de plantillas frecuentes en el selector
     actualizarDesplegablePlantillasFormulario();
 
-    document.querySelector("#modal_nuevo_deca h3").innerText = "Nuevo Documento electrónico de Control Administrativo";
+    document.querySelector("#modal_nuevo_deca h3").innerText = "Nuevo DeCA";
     document.querySelector(".deca-btn-guardar").innerText = "Generar DeCA";
 
     // Obtiene la fecha de hoy de forma dinámica en formato YYYY-MM-DD
@@ -2893,7 +2960,7 @@ function abrirPanelMisDatosCamionero() {
     // Encendemos el búnker gigante de bloques extendidos
     document.getElementById("bloque_datos_extendidos_camionero").style.display = "flex";
 
-    document.getElementById("titulo_perfil_dinamico").innerText = "👤 PANEL GENERAL DE MIS DATOS COMERCIALES";
+    document.getElementById("titulo_perfil_dinamico").innerText = "Mis Datos Comerciales";
     document.getElementById("btn_guardar_perfil_ejecutar").innerText = "💾 Guardar Cambios en Servidor";
 
     // Auto-relleno de campos desde la memoria RAM sincronizada con Firebase
@@ -3202,8 +3269,9 @@ function conmutarModoOscuroManual() {
     }
 }
 
-// 🔥 INYECTOR DE ARRANQUE SEGURIDAD: Sincroniza el texto del botón al abrir la app
-// Busca tu función iniciarEcosistemaDeCAs() y asegúrate de que al final la lógica del tema llame a esto:
+// =========================================================================
+// 🌙 SYNC ESTÉTICA: GARANTIZA EL TEMA CLARO RIGIDO POR DEFECTO AL ARRANCAR
+// =========================================================================
 function sincronizarBotonOscuroAlArrancar() {
     const botonEfecto = document.getElementById("btn_modo_oscuro_switch");
     if (!botonEfecto) return;
@@ -3212,10 +3280,12 @@ function sincronizarBotonOscuroAlArrancar() {
         document.body.classList.add("dark-mode");
         botonEfecto.innerText = "☀️ Claro";
     } else {
+        // Candado máster de lona blanca diurna
         document.body.classList.remove("dark-mode");
         botonEfecto.innerText = "🌙 Oscuro";
     }
 }
+
 
 // Enganchamos la sincronización estética en el cargador general del sistema
 document.addEventListener("DOMContentLoaded", function() {
@@ -3557,11 +3627,12 @@ document.addEventListener("click", registrarToqueInicialDeConfianzaSonido);
 <div id="modal_nuevo_deca" class="modal-deca-gigante">
     <div class="deca-modal-contenido">
 
-        <!-- Cabecera Fija -->
+        <!-- Cabecera Fija Vinculada al CSS Maestro -->
         <div class="deca-modal-cabecera">
-            <h3>Nuevo Documento electrónico de Control Administrativo</h3>
+            <h3>Nuevo DeCA</h3>
             <button class="deca-modal-cerrar" onclick="cerrarModalNuevoDeCA()">✕</button>
         </div>
+
 
         <!-- Cuerpo Desplazable -->
         <div class="deca-modal-cuerpo">
@@ -3832,19 +3903,22 @@ document.addEventListener("click", registrarToqueInicialDeConfianzaSonido);
 
     </div>
 
-        <!-- === BOTONERA INFERIOR DEL VISOR CORREGIDA === -->
+        <!-- === BOTONERA INFERIOR DEL VISOR CORREGIDA EN UNA FILA === -->
         <div class="preview-pie-botones">
-            <!-- 🔥 REPARADO: Ahora llama al inyector síncrono para que funcione en la APK y en PC -->
+            <!-- Botón 1: PDF -->
             <button class="btn-preview-accion pdf-azul" onclick="forzarDescargaPDFDesdeVisorInterno()">
-                📥 Documento completo (PDF)
+                📥 PDF
             </button>
+            <!-- Botón 2: QR Grande -->
             <button class="btn-preview-accion" onclick="abrirModalQRGiganteNativo()">
-                🔳 QR Pantalla Gigante
+                🔳 QR Grande
             </button>
+            <!-- Botón 3: Verificación -->
             <button class="btn-preview-accion" onclick="abrirPaginaVerificacion()">
-                🔗 Página de verificación
+                🔗 Verificación
             </button>
         </div>
+
 
 
   </div>
@@ -3881,11 +3955,12 @@ document.addEventListener("click", registrarToqueInicialDeConfianzaSonido);
 <div id="modal_perfil_camionero" class="modal-deca-gigante" style="z-index: 600000; background: rgba(11, 14, 23, 0.85);">
     <div class="deca-modal-contenido" style="max-width: 800px; height: 92vh; margin: auto;">
 
-        <!-- Cabecera Corporativa Estilo Nuevo DeCA -->
+        <!-- Cabecera Corporativa con Botón de Cierre Cuadrado Rojo -->
         <div class="deca-modal-cabecera" style="background: #0f4c81; color: white;">
             <h3 id="titulo_perfil_dinamico" style="color: white !important; font-weight: bold; font-size: 16px;">🚚 CONFIGURACIÓN DE TRANSPORTISTA EFECTIVO</h3>
-            <button id="btn_cerrar_perfil" class="deca-modal-cerrar" onclick="document.getElementById('modal_perfil_camionero').style.display = 'none'" style="color: white; display: none;">✕</button>
+            <button id="btn_cerrar_perfil" class="deca-modal-cerrar" onclick="document.getElementById('modal_perfil_camionero').style.display = 'none'" style="display: none;">✕</button>
         </div>
+
 
         <!-- Cuerpo Desplazable con Rejilla Elástica -->
         <div class="deca-modal-cuerpo" style="padding: 20px; background: #f0f4f8;">
