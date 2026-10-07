@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v2.60</title>
+    <title>Gestor de DeCAs Transportes v2.71</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -39,15 +39,60 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* === CONFIGURACIÓN ERGONÓMICA DE LA CABECERA === */
-        .cabecera-dashboard {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+/* === CONFIGURACIÓN ERGONÓMICA DE LA CABECERA EN TRES NIVELES === */
+.cabecera-dashboard {
+    display: flex;
+    flex-direction: column; /* Fuerza la caída vertical por capas estrictas en cualquier pantalla */
+    width: 100%;
+    margin-bottom: 15px !important;
+    box-sizing: border-box;
+}
+
+/* Fila de marca superior */
+.deca-cabecera-marca-fila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+}
+
+/* 🔥 LA BANDA DIVISORIA: Control absoluto de los pasillos de aire */
+.deca-banda-divisoria-superior {
+    width: 100%;
+    height: 2px;
+    background: #0f4c81;
+    margin-top: 6px !important;    /* 📏 MINIMIZADO: Pega la barra justo debajo del icono */
+    margin-bottom: 14px !important; /* 📏 MAXIMIZADO: Da pasillo y aire hacia el texto inferior */
+    box-sizing: border-box;
+}
+
+/* Bloque inferior elástico (Texto + Botones) */
+.deca-cabecera-soporte-bloque {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Espacio de separación entre el texto gris y los botones de abajo */
+    width: 100%;
+    align-items: flex-start; /* Alínea de forma nativa todo el bloque a la izquierda */
+}
+
+/* ==========================================================================
+   🖥️ RESPONSIVE PC: En pantallas grandes el bloque inferior se vuelve horizontal
+   ========================================================================== */
+@media (min-width: 768px) {
+    .deca-cabecera-soporte-bloque {
+        flex-direction: row !important; /* En PC se ponen en paralelo */
+        justify-content: space-between;
+        align-items: center;
+    }
+    .deca-cabecera-soporte-bloque p { max-width: 55%; }
+    .grupo-botones-top { width: auto !important; justify-content: flex-end !important; }
+}
+
+/* SOPORTE COMPLETO MODO NOCHE */
+body.dark-mode .deca-titulo-texto-nocturno { color: #ffffff !important; }
+body.dark-mode #deca_linea_cabecera_master { background: #63b3ed !important; }
+
         .marca-app { display: flex; align-items: center; gap: 10px; }
         .logo-app { width: 32px; height: 32px; object-fit: contain; }
         .titulo-seccion h1 { margin: 0 0 4px 0; font-size: 24px; font-weight: 800; color: #1a202c; }
@@ -96,22 +141,29 @@
 
 
 
-        /* === NOTIFICACIÓN TOAST FLOTANTE === */
-        .notificacion-toast-deca {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #212529;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 6px;
-            z-index: 999999;
-            font-size: 14px;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
+/* === NOTIFICACIÓN TOAST FLOTANTE COMPACTA (BLINDADA EN UNA SOLA LÍNEA v2.71) === */
+.notificacion-toast-deca {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #212529;
+    color: #fff;
+
+    /* 📏 REAJUSTADO: Reducimos el relleno lateral de 24px a 16px para dar aire al texto en móviles */
+    padding: 10px 16px;
+    border-radius: 6px;
+    z-index: 999999;
+    font-size: 13.5px; /* Un pelín más equilibrado para el uso en cabina */
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    /* 🔒 EL CANDADO MÁSTER: Prohíbe terminantemente al navegador saltar a un segundo renglón */
+    white-space: nowrap !important;
+    width: fit-content !important; /* Se ajusta de forma matemática al tamaño exacto de las palabras */
+}
+
 
         /* ==========================================================================
            REPARACIÓN INTEGRAL MODO OSCURO (ESTABILIZADO)
@@ -128,63 +180,80 @@
         body.dark-mode .btn-top { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
     </style>
     <!-- === CONTINUACIÓN DE ESTILOS CSS (Añadir dentro de <style>) === -->
-    <style>
-        /* === GRID DE CONTADORES SUPERIORES === */
+
+
+<style>
+/* === REJILLA DE CONTADORES CORPORATIVOS UNIFICADA EN UNA SOLA LÍNEA HORIZONTAL (4 COLUMNAS) === */
 .grid-contadores {
     display: grid;
-    /* 🔒 Forzamos de forma rígida a tener exactamente 2 columnas de igual tamaño */
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px; /* Reducimos ligeramente el pasillo para ganar más espacio libre */
+    /* 🔒 REPARADO: Forzamos de forma rígida a tener exactamente 4 columnas de igual tamaño siempre */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px; /* Ajustamos el pasillo para ganar espacio horizontal en smartphones */
     margin-bottom: 15px;
+    width: 100%;
+    box-sizing: border-box;
 }
-/* Ajustamos el acolchado interno de las tarjetas para que sean más bajas */
+
+/* Compactamos el acolchado interno para que las tarjetas sean bajitas y simétricas */
 .tarjeta-contador {
     background: var(--card-bg);
-    padding: 10px 12px; /* Más compactas en altura */
+    padding: 8px 6px; /* Más estrechas y bajas para caber las 4 juntas de corrido */
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     border: 1px solid var(--border-color);
-    border-left: 5px solid #cbd5e0;
+    border-left: 4px solid #cbd5e0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     box-sizing: border-box;
 }
-        /* Colores del Semáforo corporativo */
-        .tarjeta-contador.total { border-left-color: var(--blue-primary); }
-        .tarjeta-contador.en-curso { border-left-color: var(--green-success); }
-        .tarjeta-contador.programados { border-left-color: var(--orange-alert); }
-        .tarjeta-contador.post-viaje { border-left-color: #17a2b8; }
 
-/* Reducimos el número a 24px para que encaje impecable en pantallas estrechas */
+/* Reducimos el número a 20px para que encaje impecable en pantallas estrechas sin desbordar */
 .contador-numero {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 800;
     color: var(--text-main);
     line-height: 1;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
+    text-align: left;
 }
-/* Letra de la etiqueta un pelín más compacta para que no salte de línea */
+
+/* Letra de la etiqueta micro de 8.5px para evitar saltos de renglón en móviles estrechos */
 .contador-etiqueta {
-    font-size: 10px;
+    font-size: 8.5px;
     font-weight: bold;
     color: #718096;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.1px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Si en un móvil muy pequeño no cabe, pone puntos suspensivos sin romper la fila */
 }
+/* 🔥 REPARACIÓN DE COLORES: Devuelve el color original a los bordes izquierdos del semáforo */
+.tarjeta-contador.total { border-left-color: var(--blue-primary) !important; }
+.tarjeta-contador.en-curso { border-left-color: var(--green-success) !important; }
+.tarjeta-contador.programados { border-left-color: var(--orange-alert) !important; }
+.tarjeta-contador.post-viaje { border-left-color: #17a2b8 !important; }
 
-/* === REPARACIÓN ERGONÓMICA DE LA BARRA DE FILTROS EN DISPOSITIVOS === */
+
+
+/* === BARRA DE FILTROS EVOLUCIONADA INDEPENDIENTE (CON PASILLO DE AIRE SIMÉTRICO) === */
 .contenedor-filtros {
     background: var(--card-bg);
     padding: 10px;
-    border-radius: 8px 8px 0 0;
+    /* 1. Redondeamos las 4 esquinas por igual para que sea una tarjeta independiente */
+    border-radius: 8px !important;
     border: 1px solid var(--border-color);
-    border-bottom: none;
+    /* 2. 🔥 EL PASILLO SIMÉTRICO: Añadimos 15px de margen abajo para despegarlo de la tabla */
+    margin-bottom: 15px !important;
     display: flex;
-    flex-direction: column; /* 🔒 CLAVE: Estructura vertical por capas para el móvil */
-    gap: 8px; /* Separación sutil e idéntica entre filas */
+    flex-direction: column;
+    gap: 8px;
     box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02); /* Sutil sombra a juego con los contadores */
 }
+
 
 .filtro-input {
     padding: 8px 10px;
@@ -198,11 +267,13 @@
     width: 100% !important; /* Por defecto ocupan el ancho completo de su fila */
 }
 
-/* La fila de las fechas se vuelve una cuadrícula flexible horizontal en el móvil */
+/* La fila de las fechas se vuelve una cuadrícula flexible horizontal alineada por la base */
 .deca-fechas-fila-mobi {
     display: flex !important;
     flex-direction: row !important; /* Fuerza a las fechas y al botón a estar juntos */
-    align-items: center !important;
+    /* 🔒 REPARADO: Alinea los tres componentes por su base horizontal,
+       compensando la altura de los textos descriptivos 'Desde' y 'Hasta' */
+    align-items: flex-end !important;
     gap: 6px !important;
     width: 100% !important;
     box-sizing: border-box;
@@ -377,40 +448,42 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
 </head>
 <body>
 
-    <!-- CAPA 1: CABECERA FIJA SUPERIOR DE ACCIONES -->
+
+    <!-- ==========================================================================
+       🏢 CAPA 1: NUEVA CABECERA MÁSTER ESTRUCTURADA POR NIVELES (v2.64)
+       ========================================================================== -->
     <div class="cabecera-dashboard">
-        <div class="titulo-seccion">
-            <div class="marca-app">
 
-<!-- === LOGOTIPO CORPORATIVO LOCAL OFICIAL DE LA APP (v1.22) === -->
-<img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin-right: 4px; vertical-align: middle;" onerror="console.warn('⚠ Asegúrate de que el archivo se llame exactamente icono_transporte.jpg en tu carpeta');">
+        <!-- NIVEL A: Identificación de la Plataforma (Icono + Título) -->
+        <div class="deca-cabecera-marca-fila">
+            <img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin: 0;" onerror="console.warn('Icono no encontrado');">
+            <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a202c;" class="deca-titulo-texto-nocturno">DeCA</h1>
+        </div>
 
+        <!-- NIVEL B: La Línea Divisoria Azul Corporativa (Alineación Rígida) -->
+        <div id="deca_linea_cabecera_master" class="deca-banda-divisoria-superior"></div>
 
-                <h1>DeCA</h1>
+        <!-- NIVEL C: Contenido de Soporte (Subtítulo y Botonera Premium alineada a la izquierda) -->
+        <div class="deca-cabecera-soporte-bloque">
+            <p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
+                La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
+            </p>
+
+            <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
+                <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
+                <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
+                <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer; margin: 0;">🌙 Oscuro</button>
             </div>
-            <p>La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).</p>
         </div>
 
+    </div> <!-- 🔒 CIERRE SEGURO DE LA CABECERA-DASHBOARD -->
 
 
-        <!-- === BOTONERA PREMIUM SUPERIOR CON CONMUTADOR NOCTURNO === -->
-        <div class="grupo-botones-top">
-            <!-- 🌙 EL NUEVO BOTÓN: Cambia el brillo de la pantalla con un solo toque en cabina -->
-            <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()">+ Nuevo DeCA</button>
-            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()">👤 Mis Datos</button>
-            <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer;">🌙 Oscuro</button>
-        </div>
-
-
-
-
-
-    </div>
 
     <!-- === TOAST NOTIFICADOR NATIVO === -->
     <div id="toast_deca" class="notificacion-toast-deca"></div>
 
-    <!-- === REJILLA DINÁMICA DE CONTADORES === -->
+    <!-- === REJILLA DINÁMICA DE CONTADORES UNIFICADA EN UNA LÍNEA (4 COLUMNAS) === -->
     <div class="grid-contadores">
         <div class="tarjeta-contador total">
             <span class="contador-numero" id="num_total">0</span>
@@ -418,7 +491,7 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
         </div>
         <div class="tarjeta-contador en-curso">
             <span class="contador-numero" id="num_en_curso">0</span>
-            <span class="contador-etiqueta">En curso hoy</span>
+            <span class="contador-etiqueta">En curso</span> <!-- 📝 RECORTADO: Pasamos de "En curso hoy" a "En curso" -->
         </div>
         <div class="tarjeta-contador programados">
             <span class="contador-numero" id="num_programados">0</span>
@@ -429,6 +502,7 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
             <span class="contador-etiqueta">Finalizados</span>
         </div>
     </div>
+
 
     <!-- === BARRA DE FILTROS DE BÚSQUEDA EVOLUCIONADA MÓVIL === -->
     <div class="contenedor-filtros">
@@ -467,28 +541,76 @@ body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
     <style>
 
 
-/* === REPARACIÓN GEOMÉTRICA DE LA REJILLA DE PORTES (v2.23 ANTI-DESBORDE) === */
+/* === REPARACIÓN INTERNA CON SCROLL VERTICAL LIMITADO A 10 FILAS (v2.65) === */
+/* 1. La cabecera se vuelve una tarjeta estática con sus propios bordes redondeados arriba */
+.deca-bloque-cabecera-estatica {
+    width: 100%;
+    background: var(--gray-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px 8px 0 0 !important; /* 🔒 Redondeado superior estricto */
+    box-sizing: border-box;
+    overflow: hidden;
+}
 .contenedor-tabla {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 0 0 8px 8px;
-    overflow-x: auto; /* Mantiene el scroll horizontal fluido en móviles */
+    border-top: none !important; /* Evita doble línea de división con la cabecera de arriba */
+    border-radius: 0 !important; /* Esquinas rectas intermedias para engancharse limpiamente */
+
+    /* 🔒 EL FILTRO DE 10 FILAS: El scroll ahora solo afecta a los datos, la cabecera no se entera */
+    max-height: 390px !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+
     box-shadow: 0 4px 6px rgba(0,0,0,0.02);
     -webkit-overflow-scrolling: touch;
     width: 100%;
     box-sizing: border-box;
 }
 
+/* Tablas rígidas sincronizadas por porcentajes */
+.deca-tabla-sincro-master {
+    width: 100% !important;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+    min-width: 975px; /* Mantiene el ancho elástico seguro para el scroll horizontal en APK */
+    table-layout: fixed !important;
+    box-sizing: border-box;
+}
+
+
+/* 🎨 BARRA DE SCROLL MODERNA Y ELEGANTE (Feedback visual sin molestar en la oscuridad) */
+.contenedor-tabla::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.contenedor-tabla::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.02);
+    border-radius: 4px;
+}
+.contenedor-tabla::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+body.dark-mode .contenedor-tabla::-webkit-scrollbar-thumb {
+    background: #444446; /* Se mimetiza en el Modo Noche en cabina */
+}
+
+
+
 table {
     width: 100% !important;
     border-collapse: collapse;
     text-align: left;
     font-size: 13px;
-    min-width: 890px; /* 🔒 CLAVE: Ancho rígido de seguridad simétrico para PC y APK */
-    table-layout: fixed !important; /* Fuerza al navegador a obedecer los anchos de las columnas */
+    /* 🔒 CANDADO GEOMÉTRICO FIJO: Suma matemática exacta de todas las columnas (1055px) */
+    min-width: 1055px;
+    table-layout: fixed !important;
     box-sizing: border-box;
 }
 
+/* Th limpios y opacos de una sola capa sin desborde vertical */
 th {
     background: var(--gray-bg);
     color: #4a5568;
@@ -496,11 +618,8 @@ th {
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
-    border-bottom: 1px solid var(--border-color) !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     box-sizing: border-box;
+    border-bottom: 1px solid var(--border-color) !important;
 }
 
 td {
@@ -509,8 +628,13 @@ td {
     vertical-align: middle;
     color: var(--text-main);
     word-wrap: break-word;
-    box-sizing: border-box !important; /* 🔒 CLAVE: Protege la simetría del padding horizontal */
+    box-sizing: border-box !important;
 }
+
+/* Ajustes Nocturnos Síncronos */
+body.dark-mode .deca-bloque-cabecera-estatica { background: #1c1c1e; border-color: #333336; }
+body.dark-mode th { background: #1c1c1e; color: #a0aec0; }
+
 
 
 .select-acciones-rapidas {
@@ -637,16 +761,29 @@ body.dark-mode .btn-accion-icono:hover {
     width: 95px; /* Controlamos el ancho del desplegable para que no se coma la fila */
     max-width: 95px;
 }
-        /* PIE DE TABLA / PAGINACIÓN */
-        .pie-tabla { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--gray-bg); border-top: 1px solid var(--border-color); font-size: 13px; color: #718096; }
-        .btn-paginacion { background: var(--blue-primary); color: white; border: none; width: 30px; height: 30px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-left: 4px; }
+        /* PIE DE TABLA / PAGINACIÓN CONTRATADA ANTI-CORTES */
+        .pie-tabla {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--gray-bg);
+            font-size: 13px;
+            color: #718096;
+            box-sizing: border-box !important;
+            width: 100% !important;
+        }
+                .btn-paginacion { background: var(--blue-primary); color: white; border: none; width: 30px; height: 30px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-left: 4px; }
 
         /* Ajustes nocturnos para la tabla */
         body.dark-mode th { background: #1c1c1e; color: #a0aec0; }
         body.dark-mode td { border-bottom-color: #2c2c2e; }
         body.dark-mode .doc-numero { color: #63b3ed; }
         body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #444446; color: #e0e0e0; }
-        body.dark-mode .pie-tabla { background: #1c1c1e; }
+        /* Forzamos que en el Modo Noche el fondo del tfoot también se vuelva oscuro de corrido */
+        body.dark-mode .pie-tabla {
+            background: #1c1c1e !important;
+        }
 
 
 /* ==========================================================================
@@ -1082,6 +1219,57 @@ body.dark-mode .select-plantilla-input {
     color: #ffffff !important; /* Letras blancas para leer las rutas en la oscuridad */
 }
 
+/* === BLINDAJE NOCTURNO COMPLETO PARA EL PANEL GIGANTE DE MIS DATOS === */
+body.dark-mode .modal-deca-gigante .deca-modal-cuerpo {
+    background-color: #121212 !important; /* Apaga el fondo gris/blanco por un negro profundo */
+}
+
+body.dark-mode .modal-deca-gigante .bloque-formulario-deca {
+    background-color: #1c1c1e !important; /* Tarjetas internas en gris oscuro unificado */
+    border: 1px solid #333336 !important;  /* Borde sutil a juego con el dashboard */
+}
+
+body.dark-mode .modal-deca-gigante .deca-input {
+    background-color: #2c2c2e !important; /* Interior de las casillas oscuro para no deslumbrar */
+    border-color: #444446 !important;
+    color: #ffffff !important;             /* Texto blanco nítido para leer en ruta */
+}
+
+body.dark-mode .modal-deca-gigante .deca-form-grupo label {
+    color: #a0aec0 !important;             /* Subetiquetas en gris claro limpio */
+}
+
+/* Apaga el fondo de la caja de contraseña para que se integre en la tarjeta nocturna */
+body.dark-mode .deca-caja-clave-seccion {
+    background-color: #2c2c2e !important; /* Gris oscuro a juego con los inputs */
+    border-color: #444446 !important;     /* Borde sutil nocturno */
+}
+
+
+/* === ADAPTACIÓN DE BANNERS INFORMATIVOS DEL VISOR AL MODO NOCHE === */
+body.dark-mode .banner-inspeccion-header {
+    background-color: #1c1c1e !important; /* Lona superior gris oscura de tarjeta */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .banner-inspeccion-header span {
+    color: #a0aec0 !important; /* Subtexto aclarado para lectura nocturna */
+}
+
+body.dark-mode .banner-inspeccion-badge {
+    background-color: rgba(40, 167, 69, 0.15) !important; /* Verde mitigado translúcido */
+    color: #63e2b7 !important; /* Letras verde eléctrico suave */
+    border-color: rgba(40, 167, 69, 0.3) !important;
+}
+
+body.dark-mode .banner-inspeccion-nota {
+    background-color: rgba(15, 76, 129, 0.15) !important; /* Azul marino mitigado translúcido */
+    color: #90cdf4 !important; /* Letras azul claro de alta visibilidad en la oscuridad */
+    border-color: rgba(15, 76, 129, 0.3) !important;
+    border-left-color: #63b3ed !important; /* El vivo izquierdo destaca en azul eléctrico */
+}
+
 
 /* Estilo del modal máster de bloqueo por licencia de transporte inactiva */
 .modal-licencia-bloqueo {
@@ -1106,26 +1294,35 @@ body.dark-mode .select-plantilla-input {
 
 
     <!-- === CONTENEDOR DE LA TABLA DE RESULTADOS === -->
-    <div class="contenedor-tabla">
-        <table>
+    <!-- ==========================================================================
+       🔳 CAPA 3: RETÍCULA DE DECAS EVOLUCIONADA ANTI-FILTRACIONES (v2.70 CLEAN)
+       ========================================================================== -->
 
-            <!-- CABECERA DE TABLA SIMÉTRICA ANTIDESCUADRES -->
+    <!-- 1. NIVEL SUPERIOR: Cabecera fija estática (FUERA DEL SCROLL VERTICAL) -->
+    <div class="deca-bloque-cabecera-estatica">
+        <table class="deca-tabla-sincro-master">
             <thead>
                 <tr>
-                    <th style="width: 12%;">Nº Documento</th>
-                    <th style="width: 8%;">Fecha</th>
-                    <th style="width: 13%;">Matrículas</th>
-                    <th style="width: 24%;">Ruta Comercial</th>
-                    <th style="width: 18%;">Mercancía</th>
-                    <th style="width: 10%;">QR Activo</th>
-                    <th style="width: 10%;">Estado</th>
-                    <th style="width: 15%; text-align: right; padding-right: 15px;">Acciones</th> <!-- 🔥 Alineado e idéntico al td de abajo -->
+                    <th style="width: 110px;">Nº Documento</th>
+                    <th style="width: 75px;">Fecha</th>
+                    <th style="width: 105px;">Matrículas</th>
+                    <th style="width: 220px;">Ruta Comercial</th>
+                    <th style="width: 160px;">Mercancía</th>
+                    <th style="width: 85px;">QR Activo</th>
+                    <th style="width: 120px;">Estado</th>
+                    <th style="width: 180px; text-align: right; padding-right: 15px;">Acciones</th>
                 </tr>
             </thead>
+        </table>
+    </div>
 
+    <!-- 2. NIVEL INTERMEDIO: Contenedor con scroll vertical elástico exclusivo para los datos -->
+    <div class="contenedor-tabla">
+        <table class="deca-tabla-sincro-master">
+            <!-- Escondemos de forma estructural el thead aquí para mantener la alineación vertical exacta en el navegador -->
+            <thead style="visibility: collapse; height: 0;"><tr style="height: 0;"><th style="width: 110px; height: 0; padding: 0;"></th><th style="width: 75px; height: 0; padding: 0;"></th><th style="width: 105px; height: 0; padding: 0;"></th><th style="width: 220px; height: 0; padding: 0;"></th><th style="width: 160px; height: 0; padding: 0;"></th><th style="width: 85px; height: 0; padding: 0;"></th><th style="width: 120px; height: 0; padding: 0;"></th><th style="width: 180px; height: 0; padding: 0;"></th></tr></thead>
 
             <tbody id="tabla_resultados_body">
-                <!-- Se inyectará dinámicamente desde el Bloque 5 de Firebase -->
                 <tr id="fila_vacia_loader">
                     <td colspan="8" style="text-align: center; color: #888; padding: 30px; font-style: italic;">
                         Sincronizando con el archivo central de transportes...
@@ -1133,14 +1330,18 @@ body.dark-mode .select-plantilla-input {
                 </tr>
             </tbody>
         </table>
+    </div>
 
-        <div class="pie-tabla">
-            <span id="texto_paginacion_deca">Mostrando 0-0 de 0 documentos</span>
-            <div id="contenedor_paginas_deca">
-                <!-- Botones de página dinámicos -->
-            </div>
+    <!-- 3. NIVEL INFERIOR: Pie de página de totales estático (FUERA DEL SCROLL) -->
+    <div class="pie-tabla" style="border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 8px 8px; margin-top: -1px; box-sizing: border-box !important;">
+        <span id="texto_paginacion_deca">Mostrando 0-0 de 0 documentos</span>
+        <div id="contenedor_paginas_deca">
+            <!-- Botones de página dinámicos -->
         </div>
     </div>
+
+
+
 
 
 
@@ -1217,23 +1418,24 @@ function iniciarEcosistemaDeCAs() {
         // 🎨 MAQUETACIÓN ESTRICTA VISOR ESTILO ADOBE ACROBAT (CON QR BLINDADOS DE FORMA ABSOLUTA)
         const estiloPDFVirtual = document.createElement("style");
         estiloPDFVirtual.innerHTML = `
-            /* 1. TÉCNICA DE ALINEACIÓN: Reducido a 95px estrictos para clavarlo con el margen derecho */
+            /* 1. TÉCNICA DE ALINEACIÓN: Sincronizado a 100px para clavarlo simétrico con las tablas */
             #qrcode_real_render {
                 position: relative !important;
-                width: 95px !important;
-                height: 95px !important;
-                margin: 0 0 0 auto !important; /* Fuerza al contenedor a pegarse a la derecha del todo */
+                width: 100px !important;
+                height: 100px !important;
+                margin: 0 0 0 auto !important; /* 🔒 Fuerza al bloque a pegarse de forma milimétrica al ras derecho */
                 display: block !important;
+                box-sizing: border-box !important;
             }
             #qrcode_real_render canvas,
             #qrcode_real_render img {
                 position: absolute !important;
                 top: 0 !important;
                 left: 0 !important;
-                width: 95px !important;
-                height: 95px !important;
-                max-width: 95px !important;
-                max-height: 95px !important;
+                width: 100px !important;
+                height: 100px !important;
+                max-width: 100px !important;
+                max-height: 100px !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 display: block !important;
@@ -1245,6 +1447,7 @@ function iniciarEcosistemaDeCAs() {
             #qrcode_real_render canvas + img { display: none !important; }
             #canvas_render_qr_gigante canvas { display: none !important; }
             #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
+
 
             /* 3. 🔥 REPARADO: Cambiamos el punto por almohadilla para clavar el ID real en red */
             #modal_preview_deca {
@@ -1545,8 +1748,20 @@ function renderizarTablaResultados(listaFiltrada) {
 
     let htmlFinal = "";
     listaFiltrada.forEach(doc => {
-        const fTxt = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "";
-        const fQrTxt = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
+
+    // 🔥 FORMATEO PREMIUM DD/MM/AA: Encoge el año a 2 dígitos para que nunca salte a dos líneas
+        let fTxt = "";
+        if (doc.fecha_transporte && doc.fecha_transporte.includes("-")) {
+            const trozosF = doc.fecha_transporte.split("-"); // [YYYY, MM, DD]
+            fTxt = `${trozosF[2]}/${trozosF[1]}/${trozosF[0].slice(-2)}`; // Resultado: DD/MM/AA
+        }
+
+        let fQrTxt = "";
+        if (doc.qr_caducidad && doc.qr_caducidad.includes("-")) {
+            const trozosQ = doc.qr_caducidad.split("-"); // [YYYY, MM, DD]
+            fQrTxt = `${trozosQ[2]}/${trozosQ[1]}/${trozosQ[0].slice(-2)}`; // Resultado: DD/MM/AA
+        }
+
 
         let claseEstado = "cerrado", textoEstado = "⚪ Cerrado";
         if (doc.estado === "EN_CURSO") { claseEstado = "en-curso"; textoEstado = "🟢 En Curso"; }
@@ -1587,20 +1802,21 @@ function renderizarTablaResultados(listaFiltrada) {
                 <span class="mercancia-peso">${doc.mercancia_peso || ''}</span>
             </td>
             <td>${fQrTxt}</td>
+
             <td><span class="estado-badge ${claseEstado}">${textoEstado}</span></td>
 
-            <!-- 🔥 REPARADO CON FLEXBOX: Fuerza a los tres componentes a alinearse milimétricamente a la misma altura horizontal -->
-            <td style="padding-right: 15px !important; box-sizing: border-box !important;">
-                <div style="display: flex !important; justify-content: flex-end !important; align-items: center !important; gap: 4px !important; width: 100% !important; height: 100% !important; white-space: nowrap !important;">
+            <!-- 🔥 REPARADO CON FLEXBOX RIGIDO: Alineación perfecta sin pisar al Estado y despegado del cristal derecho -->
+            <td style="padding-right: 15px !important; box-sizing: border-box !important; vertical-align: middle;">
+                <div style="display: flex !important; justify-content: flex-end !important; align-items: center !important; gap: 5px !important; width: 100% !important; white-space: nowrap !important; box-sizing: border-box !important;">
 
                     <!-- 👁️ BOTÓN VER CUADRADO MINIMALISTA -->
-                    <button class="btn-accion-icono" onclick="verFichaDocumento('${doc.id_firebase}')" title="Visualizar Folio Oficial" style="margin: 0 !important;">👁️</button>
+                    <button class="btn-accion-icono" onclick="verFichaDocumento('${doc.id_firebase}')" title="Visualizar Folio Oficial" style="margin: 0 !important; flex-shrink: 0 !important;">👁️</button>
 
                     <!-- 📥 BOTÓN PDF VIRTUAL DIRECTO -->
-                    <button class="btn-accion-icono" onclick="abrirPDFVirtualDesdeDashboard('${doc.id_firebase}')" title="Abrir PDF Virtual Oficial" style="margin: 0 !important;">📥</button>
+                    <button class="btn-accion-icono" onclick="abrirPDFVirtualDesdeDashboard('${doc.id_firebase}')" title="Abrir PDF Virtual Oficial" style="margin: 0 !important; flex-shrink: 0 !important;">📥</button>
 
-                    <!-- Selector de acciones rápidas (Se elimina el vertical-align y se fija el margen a 0) -->
-                    <select class="select-acciones-rapidas" onchange="ejecutarAccionFila(this, '${doc.id_firebase}')" style="height: 34px !important; margin: 0 !important; box-sizing: border-box !important;">
+                    <!-- Selector de acciones rápidas -->
+                    <select class="select-acciones-rapidas" onchange="ejecutarAccionFila(this, '${doc.id_firebase}')" style="height: 34px !important; margin: 0 !important; box-sizing: border-box !important; flex-shrink: 0 !important;">
                         <option value="">Acciones</option>
                         <option value="editar">✏️ Editar</option>
                         <option value="duplicar">📋 Duplicar Porte</option>
@@ -1612,6 +1828,7 @@ function renderizarTablaResultados(listaFiltrada) {
                 </div>
             </td>
         </tr>`;
+
 
     });
 
@@ -1753,6 +1970,9 @@ function abrirFormularioNuevoDeCA() {
     }
 
     document.getElementById("modal_nuevo_deca").style.display = "flex";
+    // 🔥 LA SOLUCIÓN: Fuerza al cuerpo del formulario a subir al píxel cero en el acto
+    const cuerpoNuevoDeca = document.querySelector("#modal_nuevo_deca .deca-modal-cuerpo");
+    if (cuerpoNuevoDeca) cuerpoNuevoDeca.scrollTop = 0;
 }
 
 
@@ -1862,16 +2082,16 @@ function verFichaDocumento(idFirebase) {
             try {
                 new QRCode(contenedorQR, {
                     text: enlaceInspeccionReal,
-                    width: 140,
-                    height: 140,
+                    width: 100,  // 🔒 Sincronizado a 100px exactos
+                    height: 100, // 🔒 Sincronizado a 100px exactos
                     colorDark : "#000000",
                     colorLight : "#ffffff",
                     correctLevel : QRCode.CorrectLevel.M
                 });
 
-
-                // 🔥 EL DISPARADOR DEL MINISTERIO REPARADO: Elimina el modal gigante en la vista de carretera
+                // El trigger táctil del ministerio continúa exactamente igual abajo...
                 contenedorQR.onclick = function() {
+
                     // 🕵️ EVALUACIÓN: ¿Quién está tocando el código QR?
                     if (window.location.search.includes("verificar")) {
                         // CASO A: Es el agente de la Guardia Civil en carretera (Página de validación)
@@ -2683,6 +2903,9 @@ function abrirPanelMisDatosCamionero() {
     }
 
     document.getElementById("modal_perfil_camionero").style.display = "flex";
+    // 🔥 LA SOLUCIÓN: Fuerza al panel de Mis Datos a nacer limpio desde el techo del folio
+    const cuerpoMisDatos = document.querySelector("#modal_perfil_camionero .deca-modal-cuerpo");
+    if (cuerpoMisDatos) cuerpoMisDatos.scrollTop = 0;
 }
 
 
@@ -2975,7 +3198,7 @@ function sincronizarBotonOscuroAlArrancar() {
 
     if (localStorage.getItem("modo_oscuro_deca") === "si") {
         document.body.classList.add("dark-mode");
-        botonEfecto.innerText = "☀️ Modo Día";
+        botonEfecto.innerText = "☀️ Claro";
     } else {
         document.body.classList.remove("dark-mode");
         botonEfecto.innerText = "🌙 Oscuro";
@@ -3264,21 +3487,33 @@ function forzarDescargaPDFDesdeVisorInterno() {
 
 
 // =========================================================================
-// 🔊 MOTOR ACÚSTICO INTERACTIVO: LOGÍSTICA DE CLICK EN CABINA (snap.mp3)
+// 🔊 MOTOR ACÚSTICO INTERACTIVO: LOGÍSTICA DE CLICK EN CABINA (snap.mp3 CORREGIDO)
 // =========================================================================
+function registrarToqueInicialDeConfianzaSonido() {
+    const reproductor = document.getElementById("sonido_snap_click");
+    if (reproductor) {
+        // Ejecutamos una carga en silencio en el primer toque de la pantalla
+        // Esto le indica a Android/Chrome que el usuario autoriza al altavoz a sonar
+        reproductor.play().then(() => {
+            reproductor.pause();
+            reproductor.currentTime = 0;
+        }).catch(() => {});
+        // Apagamos este disparador preventivo para que no vuelva a ejecutarse
+        document.removeEventListener("click", registrarToqueInicialDeConfianzaSonido);
+    }
+}
+
 function reproducirSonidoSnapTactil() {
     const reproductorAudio = document.getElementById("sonido_snap_click");
     if (!reproductorAudio) return;
 
     try {
-        // 🔥 EL SECRETO INTERACTIVO: Reseteamos el audio al segundo cero de golpe
-        // Esto permite que si el conductor pulsa muy rápido varias veces seguidas,
-        // el sonido se corte y vuelva a sonar al instante en cada toque, sin retrasos
+        // 🔥 REPARADO: Sincronizamos el nombre de la variable RAM exacta
         reproductorAudio.currentTime = 0;
 
-        // Disparamos la reproducción síncrona nativa
-        reproducirAudio.play().catch(e => {
-            console.log("Aviso: Navegador bloqueó reproducción automática inicial.");
+        // Disparamos la reproducción síncrona con prioridad de altavoz
+        reproductorAudio.play().catch(e => {
+            console.log("Aviso preventivo de bloqueo de audio nativo:", e);
         });
     } catch (err) {
         console.warn("Fallo residual en el clúster de sonido:", err);
@@ -3287,13 +3522,17 @@ function reproducirSonidoSnapTactil() {
 
 // 🔥 EL RADAR AUTOMÁTICO: Engancha el sonido en todos los botones presentes y futuros
 document.addEventListener("click", function(evento) {
-    // Buscamos si el dedo ha tocado un botón, un select, un enlace o una celda interactiva
-    const elementoTocado = evento.target.closest("button, select, input[type='submit'], .doc-numero, .btn-top");
+    // Buscamos si el dedo ha tocado un botón, un select, un input, o una celda interactiva
+    const elementoTocado = evento.target.closest("button, select, input, .doc-numero, .btn-top");
 
     if (elementoTocado) {
         reproducirSonidoSnapTactil();
     }
 });
+
+// Enganchamos el activador de confianza en el primer toque que dé el transportista al abrir la app
+document.addEventListener("click", registrarToqueInicialDeConfianzaSonido);
+
 
 
 </script>
@@ -3560,11 +3799,17 @@ document.addEventListener("click", function(evento) {
                             </div>
                     </div>
 
-                    <!-- BLOQUE INFERIOR: DISPONIBILIDAD Y GENERADOR DEL QR -->
-                    <div style="display:flex; justify-content:space-between; align-items:center; width:100%; box-sizing:border-box; gap:10px; margin-bottom:15px;">
-                            <div style="flex-grow:1; max-width:65%; box-sizing:border-box;"><span style="font-size:9px; font-weight:bold; color:#0f4c81; display:block; margin-bottom:2px; font-family:sans-serif;">DISPONIBILIDAD (Res. 5/6/2026)</span><div style="border:1px solid #111; padding:4px; text-align:center; width:140px; box-sizing:border-box; background:#fafafa; font-family:sans-serif;"><span class="folio-subetiqueta" style="margin-bottom:1px; font-size:8px;">QR Activo Hasta</span><strong style="font-size:11px;" id="prev_qr_caducidad">---</strong></div></div>
-                            <div style="text-align:center; width:30%; max-width:100px; flex-shrink:0; box-sizing:border-box; font-family:sans-serif;"><div id="qrcode_real_render" title="Toca para ampliar"></div><span style="font-size:5.5px; color:#0f4c81; font-weight:bold; display:block; margin-top:4px; line-height:1.2; text-align:center; text-transform:uppercase;">🔍 TOCAR AQUÍ PARA<br>DESCARGAR PDF LEGAL</span></div>
+            <!-- BLOQUE INFERIOR: DISPONIBILIDAD Y GENERADOR DEL QR ALINEADO (v2.71) -->
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; box-sizing:border-box; gap:10px; margin-bottom:15px;">
+                    <div style="flex-grow:1; max-width:65%; box-sizing:border-box;"><span style="font-size:9px; font-weight:bold; color:#0f4c81; display:block; margin-bottom:2px; font-family:sans-serif;">DISPONIBILIDAD (Res. 5/6/2026)</span><div style="border:1px solid #111; padding:4px; text-align:center; width:140px; box-sizing:border-box; background:#fafafa; font-family:sans-serif;"><span class="folio-subetiqueta" style="margin-bottom:1px; font-size:8px;">QR Activo Hasta</span><strong style="font-size:11px;" id="prev_qr_caducidad">---</strong></div></div>
+
+                    <!-- 🔥 COLUMNA DEL QR CORREGIDA: Centra los textos y alinea el bloque al ras derecho de las tablas -->
+                    <div style="text-align:center; width:35%; max-width:110px; flex-shrink:0; box-sizing:border-box; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; margin-left:auto;">
+                        <div id="qrcode_real_render" title="Toca para descargar PDF Legal"></div>
+                        <span style="font-size:5.5px; color:#0f4c81; font-weight:bold; display:block; margin-top:5px; line-height:1.2; text-align:center; text-transform:uppercase; width:100%;">🔍 TOCAR AQUÍ PARA<br>DESCARGAR PDF LEGAL</span>
                     </div>
+            </div>
+
 
                     <!-- SELLO LEGAL DE CIERRE DE FICHERO (LETRA PEQUEÑA BOE) -->
                     <div style="width:100% !important; max-width:100% !important; border-top:1px solid #dee2e6; margin-top:25px; padding-top:12px; padding-bottom:5px; font-family:sans-serif; font-size:8.5px; color:#718096; line-height:1.4; text-align:justify; box-sizing:border-box !important; display:block !important; clear:both !important; overflow:visible !important;">Documento electrónico de control administrativo generado de forma nativa digital a través de DeCA, conforme al artículo 6 de la Orden FOM/2861/2012 y a la Resolución de 5 de junio de 2026, de la Dirección General de Transporte por Carretera y Ferrocarril. Fecha y hora de creación registradas como metadatos del fichero. La descarga mediante QR permanece activa durante el servicio y hasta 7 días naturales tras su finalización. El documento se conserva durante 1 año a disposición de la Inspección de Transporte Terrestre. Emisor: <strong id="prev_sello_legal_emisor" style="color:#2d3748;">---</strong></div>
@@ -3707,11 +3952,16 @@ document.addEventListener("click", function(evento) {
                             </div>
                         </div>
 
-                        <div style="background: #f0f4f8; padding: 14px; border-radius: 6px; border: 1px solid #cbd5e0;">
-                            <label style="color: #0f4c81; font-weight: bold; text-transform: none; display: block; margin-bottom: 4px; font-size: 12px;">🔑 Cambiar Clave de Acceso Personalizada (Alias)</label>
-                            <p style="font-size: 11px; color: #555; margin: 0 0 8px 0; line-height: 1.3;">Crea un alias para poder rescatar tu cuenta sin tener que usar el código maestro largo.</p>
-                            <input type="text" id="reg_transp_password" class="deca-input" placeholder="Ej: MiCamion2026" style="background: #ffffff !important; width: 100%;">
+                        <!-- SUTITUIR ÚNICAMENTE LA ETIQUETA INPUT DENTRO DE LA CAJA DE LA CLAVE -->
+                        <div class="deca-caja-clave-seccion" style="background: #f0f4f8; padding: 14px; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box;">
+                            <label style="color: #0f4c81; font-weight: bold; text-transform: none; display: block; margin-bottom: 4px; font-size: 12px;" class="deca-num-titulo">🔑 Cambiar Clave de Acceso Personalizada (Alias)</label>
+                            <p style="font-size: 11px; color: #555; margin: 0 0 8px 0; line-height: 1.3;" class="deca-form-grupo label">Crea un alias para poder rescatar tu cuenta sin tener que usar el código maestro largo.</p>
+
+                            <!-- 🔥 REPARADO: Quitamos 'background: #ffffff !important' para que el Modo Noche pueda apagar la casilla -->
+                            <input type="text" id="reg_transp_password" class="deca-input" placeholder="Ej: MiCamion2026" style="width: 100%;">
                         </div>
+
+
                     </div>
 
                 </div>
