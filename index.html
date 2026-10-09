@@ -2394,7 +2394,7 @@ function cerrarModalClaveMaestraYEntrar() {
 
 
 // =========================================================================
-// 📡 ESCUCHA REALTIME DINÁMICA AISLADA POR CONDUCTOR (CON LIMPIEZA DE CUSTODIA)
+// 📡 ESCUCHA REALTIME DINÁMICA AISLADA POR CONDUCTOR (CON CONEXIÓN CLIENTES v4.50)
 // =========================================================================
 function activarEscuchaRealtimeDeCAs() {
     if (!database || !miUsuarioUIDActivo) return;
@@ -2407,12 +2407,8 @@ function activarEscuchaRealtimeDeCAs() {
 
         Object.keys(datosDepurar).forEach(key => {
             const viaje = datosDepurar[key];
-            // Evaluamos la antigüedad del documento si cuenta con marca de registro oficial
             if (viaje.fecha_creacion_sistema) {
-                // Extraemos los milisegundos de la cadena guardada por el terminal en red
                 const fechaCreacion = new Date(viaje.fecha_creacion_sistema).getTime();
-
-                // Si la fecha es válida y es anterior al límite de 365 días, se purga de la nube
                 if (!isNaN(fechaCreacion) && fechaCreacion < limiteTiempoCustodia) {
                     console.log("🧹 Depuración legal: Eliminando DeCA caducado con más de 1 año:", viaje.numero_documento);
                     database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + key).remove();
@@ -2433,7 +2429,6 @@ function activarEscuchaRealtimeDeCAs() {
 
         // 🚀 COPIA DE SEGURIDAD EN CALIENTE (v3.80 MÁSTER)
         try {
-            // Guardamos la foto limpia de la nube directamente en el disco duro
             localStorage.setItem("bk_admin_lista_viajes_deca", JSON.stringify(documentosDeCA));
             if (misDatosPerfilAutonomo) {
                 localStorage.setItem("bk_admin_perfil_autonomo", JSON.stringify(misDatosPerfilAutonomo));
@@ -2443,14 +2438,24 @@ function activarEscuchaRealtimeDeCAs() {
             console.warn("Aviso en espacio de disco local:", e);
         }
 
-
         actualizarContadoresSuperiores();
         renderizarTablaResultados(documentosDeCA);
     }, (error) => {
-
         console.error("Error en la escucha aislada del transportista:", error);
     });
+
+    // 🚀 NUEVA ANTENA: Sincronización en vivo de la cartera de clientes desde Firebase
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes').on('value', (snapshot) => {
+        window.diccionarioCargadoresCloud = snapshot.val() || {};
+        console.log("📦 Cartera de clientes descargada de la nube:", Object.keys(window.diccionarioCargadoresCloud).length);
+
+        // Sincronizamos una copia en local por si el chofer entra en modo avión
+        try {
+            localStorage.setItem("bk_admin_cargadores_cloud", JSON.stringify(window.diccionarioCargadoresCloud));
+        } catch(e) {}
+    });
 }
+
 
 
 // =========================================================================
@@ -3106,9 +3111,35 @@ function procesarGuardadoDeCAOnline() {
 
     mostrarAvisoToast("⏳ Calculando marcas temporales del porte...");
 
+    // 🚀 EL INYECTOR DE CARGADORES EN LA NUBE (Paso 2 Máster)
+    if (cargRazon && cargNif) {
+        // Inicializamos la cartera por si acaso el camión arrancó offline
+        const carteraClientesActual = window.diccionarioCargadoresCloud || {};
+
+        // Si el NIF que tecleó el chófer NO existe todavía en tu base de datos central de Firebase
+        if (!carteraClientesActual[cargNif]) {
+            console.log("💾 Detectado cliente contractual nuevo. Subiendo a tu búnker en la nube...", cargRazon);
+
+            const paqueteEmpresaNueva = {
+                razon: cargRazon,
+                nif: cargNif,
+                calle: cargDomicilio,
+                cp: cargCp,
+                poblacion: cargPoblacion,
+                provincia: cargProvincia
+            };
+
+            // Lo grabamos en la nube usando el NIF como llave única para que sea imposible duplicarlo
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + cargNif).set(paqueteEmpresaNueva)
+            .catch(e => console.warn("Aviso al guardar cargador offline en Firebase:", e));
+        }
+    }
+
+    // Mantenemos tu guardador antiguo local en el localStorage por compatibilidad
     if (typeof registrarCargadorEnHistorialFrecuente === "function") {
         registrarCargadorEnHistorialFrecuente(cargRazon, cargNif, cargDomicilio, cargCp, cargPoblacion, cargProvincia);
     }
+
 
     // 🔥 LA NUEVA LÍNEA: Guarda la mercancía en el diccionario predictivo local
     registrarMercanciaEnHistorialFrecuente(mercanNombre);
@@ -3900,7 +3931,9 @@ function registrarCargadorEnHistorialFrecuente(razon, nif, calle, cp, poblacion,
 }
 
 
-// Filtra las empresas sugeridas en tiempo real mientras el conductor escribe
+// =========================================================================
+// 🔍 MOTOR PREDICTIVO DE CARGADORES: LECTURA EN CALIENTE DESDE LA NUBE (v4.60)
+// =========================================================================
 function filtrarCargadoresFrecuentesPredictivo(inputElement) {
     const textoInyectado = inputElement.value.toUpperCase().trim();
     const dropdownCargadores = document.getElementById("lista_cargadores_habituales_drop");
@@ -3908,16 +3941,30 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
     if (!dropdownCargadores) return;
     dropdownCargadores.innerHTML = "";
 
-    const catalogoEmpresas = obtenerHistorialCargadoresLocales();
+    // 🚀 LECTURA EN LA NUBE: Extraemos la cartera sincronizada de Firebase (o la del disco duro si está offline)
+    let catalogoEmpresas = [];
+    let diccionarioClientes = window.diccionarioCargadoresCloud;
 
-    // Si el archivo está limpio o el input está vacío, apagamos el visor flotante
+    // Si el móvil entró en modo avión y la RAM se vació, rescatamos el respaldo del disco local
+    if (!diccionarioClientes || Object.keys(diccionarioClientes).length === 0) {
+        try {
+            diccionarioClientes = JSON.parse(localStorage.getItem("bk_admin_cargadores_cloud")) || {};
+        } catch(e) { diccionarioClientes = {}; }
+    }
+
+    // Convertimos el mapa de Firebase en un array plano para poder filtrarlo
+    if (diccionarioClientes) {
+        catalogoEmpresas = Object.keys(diccionarioClientes).map(key => diccionarioClientes[key]);
+    }
+
+    // Si la cartera está vacía o el chófer borró el texto, apagamos el visor flotante
     if (catalogoEmpresas.length === 0 || textoInyectado === "") {
         dropdownCargadores.style.display = "none";
         return;
     }
 
     const sugerenciasFiltradas = catalogoEmpresas.filter(c =>
-        c.razon.includes(textoInyectado) || c.nif.includes(textoInyectado)
+        (c.razon && c.razon.includes(textoInyectado)) || (c.nif && c.nif.includes(textoInyectado))
     );
 
     if (sugerenciasFiltradas.length === 0) {
@@ -3933,12 +3980,15 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
         celdaSugerencia.style.fontSize = "13px";
         celdaSugerencia.style.borderBottom = "1px solid #f0f0f0";
         celdaSugerencia.style.textAlign = "left";
-        celdaSugerencia.style.color = "#212529";
 
-        celdaSugerencia.onmouseover = function() { this.style.background = "#eef5fc"; };
-        celdaSugerencia.onmouseout = function() { this.style.background = "white"; };
+        // Estilo síncrono con el Modo Noche
+        const esModoOscuro = document.body.classList.contains("dark-mode");
+        celdaSugerencia.style.color = esModoOscuro ? "#e0e0e0" : "#212529";
 
-        // 🚀 AUTO-RELLENO BRUTAL EN CASCADA: Escribe los 6 campos de golpe al hacer clic
+        celdaSugerencia.onmouseover = function() { this.style.background = esModoOscuro ? "#2c2c2e" : "#eef5fc"; };
+        celdaSugerencia.onmouseout = function() { this.style.background = "transparent"; };
+
+        // 🚀 AUTO-RELLENO EN CASCADA DIGITAL: Rellena los 6 campos de golpe al tocar con el dedo
         celdaSugerencia.onclick = function() {
             document.getElementById("deca_carg_razon").value = c.razon || "";
             document.getElementById("deca_carg_nif").value = c.nif || "";
@@ -3948,7 +3998,7 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
             document.getElementById("deca_carg_provincia").value = c.provincia || "";
 
             dropdownCargadores.style.display = "none";
-            mostrarAvisoToast("⚡ Cargador habitual auto-rellenado con éxito");
+            mostrarAvisoToast("⚡ Cargador frecuente auto-rellenado desde la nube");
         };
 
         dropdownCargadores.appendChild(celdaSugerencia);
@@ -3956,6 +4006,7 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
 
     dropdownCargadores.style.display = "block";
 }
+
 
 // Escudo perimetral táctil para cerrar el desplegable si se pincha fuera del campo
 document.addEventListener("click", function(evento) {
