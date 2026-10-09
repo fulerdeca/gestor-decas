@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.16</title>
+    <title>Gestor de DeCAs Transportes v3.26</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -16,18 +16,24 @@
 
 
 <style>  /* === BLOQUE 1 DE ESTILOS OPTIMIZADO (PARTE 1 DE 2) === */
-        /* 🔒 CANDADO GEOMÉTRICO: Fija el tamaño del botón para que no baile al cambiar el texto */
-        #btn_modo_oscuro_switch {
-            width: 90px !important;
-            min-width: 90px !important;
-            max-width: 90px !important;
+        /* 🔒 CANDADO GEOMÉTRICO PREMIUM: Iconos puros ultracompactos simétricos */
+
+        #btn_modo_oscuro_switch,
+        #indicador_red_status {
+            width: 42px !important;
+            min-width: 42px !important;
+            max-width: 42px !important;
+            height: 38px !important;
             display: inline-flex !important;
             align-items: center !important;
-            justify-content: center !important; /* Centra milimétricamente el texto e icono en el eje horizontal */
-            padding-left: 0 !important;
-            padding-right: 0 !important;
+            justify-content: center !important; /* Centrado milimétrico del emoji */
+            padding: 0 !important;
+            margin: 0 !important;
             box-sizing: border-box !important;
+            border-radius: 6px !important;
+            font-size: 16px !important;
         }
+
 
         /* === VARIABLES DE COLOR DE ALTA VISIBILIDAD UNIFICADAS === */
         :root {
@@ -486,16 +492,33 @@
         .deca-form-grupo label { font-size: 11px; font-weight: bold; color: #4a5568; text-transform: uppercase; margin-bottom: 4px; }
         .deca-form-grupo label span { color: #dc3545; }
 
+        /* 🎨 INPUT MÁSTER PREMIUM: Alta visibilidad en cabina y forzado de mayúsculas */
         .deca-input {
             padding: 10px;
             font-size: 14px;
             border: 1px solid #cbd5e0;
             border-radius: 6px;
             background: #ffffff;
-            color: #333333;
+
+            /* 🔵 LECTURA EXTREMA: Texto en azul oscuro corporativo nítido y en negrita */
+            color: #0f4c81 !important;
+            font-weight: 800 !important;
+
+            /* 🔠 FORZADO TEXTO: Pinta las letras en mayúsculas rígidas automáticamente en pantalla */
+            text-transform: uppercase !important;
             box-sizing: border-box;
         }
-        .deca-input:focus { border-color: #0f4c81; outline: none; }
+
+        .deca-input:focus {
+            border-color: #0f4c81;
+            outline: none;
+        }
+        /* 💾 placeholders en gris claro estándar para que destaquen frente al texto azul */
+        .deca-input::placeholder {
+            color: #a0aec0 !important;
+            font-weight: normal !important;
+            text-transform: none !important; /* Mantiene el placeholder descriptivo original */
+        }
 
         /* 🎯 PIE DE BOTONES UNIFICADO, FIJO ABAJO Y CENTRADO MÁSTER */
         .deca-modal-pie {
@@ -558,7 +581,12 @@
         body.dark-mode .deca-modal-cabecera, body.dark-mode .deca-modal-pie { background: #1c1c1e; border-color: #333336; }
         body.dark-mode .deca-modal-cabecera h3 { color: #fff; }
         body.dark-mode .bloque-formulario-deca { background: #1c1c1e; border: 1px solid #333336; }
-        body.dark-mode .deca-input { background: #2c2c2e; border-color: #444446; color: #fff; }
+        /* Garantiza que en el Modo Noche el texto azul se aclare un poco para no perder contraste */
+        body.dark-mode .deca-input {
+            background: #2c2c2e;
+            border-color: #444446;
+            color: #63b3ed !important; /* Azul eléctrico brillante de alta lectura nocturna */
+        }
         body.dark-mode .deca-form-grupo label { color: #a0aec0; }
         body.dark-mode .deca-num-titulo { color: #63b3ed; }
         body.dark-mode .deca-num-circulo { background: #63b3ed; color: #121212; }
@@ -1540,16 +1568,23 @@ body.dark-mode .banner-inspeccion-nota {
                 <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a202c;" class="deca-titulo-texto-nocturno">DeCA</h1>
             </div>
 
-            <!-- Búnker de Control Superior Derecho Unificado con Testigo de Red -->
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <!-- 📡 Testigo Dinámico de Red (Nace Online en Verde) -->
-                <div id="indicador_red_status" style="display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; background: rgba(40, 167, 69, 0.15); color: #28a745; padding: 6px 10px; border-radius: 20px; border: 1px solid rgba(40, 167, 69, 0.3); height: 38px; box-sizing: border-box; white-space: nowrap;">
-                    🟢 Online
+            <!-- BÚNKER DE ICONOS ULTRACOMPACTO SUPREMO v3.90 -->
+            <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+
+                <!-- 📡 Testigo Dinámico de Red (Icono de Wi-Fi puro) -->
+                <div id="indicador_red_status" style="background: rgba(40, 167, 69, 0.12); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.25);" title="Estado de la conexión central">
+                    📶
                 </div>
 
-                <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="font-size: 14px; cursor: pointer; margin: 0; font-weight: bold; padding: 10px 0;">🌙 Oscuro</button>
-                <button class="btn-top btn-salir-rojo" onclick="if(navigator.app){navigator.app.exitApp();} else if(window.Android){window.Android.closeApp();} else {mostrarAlertaCorporativaDeca('Cerrar Aplicación', 'Para cerrar la aplicación en su totalidad, por favor cierre esta pestaña del navegador o la APK de su terminal.', '❌'); window.close();}" style="margin: 0; color: #ffffff !important; padding: 10px 14px;">✕ Salir</button>
+                <!-- 🌙 Selector de Tema Estricto (Icono de Sol/Luna puro) -->
+                <button id="btn_modo_oscuro_switch" class="btn-top" onclick="conmutarModoOscuroManual()" style="cursor: pointer;" title="Conmutar luminiscencia de cabina">
+                    ☀️
+                </button>
+
+                <!-- ✕ Botón Salir APK Compacto -->
+                <button class="btn-top btn-salir-rojo" onclick="if(navigator.app){navigator.app.exitApp();} else if(window.Android){window.Android.closeApp();} else {mostrarAlertaCorporativaDeca('Cerrar Aplicación', 'Para cerrar la aplicación en su totalidad, por favor cierre esta pestaña del navegador o la APK de su terminal.', '❌'); window.close();}" style="color: #ffffff !important; padding: 0 12px; height: 38px;">✕ Salir</button>
             </div>
+
 
         </div>
     </div> <!-- 🔒 CIERRE SEGURO DEL CINTURÓN FIJO -->
@@ -1709,14 +1744,26 @@ function iniciarEcosistemaDeCAs() {
         if (!res.ok) throw new Error("La pasarela remota no responde.");
         return res.json();
     })
+    // ... (Viene de tu fetch de la pasarela original v3.14)
     .then(configFirebase => {
-        // Inicialización dinámica con los datos descargados de GitHub
         if (firebase.apps.length === 0) {
             firebase.initializeApp(configFirebase);
         }
         database = firebase.database();
 
-        // Disparar el túnel de seguridad anónimo una vez conectados
+        // 🚀 ROMPE-CANDADOS DE GOOGLE (v4.05 MÁSTER)
+        const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
+
+        // Si el conductor ha borrado los datos del teléfono (no hay token local)
+        // pero Google Play Services intenta inyectar su usuario antiguo de fondo:
+        if (!tokenSeguridadLocal && firebase.auth().currentUser) {
+            console.warn("🧹 Detectado borrado de datos. Destruyendo Auto-Backup de Google...");
+            // Forzamos el cierre de sesión de Firebase para que el servidor genere un UID nuevo e incorrupto
+            return firebase.auth().signOut().then(() => {
+                return firebase.auth().signInAnonymously();
+            });
+        }
+
         return firebase.auth().signInAnonymously();
     })
     .then((usuarioCredencial) => {
@@ -1727,11 +1774,12 @@ function iniciarEcosistemaDeCAs() {
         } else {
             miUsuarioUIDActivo = usuarioCredencial.user.uid;
         }
-        console.log("✅ Conexión Gateway establecida y autenticada. Llave activa:", miUsuarioUIDActivo);
+        console.log("✅ Conexión establecida. Llave activa:", miUsuarioUIDActivo);
 
-        // Con la autenticación confirmada (auth != null), atacamos la lectura de la base de datos
+        actualizarEstadoRedTerminalCamion(true);
         verificarExistenciaPerfilCamionero();
     })
+
     .catch(error => {
         console.error("❌ Error crítico en el Gateway de arranque:", error);
         alert("Error crítico de red / Gateway: " + error.message);
@@ -1742,12 +1790,20 @@ function iniciarEcosistemaDeCAs() {
         localStorage.setItem("modo_oscuro_deca", "no");
     }
 
-    // Evaluamos de forma estricta el disco local del teléfono
+    // ☀️ CONSOLIDACIÓN ESTÉTICA: Tema rígido por defecto al arrancar en frío v3.95
+    if (localStorage.getItem("modo_oscuro_deca") === null) {
+        localStorage.setItem("modo_oscuro_deca", "no"); // Fuerza modo día en instalaciones limpias
+    }
+
+    const botonOscuroDOM = document.getElementById("btn_modo_oscuro_switch");
     if (localStorage.getItem("modo_oscuro_deca") === "si") {
         document.body.classList.add("dark-mode");
+        if (botonOscuroDOM) botonOscuroDOM.innerText = "🌙"; // Asegura el icono de la luna en el techo fixed
     } else {
-        document.body.classList.remove("dark-mode"); // Candado de seguridad de lona blanca
+        document.body.classList.remove("dark-mode");
+        if (botonOscuroDOM) botonOscuroDOM.innerText = "☀️"; // Asegura el icono del sol en el techo fixed
     }
+
 
 
     // 🚀 RADAR INTERNACIONAL: Detecta si quien entra es un agente o una consulta externa del QR
@@ -1893,14 +1949,14 @@ function iniciarEcosistemaDeCAs() {
 
 
 // =========================================================================
-// 🕵️ CONTROL DE ACCESO INTELIGENTE CON SENSOR DE LICENCIA EN TIEMPO REAL
+// 🕵️ CONTROL DE ACCESO INTELIGENTE: FILTRO DE ENTRADA CENTRAL DE LICENCIAS
 // =========================================================================
 function verificarExistenciaPerfilCamionero() {
     const parametrosRadar = new URLSearchParams(window.location.search);
     const idDecaInspeccionar = parametrosRadar.get("verificar");
     const idUsuarioInspeccionar = parametrosRadar.get("user");
 
-    // 👮 SECCIÓN A: RADAR DE INSPECCIÓN (MÓVIL DEL AGENTE - Pasillo libre sin licencia)
+    // 👮 MODO INSPECTOR GLOBAL: Pasillo libre para la Guardia Civil (QR)
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
         console.log("👮 Radar activado: Saltando control de acceso para visualización pública...");
         database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
@@ -1931,67 +1987,109 @@ function verificarExistenciaPerfilCamionero() {
         return;
     }
 
-    // 🚚 SECCIÓN B: PANEL PRIVADO (MÓVIL DEL TRANSPORTISTA)
-    const bypassUID = localStorage.getItem("cfg_uid_recuperado_deca");
-    if (bypassUID) {
-        miUsuarioUIDActivo = bypassUID;
-    }
-
-    // 📡 🔥 EL CAMBIO MAESTRO: Usamos '.on' para que Firebase nos avise de CUALQUIER cambio en caliente
+    // 🚚 MODO DASHBOARD PRIVADO: SENSOR DE IDENTIDAD EN TIEMPO REAL
     database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').on('value', (snapshot) => {
         if (snapshot.exists()) {
             const copiaPerfilRAM = snapshot.val();
 
-            // Si el estado de la base de datos cambia a ACTIVADO (ya sea al arrancar o a mitad de una llamada)
-            // 🔥 REEMPLÁZALA POR ESTA OTRA VERSIÓN CON PASAPORTE DE ADMINISTRADOR:
-            if (copiaPerfilRAM.estado_activacion === "ACTIVADO" || copiaPerfilRAM.estado_activacion === "ADMIN") {
-                console.log("🔓 Licencia validada: Liberando interfaz del terminal...");
+            // Comprobamos de forma rígida que tenga rellena la propiedad Razón Social
+            if (copiaPerfilRAM && copiaPerfilRAM.razon_social && copiaPerfilRAM.razon_social.trim() !== "") {
+                if (copiaPerfilRAM.estado_activacion === "ACTIVADO" || copiaPerfilRAM.estado_activacion === "ADMIN") {
 
-                // Desactivamos este sensor temporal de la licencia para que no consuma recursos en ruta
-                database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off('value');
+                    // 🚀 RADAR DE INTEGRIDAD MÁSTER DE ARRANQUE (v4.40):
+                    // Comprobamos de forma estricta si el perfil que acaba de entrar tiene datos desiertos
+                    const faltaDireccion = (!copiaPerfilRAM.domicilio_calle || copiaPerfilRAM.domicilio_calle.trim() === "");
+                    const faltaCP = (!copiaPerfilRAM.codigo_postal || copiaPerfilRAM.codigo_postal.trim() === "");
+                    const faltaTractor = (!copiaPerfilRAM.matricula_tractor || copiaPerfilRAM.matricula_tractor.trim() === "");
+                    const faltaRemolque = (!copiaPerfilRAM.matricula_remolque || copiaPerfilRAM.matricula_remolque.trim() === "");
+                    const faltaTelefono = (!copiaPerfilRAM.telefono || copiaPerfilRAM.telefono.trim() === "");
 
-                // Guardamos la ficha en la variable global del sistema
-                misDatosPerfilAutonomo = copiaPerfilRAM;
+                    if (faltaDireccion || faltaCP || faltaTractor || faltaRemolque || faltaTelefono) {
+                        console.warn("⚠️ Perfil incompleto detectado en el arranque. Forzando configuración...");
+                        misDatosPerfilAutonomo = copiaPerfilRAM;
 
-                // Apagamos los modales preventivos de la pantalla
-                document.getElementById("modal_perfil_camionero").style.display = "none";
-                document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
+                        // Levantamos el panel flotante de Mis Datos para obligarle a terminar
+                        abrirPanelMisDatosCamionero();
 
-                // Encendemos el motor general de los portes en el dashboard
-                activarEscuchaRealtimeDeCAs();
-
-                // 🚀 ASISTENTE DE BIENVENIDA: Si es la primera vez (perfil a medio rellenar), le guiamos
-                if (!misDatosPerfilAutonomo.domicilio_calle || !misDatosPerfilAutonomo.matricula_tractor) {
-                    setTimeout(() => {
+                        // Lanzamos el aviso general corporativo en mitad de la pantalla
                         mostrarAlertaCorporativaDeca(
-                            "Activación Completada",
-                            "¡Tu terminal ha sido autorizado con éxito! Antes de poder emitir tu primer documento de control legal (DeCA), es obligatorio que completes todos los datos comerciales de tu empresa.",
-                            "🚚"
+                            "Perfil Comercial Incompleto",
+                            "Se ha detectado que su ficha de transportista no está totalmente cumplimentada. Por normativa legal de la Inspección de Transportes, es obligatorio rellenar la Dirección, Código Postal, Teléfono y ambas Matrículas antes de acceder al dashboard.",
+                            "📋"
                         );
+                        return; // 🔒 Bloquea el hilo: No le deja ver el salpicadero trasero ni emitir
+                    }
 
-                        document.getElementById("btn_alerta_deca_aceptar").onclick = function() {
-                            document.getElementById("modal_alerta_deca").style.display = "none";
-                            abrirPanelMisDatosCamionero();
-                        };
-                    }, 500);
+                    console.log("🔓 Licencia validada y perfil íntegro: Liberando interfaz...");
+                    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off('value');
+                    misDatosPerfilAutonomo = copiaPerfilRAM;
+
+                    // Apagamos todas las pantallas de control si todo está al 100% relleno
+                    if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
+                    if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+                    if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
+
+                    // Encendemos el motor general de los portes
+                    activarEscuchaRealtimeDeCAs();
+                } else {
+                    if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
+                    if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+                    const campoIDTerminal = document.getElementById("txt_licencia_uid_terminal");
+                    if (campoIDTerminal) campoIDTerminal.innerText = "ID TERMINAL: " + miUsuarioUIDActivo;
+                    if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "flex";
                 }
-
             } else {
-                // Si sigue o cambia a DESACTIVADO, levantamos el búnker negro
-                document.getElementById("modal_perfil_camionero").style.display = "none";
-                const campoIDTerminal = document.getElementById("txt_licencia_uid_terminal");
-                if (campoIDTerminal) campoIDTerminal.innerText = "ID TERMINAL: " + miUsuarioUIDActivo;
-                document.getElementById("modal_bloqueo_licencia_deca").style.display = "flex";
+                // Si la ficha está vacía de Razón Social (vaciado), emerge el registro obligatorio ciego
+                desplegarMuroRegistroInicialObligatorioNativo();
             }
         } else {
             // Si el terminal no tiene perfil en la base de datos, le obligamos a registrarse
-            document.getElementById("modal_perfil_camionero").style.display = "flex";
+            desplegarMuroRegistroInicialObligatorioNativo();
         }
     }, (error) => {
         console.error("Fallo de comunicación en el módulo de licencias:", error);
-        document.getElementById("modal_perfil_camionero").style.display = "flex";
     });
 }
+
+// Despliega el búnker de registro aposta limpiando los campos
+function desplegarMuroRegistroInicialObligatorioNativo() {
+    console.warn("🌱 Cuenta virgen detectada. Desplegando modal de Registro Obligatorio...");
+    if(document.getElementById("reg_inicial_razon")) document.getElementById("reg_inicial_razon").value = "";
+    if(document.getElementById("reg_inicial_nif")) document.getElementById("reg_inicial_nif").value = "";
+    if(document.getElementById("reg_inicial_clave_buscar")) document.getElementById("reg_inicial_clave_buscar").value = "";
+
+    // Forzamos el encendido elástico de la vista de alta nueva
+    if(document.getElementById("reg_inicial_vista_alta")) document.getElementById("reg_inicial_vista_alta").style.display = "block";
+    if(document.getElementById("reg_inicial_vista_recuperar")) document.getElementById("reg_inicial_vista_recuperar").style.display = "none";
+
+    if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
+    if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "flex";
+}
+
+// =========================================================================
+// 👤 CONFIGURACIÓN DEL PANEL DE REVISIÓN DE DATOS COMERCIALES EXISTENTES
+// =========================================================================
+function abrirPanelMisDatosCamionero() {
+    if (misDatosPerfilAutonomo) {
+        if(document.getElementById("reg_transp_razon")) document.getElementById("reg_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
+        if(document.getElementById("reg_transp_nif")) document.getElementById("reg_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
+        if(document.getElementById("reg_transp_domicilio")) document.getElementById("reg_transp_domicilio").value = misDatosPerfilAutonomo.domicilio_calle || "";
+        if(document.getElementById("reg_transp_cp")) document.getElementById("reg_transp_cp").value = misDatosPerfilAutonomo.codigo_postal || "";
+        if(document.getElementById("reg_transp_poblacion")) document.getElementById("reg_transp_poblacion").value = misDatosPerfilAutonomo.poblacion || "";
+        if(document.getElementById("reg_transp_provincia")) document.getElementById("reg_transp_provincia").value = misDatosPerfilAutonomo.provincia || "";
+        if(document.getElementById("reg_transp_tractor")) document.getElementById("reg_transp_tractor").value = misDatosPerfilAutonomo.matricula_tractor || "";
+        if(document.getElementById("reg_transp_remolque")) document.getElementById("reg_transp_remolque").value = misDatosPerfilAutonomo.matricula_remolque || "";
+        if(document.getElementById("reg_transp_telefono")) document.getElementById("reg_transp_telefono").value = misDatosPerfilAutonomo.telefono || "";
+        if(document.getElementById("reg_transp_email")) document.getElementById("reg_transp_email").value = misDatosPerfilAutonomo.email || "";
+        if(document.getElementById("reg_transp_password")) document.getElementById("reg_transp_password").value = misDatosPerfilAutonomo.clave_personalizada_alias || "";
+    }
+
+    if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "flex";
+    const cuerpoMisDatos = document.querySelector("#modal_perfil_camionero .deca-modal-cuerpo");
+    if (cuerpoMisDatos) cuerpoMisDatos.scrollTop = 0;
+}
+
+
 
 
 // =========================================================================
@@ -2255,9 +2353,26 @@ function conmutarVistaRecuperacionPerfil(mostrarRecuperacion) {
 
 
 function cerrarModalClaveMaestraYEntrar() {
-    document.getElementById("modal_clave_seguridad_deca").style.display = "none";
-    // Forzamos el relanzamiento de la verificación para quitar el fondo y activar la escucha
+    // 1. Apagamos el modal verde de la Clave Maestra de Seguridad
+    if (document.getElementById("modal_clave_seguridad_deca")) {
+        document.getElementById("modal_clave_seguridad_deca").style.display = "none";
+    }
+
+    // 2. Forzamos el relanzamiento del sensor para que la RAM se entere de que está ACTIVADO/ADMIN
     verificarExistenciaPerfilCamionero();
+
+    // 3. 🚀 REDIRECCIÓN MÁSTER OBLIGATORIA: En lugar de dejarle en el dashboard vacío,
+    // le estampamos directamente el panel de "Mis Datos" para que rellene sus matrículas
+    setTimeout(() => {
+        abrirPanelMisDatosCamionero();
+
+        // Colocamos un letrero de cortesía ergonómico estilo TPV
+        mostrarAlertaCorporativaDeca(
+            "Paso Obligatorio",
+            "Antes de poder emitir tu primer documento electrónico (DeCA), la normativa de Inspección exige que completes el domicilio fiscal y las matrículas habituales de tu flota.",
+            "🚚"
+        );
+    }, 400);
 }
 
 
@@ -2299,24 +2414,18 @@ function activarEscuchaRealtimeDeCAs() {
             return { id_firebase: key, ...datosCloud[key] };
         }).reverse();
 
-        // 🚀 EL DESTRUCTOR DE FANTASMAS (v3.60 MÁSTER): Forzado estricto de sincronismo en disco
+        // 🚀 COPIA DE SEGURIDAD EN CALIENTE (v3.80 MÁSTER)
         try {
-            // 1. Limpiamos la caché del disco por completo para eliminar viajes viejos borrados
-            localStorage.removeItem("bk_admin_lista_viajes_deca");
-
-            // 2. Solo si la nube tiene datos reales, grabamos el nuevo catálogo actualizado
-            if (Object.keys(datosCloud).length > 0) {
-                localStorage.setItem("bk_admin_lista_viajes_deca", JSON.stringify(documentosDeCA));
-                if (misDatosPerfilAutonomo) {
-                    localStorage.setItem("bk_admin_perfil_autonomo", JSON.stringify(misDatosPerfilAutonomo));
-                }
-                console.log("💾 Disco local sincronizado con el servidor: " + documentosDeCA.length + " portes.");
-            } else {
-                console.log("🧹 Servidor central vacío: Disco local puesto a cero.");
+            // Guardamos la foto limpia de la nube directamente en el disco duro
+            localStorage.setItem("bk_admin_lista_viajes_deca", JSON.stringify(documentosDeCA));
+            if (misDatosPerfilAutonomo) {
+                localStorage.setItem("bk_admin_perfil_autonomo", JSON.stringify(misDatosPerfilAutonomo));
             }
+            console.log("💾 Disco local sincronizado con el servidor: " + documentosDeCA.length + " portes.");
         } catch(e) {
-            console.warn("Aviso en el limitador de espacio del disco local:", e);
+            console.warn("Aviso en espacio de disco local:", e);
         }
+
 
         actualizarContadoresSuperiores();
         renderizarTablaResultados(documentosDeCA);
@@ -3083,18 +3192,14 @@ function procesarGuardadoDeCAOnline() {
 
 
 
-
 // =========================================================================
-// 🚀 INYECTOR CORRELATIVO BLINDADO ANTI-SALTOS (APTO PARA MÓDULO OFFLINE v3.50)
-// =========================================================================
-// =========================================================================
-// 🚀 INYECTOR CORRELATIVO MÁSTER: CORRECCIÓN DE NÚMEROS REPETIDOS OFFLINE
+// 🚀 INYECTOR CORRELATIVO MÁSTER: ADAPTACIÓN DE LLAVES PREVENTIVAS OFFLINE (v3.80)
 // =========================================================================
 function ejecutarInyeccionCorrelativaDeCA(paqueteDatos) {
     const añoActual = new Date().getFullYear();
     let totalViajesReales = 0;
 
-    // 1. Contamos los viajes que ya tenemos impresos en la RAM de la pantalla
+    // 1. Contamos de forma limpia los viajes que el conductor ve en su pantalla
     if (documentosDeCA && documentosDeCA.length > 0) {
         documentosDeCA.forEach(v => {
             if (v.numero_documento && !v.numero_documento.includes("000000")) {
@@ -3103,61 +3208,55 @@ function ejecutarInyeccionCorrelativaDeCA(paqueteDatos) {
         });
     }
 
-    // 2. 🚀 DETECTOR DE COLA EN CADENA: Si estamos en modo avión y ya hemos creado un porte hace unos segundos,
-    // usamos un acumulador temporal en la sesión para que el siguiente no repita el mismo número.
-    if (!navigator.onLine) {
-        window.acumuladorOfflineSecuencial = window.acumuladorOfflineSecuencial || 0;
-        window.acumuladorOfflineSecuencial++;
-        totalViajesReales += window.acumuladorOfflineSecuencial - 1;
-    } else {
-        // Si hay internet, limpiamos el acumulador para que la base de datos mande de forma limpia
-        window.acumuladorOfflineSecuencial = 0;
-    }
-
-    // El siguiente número real sumará los viajes de la pantalla + los creados en esta tanda offline
+    // 2. Calculamos el siguiente secuencial de forma exacta sobre el total visible
     const númeroSiguienteSecuencial = totalViajesReales + 1;
     const numeroFormateadoDeCA = "DeCA-" + añoActual + "-" + String(númeroSiguienteSecuencial).padStart(6, '0');
 
     paqueteDatos.numero_documento = numeroFormateadoDeCA;
-    console.log("🔳 Inyectando correlativo local en cadena:", numeroFormateadoDeCA);
-;
+    console.log("🔳 Inyectando correlativo oficial en cola:", numeroFormateadoDeCA);
 
+    // 3. 🔑 EL SECRETO: Le pedimos a Firebase que nos reserve la llave única del nodo ANTES de subirlo
+    const referenciaNuevaEnCola = database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push();
+    const idFirebaseOficialReservado = referenciaNuevaEnCola.key; // Da igual que estés offline, esto genera el ID real (-O1234...)
 
-    // Grabamos en Firebase. Si estamos en modo avión, Firebase almacena la orden en su cola interna y libera el hilo
-    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(paqueteDatos)
+    // Lanzamos la inserción real usando la llave reservada de la recámara
+    referenciaNuevaEnCola.set(paqueteDatos)
     .then(() => {
-        mostrarAvisoToast("✅ ¡Documento DeCA generado con éxito!");
+        mostrarAvisoToast("✅ ¡Documento DeCA subido al servidor central!");
         cerrarModalNuevoDeCA();
         limpiarCamposFormularioGigante();
     })
     .catch(error => {
-        // Fallback preventivo por si el SDK de Firebase local colapsara por completo
-        console.warn("Aviso en cola de inyección Firebase:", error);
+        console.warn("Aviso en cola de espera Firebase:", error);
     });
 
-    // 🚀 EL ACELERADOR OFFLINE: Si estamos en modo avión, forzamos la inserción manual en la RAM
-    // para que el viaje aparezca arriba en la tabla con su reloj de arena al instante sin esperar a la nube
+    // 4. 🚀 CONTROLADOR DE PANTALLA OFFLINE: Si no hay red, inyectamos el clon usando la llave real
     if (!navigator.onLine) {
-        const idProvisional = "off_push_" + Date.now();
-
-        // 🔥 MODIFÍCALA ASEGURANDO QUE INYECTE EL NÚMERO DIRECTO ASÍ:
         const clonPorteOffline = {
-            id_firebase: idProvisional,
-            numero_documento: numeroFormateadoDeCA, // 🔒 Clava el número real DeCA-2026-XXXXXX para eliminar el undefined
+            id_firebase: idFirebaseOficialReservado, // 🔒 CLAVE: Usamos la ID real de Firebase. Ya no se llama 'off_push'
+            numero_documento: numeroFormateadoDeCA,
             ...paqueteDatos
         };
-        // Lo metemos al principio de la lista de la pantalla
+
+        // Lo metemos al principio de la lista de la pantalla de forma temporal
         documentosDeCA.unshift(clonPorteOffline);
 
-        // Actualizamos los contadores de la pantalla y refrescamos la tabla con el reloj de arena (⏳)
+        // Sincronizamos la foto elástica exacta en el búnker del disco duro
+        try {
+            localStorage.setItem("bk_admin_lista_viajes_deca", JSON.stringify(documentosDeCA));
+        } catch(e) {}
+
+        // Refrescamos contadores y repintamos la tabla con su chivato (⏳)
         actualizarContadoresSuperiores();
         renderizarTablaResultados(documentosDeCA);
 
-        mostrarAvisoToast("⏳ DeCA duplicado en local (Esperando cobertura...)");
+        mostrarAvisoToast("⏳ DeCA generado en local (Esperando cobertura...)");
         cerrarModalNuevoDeCA();
         limpiarCamposFormularioGigante();
     }
 }
+
+
 
 
 
@@ -3580,60 +3679,12 @@ document.addEventListener("click", function(e) {
 });
 
 
-
-
 // =========================================================================
-// 👤 CONFIGURACIÓN DEL PANEL "MIS DATOS" GIGANTE EXTENDIDO CORREGIDO
-// =========================================================================
-function abrirPanelMisDatosCamionero() {
-    conmutarVistaRecuperacionPerfil(false);
-    document.getElementById("link_conmutar_recuperar").style.display = "none";
-    document.getElementById("btn_cerrar_perfil").style.display = "block";
-
-    // Encendemos el búnker gigante de bloques extendidos
-    document.getElementById("bloque_datos_extendidos_camionero").style.display = "flex";
-
-    document.getElementById("titulo_perfil_dinamico").innerText = "Mis Datos Comerciales";
-    document.getElementById("btn_guardar_perfil_ejecutar").innerText = "💾 Guardar";
-
-    // Auto-relleno de campos desde la memoria RAM sincronizada con Firebase
-    if (misDatosPerfilAutonomo) {
-        document.getElementById("reg_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
-        document.getElementById("reg_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
-        document.getElementById("reg_transp_domicilio").value = misDatosPerfilAutonomo.domicilio_calle || "";
-        document.getElementById("reg_transp_cp").value = misDatosPerfilAutonomo.codigo_postal || "";
-        document.getElementById("reg_transp_poblacion").value = misDatosPerfilAutonomo.poblacion || "";
-        document.getElementById("reg_transp_provincia").value = misDatosPerfilAutonomo.provincia || "";
-
-        // 🚀 CORREGIDO: Lee de forma estricta las claves que tienes guardadas en Firebase
-        document.getElementById("reg_transp_tractor").value = misDatosPerfilAutonomo.matricula_tractor || "";
-        document.getElementById("reg_transp_remolque").value = misDatosPerfilAutonomo.matricula_remolque || "";
-
-        document.getElementById("reg_transp_telefono").value = misDatosPerfilAutonomo.telefono || "";
-        document.getElementById("reg_transp_email").value = misDatosPerfilAutonomo.email || "";
-        document.getElementById("reg_transp_password").value = misDatosPerfilAutonomo.clave_personalizada_alias || "";
-    }
-
-    document.getElementById("modal_perfil_camionero").style.display = "flex";
-    // 🔥 LA SOLUCIÓN: Fuerza al panel de Mis Datos a nacer limpio desde el techo del folio
-    const cuerpoMisDatos = document.querySelector("#modal_perfil_camionero .deca-modal-cuerpo");
-    if (cuerpoMisDatos) cuerpoMisDatos.scrollTop = 0;
-}
-
-
-
-// =========================================================================
-// ✍️ PROCESADOR INTEGRADO DE IDENTIDAD EXPRES / GIGANTE CORREGIDO
+// ✍️ PROCESADOR INTEGRADO DE IDENTIDAD: RADAR DE OBLIGATORIOS ULTRA-PRECISO
 // =========================================================================
 function registrarNuevoCamioneroEcosistema() {
     const razon = document.getElementById("reg_transp_razon").value.trim().toUpperCase();
     const nif = document.getElementById("reg_transp_nif").value.trim().toUpperCase();
-
-    if (!razon || !nif) {
-        return alert("⚠ Por favor, rellena los campos obligatorios del perfil (*).");
-    }
-
-    // Captura del bloque elástico segmentado
     const domicilio = document.getElementById("reg_transp_domicilio").value.trim().toUpperCase();
     const cp = document.getElementById("reg_transp_cp").value.trim();
     const poblacion = document.getElementById("reg_transp_poblacion").value.trim().toUpperCase();
@@ -3644,10 +3695,29 @@ function registrarNuevoCamioneroEcosistema() {
     const email = document.getElementById("reg_transp_email").value.trim().toLowerCase();
     const passwordAlias = document.getElementById("reg_transp_password").value.trim();
 
-    // Componer la dirección completa oficial para los informes fiscales del DeCA (Mantiene compatibilidad)
-    let domicilioFiscalCompleto = domicilio || "";
+    // 📋 ESCÁNER DE CAMPOS OBLIGATORIOS (Solo añade lo que verdaderamente esté en blanco)
+    let camposVaciosFaltantes = [];
+    if (!razon) camposVaciosFaltantes.push("Razón Social / Nombre");
+    if (!nif) camposVaciosFaltantes.push("NIF / CIF Comercial");
+    if (!domicilio) camposVaciosFaltantes.push("Domicilio (Calle, Número)");
+    if (!cp) camposVaciosFaltantes.push("Código Postal (CP)");
+    if (!poblacion) camposVaciosFaltantes.push("Población / Localidad");
+    if (!provincia) camposVaciosFaltantes.push("Provincia (España)");
+    if (!tractor) camposVaciosFaltantes.push("Matrícula de la Tractora");
+    if (!remolque) camposVaciosFaltantes.push("Matrícula del Remolque");
+    if (!telefono) camposVaciosFaltantes.push("Teléfono de Contacto");
+
+    // Si el escáner encuentra casillas vacías, detiene el guardado y saca la lista limpia
+    if (camposVaciosFaltantes.length > 0) {
+        const listadoFormateado = "Para poder validar tu licencia comercial y firmar los portes, es obligatorio cumplimentar las siguientes casillas:\n\n• " + camposVaciosFaltantes.join("\n• ");
+        mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", listadoFormateado, "⚠️");
+        return; // Aborta de forma segura el guardado
+    }
+
+    // Componer la dirección completa oficial para los informes fiscales del DeCA (Mantiene tu lógica nativa)
+    let domicilioFiscalCompleto = domicilio;
     if (cp || poblacion || provincia) {
-        domicilioFiscalCompleto += ` (CP: ${cp || '---'} - ${poblacion || '---'} - ${provincia || '---'})`;
+        domicilioFiscalCompleto += ` (CP: ${cp} - ${poblacion} - ${provincia})`;
     }
 
     const estructuraPerfil = {
@@ -3887,20 +3957,19 @@ function conmutarModoOscuroManual() {
     const botonEfecto = document.getElementById("btn_modo_oscuro_switch");
     if (!cuerpoCapa || !botonEfecto) return;
 
-    // Conmutamos la clase nativa del CSS que invierte los colores
     cuerpoCapa.classList.toggle("dark-mode");
 
-    // Evaluamos el estado final para actualizar la interfaz y memorizarlo
     if (cuerpoCapa.classList.contains("dark-mode")) {
-        botonEfecto.innerText = "☀️ Claro";
+        botonEfecto.innerText = "🌙"; // 🔒 MODO NOCHE ACTIVO: Muestra una Luna en el botón para volver al día
         localStorage.setItem("modo_oscuro_deca", "si");
         mostrarAvisoToast("🌙 Modo noche activado");
     } else {
-        botonEfecto.innerText = "🌙 Oscuro";
+        botonEfecto.innerText = "☀️"; // 🔒 MODO DÍA ACTIVO: Muestra un Sol en el botón para ir a la noche
         localStorage.setItem("modo_oscuro_deca", "no");
         mostrarAvisoToast("☀️ Modo día activado");
     }
 }
+
 
 // =========================================================================
 // 🌙 SYNC ESTÉTICA: GARANTIZA EL TEMA CLARO RIGIDO POR DEFECTO AL ARRANCAR
@@ -3911,19 +3980,12 @@ function sincronizarBotonOscuroAlArrancar() {
 
     if (localStorage.getItem("modo_oscuro_deca") === "si") {
         document.body.classList.add("dark-mode");
-        botonEfecto.innerText = "☀️ Claro";
+        botonEfecto.innerText = "🌙"; // Arranca mostrando la Luna nocturna
     } else {
-        // Candado máster de lona blanca diurna
         document.body.classList.remove("dark-mode");
-        botonEfecto.innerText = "🌙 Oscuro";
+        botonEfecto.innerText = "☀️"; // Arranca mostrando el Sol diurno
     }
 }
-
-
-// Enganchamos la sincronización estética en el cargador general del sistema
-document.addEventListener("DOMContentLoaded", function() {
-    setTimeout(sincronizarBotonOscuroAlArrancar, 300);
-});
 
 
 // =========================================================================
@@ -4257,48 +4319,38 @@ function actualizarEstadoRedTerminalCamion(esOnline) {
 
     if (esOnline) {
         console.log("📡 Conexión restablecida con el servidor central DeCA.");
-        testigoVisual.innerHTML = "🟢 Online";
-        testigoVisual.style.background = "rgba(40, 167, 69, 0.15)";
+        testigoVisual.innerHTML = "📶"; // Icono de Wi-Fi limpio
+        testigoVisual.style.background = "rgba(40, 167, 69, 0.12)";
         testigoVisual.style.color = "#28a745";
-        testigoVisual.style.borderColor = "rgba(40, 167, 69, 0.3)";
+        testigoVisual.style.borderColor = "rgba(40, 167, 69, 0.25)";
 
-        // Retira el modal preventivo de la pantalla al volver la señal
         if (document.getElementById("modal_emergencia_offline_deca")) {
             document.getElementById("modal_emergencia_offline_deca").style.display = "none";
         }
-
-        // Relanza la escucha en tiempo real de Firebase para recuperar los portes recientes
         if (typeof activarEscuchaRealtimeDeCAs === "function" && database) {
             activarEscuchaRealtimeDeCAs();
         }
     } else {
         console.warn("⚠️ Pérdida de cobertura detectada. Cambiando a Modo Autónomo Local.");
-        testigoVisual.innerHTML = "🔴 Sin Red ✕";
-        testigoVisual.style.background = "rgba(220, 53, 69, 0.15)";
+        testigoVisual.innerHTML = "❌"; // Icono de Wi-Fi caído con cruz roja
+        testigoVisual.style.background = "rgba(220, 53, 69, 0.12)";
         testigoVisual.style.color = "#dc3545";
-        testigoVisual.style.borderColor = "rgba(220, 53, 69, 0.3)";
+        testigoVisual.style.borderColor = "rgba(220, 53, 69, 0.25)";
 
-        // 1. Apagamos las escuchas de Firebase para que no limpie la pantalla de forma fantasma
-        if (typeof database !== 'undefined' && database && miUsuarioUIDActivo) {
-            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
-        }
-
-        // 2. Despliega el modal de aviso corporativo estilo TPV
         const elModalOffline = document.getElementById("modal_emergencia_offline_deca");
         if (elModalOffline) {
             elModalOffline.style.display = "flex";
-
-            // 3. 🚀 EL DISPARADOR DEL BÚNKER: Vinculamos la carga del disco duro directamente al clic del botón "ENTENDIDO"
             const btnEntendido = elModalOffline.querySelector(".btn-top-principal");
             if (btnEntendido) {
                 btnEntendido.onclick = function() {
-                    elModalOffline.style.display = "none"; // Cierra el modal
-                    ejecutarCargaDeEmergenciaDesdeDiscoDuro(); // Vuelca los DeCAs fijos a la tabla
+                    elModalOffline.style.display = "none";
+                    ejecutarCargaDeEmergenciaDesdeDiscoDuro();
                 };
             }
         }
     }
 }
+
 
 // Extrae el catálogo guardado del almacenamiento local y repinta el salpicadero
 function ejecutarCargaDeEmergenciaDesdeDiscoDuro() {
@@ -4325,7 +4377,7 @@ function ejecutarCargaDeEmergenciaDesdeDiscoDuro() {
             if (document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
             if (document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
 
-            mostrarAvisoToast("📦 Modo Autónomo: Datos de inspección cargados desde la memoria local");
+            mostrarAvisoToast("📦 Modo Autónomo: Datos cargados desde la memoria local");
         } else {
             const bodyTabla = document.getElementById("tabla_resultados_body");
             if (bodyTabla) {
@@ -4366,6 +4418,238 @@ document.addEventListener("DOMContentLoaded", function() {
         actualizarEstadoRedTerminalCamion(navigator.onLine);
     }, 500);
 });
+
+
+// =========================================================================
+// 🏢 PROCESADOR DE ALTA NUEVA: REGISTRO BLINDADO EN MODO DESACTIVADO (v4.30)
+// =========================================================================
+function ejecutarAltaNuevaRegistroInicial() {
+    const razon = document.getElementById("reg_inicial_razon").value.trim().toUpperCase();
+    const nif = document.getElementById("reg_inicial_nif").value.trim().toUpperCase();
+
+    // 📋 Escáner de obligatorios inicial
+    let vaciosIniciales = [];
+    if (!razon) vaciosIniciales.push("Razón Social del Transportista");
+    if (!nif) vaciosIniciales.push("NIF / CIF Comercial");
+
+    if (vaciosIniciales.length > 0) {
+        const mensajeListado = "Para iniciar la solicitud de licencia, debe rellenar las siguientes casillas obligatorias:\n\n• " + vaciosIniciales.join("\n• ");
+        mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", mensajeListado, "⚠️");
+        return;
+    }
+
+    mostrarAvisoToast("⏳ Creando credenciales comerciales en red...");
+
+    const estructuraPerfilNuevo = {
+        razon_social: razon,
+        nif_cif: nif,
+        domicilio_calle: "",
+        codigo_postal: "",
+        poblacion: "",
+        provincia: "",
+        domicilio_fiscal: "",
+        matricula_tractor: "",
+        matricula_remolque: "",
+        telefono: "",
+        email: "",
+        fecha_registro: new Date().toLocaleString(),
+        clave_recuperacion: miUsuarioUIDActivo,
+        clave_personalizada_alias: "",
+        estado_activacion: "DESACTIVADO" // 🔒 Todo transportista nuevo nace bloqueado
+    };
+
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').set(estructuraPerfilNuevo)
+    .then(() => {
+        misDatosPerfilAutonomo = estructuraPerfilNuevo;
+
+        // Auto-inyectamos el DeCA de muestra 000000 corporativo de tu v3.22
+        const deCADemostracionPrivado = {
+            numero_documento: "DeCA-2026-000000",
+            fecha_transporte: "2026-10-06",
+            matricula_tractor: "1111 AAA",
+            matricula_remolque: "R-2222 BBB",
+            origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
+            destino_plaza: "CALLE DESTINO, 28 - 16660 LAS PEDROÑERAS (CUENCA) - ESPAÑA",
+            mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM. (MUESTRA PRIVADA)",
+            mercancia_peso: "23.000 kg",
+            mercancia_bultos: "23",
+            qr_caducidad: "2026-10-13",
+            estado: "EN_CURSO",
+            cargador_razon: "CARGADOR EJEMPLO, S.L.",
+            cargador_nif: "A00000000",
+            cargador_domicilio: "CALLE CENTRAL, 10",
+            transportista_razon: razon
+        };
+        return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(deCADemostracionPrivado);
+    })
+    .then(() => {
+        document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+        const visorClaveDOM = document.getElementById("txt_clave_maestra_pantalla");
+        if (visorClaveDOM) { visorClaveDOM.innerText = miUsuarioUIDActivo; }
+        document.getElementById("modal_clave_seguridad_deca").style.display = "flex";
+        mostrarAvisoToast("✅ Ficha registrada. Esperando activación del administrador.");
+    })
+    .catch(err => alert("Error al registrar: " + err.message));
+}
+
+
+
+function ejecutarRecuperacionRegistroInicial() {
+    const claveAValidar = document.getElementById("reg_inicial_clave_buscar").value.trim();
+    if (!claveAValidar) return alert("⚠ Introduce un código válido.");
+
+    mostrarAvisoToast("🔍 Rescatando portes en el clúster central...");
+
+    database.ref('alias_claves/' + claveAValidar).once('value').then((snapshotAlias) => {
+        if (snapshotAlias.exists()) {
+            const uidRealAsociado = snapshotAlias.val();
+            localStorage.setItem("cfg_uid_recuperado_deca", uidRealAsociado);
+            miUsuarioUIDActivo = uidRealAsociado;
+            document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+            mostrarAvisoToast("✅ Perfil recuperado mediante alias.");
+            verificarExistenciaPerfilCamionero();
+        } else {
+            database.ref('usuarios/' + claveAValidar + '/datos_perfil').once('value').then((snapshotUID) => {
+                if (snapshotUID.exists()) {
+                    localStorage.setItem("cfg_uid_recuperado_deca", claveAValidar);
+                    miUsuarioUIDActivo = claveAValidar;
+                    document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+                    mostrarAvisoToast("✅ Perfil recuperado mediante código maestro.");
+                    verificarExistenciaPerfilCamionero();
+                } else { alert("❌ La clave introducida no coincide con ningún transportista."); }
+            }).catch(err => alert("Error: " + err.message));
+        }
+    }).catch(err => alert("Error: " + err.message));
+}
+
+// =========================================================================
+// 🚪 MOTOR DE PURGA DE LICENCIAS: CAMBIO DE USUARIO SEGURO ANTI-MEZCLAS
+// =========================================================================
+function ejecutarCierreDeSesionMultiUsuarioMaster() {
+    // Levantamos tu modal corporativo de confirmación estilo TPV para evitar accidentes
+    mostrarConfirmacionCorporativaDeca("Cerrar Sesión del Terminal", "¿Estás seguro de que deseas desvincular tu empresa de este dispositivo? Se borrará la caché de portes local para evitar que se mezclen con el nuevo conductor.", function() {
+        mostrarAvisoToast("🚪 Purgando archivos comerciales de la memoria...");
+
+        // 1. Congelamos y apagamos de forma radical todas las escuchas activas de Firebase
+        if (typeof database !== 'undefined' && database && miUsuarioUIDActivo) {
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off();
+        }
+
+        // 2. TRITURACIÓN COMPLETA DEL DISCO LOCAL: Borramos el localStorage entero
+        // Esto elimina el UID, la caché de los viajes viejos, el perfil comercial y las plantillas de golpe
+        localStorage.clear();
+        console.log("🧹 Memoria local (localStorage) puesta a cero. Búnker offline purgado.");
+
+        // 3. Forzamos el reinicio limpio en frío del ecosistema
+        setTimeout(() => {
+            window.location.reload();
+        }, 300);
+    });
+}
+
+
+// =========================================================================
+// 🔠 ESCUDO GLOBAL DIGITAL: CONVERSOR AUTOMÁTICO DE MAYÚSCULAS EN ESCRITURA
+// =========================================================================
+document.addEventListener("input", function(evento) {
+    // Si el transportista está tecleando dentro de cualquier input o textarea de la app
+    if (evento.target && (evento.target.tagName === "INPUT" || evento.target.tagName === "TEXTAREA")) {
+        // Ignoramos de forma estricta los campos de tipo fecha, número o email para no corromper sus formatos nativos
+        if (evento.target.type !== "date" && evento.target.type !== "number" && evento.target.type !== "email") {
+
+            const posicionCursorCursor = evento.target.selectionStart;
+
+            // Forzamos la conversión física de la cadena de texto a mayúsculas puras
+            evento.target.value = evento.target.value.toUpperCase();
+
+            // Reposicionamos el cursor en su píxel exacto para que el teclado no dé saltos extraños al escribir rápido
+            evento.target.setSelectionRange(posicionCursorCursor, posicionCursorCursor);
+        }
+    }
+});
+
+
+// =========================================================================
+// ⌨️ ESCÁNER DE TECLADO MÁSTER: SALTO CORRELATIVO DE CASILLAS AL PULSAR ENTER
+// =========================================================================
+document.addEventListener("keydown", function(evento) {
+    // Escuchamos estrictamente la tecla Enter (Código 13)
+    if (evento.key === "Enter" || evento.keyCode === 13) {
+        const elementoActivo = evento.target;
+
+        // Si el transportista está escribiendo en una casilla de entrada regular (y no en el cuadro gigante de observaciones)
+        if (elementoActivo && elementoActivo.tagName === "INPUT" || (elementoActivo.tagName === "SELECT" && elementoActivo.id !== "deca_observaciones")) {
+
+            // 🛡️ PARACHOQUES DE EMERGENCIAS: Detiene el envío o procesado accidental del formulario en red
+            evento.preventDefault();
+
+            // Localizamos el formulario o bloque blanco interior donde está metida esta casilla
+            const bloqueFormularioPadre = elementoActivo.closest(".bloque-formulario-deca, .deca-form-grid, .deca-modal-cuerpo");
+            if (!bloqueFormularioPadre) return;
+
+            // Extraemos una matriz con todas las casillas rellenables y visibles de ese bloque exacto
+            const catalogoInputsVisibles = Array.from(bloqueFormularioPadre.querySelectorAll("input, select, textarea"))
+                .filter(el => !el.readOnly && !el.disabled && el.style.display !== "none" && el.type !== "hidden");
+
+            // Encontramos la posición de la casilla donde el chófer tiene el dedo metido ahora mismo
+            const posicionActualIndex = catalogoInputsVisibles.indexOf(elementoActivo);
+
+            // Si hay una casilla siguiente disponible dentro del bloque, le clavamos el foco táctil
+            if (posicionActualIndex !== -1 && posicionActualIndex < catalogoInputsVisibles.length - 1) {
+                const siguienteCasillaDestino = catalogoInputsVisibles[posicionActualIndex + 1];
+
+                siguienteCasillaDestino.focus();
+
+                // Si es un campo de texto, le tiramos una selección de cortesía para que pueda sobreescribir rápido
+                if (typeof siguienteCasillaDestino.select === "function") {
+                    siguienteCasillaDestino.select();
+                }
+            } else {
+                // 🚀 CIERRE INTELIGENTE: Si llegó a la última casilla de un bloque, salta al primer input del bloque de abajo
+                const modalCompleto = elementoActivo.closest(".deca-modal-cuerpo");
+                if (modalCompleto) {
+                    const todosLosInputsDelModal = Array.from(modalCompleto.querySelectorAll("input, select, textarea"))
+                        .filter(el => !el.readOnly && !el.disabled && el.style.display !== "none" && el.type !== "hidden");
+
+                    const indexGlobal = todosLosInputsDelModal.indexOf(elementoActivo);
+                    if (indexGlobal !== -1 && indexGlobal < todosLosInputsDelModal.length - 1) {
+                        todosLosInputsDelModal[indexGlobal + 1].focus();
+                    }
+                }
+            }
+        }
+    }
+});
+
+
+// =========================================================================
+// 👁️ ESCUDO TÁCTIL MÁSTER: SELECCIÓN AUTOMÁTICA DE TEXTO AL ENTRAR EN CUALQUIER CAMPO
+// =========================================================================
+document.addEventListener("focus", function(evento) {
+    // Si el transportista pincha con el dedo o salta con el Enter a un input o textarea
+    if (evento.target && (evento.target.tagName === "INPUT" || evento.target.tagName === "TEXTAREA")) {
+        // Ignoramos estrictamente las casillas de solo lectura o las fechas/números nativos para evitar parpadeos visuales
+        if (!evento.target.readOnly && elementoEsDeTextoSeleccionable(evento.target)) {
+
+            // 🚀 DOBLE DISPARADOR CON INTERVALO SEGURO (Blindaje absoluto para Smartphones)
+            // En móviles, el teclado virtual nativo tarda unos milisegundos en levantarse en pantalla
+            // y a veces cancela la selección inicial. Con este retraso de cortesía de 30ms, nos aseguramos
+            // de que el texto se quede sombreado en azul el 100% de las veces tanto en PC como en la APK.
+            setTimeout(function() {
+                try {
+                    evento.target.select();
+                } catch(e) { console.warn("Campo no compatible con selección masiva."); }
+            }, 30);
+        }
+    }
+}, true); // Filtro en fase de captura para que actúe antes de cualquier otro script de la pantalla
+
+// Función auxiliar elástica que comprueba si el tipo de casilla acepta sombreado por hardware
+function elementoEsDeTextoSeleccionable(el) {
+    const tiposBaneados = ["date", "time", "checkbox", "radio", "file", "submit", "button"];
+    return !tiposBaneados.includes(el.type);
+}
 
 
 </script>
@@ -4704,121 +4988,105 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-<!-- === MODAL PREMIUM INTERACTIVO GIGANTE: PANEL GENERAL "MIS DATOS" (v3.12 UNIFICADO) === -->
+<!-- === 👤 MODAL MAESTRO: PANEL PRIVADO DE CONFIGURACIÓN "MIS DATOS" (v4.20 LIMPIO) === -->
 <div id="modal_perfil_camionero" class="modal-deca-gigante">
     <div class="deca-modal-contenido">
 
-        <!-- Cabecera Corporativa Fija Unificada en Minúsculas y Sin Icono -->
+        <!-- Cabecera Fija Unificada -->
         <div class="deca-modal-cabecera">
             <h3 id="titulo_perfil_dinamico">Mis Datos Comerciales</h3>
             <button id="btn_cerrar_perfil" class="deca-modal-cerrar" onclick="document.getElementById('modal_perfil_camionero').style.display = 'none'">✕</button>
         </div>
 
-        <!-- Cuerpo Desplazable Sincronizado con JavaScript -->
-        <div class="deca-modal-cuerpo">
+        <!-- Cuerpo Desplazable con las 4 Secciones Comerciales del Chofer -->
+        <div class="deca-modal-cuerpo" style="padding: 20px; background: #f0f4f8;">
 
-            <!-- VISTA DE FORMULARIO GENERAL -->
-            <div id="vista_registro_nuevo">
-
-                <!-- SECCIÓN 1: DATOS FISCALES OBLIGATORIOS -->
-                <div class="bloque-formulario-deca">
-                    <div class="deca-num-titulo"><span class="deca-num-circulo">1</span> Identificación Fiscal (Obligatorio)</div>
-                    <div class="deca-form-grid">
-                        <div class="deca-form-grupo">
-                            <label>Razón Social / Nombre Autónomo <span>*</span></label>
-                            <input type="text" id="reg_transp_razon" class="deca-input" placeholder="p. ej. JUAN PÉREZ GÓMEZ">
-                        </div>
-                        <div class="deca-form-grupo">
-                            <label>NIF / CIF <span>*</span></label>
-                            <input type="text" id="reg_transp_nif" class="deca-input" placeholder="p. ej. 12345678Z">
-                        </div>
+            <!-- SECCIÓN 1: DATOS FISCALES -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">1</span> Identificación Fiscal</div>
+                <div class="deca-form-grid">
+                    <div class="deca-form-grupo">
+                        <label>Razón Social / Nombre Autónomo <span>*</span></label>
+                        <input type="text" id="reg_transp_razon" class="deca-input" placeholder="p. ej. JUAN PÉREZ GÓMEZ">
                     </div>
-                </div>
-
-                <!-- SECCIÓN 2: DIRECCIÓN POSTAL SEGMENTADA y EQUIPO HABITUAL -->
-                <div id="bloque_datos_extendidos_camionero" style="display: none; flex-direction: column; gap: 15px;">
-
-                    <div class="bloque-formulario-deca">
-                        <div class="deca-num-titulo"><span class="deca-num-circulo">2</span> Dirección Postal y Sede Fiscal</div>
-                        <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-                            <div class="deca-form-grupo" style="grid-column: 1 / -1;">
-                                <label>Domicilio (Calle, Plaza, Avenida, Número, Piso)</label>
-                                <input type="text" id="reg_transp_domicilio" class="deca-input" placeholder="p. ej. Calle Central, 10 2ºB">
-                            </div>
-                            <div class="deca-form-grupo">
-                                <label>Código Postal</label>
-                                <input type="text" id="reg_transp_cp" class="deca-input" placeholder="p. ej. 16630">
-                            </div>
-                            <div class="deca-form-grupo">
-                                <label>Población / Localidad</label>
-                                <input type="text" id="reg_transp_poblacion" class="deca-input" placeholder="p. ej. LAS MESAS">
-                            </div>
-                            <div class="deca-form-grupo" style="position: relative;">
-                                <label>Provincia (España)</label>
-                                <input type="text" id="reg_transp_provincia" class="deca-input" placeholder="Escribe para buscar..." oninput="filtrarProvinciasPredictivo(this)" onfocus="filtrarProvinciasPredictivo(this)">
-                                <div id="lista_provincias_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 99999; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
-                            </div>
-                        </div>
+                    <div class="deca-form-grupo">
+                        <label>NIF / CIF <span>*</span></label>
+                        <input type="text" id="reg_transp_nif" class="deca-input" placeholder="p. ej. 12345678Z">
                     </div>
-
-                    <div class="bloque-formulario-deca">
-                        <div class="deca-num-titulo"><span class="deca-num-circulo">3</span> Equipo de Transporte Habitual (Auto-relleno)</div>
-                        <div class="deca-form-grid">
-                            <div class="deca-form-grupo">
-                                <label>Matrícula Tractora</label>
-                                <input type="text" id="reg_transp_tractor" class="deca-input" placeholder="p. ej. 0000 XXX">
-                            </div>
-                            <div class="deca-form-grupo">
-                                <label>Matrícula Remolque</label>
-                                <input type="text" id="reg_transp_remolque" class="deca-input" placeholder="p. ej. R-0000 XXX">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bloque-formulario-deca">
-                        <div class="deca-num-titulo"><span class="deca-num-circulo">4</span> Información de Contacto y Clave</div>
-                        <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
-                            <div class="deca-form-grupo">
-                                <label>Teléfono de Contacto</label>
-                                <input type="text" id="reg_transp_telefono" class="deca-input" placeholder="+34 600 000 000">
-                            </div>
-                            <div class="deca-form-grupo">
-                                <label>Correo Electrónico</label>
-                                <input type="email" id="reg_transp_email" class="deca-input" placeholder="conductor@empresa.com">
-                            </div>
-                        </div>
-
-                        <div class="deca-caja-clave-seccion" style="background: #f0f4f8; padding: 14px; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box;">
-                            <label style="color: #0f4c81; font-weight: bold; text-transform: none; display: block; margin-bottom: 4px; font-size: 12px;" class="deca-num-titulo">🔑 Cambiar Clave de Acceso Personalizada (Alias)</label>
-                            <p style="font-size: 11px; color: #555; margin: 0 0 8px 0; line-height: 1.3;" class="deca-form-grupo label">Crea un alias para poder rescatar tu cuenta sin tener que usar el código maestro largo.</p>
-                            <input type="text" id="reg_transp_password" class="deca-input" placeholder="Ej: MiCamion2026" style="width: 100%;">
-                        </div>
-                    </div>
-
-                </div>
-
-                <div id="link_conmutar_recuperar" style="text-align: center; margin-top: 15px; border-top: 1px dashed #dee2e6; padding-top: 15px;">
-                    <a href="#" style="font-size: 12px; color: #0f4c81; font-weight: bold; text-decoration: none;" onclick="conmutarVistaRecuperacionPerfil(true)">¿Ya tenías cuenta? Recuperar mi perfil</a>
                 </div>
             </div>
 
-            <!-- INTERFAZ DE RECUPERACIÓN -->
-            <div id="vista_recuperacion_perfil" style="display: none;">
-                <div class="bloque-formulario-deca" style="margin-top: 40px;">
-                    <div class="deca-form-grupo" style="margin-bottom: 15px;">
-                        <label>Introduce tu Código Maestro o Contraseña <span>*</span></label>
-                        <input type="text" id="reg_clave_recuperar" class="deca-input" placeholder="Respeta mayúsculas/minúsculas o pega tu código largo...">
-                    </div>
-                    <button type="button" class="btn-top" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none;" onclick="recuperarPerfilCamioneroExistente()">Vincular mis Datos</button>
+            <!-- SECCIÓN 2: DIRECCIÓN POSTAL -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">2</span> Dirección Postal y Sede Fiscal</div>
+                <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                <div class="deca-form-grupo" style="grid-column: 1 / -1;">
+                    <label>Domicilio (Calle, Plaza, Número, Piso) <span>*</span></label>
+                    <input type="text" id="reg_transp_domicilio" class="deca-input" placeholder="p. ej. Calle Central, 10 2ºB">
                 </div>
-                <div style="text-align: center; margin-top: 15px;">
-                    <a href="#" style="font-size: 12px; color: #718096; text-decoration: none;" onclick="conmutarVistaRecuperacionPerfil(false)">Volver al panel principal</a>
+                <div class="deca-form-grupo">
+                    <label>Código Postal <span>*</span></label>
+                    <input type="text" id="reg_transp_cp" class="deca-input" placeholder="p. ej. 16630">
+                </div>
+                <div class="deca-form-grupo">
+                    <label>Población / Localidad <span>*</span></label>
+                    <input type="text" id="reg_transp_poblacion" class="deca-input" placeholder="p. ej. LAS MESAS">
+                </div>
+                <div class="deca-form-grupo" style="position: relative;">
+                    <label>Provincia (España) <span>*</span></label>
+                    <input type="text" id="reg_transp_provincia" class="deca-input" placeholder="Escribe para buscar..." oninput="filtrarProvinciasPredictivo(this)" onfocus="filtrarProvinciasPredictivo(this)">
+                    <div id="lista_provincias_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 99999; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
+                </div>
                 </div>
             </div>
 
-        </div> <!-- 🔒 FIN DEL CUERPO DESPLAZABLE -->
+            <!-- SECCIÓN 3: VEHÍCULOS -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">3</span> Equipo de Transporte Habitual (Auto-relleno)</div>
+                <div class="deca-form-grid">
+                    <div class="deca-form-grupo">
+                        <label>Matrícula Tractora</label>
+                        <input type="text" id="reg_transp_tractor" class="deca-input" placeholder="p. ej. 0000 XXX">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Matrícula Remolque</label>
+                        <input type="text" id="reg_transp_remolque" class="deca-input" placeholder="p. ej. R-0000 XXX">
+                    </div>
+                </div>
+            </div>
 
-        <!-- === 🎯 BOTONERA INFERIOR FIJA, SIMÉTRICA Y CENTRADA (Mis Datos) === -->
+            <!-- SECCIÓN 4: CONTACTO, CLAVE Y CIERRE DE SESIÓN -->
+            <div class="bloque-formulario-deca">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">4</span> Información de Contacto y Clave</div>
+                <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                    <div class="deca-form-grupo">
+                        <label>Teléfono de Contacto <span>*</span></label>
+                        <input type="text" id="reg_transp_telefono" class="deca-input" placeholder="+34 600 000 000">
+                    </div>
+                    <div class="deca-form-grupo">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="reg_transp_email" class="deca-input" placeholder="conductor@empresa.com">
+                    </div>
+                </div>
+
+                <!-- Caja de Clave Alias -->
+                <div class="deca-caja-clave-seccion" style="background: #f0f4f8; padding: 14px; border-radius: 6px; border: 1px solid #cbd5e0; box-sizing: border-box; margin-bottom: 15px;">
+                    <label style="color: #0f4c81; font-weight: bold; text-transform: none; display: block; margin-bottom: 4px; font-size: 12px;" class="deca-num-titulo">🔑 Clave de Acceso Personalizada (Alias)</label>
+                    <p style="font-size: 11px; color: #555; margin: 0 0 8px 0; line-height: 1.3;">Crea un alias para poder rescatar tu cuenta sin tener que usar el código maestro largo.</p>
+                    <input type="text" id="reg_transp_password" class="deca-input" placeholder="Ej: MiCamion2026" style="width: 100%;">
+                </div>
+
+                <!-- Zona de Seguridad Multi-Usuario -->
+                <div style="background: rgba(220, 53, 69, 0.06); padding: 14px; border-radius: 6px; border: 1px dashed #dc3545; box-sizing: border-box; width: 100%; text-align: left;">
+                    <label style="color: #dc3545; font-weight: bold; display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase;">⚠️ Zona de Seguridad: Gestión de Cuentas</label>
+                    <p style="font-size: 11px; color: #555; margin: 0 0 10px 0; line-height: 1.3;">Pulse este botón si necesita desvincular este smartphone de su empresa para coger otro camión o cambiar a un perfil de pruebas.</p>
+                    <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarCierreDeSesionMultiUsuarioMaster()" style="width: 100%; margin: 0; padding: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: none;">🚪 Cerrar Sesión y Cambiar de Chofer</button>
+                </div>
+            </div>
+
+        </div> <!-- Fin de deca-modal-cuerpo -->
+
+        <!-- Botonera Inferior Fija Exclusiva para Editar Perfil Existente -->
         <div class="deca-modal-pie">
             <button class="deca-btn-pie deca-btn-cancelar" onclick="document.getElementById('modal_perfil_camionero').style.display = 'none'">Cancelar</button>
             <button id="btn_guardar_perfil_ejecutar" class="deca-btn-pie deca-btn-guardar" onclick="registrarNuevoCamioneroEcosistema()">💾 Guardar</button>
@@ -4826,9 +5094,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     </div>
 </div>
-
-
-
 
 
 
@@ -4963,6 +5228,62 @@ document.addEventListener("DOMContentLoaded", function() {
             </div>
 
         </div>
+    </div>
+</div>
+
+<!-- === 👤 MODAL INDEPENDIENTE EXCLUSIVO: REGISTRO OBLIGATORIO DE CONDUCTOR (v4.00 MÁSTER) === -->
+<div id="modal_registro_inicial_obligatorio" class="modal-deca-gigante" style="z-index: 650000; background: rgba(11, 14, 23, 0.95);">
+    <div class="deca-modal-contenido" style="max-width: 500px; height: auto; margin: auto;">
+
+        <div class="deca-modal-cabecera" style="background: #0f4c81; color: white;">
+            <h3 style="color: white !important;">🚚 Registro Obligatorio de Transportista</h3>
+            <!-- 🔒 SIN ASPA DE CIERRE: Es físicamente imposible saltarse esta ventana -->
+        </div>
+
+        <div class="deca-modal-cuerpo" style="padding: 20px; background: #f0f4f8;">
+
+            <!-- VISTA A: ALTA NUEVA DESDE CERO -->
+            <div id="reg_inicial_vista_alta">
+                <div class="bloque-formulario-deca" style="margin-bottom: 12px;">
+                    <div class="deca-num-titulo"><span class="deca-num-circulo">1</span> Identificación Fiscal</div>
+                    <div class="deca-form-grid" style="grid-template-columns: 1fr; gap: 10px;">
+                        <div class="deca-form-grupo">
+                            <label>Razón Social / Nombre Autónomo <span>*</span></label>
+                            <input type="text" id="reg_inicial_razon" class="deca-input" placeholder="p. ej. JUAN PÉREZ GÓMEZ">
+                        </div>
+                        <div class="deca-form-grupo">
+                            <label>NIF / CIF <span>*</span></label>
+                            <input type="text" id="reg_inicial_nif" class="deca-input" placeholder="p. ej. 12345678Z">
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-top" style="width: 100%; padding: 14px; background: #0f4c81; color: white; border: none; font-size: 14px; font-weight: bold;" onclick="ejecutarAltaNuevaRegistroInicial()">Añadir Transportista</button>
+                <div style="text-align: center; margin-top: 15px; border-top: 1px dashed #dee2e6; padding-top: 15px;">
+                    <a href="#" style="font-size: 12px; color: #0f4c81; font-weight: bold; text-decoration: none;" onclick="conmutarVistasRegistroInicial(true)">¿Ya tenías cuenta? Recuperar mi perfil</a>
+                </div>
+            </div>
+
+            <!-- VISTA B: RECUPERACIÓN POR CONTRASEÑA/ALIAS -->
+            <div id="reg_inicial_vista_recuperar" style="display: none;">
+                <div class="bloque-formulario-deca" style="margin-bottom: 12px;">
+                    <div class="deca-form-grupo">
+                        <label>Introduce tu Código Maestro o Contraseña <span>*</span></label>
+                        <input type="text" id="reg_inicial_clave_buscar" class="deca-input" placeholder="Respeta mayúsculas/minúsculas...">
+                    </div>
+                </div>
+                <button type="button" class="btn-top" style="width: 100%; padding: 14px; background: #28a745; color: white; border: none; font-size: 14px; font-weight: bold;" onclick="ejecutarRecuperacionRegistroInicial()">Vincular mis Datos</button>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="#" style="font-size: 12px; color: #718096; text-decoration: none;" onclick="conmutarVistasRegistroInicial(false)">Volver al alta de transportista</a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 🔒 PIE CIEGO SEGURO: Sin botones de cancelar. Solo se sale registrando una empresa -->
+        <div class="deca-modal-pie" style="padding: 10px; background: #ffffff; text-align: center; font-size: 11px; color: #718096; font-style: italic;">
+            Fuler® DeCA Licencias de Emisión Autorizadas
+        </div>
+
     </div>
 </div>
 
