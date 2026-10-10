@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.41</title>
+    <title>Gestor de DeCAs Transportes v3.50</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1584,16 +1584,22 @@ body.dark-mode .banner-inspeccion-nota {
 
 </style>
 
-
-
 </head>
 <body>
 
+    <script>
+        // ☀️ ROMPE-CANDADOS ESTÉTICO: Fuerza el modo diurno rígido en el milisegundo cero de la APK
+        if (localStorage.getItem("modo_oscuro_deca") === null || localStorage.getItem("modo_oscuro_deca") === "si") {
+            localStorage.setItem("modo_oscuro_deca", "no"); // Sobreescribe cualquier auto-backup oscuro
+        }
+        document.body.classList.remove("dark-mode");
+    </script>
 
     <!-- ==========================================================================
        🏢 CAPA 1: CINTURÓN SUPERIOR FIJO ULTRACOMPACTO (v3.01 MÁSTER)
        ========================================================================== -->
     <div class="cabecera-dashboard">
+
         <!-- NIVEL A: Identificación de la Plataforma + Controles de Esquina Superior Derecha -->
         <div class="deca-cabecera-marca-fila" style="display: flex !important; justify-content: space-between; align-items: center; width: 100%;">
             <div style="display: flex; align-items: center; gap: 10px;">
@@ -1818,25 +1824,14 @@ function iniciarEcosistemaDeCAs() {
         alert("Error crítico de red / Gateway: " + error.message);
     });
 
-    // ☀️ REPARADO: Si el transportista abre la app por primera vez, el sistema fuerza el Modo Claro por defecto
-    if (localStorage.getItem("modo_oscuro_deca") === null) {
-        localStorage.setItem("modo_oscuro_deca", "no");
-    }
-
-    // ☀️ CONSOLIDACIÓN ESTÉTICA: Tema rígido por defecto al arrancar en frío v3.95
-    if (localStorage.getItem("modo_oscuro_deca") === null) {
-        localStorage.setItem("modo_oscuro_deca", "no"); // Fuerza modo día en instalaciones limpias
-    }
+    // === ☀️ GARANTÍA DIURNA: TEMA COMPACTO CLARO POR DEFECTO AL ARRANCAR EN FRÍO v3.42 ===
+    localStorage.setItem("modo_oscuro_deca", "no"); // Fuerza modo día rígido en la instalación de la APK
+    document.body.classList.remove("dark-mode");
 
     const botonOscuroDOM = document.getElementById("btn_modo_oscuro_switch");
-    if (localStorage.getItem("modo_oscuro_deca") === "si") {
-        document.body.classList.add("dark-mode");
-        if (botonOscuroDOM) botonOscuroDOM.innerText = "🌙"; // Asegura el icono de la luna en el techo fixed
-    } else {
-        document.body.classList.remove("dark-mode");
-        if (botonOscuroDOM) botonOscuroDOM.innerText = "☀️"; // Asegura el icono del sol en el techo fixed
+    if (botonOscuroDOM) {
+        botonOscuroDOM.innerText = "☀️"; // Clava el icono del sol en el techo fixed
     }
-
 
 
     // 🚀 RADAR INTERNACIONAL: Detecta si quien entra es un agente o una consulta externa del QR
@@ -2030,7 +2025,6 @@ function verificarExistenciaPerfilCamionero() {
                 if (copiaPerfilRAM.estado_activacion === "ACTIVADO" || copiaPerfilRAM.estado_activacion === "ADMIN") {
 
                     // 🚀 RADAR DE INTEGRIDAD MÁSTER DE ARRANQUE (v4.40):
-                    // Comprobamos de forma estricta si el perfil que acaba de entrar tiene datos desiertos
                     const faltaDireccion = (!copiaPerfilRAM.domicilio_calle || copiaPerfilRAM.domicilio_calle.trim() === "");
                     const faltaCP = (!copiaPerfilRAM.codigo_postal || copiaPerfilRAM.codigo_postal.trim() === "");
                     const faltaTractor = (!copiaPerfilRAM.matricula_tractor || copiaPerfilRAM.matricula_tractor.trim() === "");
@@ -2057,11 +2051,7 @@ function verificarExistenciaPerfilCamionero() {
                         return; // Bloquea el hilo de forma segura
                     }
 
-
-
-
                     console.log("🔓 Licencia validada y perfil íntegro: Liberando interfaz...");
-                    //database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off('value');
                     misDatosPerfilAutonomo = copiaPerfilRAM;
 
                     // Apagamos todas las pantallas de control si todo está al 100% relleno
@@ -2071,6 +2061,19 @@ function verificarExistenciaPerfilCamionero() {
 
                     // Encendemos el motor general de los portes
                     activarEscuchaRealtimeDeCAs();
+
+                    // 🚀 DISPARADOR PEDAGÓGICO DE BIENVENIDA MÁSTER (v3.42):
+                    // Si el usuario acaba de completar su ficha y la app ve que el único documento en la RAM es la muestra 000000
+                    setTimeout(() => {
+                        if (documentosDeCA.length === 1 && documentosDeCA[0].numero_documento === "DeCA-2026-000000" && !localStorage.getItem("cfg_bienvenida_vista")) {
+                            localStorage.setItem("cfg_bienvenida_vista", "si"); // Evita que vuelva a molestar en el futuro
+                            mostrarAlertaCorporativaDeca(
+                                "Entorno de Pruebas Activado",
+                                "¡Felicidades! Tu terminal de transportes está listo y verificado.\n\nHemos generado un documento de ejemplo (DeCA-2026-000000) destacado en COLOR ROJO CLARO en tu panel principal para que puedas trastear, abrir el visor, probar el código QR y testear la descarga en PDF.\n\nCuando vayas a iniciar tu actividad real con portes verdaderos, puedes borrar este viaje ficticio abriendo su menú de 'Acciones' y pulsando 'Eliminar Muestra'. Recuerda que, por normativa de Inspección de Transporte Terrestre, este será el único documento que podrás eliminar de la aplicación.",
+                                "🎁"
+                            );
+                        }
+                    }, 800); // Retardo elástico para esperar a que la escucha realtime dibuje la tabla detrás
                 } else {
                     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
                     if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
@@ -2079,17 +2082,16 @@ function verificarExistenciaPerfilCamionero() {
                     if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "flex";
                 }
             } else {
-                // Si la ficha está vacía de Razón Social (vaciado), emerge el registro obligatorio ciego
                 desplegarMuroRegistroInicialObligatorioNativo();
             }
         } else {
-            // Si el terminal no tiene perfil en la base de datos, le obligamos a registrarse
             desplegarMuroRegistroInicialObligatorioNativo();
         }
     }, (error) => {
         console.error("Fallo de comunicación en el módulo de licencias:", error);
     });
 }
+
 
 // Despliega el búnker de registro aposta limpiando los campos
 function desplegarMuroRegistroInicialObligatorioNativo() {
@@ -2199,58 +2201,63 @@ function solicitarAccesoPanelAdministradorGlobal() {
     }).catch(err => console.error("Error de pasarela admin:", err));
 }
 
-// Descarga la lista completa de chóferes registrados en tu base de datos de Firebase
-// Descarga los terminales de forma segura resolviendo el mapa de alias autorizados
+
+
+// =========================================================================
+// 👑 MÓDULO MAESTRO DE ADMINISTRACIÓN: DESCARGA DIRECTA DE TERMINALES (v3.42)
+// =========================================================================
 function descargarCatalogoUsuariosAdminCompleto() {
     const contenedorLista = document.getElementById("lista_usuarios_admin_render");
-    if (contenedorLista) contenedorLista.innerHTML = '<p style="color: #666; text-style: italic; text-align: center; padding: 15px;">Escaneando alias en red...</p>';
+    if (contenedorLista) {
+        contenedorLista.innerHTML = '<p style="color: #666; font-style: italic; text-align: center; padding: 15px;">Escaneando terminales en red...</p>';
+    }
 
-    // 1. Atacamos el nodo público 'alias_claves' para ver qué chóferes tienen contraseña creada
-    database.ref('alias_claves').once('value').then((snapshotAlias) => {
-        if (!snapshotAlias.exists()) {
+    if (!database || !miUsuarioUIDActivo) return;
+
+    // 🚀 REPARACIÓN MÁSTER: Atacamos directamente el nodo global 'usuarios'
+    // Esto garantiza que aparezcan TODOS los chóferes del sistema en tiempo real, tengan o no contraseña alias
+    database.ref('usuarios').once('value').then((snapshotUsuarios) => {
+        if (!snapshotUsuarios.exists()) {
             arrayGlobalUsuariosAdmin = [];
             renderizarListaUsuariosAdmin();
             return;
         }
 
-        const mapaAliasUids = snapshotAlias.val(); // Estructura: { "MiCamion2026": "UID_LARGO_ABC", ... }
-        const listaClavesAlias = Object.keys(mapaAliasUids);
+        const mapaGlobalUsuarios = snapshotUsuarios.val();
+        let listaFormateadaAdmin = [];
 
-        // Creamos una cola de consultas individuales para leer cada perfil de forma autorizada por su UID
-        let colaConsultasPerfiles = listaClavesAlias.map(aliasTexto => {
-            const uidAsociado = mapaAliasUids[aliasTexto];
+        // Recorremos matemáticamente todas las carpetas UID del servidor
+        Object.keys(mapaGlobalUsuarios).forEach(uidKey => {
+            const nodoUsuario = mapaGlobalUsuarios[uidKey];
 
-            // Leemos el perfil exacto bajando al nivel del $uid permitido por tus reglas
-            return database.ref('usuarios/' + uidAsociado + '/datos_perfil').once('value')
-                .then(snapPerfil => {
-                    if (snapPerfil.exists()) {
-                        const perfil = snapPerfil.val();
-                        return {
-                            uid_firebase: uidAsociado,
-                            razon_social: perfil.razon_social || "EMPRESA SIN NOMBRE",
-                            nif_cif: perfil.nif_cif || "---",
-                            estado_activacion: perfil.estado_activacion || "DESACTIVADO",
-                            clave_alias: perfil.clave_personalizada_alias || aliasTexto
-                        };
-                    }
-                    return null;
-                }).catch(() => null); // Ignora errores individuales si algún perfil está huérfano
+            // Si el nodo tiene la carpeta de datos fiscales (perfil)
+            if (nodoUsuario && nodoUsuario.datos_perfil) {
+                const perfil = nodoUsuario.datos_perfil;
+
+                listaFormateadaAdmin.push({
+                    uid_firebase: uidKey,
+                    razon_social: perfil.razon_social || "EMPRESA SIN CONFIGURAR",
+                    nif_cif: perfil.nif_cif || "---",
+                    estado_activacion: perfil.estado_activacion || "DESACTIVADO",
+                    clave_alias: perfil.clave_personalizada_alias || ""
+                });
+            }
         });
 
-        // 2. Esperamos a que todas las consultas unitarias terminen en paralelo
-        Promise.all(colaConsultasPerfiles).then((resultadosValidos) => {
-            // Limpiamos los nulos y guardamos en el catálogo del administrador
-            arrayGlobalUsuariosAdmin = resultadosValidos.filter(u => u !== null);
+        // Guardamos el catálogo en la memoria RAM del administrador
+        arrayGlobalUsuariosAdmin = listaFormateadaAdmin;
 
-            // Refrescamos la lista elástica en pantalla
-            renderizarListaUsuariosAdmin();
-        });
+        // Refrescamos la lista elástica en tu pantalla del móvil
+        renderizarListaUsuariosAdmin();
 
     }).catch(err => {
         console.error("Error en puente de lectura admin:", err);
-        alert("Error de acceso al panel: " + err.message);
+        if (contenedorLista) {
+            contenedorLista.innerHTML = `<p style="color: #dc3545; text-align: center; padding: 15px;">Fallo de privilegios: ${err.message}</p>`;
+        }
     });
 }
+
 
 
 // Filtra e inyecta la lista elástica en el modal con un diseño hiper-limpio
@@ -2366,38 +2373,55 @@ function ejecutarGuardadoCambiosUsuarioAdmin() {
 
 
 
-// FULMINA AL CHOFER: Elimina al usuario de la tabla central y destruye su contraseña alias a la vez
+// =========================================================================
+// 🗑️ MOTOR DE PURGA ADMIN: ELIMINACIÓN PERMANENTE DE LICENCIA Y ALIAS (v3.42)
+// =========================================================================
 function ejecutarEliminacionCompletaUsuarioAdmin() {
-    if (!idUsuarioAdminSeleccionado) return;
+    if (!idUsuarioAdminSeleccionado) {
+        return alert("⚠ Por favor, selecciona primero un chófer de la lista superior.");
+    }
 
+    // Buscamos el objeto del chófer en la memoria RAM del administrador
     const chofer = arrayGlobalUsuariosAdmin.find(item => item.uid_firebase === idUsuarioAdminSeleccionado);
-    const mensajeAlerta = `⚠️ ¿Deseas ELIMINAR por completo a "${chofer.razon_social}" del servidor?\n\nSe borrará de forma irreversible su ficha de empresa, todo su historial de DeCAs emitidos y se DESTRUIRÁ su contraseña alias "${aliasOriginalUsuarioAdminSeleccionado || '---'}" de la base de datos.`;
+    if (!chofer) return;
 
+    const mensajeAlerta = `⚠️ ATENCIÓN MÁSTER: ¿Deseas ELIMINAR por completo a "${chofer.razon_social}" del servidor de forma permanente?\n\nEsta acción es IRREVERSIBLE: se destruirá su ficha fiscal, todo su historial de DeCAs emitidos en carretera y se ELIMINARÁ su contraseña alias "${chofer.clave_alias || '---'}" de la base de datos central.`;
+
+    // Desplegamos el modal interactivo de confirmación corporativo
     mostrarConfirmacionCorporativaDeca("Eliminación Total de Chófer", mensajeAlerta, function() {
         mostrarAvisoToast("🗑️ Purgando registros y contraseñas alias de la nube...");
 
+        // 1. Añadimos a la cola de borrado el nodo completo del usuario en Firebase
         let colaOperacionesBorrado = [
             database.ref('usuarios/' + idUsuarioAdminSeleccionado).remove()
         ];
 
-        if (aliasOriginalUsuarioAdminSeleccionado && aliasOriginalUsuarioAdminSeleccionado.trim() !== "") {
-            colaOperacionesBorrado.push(database.ref('alias_claves/' + aliasOriginalUsuarioAdminSeleccionado).remove());
+        // 2. Si el chófer tenía una contraseña alias creada, la trituramos del nodo puente
+        if (chofer.clave_alias && chofer.clave_alias.trim() !== "") {
+            console.log("✂️ Destruyendo puente de acceso alias:", chofer.clave_alias);
+            colaOperacionesBorrado.push(database.ref('alias_claves/' + chofer.clave_alias).remove());
         }
 
+        // 3. Ejecutamos todas las purgas en paralelo en la nube de Google
         Promise.all(colaOperacionesBorrado)
         .then(() => {
             mostrarAvisoToast("🗑️ Chófer purgado y contraseña alias destruida con éxito.");
 
-            // 🔒 LIMPIEZA DE INTERFAZ: Esconde el bloque de edición tras borrar
+            // 🔒 LIMPIEZA DE INTERFAZ: Esconde el bloque de edición y resetea variables
             document.getElementById("bloque_edicion_usuario_admin").style.display = "none";
             idUsuarioAdminSeleccionado = null;
             aliasOriginalUsuarioAdminSeleccionado = "";
 
+            // Refrescamos el salpicadero del administrador al instante
             descargarCatalogoUsuariosAdminCompleto();
         })
-        .catch(err => alert("Error en purga: " + err.message));
+        .catch(err => {
+            console.error("Fallo crítico en purga de servidor:", err);
+            alert("Error de red al eliminar: " + err.message);
+        });
     });
 }
+
 
 
 
@@ -2414,15 +2438,14 @@ function cerrarModalClaveMaestraYEntrar() {
         document.getElementById("modal_clave_seguridad_deca").style.display = "none";
     }
 
-    // 2. Forzamos el relanzamiento del sensor para que la RAM se entere de que está ACTIVADO/ADMIN
+    // 2. Forzamos el relanzamiento del sensor para liberar el dashboard
     verificarExistenciaPerfilCamionero();
 
-    // 3. 🚀 REDIRECCIÓN MÁSTER OBLIGATORIA: En lugar de dejarle en el dashboard vacío,
-    // le estampamos directamente el panel de "Mis Datos" para que rellene sus matrículas
+    // 3. Abrimos el panel Mis Datos para que cumplimente la flota habitual
     setTimeout(() => {
-        abrirPanelMisDatosCamionero();
+        abrirPanelMisDatosCamionero(true); // Flag true bloquea el aspa de escape
 
-        // Colocamos un letrero de cortesía ergonómico estilo TPV
+        // Colocamos el letrero ergonómico inicial
         mostrarAlertaCorporativaDeca(
             "Paso Obligatorio",
             "Antes de poder emitir tu primer documento electrónico (DeCA), la normativa de Inspección exige que completes el domicilio fiscal y las matrículas habituales de tu flota.",
@@ -2430,6 +2453,7 @@ function cerrarModalClaveMaestraYEntrar() {
         );
     }, 400);
 }
+
 
 
 // =========================================================================
@@ -2557,6 +2581,9 @@ function actualizarContadoresSuperiores() {
 // =========================================================================
 // 🖌️ RENDERIZADOR COMPACTO DE FILAS (SOLUCIÓN DEFINITIVA DE DATOS v2.97)
 // =========================================================================
+// =========================================================================
+// 🖌️ RENDERIZADOR COMPACTO DE FILAS (SOLUCIÓN DEFINITIVA DE DATOS v2.97)
+// =========================================================================
 function renderizarTablaResultados(listaFiltrada) {
     const bodyTabla = document.getElementById("tabla_resultados_body");
     if (!bodyTabla) return;
@@ -2616,29 +2643,22 @@ function renderizarTablaResultados(listaFiltrada) {
             opcionesMenuHTML += '<option value="editar">✏️ Editar</option><option value="anular">🚫 Anular Documento</option>';
         }
 
-        opcionesMenuHTML += opcionDuplicar + opcionPlantilla + opcionBorradorMuestraHTML;
-
-        // Menú de opciones elástico de tu v3.27 intacto
+        // 🔒 CORRECCIÓN MÁSTER V3.42: Concatenación limpia única (Eliminada duplicidad residual)
         opcionesMenuHTML += opcionDuplicar + opcionPlantilla + opcionBorradorMuestraHTML;
 
         // 🚀 CÁLCULO DINÁMICO DE FONDO (v4.90 MÁSTER):
-        // Evaluamos si la fila actual es el viaje de ejemplo 000000 para clavarle un fondo rojo suave
         let estiloFondoFilaEdicion = "";
         if (doc.numero_documento && doc.numero_documento.includes("000000")) {
-            // Fondo rojo claro/rosa corporativo suave de advertencia (Mantiene las letras legibles)
             estiloFondoFilaEdicion = 'style="background-color: #fdf2f2 !important;"';
         }
 
-        // INYECCIÓN DE LA FILA EN LA TABLA MÁSTER (Inyectamos la variable estiloFondoFilaEdicion en el tr)
+        // INYECCIÓN DE LA FILA EN LA TABLA MÁSTER
         htmlFinal += `
         <tr ${estiloFondoFilaEdicion}>
             <td>
             <span class="doc-numero" onclick="verFichaDocumento('${doc.id_firebase}')">${doc.numero_documento}</span>
-            <!-- ⏳ Si el terminal está offline, le clava un reloj de arena al lado para avisar al chofer -->
             ${!navigator.onLine ? '<span style="font-size:11px; margin-left:4px;" title="Retenido localmente esperando cobertura">⏳</span>' : ''}
             </td>
-
-
             <td>${fTxt}</td>
             <td class="celda-matriculas-flex">
                 <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; width: 100%;">
@@ -2671,6 +2691,7 @@ function renderizarTablaResultados(listaFiltrada) {
     bodyTabla.innerHTML = htmlFinal;
     document.getElementById("texto_paginacion_deca").innerText = `Mostrando ${listaFiltrada.length} documentos`;
 }
+
 
 
 
@@ -3460,14 +3481,25 @@ function abrirFormularioEditarDeCA(idFirebase) {
 
 
 // =========================================================================
-// 🎛️ LOGÍSTICA DE ACCIONES RÁPIDAS (AUTOMATIZADA Y AMPLIADA CON CLONADO)
+// 🎛️ LOGÍSTICA DE ACCIONES RÁPIDAS (CON AUTO-RESET DE SEGURIDAD v3.42)
 // =========================================================================
 function ejecutarAccionFila(selectElement, idFirebase) {
     const accion = selectElement.value;
     if (!accion) return;
 
     const viajeOrigen = documentosDeCA.find(item => item.id_firebase === idFirebase);
-    if (!viajeOrigen) return;
+    if (!viajeOrigen) {
+        selectElement.value = ""; // Auto-reset si no encuentra el viaje
+        return;
+    }
+
+    // 🔒 FUNCIÓN DE AUTO-RESET MAESTRA: Devuelve el selector a la palabra "Acciones"
+    // al instante para que el transportista pueda volver a pulsar la misma opción seguidamente.
+    function resetearDesplegableVisual() {
+        setTimeout(() => {
+            selectElement.value = "";
+        }, 50);
+    }
 
     // Camino A: Finalizar Viaje (Cerrar)
     if (accion === "cambiar_estado") {
@@ -3476,33 +3508,35 @@ function ejecutarAccionFila(selectElement, idFirebase) {
             mostrarAvisoToast("🔄 Cerrando porte en el archivo central...");
             database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idFirebase).update({
                 estado: "CERRADO",
-                fecha_fin_servicio: "2026-10-06" // Registra la fecha de llegada real de hoy (Año 2026)
+                fecha_fin_servicio: "2026-10-10" // Registra la fecha de llegada real de hoy
             })
             .then(() => mostrarAvisoToast("🏁 Servicio finalizado. Viaje guardado como Cerrado."));
         });
+        resetearDesplegableVisual();
 
     // Camino B: Apertura de edición
     } else if (accion === "editar") {
         if (viajeOrigen.estado === "ANULADO") {
-            return mostrarAlertaCorporativaDeca("Acción Denegada", "No se puede editar un documento que ya ha sido anulado oficialmente.", "❌");
+            mostrarAlertaCorporativaDeca("Acción Denegada", "No se puede editar un documento que ya ha sido anulado oficialmente.", "❌");
+            selectElement.value = "";
+            return;
         }
         abrirFormularioEditarDeCA(idFirebase);
+        resetearDesplegableVisual();
 
-    // Camino C: Duplicar Porte Correlativo Forzando Fecha a Hoy (v3.25)
+    // Camino C: Duplicar Porte Correlativo
     } else if (accion === "duplicar") {
         const mensajeClonar = `¿Deseas clonar la retícula de este viaje? Se generará un DeCA nuevo para HOY con los mismos datos comerciales de ${viajeOrigen.cargador_razon || 'Cargador'}.`;
 
         mostrarConfirmacionCorporativaDeca("Duplicar Documento", mensajeClonar, function() {
             mostrarAvisoToast("📋 Clonando estructura del viaje...");
 
-            // 🚀 CAPTURA MILIMÉTRICA DE LA FECHA DE HOY REAL DEL TERMINAL (Formato YYYY-MM-DD)
             const hoy = new Date();
             const yyyyHoy = hoy.getFullYear();
             const mmHoy = String(hoy.getMonth() + 1).padStart(2, '0');
             const ddHoy = String(hoy.getDate()).padStart(2, '0');
-            const cadenaFechaHoyFinal = yyyyHoy + '-' + mmHoy + '-' + ddHoy; // Resultado exacto: "2026-10-08"
+            const cadenaFechaHoyFinal = yyyyHoy + '-' + mmHoy + '-' + ddHoy;
 
-            // 🚀 CÁLCULO DE CADUCIDAD DEL NUEVO QR (Hoy + 7 días naturales)
             let fechaBaseNueva = new Date(hoy);
             fechaBaseNueva.setDate(fechaBaseNueva.getDate() + 7);
             const yyyyQr = fechaBaseNueva.getFullYear();
@@ -3510,30 +3544,28 @@ function ejecutarAccionFila(selectElement, idFirebase) {
             const ddQr = String(fechaBaseNueva.getDate()).padStart(2, '0');
             const nuevaCaducidadQR = yyyyQr + '-' + mmQr + '-' + ddQr;
 
-            // Componemos el paquete duplicado inyectando la fecha de hoy de forma obligatoria
             const paqueteDuplicado = {
                 ...viajeOrigen,
-                fecha_transporte: cadenaFechaHoyFinal, // 🔒 FORZADO: El viaje de hace 2 meses pasa a tener fecha de HOY
+                fecha_transporte: cadenaFechaHoyFinal,
                 fecha_fin_servicio: "",
                 qr_caducidad: nuevaCaducidadQR,
-                estado: "EN_CURSO", // 🟢 Al ser para hoy, nace activo listo para carretera
-                fecha_creacion_sistema: new Date().toLocaleString()
+                estado: "EN_CURSO",
+                fecha_creacion_sistema: hoy.toLocaleString()
             };
 
-            // Purgamos las llaves e identificadores del nodo origen para que Firebase le asigne un número nuevo
             delete paqueteDuplicado.id_firebase;
             delete paqueteDuplicado.numero_documento;
 
-            // Lanzamos el inyector correlativo automático
             ejecutarInyeccionCorrelativaDeCA(paqueteDuplicado);
         });
+        resetearDesplegableVisual();
 
-
-
-    // 🔥 CAMINO D: ANULACIÓN OFICIAL DE PORTES (BLINDAJE DE 1 AÑO EN FIREBASE)
+    // Camino D: Anulación Oficial de Portes
     } else if (accion === "anular") {
         if (viajeOrigen.estado === "ANULADO") {
-            return mostrarAlertaCorporativaDeca("Aviso", "Este documento ya se encuentra anulado.", "⚠️");
+            mostrarAlertaCorporativaDeca("Aviso", "Este documento ya se encuentra anulado.", "⚠️");
+            selectElement.value = "";
+            return;
         }
         const mensajeAnular = "⚠ REGLA DE CUSTODIA: Anular este documento dejará constancia legal inalterable en el servidor. El QR informará a la Guardia Civil de su invalidez pero el archivo se conservará 1 año. ¿Proceder?";
         mostrarConfirmacionCorporativaDeca("Anular Documento Electrónico", mensajeAnular, function() {
@@ -3544,15 +3576,18 @@ function ejecutarAccionFila(selectElement, idFirebase) {
             })
             .then(() => mostrarAvisoToast("🚫 El documento ha sido anulado con éxito."));
         });
+        resetearDesplegableVisual();
 
-    // 🔥 CAMINO E: GUARDAR COMO PLANTILLA LOCAL RÁPIDA (CONSERVA TU MOTOR ORIGINAL AL 100%)
+    // Camino E: Guardar Plantilla Frecuente
     } else if (accion === "plantilla") {
         let listaPlantillas = [];
         try { listaPlantillas = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
 
         const yaExiste = listaPlantillas.some(p => p.cargador_nif === viajeOrigen.cargador_nif && p.origen_plaza === viajeOrigen.origen_plaza && p.destino_plaza === viajeOrigen.destino_plaza);
         if (yaExiste) {
-            return mostrarAlertaCorporativaDeca("Plantilla Existente", "Ya tienes guardada una plantilla idéntica para esta ruta y cargador.", "⚠️");
+            mostrarAlertaCorporativaDeca("Plantilla Existente", "Ya tienes guardada una plantilla idéntica para esta ruta y cargador.", "⚠️");
+            selectElement.value = "";
+            return;
         }
 
         listaPlantillas.push({
@@ -3570,23 +3605,21 @@ function ejecutarAccionFila(selectElement, idFirebase) {
         });
         localStorage.setItem("cfg_deca_mis_plantillas", JSON.stringify(listaPlantillas));
         mostrarAvisoToast("⭐ Guardado en tus plantillas frecuentes de cabina.");
+        resetearDesplegableVisual();
 
-    // 🔥 EL NUEVO CAMINO FULMINANTE: Destruye el nodo de la muestra en la nube de Firebase si es el 000000
+    // Camino F: Eliminar Viaje de Muestra 000000
     } else if (accion === "eliminar_muestra") {
         const mensajeDestruir = `¿Deseas eliminar de forma permanente e irreversible el viaje de ejemplo ${viajeOrigen.numero_documento}? Esta acción limpiará tu panel central de pruebas.`;
 
         mostrarConfirmacionCorporativaDeca("Eliminar Viaje de Muestra", mensajeDestruir, function() {
             mostrarAvisoToast("🗑️ Eliminando registro de la nube...");
             database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idFirebase).remove()
-                .then(() => {
-                    mostrarAvisoToast("✅ Muestra eliminada correctamente.");
-                })
-                .catch(err => alert("Error al borrar: " + err.message));
+                .then(() => mostrarAvisoToast("✅ Muestra eliminada correctamente."));
         });
+        resetearDesplegableVisual();
     }
-
-    selectElement.value = ""; // Reseteo táctil
 }
+
 
 
 
@@ -3802,7 +3835,7 @@ function registrarNuevoCamioneroEcosistema() {
     const email = document.getElementById("reg_transp_email").value.trim().toLowerCase();
     const passwordAlias = document.getElementById("reg_transp_password").value.trim();
 
-    // 📋 ESCÁNER DE CAMPOS OBLIGATORIOS (Solo añade lo que verdaderamente esté en blanco)
+    // Escáner de obligatorios inicial
     let camposVaciosFaltantes = [];
     if (!razon) camposVaciosFaltantes.push("Razón Social / Nombre");
     if (!nif) camposVaciosFaltantes.push("NIF / CIF Comercial");
@@ -3814,14 +3847,12 @@ function registrarNuevoCamioneroEcosistema() {
     if (!remolque) camposVaciosFaltantes.push("Matrícula del Remolque");
     if (!telefono) camposVaciosFaltantes.push("Teléfono de Contacto");
 
-    // Si el escáner encuentra casillas vacías, detiene el guardado y saca la lista limpia
     if (camposVaciosFaltantes.length > 0) {
         const listadoFormateado = "Para poder validar tu licencia comercial y firmar los portes, es obligatorio cumplimentar las siguientes casillas:\n\n• " + camposVaciosFaltantes.join("\n• ");
         mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", listadoFormateado, "⚠️");
-        return; // Aborta de forma segura el guardado
+        return;
     }
 
-    // Componer la dirección completa oficial para los informes fiscales del DeCA (Mantiene tu lógica nativa)
     let domicilioFiscalCompleto = domicilio;
     if (cp || poblacion || provincia) {
         domicilioFiscalCompleto += ` (CP: ${cp} - ${poblacion} - ${provincia})`;
@@ -3834,22 +3865,21 @@ function registrarNuevoCamioneroEcosistema() {
         codigo_postal: cp || "",
         poblacion: poblacion || "",
         provincia: provincia || "",
-        domicilio_fiscal: domicilioFiscalCompleto, // Cadena unificada para el folio
-
-        // 🚀 CORREGIDO: Guarda con las claves nativas reales de tu Firebase
+        domicilio_fiscal: domicilioFiscalCompleto,
         matricula_tractor: tractor || "",
         matricula_remolque: remolque || "",
-
         telefono: telefono || "",
         email: email || "",
         fecha_registro: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.fecha_registro || new Date().toLocaleString()) : new Date().toLocaleString(),
         clave_recuperacion: miUsuarioUIDActivo,
         clave_personalizada_alias: passwordAlias || "",
-        // 🔥 REPARADO: Con la coma al final se quita el error en rojo del editor
         estado_activacion: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.estado_activacion || "DESACTIVADO") : "DESACTIVADO"
     };
 
     mostrarAvisoToast("⏳ Sincronizando ficha comercial en la nube...");
+
+    // Variable centinela para saber si vamos a inyectar el viaje de muestra por primera vez
+    let esCuentaNuevaSinViajes = false;
 
     database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').set(estructuraPerfil)
         .then(() => {
@@ -3860,21 +3890,18 @@ function registrarNuevoCamioneroEcosistema() {
             }
         })
         .then(() => {
-            // Guardamos la ficha en la memoria RAM del terminal
             misDatosPerfilAutonomo = estructuraPerfil;
-
-            // 🚀 VALIDACIÓN EXCLUSIVA: Consultamos si el transportista ya tiene algún DeCA emitido
+            // Consultamos si el transportista ya tiene algún DeCA emitido
             return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').once('value');
         })
         .then((snapshotDecas) => {
-            // 🔥 SI LA BASE DE DATOS ESTÁ VACÍA (Es su primer guardado tras la activación)
             if (!snapshotDecas.exists()) {
+                esCuentaNuevaSinViajes = true; // Marcamos que el usuario acaba de nacer en el sistema
                 console.log("🔳 Inyectando DeCA-2026-000000 personalizado con vuestras matrículas reales...");
 
-                // Componemos la muestra con los datos reales que el usuario acaba de teclear con su dedo
                 const deCADemostracionPrivado = {
                     numero_documento: "DeCA-2026-000000",
-                    fecha_transporte: "2026-10-06", // Fecha real de hoy (Año 2026)
+                    fecha_transporte: "2026-10-06",
                     matricula_tractor: estructuraPerfil.matricula_tractor || "1111 AAA",
                     matricula_remolque: estructuraPerfil.matricula_remolque || "R-2222 BBB",
                     origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
@@ -3887,27 +3914,27 @@ function registrarNuevoCamioneroEcosistema() {
                     cargador_razon: "CARGADOR EJEMPLO, S.L.",
                     cargador_nif: "A00000000",
                     cargador_domicilio: "CALLE CENTRAL, 10",
-                    transportista_razon: estructuraPerfil.razon_social // Sella vuestra empresa de forma nativa
+                    transportista_razon: estructuraPerfil.razon_social
                 };
-                // Grabamos la muestra en su historial de la nube
                 return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(deCADemostracionPrivado);
             } else {
                 return Promise.resolve();
             }
         })
         .then(() => {
-            // Cierre seguro del panel de configuración extendido
             document.getElementById("modal_perfil_camionero").style.display = "none";
             localStorage.setItem("cfg_uid_recuperado_deca", miUsuarioUIDActivo);
 
-            // Si el modal de la clave maestra no está activo en pantalla, liberamos la app
-            if (document.getElementById("modal_clave_seguridad_deca").style.display !== "flex") {
-                mostrarAvisoToast("✅ Datos comerciales actualizados correctamente.");
-                activarEscuchaRealtimeDeCAs(); // Pinta la tabla y descarga la muestra 000000 recién creada
-            }
+            // Activamos las antenas en tiempo real de forma limpia
+            activarEscuchaRealtimeDeCAs();
+            mostrarAvisoToast("✅ Datos comerciales actualizados.");
+
+            // 🔒 REPARACIÓN: Hemos retirado el bloque de bienvenida de aquí para que no colisione en el arranque
         })
         .catch(err => alert("Error de red al guardar: " + err.message));
 }
+
+
 
 
 
@@ -4287,11 +4314,12 @@ function obtenerHistorialMercanciasLocales() {
     }
 }
 
+
 // =========================================================================
 // 📦 MOTOR HÍBRIDO: HISTORIAL DE MERCANCÍAS FRECUENTES (FIREBASE + LOCAL)
 // =========================================================================
 
-// 1. Registra de forma segura la mercancía en la nube y en el disco de cabina
+// 1. Registra de forma segura la mercancía (SOLO SE LLAMA AL GENERAR EL DECA)
 function registrarMercanciaEnHistorialFrecuente(nombreMercancia) {
     if (!nombreMercancia || nombreMercancia.trim() === "" || nombreMercancia.includes("MUESTRA PRIVADA")) return;
 
@@ -4306,32 +4334,30 @@ function registrarMercanciaEnHistorialFrecuente(nombreMercancia) {
 
     const nombreLimpio = nombreMercancia.trim().toUpperCase();
 
-    // Firebase no acepta ciertos caracteres como llaves, los limpiamos por seguridad para la ruta (. # \$ [ ])
+    // Sanitización rígida de caracteres prohibidos por Google Firebase (. # \$ [ ])
     const llaveFirebaseFiel = nombreLimpio.replace(/[\.\#\$\[\]]/g, "-");
+    const objetoMercancia = { nombre: nombreLimpio };
 
-    // A. Subida a la nube de Firebase si el terminal está online
+    // A. Subida a Firebase si el terminal está online
     if (database && navigator.onLine) {
-        console.log("📡 Sincronizando mercancía frecuente en la nube:", nombreLimpio);
-        database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + llaveFirebaseFiel).set({
-            nombre: nombreLimpio
-        })
+        console.log("📡 Guardando mercancía oficial en la nube:", nombreLimpio);
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + llaveFirebaseFiel).set(objetoMercancia)
         .catch(e => console.warn("Aviso al guardar mercancía en Firebase:", e));
     }
 
-    // B. 🛡️ Inmunidad Offline: Espejo inmediato en el disco duro local
+    // B. Respaldo elástico en disco local para elpredictivo offline
     let mercanciasLocalesActuales = {};
     try {
         mercanciasLocalesActuales = JSON.parse(localStorage.getItem("bk_admin_mercancias_cloud")) || {};
     } catch(e) { mercanciasLocalesActuales = {}; }
 
-    mercanciasLocalesActuales[llaveFirebaseFiel] = { nombre: nombreLimpio };
+    mercanciasLocalesActuales[llaveFirebaseFiel] = objetoMercancia;
     localStorage.setItem("bk_admin_mercancias_cloud", JSON.stringify(mercanciasLocalesActuales));
 
-    window.diccionarioMercanciasCloud = mercanciasLocalesActuales; // Refresca la RAM del teléfono
-    console.log("💾 Mercancía registrada en el archivo local de cabina:", nombreLimpio);
+    window.diccionarioMercanciasCloud = mercanciasLocalesActuales; // Actualiza la RAM
 }
 
-// 2. Filtra y despliega las sugerencias desde la nube o local mientras el conductor teclea
+// 2. Filtra y despliega las sugerencias mientras el conductor teclea con su dedo
 function filtrarMercanciasFrecuentesPredictivo(inputElement) {
     const textoBuscar = inputElement.value.toUpperCase().trim();
     const dropdown = document.getElementById("lista_mercancias_frecuentes_drop");
@@ -4339,24 +4365,30 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
     if (!dropdown) return;
     dropdown.innerHTML = "";
 
-    // Extraemos el diccionario híbrido (de la antena de la nube o del respaldo del disco si está offline)
+    // Recuperación del almacén híbrido (RAM o disco duro local si está frío)
     let diccionarioMercancias = window.diccionarioMercanciasCloud;
 
     if (!diccionarioMercancias || Object.keys(diccionarioMercancias).length === 0) {
         try {
             diccionarioMercancias = JSON.parse(localStorage.getItem("bk_admin_mercancias_cloud")) || {};
+            window.diccionarioMercanciasCloud = diccionarioMercancias;
         } catch(e) { diccionarioMercancias = {}; }
     }
 
-    // Convertimos el mapa indexado en un array plano para buscar dentro
-    const catalogoMercancias = Object.keys(diccionarioMercancias).map(key => diccionarioMercancias[key].nombre);
-
-    if (catalogoMercancias.length === 0 || textoBuscar === "") {
+    if (!diccionarioMercancias || Object.keys(diccionarioMercancias).length === 0 || textoBuscar === "") {
         dropdown.style.display = "none";
         return;
     }
 
-    // Filtramos las coincidencias que contengan las letras tecleadas
+    // Mapeo tolerante a fallos: extrae el campo texto tanto si viene de la nube como del viejo local
+    const catalogoMercancias = Object.keys(diccionarioMercancias).map(key => {
+        const item = diccionarioMercancias[key];
+        if (item && typeof item === 'object' && item.nombre) return item.nombre;
+        if (item && typeof item === 'string') return item;
+        return "";
+    }).filter(m => m !== "");
+
+    // Extraemos las coincidencias exactas
     const sugerenciasFiltradas = catalogoMercancias.filter(m => m.includes(textoBuscar));
 
     if (sugerenciasFiltradas.length === 0) {
@@ -4379,7 +4411,6 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
         item.onmouseover = function() { this.style.background = esModoOscuro ? "#1c1c1e" : "#eef5fc"; };
         item.onmouseout = function() { this.style.background = "transparent"; };
 
-        // Al hacer clic, inyecta el producto y esconde el menú flotante
         item.onclick = function() {
             inputElement.value = mercancia;
             dropdown.style.display = "none";
@@ -4684,48 +4715,49 @@ function ejecutarAltaNuevaRegistroInicial() {
 
 
 // =========================================================================
-// 🕵️ MOTOR DE RECUPERACIÓN OFICIAL DEL REGISTRO INICIAL (v4.75 MÁSTER)
+// 🕵️ MOTOR DE RECUPERACIÓN REAL DE CREDENCIALES (CAMBIO DE IDENTIDAD REAL)
 // =========================================================================
 function ejecutarRecuperacionRegistroInicial() {
-    // 🚀 CORRECCIÓN: Apunta milimétricamente al ID real de tu nuevo modal de entrada
     const claveAValidar = document.getElementById("reg_inicial_clave_buscar").value.trim();
-    if (!claveAValidar) return alert("⚠ Introduce un código válido.");
+    if (!claveAValidar) return alert("⚠ Introduce un código o alias válido.");
 
     mostrarAvisoToast("🔍 Rescatando portes en el clúster central...");
 
-    // CAMINO A: Comprobar primero en el nodo puente de alias (contraseñas personalizadas)
+    // 1. Buscamos primero si introdujo una contraseña personalizada (Alias)
     database.ref('alias_claves/' + claveAValidar).once('value').then((snapshotAlias) => {
+        let uidDestinoFinal = null;
+
         if (snapshotAlias.exists()) {
-            const uidRealAsociado = snapshotAlias.val();
-            localStorage.setItem("cfg_uid_recuperado_deca", uidRealAsociado);
-            miUsuarioUIDActivo = uidRealAsociado;
-
-            // Apagamos el muro de registro obligatorio al recuperar con éxito
-            document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-            mostrarAvisoToast("✅ Perfil recuperado mediante alias.");
-
-            // Relanzamos el sensor de licencias para dar paso libre al dashboard
-            verificarExistenciaPerfilCamionero();
+            uidDestinoFinal = snapshotAlias.val();
         } else {
-            // CAMINO B: Comprobar si introdujo el código largo maestro UID de Firebase directo
-            database.ref('usuarios/' + claveAValidar + '/datos_perfil').once('value').then((snapshotUID) => {
-                if (snapshotUID.exists()) {
-                    localStorage.setItem("cfg_uid_recuperado_deca", claveAValidar);
-                    miUsuarioUIDActivo = claveAValidar;
-
-                    // Apagamos el muro de registro obligatorio al recuperar con éxito
-                    document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-                    mostrarAvisoToast("✅ Perfil recuperado mediante código maestro.");
-
-                    // Relanzamos el sensor de licencias para dar paso libre al dashboard
-                    verificarExistenciaPerfilCamionero();
-                } else {
-                    alert("❌ La contraseña o código maestro introducido no coincide con ningún transportista activo.");
-                }
-            }).catch(err => alert("Error de validación UID: " + err.message));
+            uidDestinoFinal = claveAValidar; // Asumimos que metió el UID maestro largo directo
         }
-    }).catch(err => alert("Error de validación Alias: " + err.message));
+
+        // 2. Comprobamos si el perfil existe realmente en el nodo usuarios antes de pisar nada
+        database.ref('usuarios/' + uidDestinoFinal + '/datos_perfil').once('value').then((snapshotUID) => {
+            if (snapshotUID.exists()) {
+
+                // 🚀 LA CLAVE DEL ÉXITO: Forzamos al disco local a memorizar el UID recuperado
+                localStorage.setItem("cfg_uid_recuperado_deca", uidDestinoFinal);
+                miUsuarioUIDActivo = uidDestinoFinal;
+
+                // Apagamos los muros de registro obligatorios
+                if (document.getElementById("modal_registro_inicial_obligatorio")) {
+                    document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+                }
+
+                mostrarAvisoToast("✅ Identidad vinculada correctamente.");
+
+                // Forzamos la recarga limpia de las antenas con la nueva identidad
+                verificarExistenciaPerfilCamionero();
+
+            } else {
+                alert("❌ La contraseña o código maestro introducido no coincide con ningún transportista activo.");
+            }
+        }).catch(err => alert("Error de comunicación: " + err.message));
+    }).catch(err => alert("Error en pasarela: " + err.message));
 }
+
 
 
 // =========================================================================
@@ -5132,11 +5164,14 @@ function forzarSincronizacionCargadorExpress() {
                 <div class="deca-form-grid">
 
                     <!-- Reemplazo del grupo de Naturaleza con Buscador Predictivo Local -->
-<!-- BUSCA ESTA LÍNEA EN TU FORMULARIO Y AÑADE EL EVENTO ONCHANGE -->
+<!-- BUSCA ESTA LÍNEA EN TU HTML Y DÉJALA ASÍ (SIN ONCHANGE) -->
 <div class="deca-form-grupo" style="flex: 2; position: relative;">
     <label>Naturaleza de la Mercancía <span>*</span></label>
-    <input type="text" id="deca_mercan_nombre" class="deca-input" placeholder="p. ej. AJO SPRING" oninput="filtrarMercanciasFrecuentesPredictivo(this)" onfocus="filtrarMercanciasFrecuentesPredictivo(this)" onchange="registrarMercanciaEnHistorialFrecuente(this.value)">
+    <input type="text" id="deca_mercan_nombre" class="deca-input" placeholder="p. ej. AJO SPRING" oninput="filtrarMercanciasFrecuentesPredictivo(this)" onfocus="filtrarMercanciasFrecuentesPredictivo(this)">
+    <!-- Contenedor dinámico donde nacerán las sugerencias del histórico -->
+    <div id="lista_mercancias_frecuentes_drop" class="dropdown-mercancias-pred"></div>
 </div>
+
 
 
 
@@ -5453,7 +5488,7 @@ function forzarSincronizacionCargadorExpress() {
 
 
 <!-- === MODAL INTERACTIVO REUTILIZABLE DE AVISOS (REEMPLAZA A LOS ALERT) === -->
-<div id="modal_alerta_deca" class="modal-deca-gigante" style="z-index: 700000; background: rgba(0,0,0,0.6);">
+<div id="modal_alerta_deca" class="modal-deca-gigante" style="z-index: 999999 !important; background: rgba(0,0,0,0.6);">
     <div class="deca-modal-contenido" style="max-width: 400px; height: auto; margin: auto; text-align: center; border-top: 5px solid #dc3545;">
         <div class="deca-modal-cuerpo" style="padding: 25px; background: #ffffff;">
             <span id="alerta_deca_icono" style="font-size: 45px; display: block; margin-bottom: 12px;">⚠️</span>
@@ -5480,7 +5515,7 @@ function forzarSincronizacionCargadorExpress() {
 
 
 <!-- === MODAL INTERACTIVO REUTILIZABLE DE PREGUNTAS (REEMPLAZA A LOS CONFIRM) === -->
-<div id="modal_confirm_deca" class="modal-deca-gigante" style="z-index: 690000; background: rgba(0,0,0,0.6);">
+<div id="modal_confirm_deca" class="modal-deca-gigante" style="z-index: 999999 !important; background: rgba(0,0,0,0.6);">
     <div class="deca-modal-contenido" style="max-width: 400px; height: auto; margin: auto; text-align: center; border-top: 5px solid #0f4c81;">
         <div class="deca-modal-cuerpo" style="padding: 25px; background: #ffffff;">
             <span id="confirm_deca_icono" style="font-size: 45px; display: block; margin-bottom: 12px;">❓</span>
@@ -5535,7 +5570,7 @@ function forzarSincronizacionCargadorExpress() {
 </div>
 
 <!-- === 🚫 MODAL MAESTRO: PANEL DE CONTROL DE ADMINISTRACIÓN GLOBAL DE FLOTAS === -->
-<div id="modal_administrador_global_deca" class="modal-deca-gigante" style="z-index: 850000; background: rgba(11, 14, 23, 0.9);">
+<div id="modal_administrador_global_deca" class="modal-deca-gigante" style="z-index: 800000; background: rgba(11, 14, 23, 0.9);">
     <div class="deca-modal-contenido" style="max-width: 600px; height: 88vh; margin: auto;">
 
         <div class="deca-modal-cabecera" style="background: #111111; color: white;">
@@ -5573,11 +5608,11 @@ function forzarSincronizacionCargadorExpress() {
                         <input type="text" id="txt_admin_alias_usuario" class="deca-input" style="height: 38px; width: 100%; font-family: monospace; font-weight: bold; background: #ffffff;">
                     </div>
 
+                    <div style="display: flex; gap: 8px; margin-top: 15px; width: 100%;">
+                        <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoCambiosUsuarioAdmin()" style="flex: 1; margin: 0; background: #28a745 !important; box-shadow: none;">💾 Guardar</button>
+                        <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarEliminacionCompletaUsuarioAdmin()" style="flex: 1; margin: 0; background: #dc3545 !important; box-shadow: none;">🗑️ Eliminar Chofer</button>
+                    </div>
 
-                <div style="display: flex; gap: 8px; margin-top: 15px; width: 100%;">
-                    <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoCambiosUsuarioAdmin()" style="flex: 1; margin: 0; background: #28a745 !important; box-shadow: none;">💾 Guardar Licencia</button>
-                    <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarEliminacionCompletaUsuarioAdmin()" style="flex: 1; margin: 0; background: #dc3545 !important; box-shadow: none;">🗑️ Eliminar Chofer</button>
-                </div>
             </div>
 
         </div>
