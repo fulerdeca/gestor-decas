@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.50</title>
+    <title>Gestor de DeCAs Transportes v3.60</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -18,21 +18,24 @@
 <style>  /* === BLOQUE 1 DE ESTILOS OPTIMIZADO (PARTE 1 DE 2) === */
         /* 🔒 CANDADO GEOMÉTRICO PREMIUM: Iconos puros ultracompactos simétricos */
 
-        #btn_modo_oscuro_switch,
-        #indicador_red_status {
-            width: 42px !important;
-            min-width: 42px !important;
-            max-width: 42px !important;
-            height: 38px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important; /* Centrado milimétrico del emoji */
-            padding: 0 !important;
-            margin: 0 !important;
-            box-sizing: border-box !important;
-            border-radius: 6px !important;
-            font-size: 16px !important;
-        }
+/* === REEMPLAZA ESTA REGLA DEL BLOQUE 1 DE ESTILOS === */
+#btn_modo_oscuro_switch,
+#indicador_red_status,
+#btn_salir_apk_compacto {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important; /* Centrado milimétrico del emoji / icono */
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 6px !important;
+    font-size: 16px !important;
+}
+
 
 
         /* === VARIABLES DE COLOR DE ALTA VISIBILIDAD UNIFICADAS === */
@@ -567,7 +570,14 @@
 
 
         .deca-btn-pie { padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; border: none; }
-        .deca-btn-cancelar { background: #e2e8f0; color: #4a5568; }
+        /* === REEMPLAZA ESTA CLASE EN TU HOJA DE ESTILOS GENERAL === */
+        .deca-btn-cancelar {
+            background: #ffffff !important;
+            color: #4a5568 !important;
+            border: 1px solid #cbd5e0 !important;
+        }
+
+
         .deca-btn-guardar { background: #0f4c81; color: #ffffff; }
 
         /* ==========================================================================
@@ -642,6 +652,12 @@
         body.dark-mode .contenedor-filtros button.btn-top:hover {
             background: #a0aec0 !important; /* Resalte sutil al pasar el dedo o ratón */
         }
+
+/* === REGLA EXCLUSIVA PARA LOS CAMPOS OBLIGATORIOS VACÍOS === */
+.deca-input-error-falta {
+    background-color: #fdf2f2 !important; /* Rojo claro / rosa suave corporativo */
+    border: 2px solid #dc3545 !important;    /* Contorno carmín rígido de advertencia */
+}
 
 </style>  <!-- === FIN DEL BLOQUE 1 DE ESTILOS === -->
 
@@ -1580,6 +1596,37 @@ body.dark-mode .banner-inspeccion-nota {
     box-sizing: border-box;
 }
 
+/* === AÑADE ESTA REGLA EXCLUSIVA AL FINAL DE TU BLOQUE DE ESTILOS === */
+body.dark-mode .deca-modal-pie .deca-btn-cancelar {
+    background: #444446 !important;
+    border-color: #444446 !important;
+    color: #a0aec0 !important;
+    box-shadow: none !important;
+}
+
+body.dark-mode .deca-modal-pie .deca-btn-cancelar:hover {
+    background: #a0aec0 !important;
+    color: #121212 !important;
+}
+
+/* === REGLA EXCLUSIVA PARA EL BOTÓN MIS DATOS DE LA PÁGINA PRINCIPAL (MODO DÍA) === */
+.deca-bloque-operaciones-libre .btn-recomendar {
+    background: #ffffff !important;
+    color: #4a5568 !important;
+    border: 1px solid #cbd5e0 !important;
+}
+/* === REGLA EXCLUSIVA PARA EL BOTÓN MIS DATOS DE LA PÁGINA PRINCIPAL (MODO NOCHE) === */
+body.dark-mode .deca-bloque-operaciones-libre .btn-recomendar {
+    background: #444446 !important;
+    border-color: #444446 !important;
+    color: #a0aec0 !important;
+    box-shadow: none !important;
+}
+
+body.dark-mode .deca-bloque-operaciones-libre .btn-recomendar:hover {
+    background: #a0aec0 !important;
+    color: #121212 !important;
+}
 
 
 </style>
@@ -1607,7 +1654,8 @@ body.dark-mode .banner-inspeccion-nota {
                 <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a202c;" class="deca-titulo-texto-nocturno">DeCA</h1>
             </div>
 
-            <!-- BÚNKER DE ICONOS ULTRACOMPACTO SUPREMO v3.90 -->
+            <!-- === REEMPLAZA EL CONTENEDOR BÚNKER DE ICONOS COMPLETO POR ÉSTE === -->
+            <!-- BÚNKER DE ICONOS ULTRACOMPACTO SUPREMO v3.95 -->
             <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
 
                 <!-- 📡 Testigo Dinámico de Red (Icono de Wi-Fi puro) -->
@@ -1620,9 +1668,10 @@ body.dark-mode .banner-inspeccion-nota {
                     ☀️
                 </button>
 
-                <!-- ✕ Botón Salir APK Compacto -->
-                <button class="btn-top btn-salir-rojo" onclick="if(navigator.app){navigator.app.exitApp();} else if(window.Android){window.Android.closeApp();} else {mostrarAlertaCorporativaDeca('Cerrar Aplicación', 'Para cerrar la aplicación en su totalidad, por favor cierre esta pestaña del navegador o la APK de su terminal.', '❌'); window.close();}" style="color: #ffffff !important; padding: 0 12px; height: 38px;">✕ Salir</button>
+                <!-- ✕ Botón Salir APK Compacto Geométrico Síncrono -->
+                <button id="btn_salir_apk_compacto" class="btn-top btn-salir-rojo" onclick="if(navigator.app){navigator.app.exitApp();} else if(window.Android){window.Android.closeApp();} else {mostrarAlertaCorporativaDeca('Cerrar Aplicación', 'Para cerrar la aplicación en su totalidad, por favor cierre esta pestaña del navegador o la APK de su terminal.', '❌'); window.close();}" title="Cerrar terminal de transportes">✕</button>
             </div>
+
 
 
         </div>
@@ -1722,8 +1771,8 @@ body.dark-mode .banner-inspeccion-nota {
                     <th style="width: 220px;">Ruta Comercial</th>
                     <th style="width: 135px;">Mercancía</th> <!-- ⬇️ Reducido de 160px a 135px (columna elástica de texto) -->
                     <th style="width: 85px;">QR Activo</th>
-                    <th style="width: 145px;">Estado</th> <!-- ⬆️ Conserva sus 145px ampliados para el texto -->
-                    <th style="width: 180px; text-align: left; padding-right: 15px;">Acciones</th> <!-- 🛡️ Recupera sus 180px originales para que quepa la botonera -->
+                    <th style="width: 145px; text-align: center">Estado</th> <!-- ⬆️ Conserva sus 145px ampliados para el texto -->
+                    <th style="width: 180px; text-align: center">Acciones</th> <!-- 🛡️ Recupera sus 180px originales para que quepa la botonera -->
                 </tr>
             </thead>
 
@@ -3195,26 +3244,59 @@ function procesarGuardadoDeCAOnline() {
     const mercanBultos = document.getElementById("deca_mercan_bultos").value.trim();
     const observaciones = document.getElementById("deca_observaciones").value.trim();
 
-    // Controlador radar de campos obligatorios
+
+
+
+    // Primero limpiamos cualquier rastro de error de un intento de guardado anterior
+    const todosLosInputsForm = document.querySelectorAll("#modal_nuevo_deca .deca-input");
+    todosLosInputsForm.forEach(input => input.classList.remove("deca-input-error-falta"));
+
     let camposFaltantes = [];
-    if (!cargRazon) camposFaltantes.push("Razón Social del Cargador");
-    if (!cargNif) camposFaltantes.push("NIF del Cargador");
-    if (!cargDomicilio) camposFaltantes.push("Domicilio del Cargador");
-    if (!cargCp) camposFaltantes.push("Código Postal");
-    if (!cargPoblacion) camposFaltantes.push("Población del Cargador");
-    if (!cargProvincia) camposFaltantes.push("Provincia del Cargador");
-    if (!fechaTransp) camposFaltantes.push("Fecha del Transporte");
-    if (!vehiculo) camposFaltantes.push("Matrícula del Vehículo (Tractor)");
-    if (!origen) camposFaltantes.push("Lugar de Origen / Carga");
-    if (!destino) camposFaltantes.push("Lugar de Destino / Descarga");
-    if (!mercanNombre) camposFaltantes.push("Naturaleza de la Mercancía");
-    if (!mercanPeso) camposFaltantes.push("Peso / Magnitud de la Carga");
+
+    // Auxiliar máster para chequear e inyectar el color rojo claro al instante
+    function comprobarCampoObligatorio(idCampo, nombreLegible) {
+        const elemento = document.getElementById(idCampo);
+        if (!elemento || elemento.value.trim() === "") {
+            camposFaltantes.push(nombreLegible);
+            if (elemento) {
+                elemento.classList.add("deca-input-error-falta"); // Inyecta el fondo rosa
+
+                // Centinela ergonómico: En cuanto el chófer empiece a escribir, le quita el rojo
+                elemento.oninput = function() {
+                    if (this.value.trim() !== "") this.classList.remove("deca-input-error-falta");
+                };
+            }
+        }
+    }
+
+    // Controlador radar de campos obligatorios interactivo
+    comprobarCampoObligatorio("deca_carg_razon", "Razón Social del Cargador");
+    comprobarCampoObligatorio("deca_carg_nif", "NIF del Cargador");
+    comprobarCampoObligatorio("deca_carg_domicilio", "Domicilio del Cargador");
+    comprobarCampoObligatorio("deca_carg_cp", "Código Postal");
+    comprobarCampoObligatorio("deca_carg_poblacion", "Población del Cargador");
+    comprobarCampoObligatorio("deca_carg_provincia", "Provincia del Cargador");
+    comprobarCampoObligatorio("deca_fecha_transporte", "Fecha del Transporte");
+    comprobarCampoObligatorio("deca_vehiculo", "Matrícula del Vehículo (Tractor)");
+    comprobarCampoObligatorio("deca_origen", "Lugar de Origen / Carga");
+    comprobarCampoObligatorio("deca_destino", "Lugar de Destino / Descarga");
+    comprobarCampoObligatorio("deca_mercan_nombre", "Naturaleza de la Mercancía");
+    comprobarCampoObligatorio("deca_mercan_peso", "Peso / Magnitud de la Carga");
 
     if (camposFaltantes.length > 0) {
-        const mensajeError = "Para poder generar el documento electrónico legal (DeCA), es obligatorio cumplimentar las siguientes casillas:\n\n• " + camposFaltantes.join("\n• ");
+        const mensajeError = "Para poder generar el documento electrónico legal (DeCA), es obligatorio cumplimentar las casillas resaltadas en rojo claro:\n\n• " + camposFaltantes.join("\n• ");
         mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", mensajeError, "⚠️");
+
+        // Enfoca automáticamente el primer campo vacío de la lista para agilizar el tecleo
+        const primerError = document.querySelector("#modal_nuevo_deca .deca-input-error-falta");
+        if (primerError) primerError.focus();
         return;
     }
+
+
+
+
+
 
     mostrarAvisoToast("⏳ Calculando marcas temporales del porte...");
 
@@ -3835,23 +3917,57 @@ function registrarNuevoCamioneroEcosistema() {
     const email = document.getElementById("reg_transp_email").value.trim().toLowerCase();
     const passwordAlias = document.getElementById("reg_transp_password").value.trim();
 
-    // Escáner de obligatorios inicial
+    // Primero limpiamos cualquier rastro de error de intentos anteriores
+    const todosLosInputsPerfil = document.querySelectorAll("#modal_perfil_camionero .deca-input, #modal_registro_inicial_obligatorio .deca-input");
+    todosLosInputsPerfil.forEach(input => input.classList.remove("deca-input-error-falta"));
+
     let camposVaciosFaltantes = [];
-    if (!razon) camposVaciosFaltantes.push("Razón Social / Nombre");
-    if (!nif) camposVaciosFaltantes.push("NIF / CIF Comercial");
-    if (!domicilio) camposVaciosFaltantes.push("Domicilio (Calle, Número)");
-    if (!cp) camposVaciosFaltantes.push("Código Postal (CP)");
-    if (!poblacion) camposVaciosFaltantes.push("Población / Localidad");
-    if (!provincia) camposVaciosFaltantes.push("Provincia (España)");
-    if (!tractor) camposVaciosFaltantes.push("Matrícula de la Tractora");
-    if (!remolque) camposVaciosFaltantes.push("Matrícula del Remolque");
-    if (!telefono) camposVaciosFaltantes.push("Teléfono de Contacto");
+
+    // Auxiliar máster inteligente: SOLO evalúa el campo si la ventana donde vive está visible en pantalla
+    function comprobarCampoPerfilObligatorio(idCampo, nombreLegible, idModalPadre) {
+        const modalPadre = document.getElementById(idModalPadre);
+        // Si el modal padre no está abierto en pantalla (display != flex/block), ignoramos el campo por completo
+        if (modalPadre && (modalPadre.style.display === "none" || window.getComputedStyle(modalPadre).display === "none")) {
+            return;
+        }
+
+        const elemento = document.getElementById(idCampo);
+        if (elemento && elemento.value.trim() === "") {
+            camposVaciosFaltantes.push(nombreLegible);
+            elemento.classList.add("deca-input-error-falta"); // Inyecta el fondo rosa
+
+            elemento.oninput = function() {
+                if (this.value.trim() !== "") this.classList.remove("deca-input-error-falta");
+            };
+        }
+    }
+
+    // 👤 CASE A: Si el chófer está dentro del panel "Mis Datos" extendido desde el Dashboard
+    comprobarCampoPerfilObligatorio("reg_transp_razon", "Razón Social / Nombre", "modal_perfil_camionero");
+    comprobarCampoPerfilObligatorio("reg_transp_nif", "NIF / CIF Comercial", "modal_perfil_camionero");
+    comprobarCampoPerfilObligatorio("reg_transp_domicilio", "Domicilio (Calle, Número)", "modal_perfil_camionero");
+    comprobarCampoPerfilObligatorio("reg_transp_cp", "Código Postal (CP)", "modal_perfil_camionero");
+    comprobarCampoPerfilObligatorio("reg_transp_poblacion", "Población / Localidad", "modal_perfil_camionero");
+    comprobarCampoPerfilObligatorio("reg_transp_provincia", "Provincia (España)", "modal_perfil_camionero");
+    comprobarCampoPerfilObligatorio("reg_transp_tractor", "Matrícula de la Tractora", "modal_perfil_camionero");
+    comprobarCampoPerfilObligatorio("reg_transp_remolque", "Matrícula del Remolque", "modal_perfil_camionero");
+    comprobarCampoPerfilObligatorio("reg_transp_telefono", "Teléfono de Contacto", "modal_perfil_camionero");
+
+    // 🚚 CASE B: Si el chófer se está registrando por primera vez desde la ventana de Alta Inicial Virgen
+    comprobarCampoPerfilObligatorio("reg_inicial_razon", "Razón Social del Transportista", "modal_registro_inicial_obligatorio");
+    comprobarCampoPerfilObligatorio("reg_inicial_nif", "NIF / CIF Comercial", "modal_registro_inicial_obligatorio");
 
     if (camposVaciosFaltantes.length > 0) {
-        const listadoFormateado = "Para poder validar tu licencia comercial y firmar los portes, es obligatorio cumplimentar las siguientes casillas:\n\n• " + camposVaciosFaltantes.join("\n• ");
+        const listadoFormateado = "Para poder validar tu licencia comercial y firmar los portes, es obligatorio cumplimentar las casillas resaltadas en rojo claro:\n\n• " + camposVaciosFaltantes.join("\n• ");
         mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", listadoFormateado, "⚠️");
-        return;
+
+        // Enfoca el primer error visible dependiendo de qué ventana esté en pantalla
+        const primerErrorPerfil = document.querySelector("#modal_perfil_camionero .deca-input-error-falta, #modal_registro_inicial_obligatorio .deca-input-error-falta");
+        if (primerErrorPerfil) primerErrorPerfil.focus();
+        return; // Aborta el guardado
     }
+
+
 
     let domicilioFiscalCompleto = domicilio;
     if (cp || poblacion || provincia) {
@@ -5034,6 +5150,27 @@ function forzarSincronizacionCargadorExpress() {
     }
 }
 
+// =========================================================================
+// 🛠️ FUNCIÓN: LOGÍSTICA INTELIGENTE DEL BOTÓN CANCELAR DEL PIE DE VENTANA
+// =========================================================================
+function cerrarEdicionUsuarioAdminManual() {
+    const bloqueEdicion = document.getElementById("bloque_edicion_usuario_admin");
+
+    // CASO A: Si el transportista tiene abierto el panel inferior de edición, lo replegamos
+    if (bloqueEdicion && bloqueEdicion.style.display === "block") {
+        bloqueEdicion.style.display = "none";
+        idUsuarioAdminSeleccionado = null;
+        aliasOriginalUsuarioAdminSeleccionado = "";
+        document.getElementById("txt_admin_alias_usuario").value = "";
+        document.getElementById("sel_admin_estado_activacion").value = "DESACTIVADO";
+        mostrarAvisoToast("📋 Vista de terminal restablecida");
+    }
+    // CASO B: Si el panel ya estaba cerrado, el botón actúa cerrando la ventana completa
+    else {
+        document.getElementById("modal_administrador_global_deca").style.display = "none";
+    }
+}
+
 
 </script>
 
@@ -5613,11 +5750,17 @@ function forzarSincronizacionCargadorExpress() {
                         <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarEliminacionCompletaUsuarioAdmin()" style="flex: 1; margin: 0; background: #dc3545 !important; box-shadow: none;">🗑️ Eliminar Chofer</button>
                     </div>
 
-            </div>
+            </div> <!-- Cierre de bloque_edicion_usuario_admin -->
 
+        </div> <!-- Cierre de deca-modal-cuerpo -->
+
+        <!-- 🎯 EL PIE DE VENTANA FIJO UBICADO FUERA DEL CUERPO DESPLAZABLE -->
+        <div class="deca-modal-pie">
+            <button class="deca-btn-pie deca-btn-cancelar" onclick="cerrarEdicionUsuarioAdminManual()">Cancelar / Volver</button>
         </div>
-    </div>
-</div>
+
+    </div> <!-- Cierre de deca-modal-contenido -->
+</div> <!-- Cierre de modal_administrador_global_deca -->
 
 <!-- === 👤 MODAL INDEPENDIENTE EXCLUSIVO: REGISTRO OBLIGATORIO DE CONDUCTOR (v4.00 MÁSTER) === -->
 <div id="modal_registro_inicial_obligatorio" class="modal-deca-gigante" style="z-index: 650000; background: rgba(11, 14, 23, 0.95);">
