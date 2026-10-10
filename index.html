@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.27</title>
+    <title>Gestor de DeCAs Transportes v3.41</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -508,6 +508,14 @@
             text-transform: uppercase !important;
             box-sizing: border-box;
         }
+
+        /* 🔓 EXCEPCIÓN VISUAL: Libera las casillas de contraseñas de las mayúsculas CSS */
+        #reg_inicial_clave_buscar,
+        #reg_clave_recuperar,
+        #reg_transp_password {
+            text-transform: none !important;
+        }
+
 
         .deca-input:focus {
             border-color: #0f4c81;
@@ -1545,6 +1553,14 @@ body.dark-mode .banner-inspeccion-nota {
         body.dark-mode #modal_emergencia_offline_deca h4 { color: #ffffff !important; }
         body.dark-mode #modal_emergencia_offline_deca p { color: #cbd5e0 !important; }
 
+        /* 🌙 APAGADO NOCTURNO PARA LA FILA DE MUESTRA GESTIÓN DE PORTES */
+        body.dark-mode .deca-tabla-sincro-master tbody tr[style*="background-color"] {
+            background-color: rgba(229, 62, 62, 0.15) !important; /* Rojo óxido/pastel translúcido ultratenuado */
+        }
+
+        body.dark-mode .deca-tabla-sincro-master tbody tr[style*="background-color"] td {
+            color: #ffffff !important; /* Forza las letras a mantenerse blancas en la oscuridad */
+        }
 
 
 /* Estilo del modal máster de bloqueo por licencia de transporte inactiva */
@@ -2025,20 +2041,27 @@ function verificarExistenciaPerfilCamionero() {
                         console.warn("⚠️ Perfil incompleto detectado en el arranque. Forzando configuración...");
                         misDatosPerfilAutonomo = copiaPerfilRAM;
 
-                        // Levantamos el panel flotante de Mis Datos para obligarle a terminar
-                        abrirPanelMisDatosCamionero();
+                        // 1. Purgamos los modales negros de bloqueo e iniciales de la pantalla
+                        if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+                        if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
 
-                        // Lanzamos el aviso general corporativo en mitad de la pantalla
+                        // 2. 🚀 ENTRADA CIEGA: Abrimos el panel pasándole el flag 'true' para capar los escapes
+                        abrirPanelMisDatosCamionero(true);
+
+                        // 3. Lanzamos el aviso general corporativo en mitad de la pantalla
                         mostrarAlertaCorporativaDeca(
                             "Perfil Comercial Incompleto",
                             "Se ha detectado que su ficha de transportista no está totalmente cumplimentada. Por normativa legal de la Inspección de Transportes, es obligatorio rellenar la Dirección, Código Postal, Teléfono y ambas Matrículas antes de acceder al dashboard.",
                             "📋"
                         );
-                        return; // 🔒 Bloquea el hilo: No le deja ver el salpicadero trasero ni emitir
+                        return; // Bloquea el hilo de forma segura
                     }
 
+
+
+
                     console.log("🔓 Licencia validada y perfil íntegro: Liberando interfaz...");
-                    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off('value');
+                    //database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off('value');
                     misDatosPerfilAutonomo = copiaPerfilRAM;
 
                     // Apagamos todas las pantallas de control si todo está al 100% relleno
@@ -2084,9 +2107,9 @@ function desplegarMuroRegistroInicialObligatorioNativo() {
 }
 
 // =========================================================================
-// 👤 CONFIGURACIÓN DEL PANEL DE REVISIÓN DE DATOS COMERCIALES EXISTENTES
+// 👤 CONFIGURACIÓN DEL PANEL DE REVISIÓN DE DATOS COMERCIALES EXISTENTES (v4.50)
 // =========================================================================
-function abrirPanelMisDatosCamionero() {
+function abrirPanelMisDatosCamionero(forzarBloqueoSalida = false) {
     if (misDatosPerfilAutonomo) {
         if(document.getElementById("reg_transp_razon")) document.getElementById("reg_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
         if(document.getElementById("reg_transp_nif")) document.getElementById("reg_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
@@ -2101,7 +2124,23 @@ function abrirPanelMisDatosCamionero() {
         if(document.getElementById("reg_transp_password")) document.getElementById("reg_transp_password").value = misDatosPerfilAutonomo.clave_personalizada_alias || "";
     }
 
+    // Levantamos el panel flotante de Mis Datos
     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "flex";
+
+    // 🚀 APLICACIÓN DEL CERROJO DESDE EL CORAZÓN DE LA FUNCIÓN
+    const btnCerrarAspa = document.getElementById("btn_cerrar_perfil");
+    const btnCancelarPie = document.querySelector("#modal_perfil_camionero .deca-btn-cancelar");
+
+    if (forzarBloqueoSalida === true) {
+        // 🔒 CASO INCOMPLETO EN FRÍO: Fino y fulminante, escondemos los escapes del tirón
+        if (btnCerrarAspa) btnCerrarAspa.style.setProperty("display", "none", "important");
+        if (btnCancelarPie) btnCancelarPie.style.setProperty("display", "none", "important");
+    } else {
+        // 🔓 CASO NORMAL: Si pincha desde el Dashboard privado, los botones nacen visibles para cotillear
+        if (btnCerrarAspa) btnCerrarAspa.style.setProperty("display", "block", "important");
+        if (btnCancelarPie) btnCancelarPie.style.setProperty("display", "inline-flex", "important");
+    }
+
     const cuerpoMisDatos = document.querySelector("#modal_perfil_camionero .deca-modal-cuerpo");
     if (cuerpoMisDatos) cuerpoMisDatos.scrollTop = 0;
 }
@@ -2444,16 +2483,52 @@ function activarEscuchaRealtimeDeCAs() {
         console.error("Error en la escucha aislada del transportista:", error);
     });
 
-    // 🚀 NUEVA ANTENA: Sincronización en vivo de la cartera de clientes desde Firebase
+    // 📡 NUEVA ANTENA: Sincronización en vivo de la cartera de clientes desde Firebase
     database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes').on('value', (snapshot) => {
         window.diccionarioCargadoresCloud = snapshot.val() || {};
         console.log("📦 Cartera de clientes descargada de la nube:", Object.keys(window.diccionarioCargadoresCloud).length);
 
-        // Sincronizamos una copia en local por si el chofer entra en modo avión
+        // Guardamos un respaldo en frío en local para que el predictivo funcione si el camión entra en un túnel
         try {
             localStorage.setItem("bk_admin_cargadores_cloud", JSON.stringify(window.diccionarioCargadoresCloud));
         } catch(e) {}
     });
+
+    // =========================================================================
+    // 📡 ANTENA DE CLIENTES: Sincronización en vivo desde Firebase al arrancar
+    // =========================================================================
+    if (database && miUsuarioUIDActivo) {
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes').on('value', (snapshot) => {
+            const datosClientesCloud = snapshot.val() || {};
+            window.diccionarioCargadoresCloud = datosClientesCloud;
+            console.log("📦 Cartera de clientes descargada de la nube:", Object.keys(datosClientesCloud).length);
+
+            // Guardamos una copia local actualizada para cuando entremos en zonas sin cobertura
+            try {
+                localStorage.setItem("bk_admin_cargadores_cloud", JSON.stringify(datosClientesCloud));
+            } catch(e) {}
+        }, (error) => {
+            console.warn("Advertencia en la antena remota de cargadores:", error);
+        });
+    }
+    // =========================================================================
+    // 📡 ANTENA DE MERCANCÍAS: Sincronización en vivo desde Firebase al arrancar
+    // =========================================================================
+    if (database && miUsuarioUIDActivo) {
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes').on('value', (snapshot) => {
+            const datosMercanciasCloud = snapshot.val() || {};
+            window.diccionarioMercanciasCloud = datosMercanciasCloud;
+            console.log("📦 Catálogo de mercancías sincronizado desde la nube:", Object.keys(datosMercanciasCloud).length);
+
+            // Guardamos la copia local de seguridad anti-túneles
+            try {
+                localStorage.setItem("bk_admin_mercancias_cloud", JSON.stringify(datosMercanciasCloud));
+            } catch(e) {}
+        }, (error) => {
+            console.warn("Advertencia en la antena remota de mercancías:", error);
+        });
+    }
+
 }
 
 
@@ -2543,14 +2618,26 @@ function renderizarTablaResultados(listaFiltrada) {
 
         opcionesMenuHTML += opcionDuplicar + opcionPlantilla + opcionBorradorMuestraHTML;
 
-        // INYECCIÓN DE LA FILA EN LA TABLA MÁSTER
+        // Menú de opciones elástico de tu v3.27 intacto
+        opcionesMenuHTML += opcionDuplicar + opcionPlantilla + opcionBorradorMuestraHTML;
+
+        // 🚀 CÁLCULO DINÁMICO DE FONDO (v4.90 MÁSTER):
+        // Evaluamos si la fila actual es el viaje de ejemplo 000000 para clavarle un fondo rojo suave
+        let estiloFondoFilaEdicion = "";
+        if (doc.numero_documento && doc.numero_documento.includes("000000")) {
+            // Fondo rojo claro/rosa corporativo suave de advertencia (Mantiene las letras legibles)
+            estiloFondoFilaEdicion = 'style="background-color: #fdf2f2 !important;"';
+        }
+
+        // INYECCIÓN DE LA FILA EN LA TABLA MÁSTER (Inyectamos la variable estiloFondoFilaEdicion en el tr)
         htmlFinal += `
-        <tr>
+        <tr ${estiloFondoFilaEdicion}>
             <td>
             <span class="doc-numero" onclick="verFichaDocumento('${doc.id_firebase}')">${doc.numero_documento}</span>
             <!-- ⏳ Si el terminal está offline, le clava un reloj de arena al lado para avisar al chofer -->
             ${!navigator.onLine ? '<span style="font-size:11px; margin-left:4px;" title="Retenido localmente esperando cobertura">⏳</span>' : ''}
             </td>
+
 
             <td>${fTxt}</td>
             <td class="celda-matriculas-flex">
@@ -3051,7 +3138,7 @@ function abrirPaginaVerificacion() {
 
 
 // =========================================================================
-// ✍️ MOTOR DE FACTURACIÓN: PROCESAR GUARDADO ONLINE (EDICIÓN ELÁSTICA v3.45)
+// ✍️ MOTOR DE FACTURACIÓN: PROCESAR GUARDADO ONLINE Y COMPATIBILIDAD OFFLINE
 // =========================================================================
 function procesarGuardadoDeCAOnline() {
     // 🚀 PASARELA DE EMERGENCIAS OFFLINE: Si la app arrancó en modo avión, rescatamos tu UID del disco local para poder firmar
@@ -3069,7 +3156,6 @@ function procesarGuardadoDeCAOnline() {
     }
 
     const cargRazon = document.getElementById("deca_carg_razon").value.trim().toUpperCase();
-
     const cargNif = document.getElementById("deca_carg_nif").value.trim().toUpperCase();
     const cargDomicilio = document.getElementById("deca_carg_domicilio").value.trim().toUpperCase();
     const cargCp = document.getElementById("deca_carg_cp").value.trim();
@@ -3111,37 +3197,10 @@ function procesarGuardadoDeCAOnline() {
 
     mostrarAvisoToast("⏳ Calculando marcas temporales del porte...");
 
-    // 🚀 EL INYECTOR DE CARGADORES EN LA NUBE (Paso 2 Máster)
-    if (cargRazon && cargNif) {
-        // Inicializamos la cartera por si acaso el camión arrancó offline
-        const carteraClientesActual = window.diccionarioCargadoresCloud || {};
+    // 🚀 DISPARADOR INTEGRADO DE LA CARTERA DE CLIENTES (Firebase + Respaldo Local)
+    registrarCargadorEnHistorialFrecuente(cargRazon, cargNif, cargDomicilio, cargCp, cargPoblacion, cargProvincia);
 
-        // Si el NIF que tecleó el chófer NO existe todavía en tu base de datos central de Firebase
-        if (!carteraClientesActual[cargNif]) {
-            console.log("💾 Detectado cliente contractual nuevo. Subiendo a tu búnker en la nube...", cargRazon);
-
-            const paqueteEmpresaNueva = {
-                razon: cargRazon,
-                nif: cargNif,
-                calle: cargDomicilio,
-                cp: cargCp,
-                poblacion: cargPoblacion,
-                provincia: cargProvincia
-            };
-
-            // Lo grabamos en la nube usando el NIF como llave única para que sea imposible duplicarlo
-            database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + cargNif).set(paqueteEmpresaNueva)
-            .catch(e => console.warn("Aviso al guardar cargador offline en Firebase:", e));
-        }
-    }
-
-    // Mantenemos tu guardador antiguo local en el localStorage por compatibilidad
-    if (typeof registrarCargadorEnHistorialFrecuente === "function") {
-        registrarCargadorEnHistorialFrecuente(cargRazon, cargNif, cargDomicilio, cargCp, cargPoblacion, cargProvincia);
-    }
-
-
-    // 🔥 LA NUEVA LÍNEA: Guarda la mercancía en el diccionario predictivo local
+    // 🔥 REGISTRO DE MERCANCÍAS FRECUENTES (Conserva tu historial local de cabina)
     registrarMercanciaEnHistorialFrecuente(mercanNombre);
 
     const domicilioCargadorCompleto = `${cargDomicilio} (CP: ${cargCp} - ${cargPoblacion} - ${cargProvincia})`;
@@ -3162,15 +3221,13 @@ function procesarGuardadoDeCAOnline() {
         const viajeEncontrado = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
         if (viajeEncontrado) estadoCalculado = viajeEncontrado.estado || "EN_CURSO";
     } else {
-        // Si es un alta nueva: Comparamos la fecha del viaje con la fecha del sistema de hoy (2026-10-04)
-        // Cambiar el hoy estático por un cálculo dinámico real:
+        // Si es un alta nueva: Comparamos la fecha del viaje con la fecha del sistema de hoy de forma dinámica
         const hoy = new Date();
         const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
 
         if (fechaTransp > hoyString) {
-            estadoCalculado = "PROGRAMADO"; // El viaje es realmente para el futuro
+            estadoCalculado = "PROGRAMADO"; // El viaje está agendado para el futuro
         }
-
     }
 
     const paqueteDeCADatos = {
@@ -3181,7 +3238,7 @@ function procesarGuardadoDeCAOnline() {
         cargador_poblacion: cargPoblacion,
         cargador_provincia: cargProvincia,
         cargador_domicilio: domicilioCargadorCompleto,
-        // 🔥 LA LÍNEA QUE TE SALVA EN CARRETERA: Sube la Razón Social al viaje en la nube
+        // Sella de forma nativa la Razón Social de tu empresa de transportes en el folio de carretera
         transportista_razon: misDatosPerfilAutonomo ? misDatosPerfilAutonomo.razon_social : "TRANSPORTISTA EFECTIVO",
 
         matricula_tractor: vehiculo,
@@ -3199,27 +3256,27 @@ function procesarGuardadoDeCAOnline() {
         fecha_creacion_sistema: new Date().toLocaleString()
     };
 
-    // 🚀 CONTROL ELÁSTICO DE GUARDADO (EDICIÓN Y ALTA OFFLINE v3.55)
+    // 🚀 CONTROL ELÁSTICO DE GUARDADO (EDICIÓN Y ALTA OFFLINE)
     if (idDocumentoEnEdicion !== null) {
-        // Buscamos el número de documento que ya tenía para que no se pierda ni mute
+        // MODO EDICIÓN: Buscamos el número de documento que ya tenía para que no mute
         const viajeOriginalEdicion = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
         if (viajeOriginalEdicion) {
             paqueteDeCADatos.numero_documento = viajeOriginalEdicion.numero_documento;
         }
 
-        // Enviamos la actualización a la recámara de Firebase
-        database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idDocumentoEnEdicion).update(paqueteDeCADatos)
-            .then(() => {
-                mostrarAvisoToast("✅ ¡Documento DeCA actualizado correctamente!");
-                cerrarModalNuevoDeCA();
-                limpiarCamposFormularioGigante();
-                idDocumentoEnEdicion = null;
-            })
-            .catch(error => {
-                console.warn("Aviso en cola de edición Firebase:", error);
-            });
+        // Si hay conexión, lo subimos directamente a la base de datos central de Firebase
+        if (database && navigator.onLine) {
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idDocumentoEnEdicion).update(paqueteDeCADatos)
+                .then(() => {
+                    mostrarAvisoToast("✅ ¡Documento DeCA actualizado correctamente!");
+                    cerrarModalNuevoDeCA();
+                    limpiarCamposFormularioGigante();
+                    idDocumentoEnEdicion = null;
+                })
+                .catch(error => console.warn("Aviso al actualizar en Firebase:", error));
+        }
 
-        // 🚀 ACELERADOR DE EDICIÓN OFFLINE: Si estamos en modo avión, actualizamos la RAM manualmente al instante
+        // ⏳ CONTROLADOR OFF-LINE EN EDICIÓN: Si estamos sin cobertura, actualizamos la memoria RAM al instante
         if (!navigator.onLine) {
             const idxRAM = documentosDeCA.findIndex(item => item.id_firebase === idDocumentoEnEdicion);
             if (idxRAM !== -1) {
@@ -3234,9 +3291,11 @@ function procesarGuardadoDeCAOnline() {
             idDocumentoEnEdicion = null;
         }
     } else {
+        // MODO ALTA NUEVA: Llama al inyector de correlativos automático máster (preparado para red e internet caído)
         ejecutarInyeccionCorrelativaDeCA(paqueteDeCADatos);
     }
 }
+
 
 
 
@@ -3901,38 +3960,61 @@ function obtenerHistorialCargadoresLocales() {
     }
 }
 
+
+
 // =========================================================================
-// 🏢 REGISTRO SEGURO DE CARGADORES FRECUENTES (CORREGIDO DE RAÍZ)
+// 🏢 REGISTRO AUTOMÁTICO DE CARGADORES FRECUENTES EN LA NUBE (Y EN COPIA LOCAL)
 // =========================================================================
 function registrarCargadorEnHistorialFrecuente(razon, nif, calle, cp, poblacion, provincia) {
     if (!razon || !nif) return;
 
-    let listaHabituales = obtenerHistorialCargadoresLocales();
-
-    // 🚀 REPARADO: Cambiamos 'c.nif' por 'empresa.nif' para que el navegador no se congele
-    const yaExistePerfil = listaHabituales.some(empresa => empresa.nif === nif);
-
-    if (!yaExistePerfil) {
-        listaHabituales.push({
-            razon: razon,
-            nif: nif,
-            calle: calle,
-            cp: cp,
-            poblacion: poblacion,
-            provincia: provincia
-        });
-
-        // Conservamos un tope de 30 cargadores para proteger el rendimiento del terminal
-        if (listaHabituales.length > 30) listaHabituales.shift();
-
-        localStorage.setItem("cfg_deca_almacen_cargadores", JSON.stringify(listaHabituales));
-        console.log("💾 Empresa cargadora guardada en historial local:", razon);
+    // 🚀 Recámara de identidad: Si la RAM está fría, rescatamos el UID del disco local
+    if (!miUsuarioUIDActivo) {
+        miUsuarioUIDActivo = localStorage.getItem("cfg_uid_recuperado_deca");
     }
+    if (!miUsuarioUIDActivo) return;
+
+    // Despertador automático del motor de Firebase si no se asignó globalmente
+    if (!database && typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+        database = firebase.database();
+    }
+
+    const paqueteEmpresaNueva = {
+        razon: razon,
+        nif: nif,
+        calle: calle,
+        cp: cp,
+        poblacion: poblacion,
+        provincia: provincia
+    };
+
+    // 1. 🔥 ENVÍO INMEDIATO AL NODO DE FIREBASE (Garantiza la creación online)
+    if (database && navigator.onLine) {
+        console.log("📡 Subiendo cliente nuevo al nodo central de Firebase...", razon);
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + nif).set(paqueteEmpresaNueva)
+        .then(() => {
+            console.log("✅ Empresa sincronizada con éxito en la nube.");
+        })
+        .catch(e => console.warn("Aviso al guardar cargador en Firebase:", e));
+    }
+
+    // 2. 🛡️ Inmunidad Offline: Espejo en disco duro local para cabina sin cobertura
+    let carteraClientesActual = {};
+    try {
+        carteraClientesActual = JSON.parse(localStorage.getItem("bk_admin_cargadores_cloud")) || {};
+    } catch(e) { carteraClientesActual = {}; }
+
+    carteraClientesActual[nif] = paqueteEmpresaNueva;
+    localStorage.setItem("bk_admin_cargadores_cloud", JSON.stringify(carteraClientesActual));
+
+    // Guardamos en la variable global para que el buscador predictivo lo lea en el acto
+    window.diccionarioCargadoresCloud = carteraClientesActual;
+    console.log("💾 Respaldo local actualizado en el terminal:", razon);
 }
 
 
 // =========================================================================
-// 🔍 MOTOR PREDICTIVO DE CARGADORES: LECTURA EN CALIENTE DESDE LA NUBE (v4.60)
+// 🔍 MOTOR PREDICTIVO DE CARGADORES: LECTURA EN TIEMPO REAL DESDE FIREBASE
 // =========================================================================
 function filtrarCargadoresFrecuentesPredictivo(inputElement) {
     const textoInyectado = inputElement.value.toUpperCase().trim();
@@ -3941,28 +4023,23 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
     if (!dropdownCargadores) return;
     dropdownCargadores.innerHTML = "";
 
-    // 🚀 LECTURA EN LA NUBE: Extraemos la cartera sincronizada de Firebase (o la del disco duro si está offline)
-    let catalogoEmpresas = [];
+    // 🚀 LECTURA HÍBRIDA NUBE/LOCAL: Extraemos la cartera sincronizada de Firebase (o el respaldo offline si no hay señal)
     let diccionarioClientes = window.diccionarioCargadoresCloud;
 
-    // Si el móvil entró en modo avión y la RAM se vació, rescatamos el respaldo del disco local
     if (!diccionarioClientes || Object.keys(diccionarioClientes).length === 0) {
         try {
             diccionarioClientes = JSON.parse(localStorage.getItem("bk_admin_cargadores_cloud")) || {};
         } catch(e) { diccionarioClientes = {}; }
     }
 
-    // Convertimos el mapa de Firebase en un array plano para poder filtrarlo
-    if (diccionarioClientes) {
-        catalogoEmpresas = Object.keys(diccionarioClientes).map(key => diccionarioClientes[key]);
-    }
+    let catalogoEmpresas = Object.keys(diccionarioClientes).map(key => diccionarioClientes[key]);
 
-    // Si la cartera está vacía o el chófer borró el texto, apagamos el visor flotante
     if (catalogoEmpresas.length === 0 || textoInyectado === "") {
         dropdownCargadores.style.display = "none";
         return;
     }
 
+    // Filtramos coincidencias por Razón Social o por NIF
     const sugerenciasFiltradas = catalogoEmpresas.filter(c =>
         (c.razon && c.razon.includes(textoInyectado)) || (c.nif && c.nif.includes(textoInyectado))
     );
@@ -3981,14 +4058,13 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
         celdaSugerencia.style.borderBottom = "1px solid #f0f0f0";
         celdaSugerencia.style.textAlign = "left";
 
-        // Estilo síncrono con el Modo Noche
         const esModoOscuro = document.body.classList.contains("dark-mode");
         celdaSugerencia.style.color = esModoOscuro ? "#e0e0e0" : "#212529";
 
         celdaSugerencia.onmouseover = function() { this.style.background = esModoOscuro ? "#2c2c2e" : "#eef5fc"; };
         celdaSugerencia.onmouseout = function() { this.style.background = "transparent"; };
 
-        // 🚀 AUTO-RELLENO EN CASCADA DIGITAL: Rellena los 6 campos de golpe al tocar con el dedo
+        // 🚀 AUTO-RELLENO EN CASCADA DIGITAL: Rellena los 6 campos del bloque 1 de golpe al tocar con el dedo
         celdaSugerencia.onclick = function() {
             document.getElementById("deca_carg_razon").value = c.razon || "";
             document.getElementById("deca_carg_nif").value = c.nif || "";
@@ -4006,6 +4082,7 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
 
     dropdownCargadores.style.display = "block";
 }
+
 
 
 // Escudo perimetral táctil para cerrar el desplegable si se pincha fuera del campo
@@ -4210,26 +4287,51 @@ function obtenerHistorialMercanciasLocales() {
     }
 }
 
-// 2. Registra de forma segura la mercancía si es nueva (Límite 20 registros)
+// =========================================================================
+// 📦 MOTOR HÍBRIDO: HISTORIAL DE MERCANCÍAS FRECUENTES (FIREBASE + LOCAL)
+// =========================================================================
+
+// 1. Registra de forma segura la mercancía en la nube y en el disco de cabina
 function registrarMercanciaEnHistorialFrecuente(nombreMercancia) {
     if (!nombreMercancia || nombreMercancia.trim() === "" || nombreMercancia.includes("MUESTRA PRIVADA")) return;
 
-    let listaMercancias = obtenerHistorialMercanciasLocales();
+    if (!miUsuarioUIDActivo) {
+        miUsuarioUIDActivo = localStorage.getItem("cfg_uid_recuperado_deca");
+    }
+    if (!miUsuarioUIDActivo) return;
+
+    if (!database && typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+        database = firebase.database();
+    }
+
     const nombreLimpio = nombreMercancia.trim().toUpperCase();
 
-    // Si la mercancía ya está registrada, no la duplicamos
-    if (!listaMercancias.includes(nombreLimpio)) {
-        listaMercancias.push(nombreLimpio);
+    // Firebase no acepta ciertos caracteres como llaves, los limpiamos por seguridad para la ruta (. # \$ [ ])
+    const llaveFirebaseFiel = nombreLimpio.replace(/[\.\#\$\[\]]/g, "-");
 
-        // Mantenemos un tope de 20 para no saturar el rendimiento del móvil
-        if (listaMercancias.length > 20) listaMercancias.shift();
-
-        localStorage.setItem("cfg_deca_almacen_mercancias", JSON.stringify(listaMercancias));
-        console.log("💾 Mercancía registrada en el archivo local de cabina:", nombreLimpio);
+    // A. Subida a la nube de Firebase si el terminal está online
+    if (database && navigator.onLine) {
+        console.log("📡 Sincronizando mercancía frecuente en la nube:", nombreLimpio);
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + llaveFirebaseFiel).set({
+            nombre: nombreLimpio
+        })
+        .catch(e => console.warn("Aviso al guardar mercancía en Firebase:", e));
     }
+
+    // B. 🛡️ Inmunidad Offline: Espejo inmediato en el disco duro local
+    let mercanciasLocalesActuales = {};
+    try {
+        mercanciasLocalesActuales = JSON.parse(localStorage.getItem("bk_admin_mercancias_cloud")) || {};
+    } catch(e) { mercanciasLocalesActuales = {}; }
+
+    mercanciasLocalesActuales[llaveFirebaseFiel] = { nombre: nombreLimpio };
+    localStorage.setItem("bk_admin_mercancias_cloud", JSON.stringify(mercanciasLocalesActuales));
+
+    window.diccionarioMercanciasCloud = mercanciasLocalesActuales; // Refresca la RAM del teléfono
+    console.log("💾 Mercancía registrada en el archivo local de cabina:", nombreLimpio);
 }
 
-// 3. Filtra y despliega las sugerencias mientras el conductor teclea
+// 2. Filtra y despliega las sugerencias desde la nube o local mientras el conductor teclea
 function filtrarMercanciasFrecuentesPredictivo(inputElement) {
     const textoBuscar = inputElement.value.toUpperCase().trim();
     const dropdown = document.getElementById("lista_mercancias_frecuentes_drop");
@@ -4237,15 +4339,24 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
     if (!dropdown) return;
     dropdown.innerHTML = "";
 
-    const catalogoMercancias = obtenerHistorialMercanciasLocales();
+    // Extraemos el diccionario híbrido (de la antena de la nube o del respaldo del disco si está offline)
+    let diccionarioMercancias = window.diccionarioMercanciasCloud;
 
-    // Si no hay datos guardados o la casilla está vacía, mantenemos oculto el menú
+    if (!diccionarioMercancias || Object.keys(diccionarioMercancias).length === 0) {
+        try {
+            diccionarioMercancias = JSON.parse(localStorage.getItem("bk_admin_mercancias_cloud")) || {};
+        } catch(e) { diccionarioMercancias = {}; }
+    }
+
+    // Convertimos el mapa indexado en un array plano para buscar dentro
+    const catalogoMercancias = Object.keys(diccionarioMercancias).map(key => diccionarioMercancias[key].nombre);
+
     if (catalogoMercancias.length === 0 || textoBuscar === "") {
         dropdown.style.display = "none";
         return;
     }
 
-    // Filtramos las coincidencias
+    // Filtramos las coincidencias que contengan las letras tecleadas
     const sugerenciasFiltradas = catalogoMercancias.filter(m => m.includes(textoBuscar));
 
     if (sugerenciasFiltradas.length === 0) {
@@ -4262,14 +4373,13 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
         item.style.borderBottom = "1px solid rgba(0,0,0,0.05)";
         item.style.textAlign = "left";
 
-        // Estilos dinámicos adaptados para el uso diurno/nocturno
         const esModoOscuro = document.body.classList.contains("dark-mode");
         item.style.color = esModoOscuro ? "#e0e0e0" : "#212529";
 
         item.onmouseover = function() { this.style.background = esModoOscuro ? "#1c1c1e" : "#eef5fc"; };
         item.onmouseout = function() { this.style.background = "transparent"; };
 
-        // Al hacer clic, inyecta el texto completo y esconde el menú
+        // Al hacer clic, inyecta el producto y esconde el menú flotante
         item.onclick = function() {
             inputElement.value = mercancia;
             dropdown.style.display = "none";
@@ -4281,6 +4391,7 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
 
     dropdown.style.display = "block";
 }
+
 
 // 4. ESCUDO TÁCTIL AUTOMÁTICO: Cierra el desplegable si se pincha en cualquier otra casilla
 document.addEventListener("click", function(evento) {
@@ -4379,7 +4490,7 @@ document.addEventListener("click", function(evento) {
 document.addEventListener("click", registrarToqueInicialDeConfianzaSonido);
 
 // =========================================================================
-// 📡 CENTINELA DE RED EN TIEMPO REAL CON BÚNKER OFFLINE INCORPORADO (v3.40 MÁSTER)
+// 📡 CENTINELA DE RED EN TIEMPO REAL CON ICONOS SIMÉTRICOS VIBRANTES (v4.95)
 // =========================================================================
 function actualizarEstadoRedTerminalCamion(esOnline) {
     const testigoVisual = document.getElementById("indicador_red_status");
@@ -4387,24 +4498,33 @@ function actualizarEstadoRedTerminalCamion(esOnline) {
 
     if (esOnline) {
         console.log("📡 Conexión restablecida con el servidor central DeCA.");
-        testigoVisual.innerHTML = "📶"; // Icono de Wi-Fi limpio
-        testigoVisual.style.background = "rgba(40, 167, 69, 0.12)";
-        testigoVisual.style.color = "#28a745";
+        testigoVisual.innerHTML = "📶"; // Mantiene el icono de cobertura regular
+        testigoVisual.style.background = "rgba(40, 167, 69, 0.12)"; // Fondo verde diurno translúcido
+        testigoVisual.style.color = "#28a745"; // Rayitas verdes de alta visibilidad
         testigoVisual.style.borderColor = "rgba(40, 167, 69, 0.25)";
 
+        // Retira el modal preventivo de la pantalla al volver la señal
         if (document.getElementById("modal_emergencia_offline_deca")) {
             document.getElementById("modal_emergencia_offline_deca").style.display = "none";
         }
+
+        // Relanza la escucha en tiempo real de Firebase para recuperar los portes recientes
         if (typeof activarEscuchaRealtimeDeCAs === "function" && database) {
             activarEscuchaRealtimeDeCAs();
         }
     } else {
         console.warn("⚠️ Pérdida de cobertura detectada. Cambiando a Modo Autónomo Local.");
-        testigoVisual.innerHTML = "❌"; // Icono de Wi-Fi caído con cruz roja
-        testigoVisual.style.background = "rgba(220, 53, 69, 0.12)";
-        testigoVisual.style.color = "#dc3545";
+        testigoVisual.innerHTML = "📶"; // 🚀 ¡EL CAMBIO!: Mismo icono Wi-Fi para mantener la simetría visual
+        testigoVisual.style.background = "rgba(220, 53, 69, 0.12)"; // 🚀 Fondo rojo claro/rosa mitigado que no deslumbra
+        testigoVisual.style.color = "#dc3545"; // 🚀 Rayitas carmín/rojas de advertencia rígida
         testigoVisual.style.borderColor = "rgba(220, 53, 69, 0.25)";
 
+        // Desconecta Firebase en local para proteger la retícula táctil de la pantalla
+        if (typeof database !== 'undefined' && database && miUsuarioUIDActivo) {
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
+        }
+
+        // Despliega el modal de aviso corporativo de tu v3.27
         const elModalOffline = document.getElementById("modal_emergencia_offline_deca");
         if (elModalOffline) {
             elModalOffline.style.display = "flex";
@@ -4418,6 +4538,7 @@ function actualizarEstadoRedTerminalCamion(esOnline) {
         }
     }
 }
+
 
 
 // Extrae el catálogo guardado del almacenamiento local y repinta el salpicadero
@@ -4562,58 +4683,150 @@ function ejecutarAltaNuevaRegistroInicial() {
 
 
 
+// =========================================================================
+// 🕵️ MOTOR DE RECUPERACIÓN OFICIAL DEL REGISTRO INICIAL (v4.75 MÁSTER)
+// =========================================================================
 function ejecutarRecuperacionRegistroInicial() {
+    // 🚀 CORRECCIÓN: Apunta milimétricamente al ID real de tu nuevo modal de entrada
     const claveAValidar = document.getElementById("reg_inicial_clave_buscar").value.trim();
     if (!claveAValidar) return alert("⚠ Introduce un código válido.");
 
     mostrarAvisoToast("🔍 Rescatando portes en el clúster central...");
 
+    // CAMINO A: Comprobar primero en el nodo puente de alias (contraseñas personalizadas)
     database.ref('alias_claves/' + claveAValidar).once('value').then((snapshotAlias) => {
         if (snapshotAlias.exists()) {
             const uidRealAsociado = snapshotAlias.val();
             localStorage.setItem("cfg_uid_recuperado_deca", uidRealAsociado);
             miUsuarioUIDActivo = uidRealAsociado;
+
+            // Apagamos el muro de registro obligatorio al recuperar con éxito
             document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
             mostrarAvisoToast("✅ Perfil recuperado mediante alias.");
+
+            // Relanzamos el sensor de licencias para dar paso libre al dashboard
             verificarExistenciaPerfilCamionero();
         } else {
+            // CAMINO B: Comprobar si introdujo el código largo maestro UID de Firebase directo
             database.ref('usuarios/' + claveAValidar + '/datos_perfil').once('value').then((snapshotUID) => {
                 if (snapshotUID.exists()) {
                     localStorage.setItem("cfg_uid_recuperado_deca", claveAValidar);
                     miUsuarioUIDActivo = claveAValidar;
+
+                    // Apagamos el muro de registro obligatorio al recuperar con éxito
                     document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
                     mostrarAvisoToast("✅ Perfil recuperado mediante código maestro.");
+
+                    // Relanzamos el sensor de licencias para dar paso libre al dashboard
                     verificarExistenciaPerfilCamionero();
-                } else { alert("❌ La clave introducida no coincide con ningún transportista."); }
-            }).catch(err => alert("Error: " + err.message));
+                } else {
+                    alert("❌ La contraseña o código maestro introducido no coincide con ningún transportista activo.");
+                }
+            }).catch(err => alert("Error de validación UID: " + err.message));
         }
-    }).catch(err => alert("Error: " + err.message));
+    }).catch(err => alert("Error de validación Alias: " + err.message));
 }
 
+
 // =========================================================================
-// 🚪 MOTOR DE PURGA DE LICENCIAS: CAMBIO DE USUARIO SEGURO ANTI-MEZCLAS
+// 🚪 MOTOR DE PURGA DE LICENCIAS: CAMBIO DE USUARIO SEGURO ANTI-REBOTES (v5.00)
 // =========================================================================
 function ejecutarCierreDeSesionMultiUsuarioMaster() {
-    // Levantamos tu modal corporativo de confirmación estilo TPV para evitar accidentes
     mostrarConfirmacionCorporativaDeca("Cerrar Sesión del Terminal", "¿Estás seguro de que deseas desvincular tu empresa de este dispositivo? Se borrará la caché de portes local para evitar que se mezclen con el nuevo conductor.", function() {
-        mostrarAvisoToast("🚪 Purgando archivos comerciales de la memoria...");
+        mostrarAvisoToast("🚪 Cerrando comunicación con el servidor central...");
 
-        // 1. Congelamos y apagamos de forma radical todas las escuchas activas de Firebase
-        if (typeof database !== 'undefined' && database && miUsuarioUIDActivo) {
-            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
-            database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off();
+        // 1. 🔒 EL SEGURO ANTI-REBOTES: Forzamos el cierre de sesión de autenticación real en Firebase
+        if (typeof firebase !== 'undefined' && firebase.auth()) {
+            firebase.auth().signOut().then(() => {
+                procesarPurgaFisicaDeMemoriaLocal();
+            }).catch(err => {
+                console.warn("Fallo residual en deslogueo auth, forzando purga:", err);
+                procesarPurgaFisicaDeMemoriaLocal();
+            });
+        } else {
+            procesarPurgaFisicaDeMemoriaLocal();
         }
-
-        // 2. TRITURACIÓN COMPLETA DEL DISCO LOCAL: Borramos el localStorage entero
-        // Esto elimina el UID, la caché de los viajes viejos, el perfil comercial y las plantillas de golpe
-        localStorage.clear();
-        console.log("🧹 Memoria local (localStorage) puesta a cero. Búnker offline purgado.");
-
-        // 3. Forzamos el reinicio limpio en frío del ecosistema
-        setTimeout(() => {
-            window.location.reload();
-        }, 300);
     });
+}
+
+// Función interna que tritura el disco duro una vez desvinculado de Google
+function procesarPurgaFisicaDeMemoriaLocal() {
+    // 2. Apagamos todas las antenas activas de la base de datos
+    if (typeof database !== 'undefined' && database && miUsuarioUIDActivo) {
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off();
+    }
+
+    // 3. TRITURACIÓN COMPLETA: Vaciamos el localStorage entero de forma rígida
+    localStorage.clear();
+    console.log("🧹 Búnker offline e identidades locales purgadas al 100%.");
+
+    // 4. Reseteamos las variables de la memoria RAM para que no quede rastro
+    miUsuarioUIDActivo = null;
+    misDatosPerfilAutonomo = null;
+    documentosDeCA = [];
+
+    // 5. Provocamos la recarga limpia en frío del terminal
+    setTimeout(() => {
+        window.location.reload();
+    }, 250);
+}
+
+
+// =========================================================================
+// 🏢 CONTROLADORES SUPREMOS DEL NUEVO MODAL DE REGISTRO INICIAL (v4.80 MÁSTER)
+// =========================================================================
+function conmutarVistasRegistroInicial(mostrarRecuperacion) {
+    if (document.getElementById("reg_inicial_vista_alta")) {
+        document.getElementById("reg_inicial_vista_alta").style.display = mostrarRecuperacion ? "none" : "block";
+    }
+    if (document.getElementById("reg_inicial_vista_recuperar")) {
+        document.getElementById("reg_inicial_vista_recuperar").style.display = mostrarRecuperacion ? "block" : "none";
+    }
+}
+
+function ejecutarRecuperacionRegistroInicial() {
+    const claveAValidar = document.getElementById("reg_inicial_clave_buscar").value.trim();
+    if (!claveAValidar) return alert("⚠ Introduce un código o alias válido.");
+
+    mostrarAvisoToast("🔍 Rescatando portes en el clúster central...");
+
+    // CAMINO A: Comprobar primero en el nodo puente de alias (contraseñas personalizadas)
+    database.ref('alias_claves/' + claveAValidar).once('value').then((snapshotAlias) => {
+        if (snapshotAlias.exists()) {
+            const uidRealAsociado = snapshotAlias.val();
+            localStorage.setItem("cfg_uid_recuperado_deca", uidRealAsociado);
+            miUsuarioUIDActivo = uidRealAsociado;
+
+            // Apagamos el muro de registro obligatorio al recuperar con éxito
+            if (document.getElementById("modal_registro_inicial_obligatorio")) {
+                document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+            }
+            mostrarAvisoToast("✅ Perfil recuperado mediante alias.");
+
+            // Relanzamos el sensor de licencias para dar paso libre al dashboard comercial
+            verificarExistenciaPerfilCamionero();
+        } else {
+            // CAMINO B: Comprobar si introdujo el código largo maestro UID de Firebase directo
+            database.ref('usuarios/' + claveAValidar + '/datos_perfil').once('value').then((snapshotUID) => {
+                if (snapshotUID.exists()) {
+                    localStorage.setItem("cfg_uid_recuperado_deca", claveAValidar);
+                    miUsuarioUIDActivo = claveAValidar;
+
+                    // Apagamos el muro de registro obligatorio al recuperar con éxito
+                    if (document.getElementById("modal_registro_inicial_obligatorio")) {
+                        document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+                    }
+                    mostrarAvisoToast("✅ Perfil recuperado mediante código maestro.");
+
+                    // Relanzamos el sensor de licencias para dar paso libre al dashboard comercial
+                    verificarExistenciaPerfilCamionero();
+                } else {
+                    alert("❌ La contraseña o código maestro introducido no coincide con ningún transportista activo.");
+                }
+            }).catch(err => alert("Error de validación UID: " + err.message));
+        }
+    }).catch(err => alert("Error de validación Alias: " + err.message));
 }
 
 
@@ -4621,21 +4834,28 @@ function ejecutarCierreDeSesionMultiUsuarioMaster() {
 // 🔠 ESCUDO GLOBAL DIGITAL: CONVERSOR AUTOMÁTICO DE MAYÚSCULAS EN ESCRITURA
 // =========================================================================
 document.addEventListener("input", function(evento) {
-    // Si el transportista está tecleando dentro de cualquier input o textarea de la app
     if (evento.target && (evento.target.tagName === "INPUT" || evento.target.tagName === "TEXTAREA")) {
-        // Ignoramos de forma estricta los campos de tipo fecha, número o email para no corromper sus formatos nativos
-        if (evento.target.type !== "date" && evento.target.type !== "number" && evento.target.type !== "email") {
 
+        // 🚀 FILTRO PROTECTOR: Si es una casilla de fecha, número, email o CONTRASEÑAS, no tocamos nada
+        if (
+            evento.target.type !== "date" &&
+            evento.target.type !== "number" &&
+            evento.target.type !== "email" &&
+            evento.target.id !== "reg_inicial_clave_buscar" && // Campo recuperar entrada
+            evento.target.id !== "reg_clave_recuperar" &&       // Campo recuperar antiguo
+            evento.target.id !== "reg_transp_password"          // Campo cambiar alias Mis Datos
+        ) {
             const posicionCursorCursor = evento.target.selectionStart;
 
             // Forzamos la conversión física de la cadena de texto a mayúsculas puras
             evento.target.value = evento.target.value.toUpperCase();
 
-            // Reposicionamos el cursor en su píxel exacto para que el teclado no dé saltos extraños al escribir rápido
+            // Reposicionamos el cursor en su píxel exacto
             evento.target.setSelectionRange(posicionCursorCursor, posicionCursorCursor);
         }
     }
 });
+
 
 
 // =========================================================================
@@ -4720,6 +4940,69 @@ function elementoEsDeTextoSeleccionable(el) {
 }
 
 
+// =========================================================================
+// 🚀 ARIETE DE EMERGENCIAS: GUARDA EL CARGADOR EN CUANTO SE ESCRIBE EL NIF
+// =========================================================================
+function forzarSincronizacionCargadorExpress() {
+    const razon = document.getElementById("deca_carg_razon").value.trim().toUpperCase();
+    const nif = document.getElementById("deca_carg_nif").value.trim().toUpperCase();
+    const calle = document.getElementById("deca_carg_domicilio").value.trim().toUpperCase();
+    const cp = document.getElementById("deca_carg_cp").value.trim();
+    const poblacion = document.getElementById("deca_carg_poblacion").value.trim().toUpperCase();
+    const provincia = document.getElementById("deca_carg_provincia").value.trim().toUpperCase();
+
+    // Si aún no ha puesto Nombre o NIF, esperamos a que rellene ambos
+    if (!razon || !nif) return;
+
+    if (!miUsuarioUIDActivo) {
+        miUsuarioUIDActivo = localStorage.getItem("cfg_uid_recuperado_deca");
+    }
+
+    if (!database && typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+        database = firebase.database();
+    }
+
+    const paquetePrueba = {
+        razon: razon,
+        nif: nif,
+        calle: calle || "DIRECCION PROVISIONAL",
+        cp: cp || "00000",
+        poblacion: poblacion || "LOCALIDAD",
+        provincia: provincia || "PROVINCIA"
+    };
+
+    console.log("⚡ Forzando inyección express en Firebase para el NIF:", nif);
+
+    if (database) {
+        // Atacamos directamente el nodo
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + nif).set(paquetePrueba)
+        .then(() => {
+            console.log("🎯 ¡ÉXITO! El nodo 'cargadores_frecuentes' se ha creado en Firebase.");
+            mostrarAvisoToast("🟢 Cliente guardado en la nube");
+
+            // Actualizamos el espejo local para el predictivo
+            let localData = {};
+            try { localData = JSON.parse(localStorage.getItem("bk_admin_cargadores_cloud")) || {}; } catch(e){}
+            localData[nif] = paquetePrueba;
+            localStorage.setItem("bk_admin_cargadores_cloud", JSON.stringify(localData));
+            window.diccionarioCargadoresCloud = localData;
+        })
+        .catch((error) => {
+            console.error("❌ ERROR CRÍTICO DE FIREBASE:", error);
+            // Esto te mostrará en pantalla el motivo exacto del bloqueo (ej: "PERMISSION_DENIED")
+            mostrarAlertaCorporativaDeca(
+                "Fallo de Permisos en Firebase",
+                "Firebase ha rechazado el guardado. Motivo: " + error.message +
+                "\n\nRevisa la pestaña 'Rules' en tu consola de Firebase. Debes permitir la escritura en el nodo 'cargadores_frecuentes'.",
+                "❌"
+            );
+        });
+    } else {
+        console.warn("⚠️ Base de datos no conectada todavía.");
+    }
+}
+
+
 </script>
 
 
@@ -4766,10 +5049,12 @@ function elementoEsDeTextoSeleccionable(el) {
                 <div id="lista_cargadores_habituales_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 185px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"></div>
             </div>
 
-                    <div class="deca-form-grupo">
-                        <label>NIF del Cargador <span>*</span></label>
-                        <input type="text" id="deca_carg_nif" class="deca-input" placeholder="B-00000000">
-                    </div>
+<!-- BUSCA ESTA LÍNEA EN TU FORMULARIO Y DÉJALA ASÍ -->
+<div class="deca-form-grupo">
+    <label>NIF del Cargador <span>*</span></label>
+    <input type="text" id="deca_carg_nif" class="deca-input" placeholder="B-00000000" onchange="forzarSincronizacionCargadorExpress()">
+</div>
+
                     <div class="deca-form-grupo" style="grid-column: 1 / -1;">
                         <label>Domicilio (Calle, Plaza, Número, Piso) <span>*</span></label>
                         <input type="text" id="deca_carg_domicilio" class="deca-input" placeholder="p. ej. Avenida del Transporte, 24">
@@ -4847,12 +5132,12 @@ function elementoEsDeTextoSeleccionable(el) {
                 <div class="deca-form-grid">
 
                     <!-- Reemplazo del grupo de Naturaleza con Buscador Predictivo Local -->
-                    <div class="deca-form-grupo" style="flex: 2; position: relative;">
-                        <label>Naturaleza de la Mercancía <span>*</span></label>
-                        <input type="text" id="deca_mercan_nombre" class="deca-input" placeholder="p. ej. AJO SPRING" oninput="filtrarMercanciasFrecuentesPredictivo(this)" onfocus="filtrarMercanciasFrecuentesPredictivo(this)">
-                        <!-- Contenedor dinámico donde nacerán las sugerencias del histórico -->
-                        <div id="lista_mercancias_frecuentes_drop" class="dropdown-mercancias-pred"></div>
-                    </div>
+<!-- BUSCA ESTA LÍNEA EN TU FORMULARIO Y AÑADE EL EVENTO ONCHANGE -->
+<div class="deca-form-grupo" style="flex: 2; position: relative;">
+    <label>Naturaleza de la Mercancía <span>*</span></label>
+    <input type="text" id="deca_mercan_nombre" class="deca-input" placeholder="p. ej. AJO SPRING" oninput="filtrarMercanciasFrecuentesPredictivo(this)" onfocus="filtrarMercanciasFrecuentesPredictivo(this)" onchange="registrarMercanciaEnHistorialFrecuente(this.value)">
+</div>
+
 
 
                     <div class="deca-form-grupo">
