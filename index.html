@@ -1245,12 +1245,11 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 
-/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF COMPILADO === */
+/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA: REESCALADO AL 100% A4 EN PAPEL === */
 @media print {
-    /* 🛡️ TRUCO MAESTRO: Anula los márgenes nativos y destruye URLs/fechas automáticas */
     @page {
-        margin: 0mm !important;
-        size: A4 portrait; /* Fuerza al papel a posicionarse en vertical A4 */
+        margin: 0mm !important; /* Destruye los encabezados y URLs de serie de los navegadores */
+        size: A4 portrait !important; /* Fuerza de forma rígida el formato oficial A4 vertical */
     }
 
     body {
@@ -1258,9 +1257,11 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
+        -webkit-print-color-adjust: exact !important; /* Mantiene tus cabeceras azules pintadas */
+        print-color-adjust: exact !important;
     }
 
-    /* 🔥 LA REPARACIÓN: Esconde de forma radical los elementos del panel privado en el folio final */
+    /* Esconde radicalmente los paneles traseros del dashboard comercial */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
@@ -1272,49 +1273,43 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         display: none !important;
     }
 
-    .modal-preview-deca {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        background: #ffffff !important; /* Limpieza total: fondo blanco puro detrás del folio */
-        display: block !important;
-        width: 100% !important;
-        height: auto !important;
-        overflow: visible !important;
-    }
-
+    .modal-preview-deca,
     .preview-container,
     .preview-cuerpo-scroll {
         display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;
+        width: 210mm !important; /* Clava el ancho del visor al papel físico */
+        height: 297mm !important; /* Clava el alto del visor al papel físico */
         overflow: visible !important;
-        background: #ffffff !important; /* Puga radical de los grises de fondo de la APK */
+        background: #ffffff !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
+        box-sizing: border-box !important;
     }
 
-    /* 🚀 ZOOM MÁSTER EXCLUSIVO: Estira el folio para que ocupe todo el papel A4 sin recortarse */
+    /* 🚀 MOTOR DE ESCALADO AUTOMÁTICO A4: Estira el folio de 660px hasta los límites reales del papel */
     .folio-deca {
         display: block !important;
-        width: 100% !important;       /* Se adapta al 100% del ancho real de la página de impresión */
-        max-width: 100% !important;
-        height: auto !important;
-        padding: 15mm !important;      /* Pasillo de aire perimetral ergonómico para que no se pegue al Ras */
-        margin: 0 auto !important;     /* Centrado matemático absoluto */
+        width: 660px !important; /* Mantiene tus 660px originales para que no se descuadre ningún texto interior */
+        padding: 20px !important;
+        margin: 0 !important;
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
-        box-sizing: border-box !important;
+
+        /* 📐 TRUCO MAESTRO: Calcula la escala matemática exacta y estira el documento hacia los bordes */
+        transform: scale(1.18) !important;
+        transform-origin: top left !important; /* Clava el inicio arriba a la izquierda para que crezca perfecto */
+
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+    }
 
-        /* 📱 EL ACELERADOR ANDROID: Obliga al WebView a escalar el tamaño del folio al papel físico */
-        transform: scale(1.0) !important;
-        transform-origin: top center !important;
-        zoom: 100% !important;
+    .folio-header-azul {
+        background: #0f4c81 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     #qrcode_real_render img,
