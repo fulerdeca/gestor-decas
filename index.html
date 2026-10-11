@@ -1244,24 +1244,22 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 
-
-/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA: REESCALADO AL 100% A4 EN PAPEL === */
+/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF COMPILADO === */
 @media print {
+    /* 🛡️ TRUCO MAESTRO: Pone los márgenes de la página de impresión a cero */
     @page {
-        margin: 0mm !important; /* Destruye los encabezados y URLs de serie de los navegadores */
-        size: A4 portrait !important; /* Fuerza de forma rígida el formato oficial A4 vertical */
+        margin: 0mm !important;
+        size: portrait; /* Fuerza al papel a posicionarse en vertical estándar */
     }
 
     body {
         margin: 0 !important;
         padding: 0 !important;
-        background: #ffffff !important;
+        background: #ffffff !important; /* Blanqueado absoluto de fondo */
         color: #000000 !important;
-        -webkit-print-color-adjust: exact !important; /* Mantiene tus cabeceras azules pintadas */
-        print-color-adjust: exact !important;
     }
 
-    /* Esconde radicalmente los paneles traseros del dashboard comercial */
+    /* 🔥 LA REPARACIÓN: Esconde de forma radical los elementos del panel privado en el folio final */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
@@ -1273,43 +1271,50 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         display: none !important;
     }
 
-    .modal-preview-deca,
+    .modal-preview-deca {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        background: #ffffff !important; /* Limpieza radical: fondo blanco puro detrás del folio */
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
     .preview-container,
     .preview-cuerpo-scroll {
         display: block !important;
-        width: 210mm !important; /* Clava el ancho del visor al papel físico */
-        height: 297mm !important; /* Clava el alto del visor al papel físico */
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
         overflow: visible !important;
-        background: #ffffff !important;
+        background: #ffffff !important; /* Purgado total de los grises de fondo de la APK */
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
-        box-sizing: border-box !important;
     }
 
-    /* 🚀 MOTOR DE ESCALADO AUTOMÁTICO A4: Estira el folio de 660px hasta los límites reales del papel */
+    /* 🚀 EFECTO LUPA MAESTRO: Estira el folio proporcionalmente para rellenar la hoja A4 */
     .folio-deca {
-        display: block !important;
-        width: 660px !important; /* Mantiene tus 660px originales para que no se descuadre ningún texto interior */
-        padding: 20px !important;
-        margin: 0 !important;
+        display: block !important; /* Volvemos al bloque tabular nativo estable de tu v3.50 */
+        width: 660px !important;    /* Congelamos el ancho píxel exacto que ya os salía simétrico y sin cortes */
+        max-width: 660px !important;
+        height: auto !important;
+
+        padding: 10px !important;   /* Pasillo de aire interno ergonómico */
+        margin: 30px auto !important; /* Centrado horizontal matemático en el centro del papel */
+
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
-
-        /* 📐 TRUCO MAESTRO: Calcula la escala matemática exacta y estira el documento hacia los bordes */
-        transform: scale(1.18) !important;
-        transform-origin: top left !important; /* Clava el inicio arriba a la izquierda para que crezca perfecto */
-
+        box-sizing: border-box !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-    }
 
-    .folio-header-azul {
-        background: #0f4c81 !important;
-        color: #ffffff !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
+        /* 📱 EL DETONANTE DE ANDROID/WEB: Aplica un escalado del 125% a todo el documento.
+           Esto hace que el folio crezca a pantalla completa de forma perfecta y equilibrada. */
+        zoom: 125% !important;
     }
 
     #qrcode_real_render img,
