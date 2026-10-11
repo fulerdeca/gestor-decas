@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.60</title>
+    <title>Gestor de DeCAs Transportes v3.70</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1246,32 +1246,39 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF === */
+/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF COMPILADO === */
 @media print {
-    /* 🛡️ TRUCO MAESTRO: Pone los márgenes de la página de impresión a cero.
-       Esto destruye los encabezados y pies de página automáticos del navegador (la URL, la fecha, etc.)
-       sin importar que el usuario se olvide de desmarcar la casilla en el ordenador. */
+    /* 🛡️ TRUCO MAESTRO: Anula los márgenes nativos y destruye URLs/fechas automáticas */
     @page {
         margin: 0mm !important;
+        size: auto;
     }
 
     body {
-        margin: 15mm !important; /* 🚀 Le devolvemos el pasillo de aire al folio por dentro para que no se pegue al ras del papel */
+        margin: 0 !important;
+        padding: 0 !important;
         background: #ffffff !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact !important; /* 🔥 FILTRO GOOGLE CHROME/APK: Fuerza el color azul */
+        print-color-adjust: exact !important;         /* 🔥 FORZADO ESTÁNDAR: Obliga a pintar los fondos */
     }
 
-    /* 🔥 LA REPARACIÓN: Añadimos el ID de las cajas para que desaparezcan por completo del papel PDF */
+    /* 🔥 LA REPARACIÓN: Esconde de forma radical los elementos del panel privado en el folio final */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
     .contenedor-filtros,
     .contenedor-tabla,
     .deca-modal-cabecera,
-    .preview-pie-botones {
-        display: none !important; /* Esconde los elementos del panel privado en el archivo final */
+    .preview-pie-botones,
+    .deca-modal-pie {
+        display: none !important;
     }
 
     .modal-preview-deca {
         position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
         background: none !important;
         display: block !important;
         width: 100% !important;
@@ -1292,15 +1299,29 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         margin: 0 !important;
     }
 
+    /* 🚀 RECENTRADO DE SEGURIDAD A4: Clava el folio blanco en el centro horizontal del papel */
     .folio-deca {
         display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
+        width: 210mm !important;      /* 📏 Ancho matemático oficial de un papel ISO A4 */
+        max-width: 210mm !important;
+        height: 297mm !important;     /* 📏 Alto matemático oficial de un papel ISO A4 */
+        max-height: 297mm !important;
+        padding: 20mm !important;     /* Margen de aire interno para que no se pegue al ras del corte */
+        margin: 0 auto !important;    /* Centrado milimétrico en el eje horizontal */
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
+        box-sizing: border-box !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* 🔵 RESTAURADOR CORPORATIVO: Devuelve el color azul nítido a las cabeceras en el papel móvil */
+    .folio-header-azul {
+        background: #0f4c81 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     #qrcode_real_render img,
@@ -1308,11 +1329,6 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         display: block !important;
         width: 100px !important;
         height: 100px !important;
-    }
-    /* Evita que el folio se parta a la mitad al imprimir desde el ordenador */
-    .folio-deca {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
     }
 }
 
@@ -1359,51 +1375,60 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     cursor: pointer;
 }
 
-
-/* Contenedores de notas informativas normativas para el visor privado */
+/* ==========================================================================
+   🎨 MAQUETACIÓN UNIFICADA DE BANNERS DEL VISOR (MÁSTER v3.52 CLEAN)
+   ========================================================================== */
 .banner-inspeccion-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #ffffff;
+    background: #ffffff !important; /* Lona máster blanca */
     padding: 12px 16px;
     border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    margin: 0 auto 12px auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    margin: 0 auto 10px auto;
     width: 100%;
     max-width: 660px;
     box-sizing: border-box;
     font-family: sans-serif;
     color: #111111;
+    border: 1px solid var(--border-color); /* Contorno sutil idéntico al primero */
 }
+
+/* 🟢 COMPRESIÓN ERGONÓMICA: Letra reducida a 9.5px para clavar el texto en una sola línea recta */
 .banner-inspeccion-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: #e8f5e9;
-    color: #1b5e20;
-    padding: 6px 12px;
+    gap: 4px;
+    background: #e8f5e9 !important;
+    color: #1b5e20 !important;
+    padding: 4px 10px;
     border-radius: 20px;
-    font-weight: bold;
-    font-size: 11px;
+    font-weight: 800;
+    font-size: 9.5px !important;
     text-transform: uppercase;
     border: 1px solid #c8e6c9;
+    white-space: nowrap !important; /* Prohíbe de forma rígida saltar a dos hileras */
+    flex-shrink: 0;
 }
+
+/* ⚪ UNIFICACIÓN DE LA SEGUNDA CAPA: Pasa de azul a la misma apariencia blanca que la primera */
 .banner-inspeccion-nota {
-    background: #e3f2fd;
-    color: #0d47a1;
-    border: 1px solid #bbdefb;
-    border-left: 5px solid #1565c0;
-    padding: 12px;
-    border-radius: 4px;
+    background: #ffffff !important; /* Fondo blanco puro idéntico al primer banner */
+    color: #4a5568 !important;     /* Texto gris oscuro de alta lectura administrativa */
+    border: 1px solid var(--border-color) !important; /* Mismo borde sutil que el primero */
+    border-left: 5px solid #0f4c81 !important;        /* Vivo izquierdo en azul corporativo */
+    padding: 12px 16px;
+    border-radius: 6px; /* Misma curvatura suavizada */
     font-size: 11px;
     line-height: 1.4;
-    text-align: left;
+    text-align: justify;
     width: 100%;
     max-width: 660px;
     margin: 0 auto 15px auto;
     box-sizing: border-box;
     font-family: sans-serif;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 
 
@@ -1579,6 +1604,33 @@ body.dark-mode .banner-inspeccion-nota {
         }
 
 
+ /* ==========================================================================
+   🌙 SINCRO DE BANNERS DEL VISOR EN MODO OSCURO (ANTI-DESLUMBRAMIENTO)
+   ========================================================================== */
+body.dark-mode .banner-inspeccion-header,
+body.dark-mode .banner-inspeccion-nota {
+    background-color: #1c1c1e !important; /* Mismo fondo gris carbón de tarjeta unificado */
+    border-color: #333336 !important;     /* Borde nocturno sutil integrado */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+    color: #ffffff !important;             /* Texto blanco nítido */
+}
+
+body.dark-mode .banner-inspeccion-header div,
+body.dark-mode .banner-inspeccion-header span {
+    color: #cbd5e0 !important; /* Aclara los textos de las fechas en la oscuridad */
+}
+
+body.dark-mode .banner-inspeccion-badge {
+    background-color: rgba(40, 167, 69, 0.15) !important; /* Verde mitigado translúcido */
+    color: #63e2b7 !important; /* Letras verde pastel de alta lectura nocturna */
+    border-color: rgba(40, 167, 69, 0.3) !important;
+}
+
+body.dark-mode .banner-inspeccion-nota {
+    border-left-color: #63b3ed !important; /* El vivo izquierdo destaca en azul eléctrico brillante */
+}
+
+
 /* Estilo del modal máster de bloqueo por licencia de transporte inactiva */
 .modal-licencia-bloqueo {
     display: none;
@@ -1628,6 +1680,36 @@ body.dark-mode .deca-bloque-operaciones-libre .btn-recomendar:hover {
     color: #121212 !important;
 }
 
+/* ==========================================================================
+   🌙 SINCRO NOCTURNA: BLINDAJE PARA BUSCADORES PREDICTIVOS (FONDOS OSCUROS)
+   ========================================================================== */
+body.dark-mode #lista_cargadores_habituales_drop,
+body.dark-mode #lista_mercancias_frecuentes_drop,
+body.dark-mode #lista_provincias_carg_drop,
+body.dark-mode #lista_provincias_drop {
+    background-color: #1c1c1e !important; /* Fondo gris carbón a juego con las tarjetas nocturnas */
+    border: 1px solid #333336 !important;  /* Borde intermedio mitigado */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Forzado de color nítido en las celdas interiores de sugerencias */
+body.dark-mode #lista_cargadores_habituales_drop div,
+body.dark-mode #lista_mercancias_frecuentes_drop div,
+body.dark-mode #lista_provincias_carg_drop div,
+body.dark-mode #lista_provincias_drop div {
+    color: #ffffff !important;             /* Letras blanco puro de alta lectura */
+    border-bottom: 1px solid #2c2c2e !important; /* Línea divisoria muy sutil entre filas */
+    background: transparent !important;
+}
+
+/* Cambio estético de resalte (Hover) al pasar el dedo o el cursor encima en la oscuridad */
+body.dark-mode #lista_cargadores_habituales_drop div:hover,
+body.dark-mode #lista_mercancias_frecuentes_drop div:hover,
+body.dark-mode #lista_provincias_carg_drop div:hover,
+body.dark-mode #lista_provincias_drop div:hover {
+    background-color: #2c2c2e !important; /* Gris un punto más claro para notar la selección */
+    color: #63b3ed !important;             /* Texto resalta en el azul eléctrico de la APK */
+}
 
 </style>
 
@@ -2161,6 +2243,10 @@ function desplegarMuroRegistroInicialObligatorioNativo() {
 // 👤 CONFIGURACIÓN DEL PANEL DE REVISIÓN DE DATOS COMERCIALES EXISTENTES (v4.50)
 // =========================================================================
 function abrirPanelMisDatosCamionero(forzarBloqueoSalida = false) {
+    // 🧼 CORTAFUEGOS VISUAL: Borra cualquier color rosa previo de la ficha del transportista
+    const todosLosInputsPerfil = document.querySelectorAll("#modal_perfil_camionero .deca-input, #modal_registro_inicial_obligatorio .deca-input");
+    todosLosInputsPerfil.forEach(input => input.classList.remove("deca-input-error-falta"));
+
     if (misDatosPerfilAutonomo) {
         if(document.getElementById("reg_transp_razon")) document.getElementById("reg_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
         if(document.getElementById("reg_transp_nif")) document.getElementById("reg_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
@@ -2535,9 +2621,38 @@ function activarEscuchaRealtimeDeCAs() {
     database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').on('value', (snapshot) => {
         const datosCloud = snapshot.val() || {};
 
+        // 🚀 EL COLECTOR DE EMERGENCIAS OFFLINE: Revisa los portes que acaban de entrar en red
+        Object.keys(datosCloud).forEach(key => {
+            const viaje = datosCloud[key];
+
+            // Si el viaje contiene un cargador válido, forzamos su registro automático en la nube
+            if (viaje && viaje.cargador_nif && viaje.cargador_razon) {
+                database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + viaje.cargador_nif).update({
+                    razon: viaje.cargador_razon,
+                    nif: viaje.cargador_nif,
+                    calle: viaje.cargador_calle || viaje.cargador_domicilio || "",
+                    cp: viaje.cargador_cp || "",
+                    poblacion: viaje.cargador_poblacion || "",
+                    provincia: viaje.cargador_provincia || ""
+                }).catch(() => {});
+
+                // Realiza la misma pasarela para las mercancías creadas en zonas sin señal
+                if (viaje.mercancia_nombre) {
+                    const nomLimpio = viaje.mercancia_nombre.trim().toUpperCase();
+                    const llaveFB = nomLimpio.replace(/[\.\#\$\[\]]/g, "-");
+                    if (!nomLimpio.includes("MUESTRA PRIVADA")) {
+                        database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + llaveFB).update({
+                            nombre: nomLimpio
+                        }).catch(() => {});
+                    }
+                }
+            }
+        });
+
         documentosDeCA = Object.keys(datosCloud).map(key => {
             return { id_firebase: key, ...datosCloud[key] };
         }).reverse();
+
 
         // 🚀 COPIA DE SEGURIDAD EN CALIENTE (v3.80 MÁSTER)
         try {
@@ -2601,6 +2716,30 @@ function activarEscuchaRealtimeDeCAs() {
             console.warn("Advertencia en la antena remota de mercancías:", error);
         });
     }
+
+    // =========================================================================
+    // 📡 ANTENA DE PLANTILLAS: Sincronización en vivo aislada por UID del chófer
+    // =========================================================================
+    if (database && miUsuarioUIDActivo) {
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes').on('value', (snapshot) => {
+            const datosPlantillasCloud = snapshot.val() || {};
+            window.diccionarioPlantillasCloud = datosPlantillasCloud;
+            console.log("📦 Plantillas de ruta descargadas de la nube:", Object.keys(datosPlantillasCloud).length);
+
+            // Copia local de seguridad por si entra en zona sin cobertura
+            try {
+                localStorage.setItem("bk_admin_plantillas_cloud", JSON.stringify(datosPlantillasCloud));
+            } catch(e) {}
+
+            // Si el formulario de altas está abierto, refresca el desplegable en caliente
+            if (document.getElementById("modal_nuevo_deca").style.display === "flex") {
+                actualizarDesplegablePlantillasFormulario();
+            }
+        }, (error) => {
+            console.warn("Advertencia en la antena remota de plantillas:", error);
+        });
+    }
+
 
 }
 
@@ -3317,21 +3456,28 @@ function procesarGuardadoDeCAOnline() {
     const dd = String(fechaBaseParaQR.getDate()).padStart(2, '0');
     const stringQRCaducidadFinal = `${yyyy}-${mm}-${dd}`;
 
-    // 🚀 ASIGNACIÓN AUTOMÁTICA DE ESTADO INTELIGENTE
-    let estadoCalculado = "EN_CURSO";
-    if (idDocumentoEnEdicion !== null) {
-        // Si estamos editando, respetamos el estado que ya tenía guardado previamente
-        const viajeEncontrado = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
-        if (viajeEncontrado) estadoCalculado = viajeEncontrado.estado || "EN_CURSO";
-    } else {
-        // Si es un alta nueva: Comparamos la fecha del viaje con la fecha del sistema de hoy de forma dinámica
-        const hoy = new Date();
-        const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
+    // 🚀 ASIGNACIÓN AUTOMÁTICA Y RECÁLCULO DINÁMICO DE ESTADO ELECTRÓNICO (v3.52)
+    const hoy = new Date();
+    const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
 
-        if (fechaTransp > hoyString) {
-            estadoCalculado = "PROGRAMADO"; // El viaje está agendado para el futuro
+    let estadoCalculado = "EN_CURSO";
+
+    // Si la fecha seleccionada por el chófer es posterior al día de hoy, el porte pasa a estar agendado
+    if (fechaTransp > hoyString) {
+        estadoCalculado = "PROGRAMADO";
+    }
+
+    // 🛡️ ESCUDO DE CUSTODIA LEGAL: Si estamos en modo Edición, protegemos los estados irreversibles
+    if (idDocumentoEnEdicion !== null) {
+        const viajeEncontrado = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
+        if (viajeEncontrado) {
+            // Si el porte ya fue CERRADO oficialmente o ANULADO, congelamos su estado por ley
+            if (viajeEncontrado.estado === "CERRADO" || viajeEncontrado.estado === "ANULADO") {
+                estadoCalculado = viajeEncontrado.estado;
+            }
         }
     }
+
 
     const paqueteDeCADatos = {
         cargador_razon: cargRazon,
@@ -3471,6 +3617,10 @@ function ejecutarInyeccionCorrelativaDeCA(paqueteDatos) {
 
 
 function limpiarCamposFormularioGigante() {
+    // 🧼 CORTAFUEGOS VISUAL: Tritura cualquier color rojo de error residual del formulario DeCA
+    const todosLosInputsForm = document.querySelectorAll("#modal_nuevo_deca .deca-input");
+    todosLosInputsForm.forEach(input => input.classList.remove("deca-input-error-falta"));
+
     document.getElementById("deca_carg_razon").value = "";
     document.getElementById("deca_carg_nif").value = "";
     document.getElementById("deca_carg_domicilio").value = "";
@@ -3660,22 +3810,14 @@ function ejecutarAccionFila(selectElement, idFirebase) {
         });
         resetearDesplegableVisual();
 
-    // Camino E: Guardar Plantilla Frecuente
+    // Camino E: Guardar Plantilla Frecuente Online (Sustituye este tramo de código)
     } else if (accion === "plantilla") {
-        let listaPlantillas = [];
-        try { listaPlantillas = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
+        mostrarAvisoToast("⏳ Subiendo plantilla a tu cuenta central...");
 
-        const yaExiste = listaPlantillas.some(p => p.cargador_nif === viajeOrigen.cargador_nif && p.origen_plaza === viajeOrigen.origen_plaza && p.destino_plaza === viajeOrigen.destino_plaza);
-        if (yaExiste) {
-            mostrarAlertaCorporativaDeca("Plantilla Existente", "Ya tienes guardada una plantilla idéntica para esta ruta y cargador.", "⚠️");
-            selectElement.value = "";
-            return;
-        }
-
-        listaPlantillas.push({
+        const paquetePlantillaNueva = {
             cargador_razon: viajeOrigen.cargador_razon || "",
             cargador_nif: viajeOrigen.cargador_nif || "",
-            cargador_calle: viajeOrigen.cargador_calle || "",
+            cargador_calle: viajeOrigen.cargador_calle || viajeOrigen.cargador_calle || "",
             cargador_cp: viajeOrigen.cargador_cp || "",
             cargador_poblacion: viajeOrigen.cargador_poblacion || "",
             cargador_provincia: viajeOrigen.cargador_provincia || "",
@@ -3684,10 +3826,17 @@ function ejecutarAccionFila(selectElement, idFirebase) {
             destino_plaza: viajeOrigen.destino_plaza || "",
             mercancia_nombre: viajeOrigen.mercancia_nombre || "",
             mercancia_peso: viajeOrigen.mercancia_peso || "0 kg"
-        });
-        localStorage.setItem("cfg_deca_mis_plantillas", JSON.stringify(listaPlantillas));
-        mostrarAvisoToast("⭐ Guardado en tus plantillas frecuentes de cabina.");
+        };
+
+        // Generamos un ID push único en Firebase para esta plantilla específica
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes').push(paquetePlantillaNueva)
+        .then(() => {
+            mostrarAvisoToast("⭐ Guardado en tus plantillas en la nube.");
+        })
+        .catch(err => alert("Error al subir plantilla: " + err.message));
+
         resetearDesplegableVisual();
+
 
     // Camino F: Eliminar Viaje de Muestra 000000
     } else if (accion === "eliminar_muestra") {
@@ -4106,18 +4255,16 @@ function obtenerHistorialCargadoresLocales() {
 
 
 // =========================================================================
-// 🏢 REGISTRO AUTOMÁTICO DE CARGADORES FRECUENTES EN LA NUBE (Y EN COPIA LOCAL)
+// 🏢 REGISTRO AUTOMÁTICO DE CARGADORES FRECUENTES (CON COPIA DE SEGURIDAD LOCAL)
 // =========================================================================
 function registrarCargadorEnHistorialFrecuente(razon, nif, calle, cp, poblacion, provincia) {
     if (!razon || !nif) return;
 
-    // 🚀 Recámara de identidad: Si la RAM está fría, rescatamos el UID del disco local
     if (!miUsuarioUIDActivo) {
         miUsuarioUIDActivo = localStorage.getItem("cfg_uid_recuperado_deca");
     }
     if (!miUsuarioUIDActivo) return;
 
-    // Despertador automático del motor de Firebase si no se asignó globalmente
     if (!database && typeof firebase !== 'undefined' && firebase.apps.length > 0) {
         database = firebase.database();
     }
@@ -4131,17 +4278,7 @@ function registrarCargadorEnHistorialFrecuente(razon, nif, calle, cp, poblacion,
         provincia: provincia
     };
 
-    // 1. 🔥 ENVÍO INMEDIATO AL NODO DE FIREBASE (Garantiza la creación online)
-    if (database && navigator.onLine) {
-        console.log("📡 Subiendo cliente nuevo al nodo central de Firebase...", razon);
-        database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + nif).set(paqueteEmpresaNueva)
-        .then(() => {
-            console.log("✅ Empresa sincronizada con éxito en la nube.");
-        })
-        .catch(e => console.warn("Aviso al guardar cargador en Firebase:", e));
-    }
-
-    // 2. 🛡️ Inmunidad Offline: Espejo en disco duro local para cabina sin cobertura
+    // 1. 🛡️ Inmunidad Offline Inmediata: Espejo en disco duro local para el predictivo en cabina
     let carteraClientesActual = {};
     try {
         carteraClientesActual = JSON.parse(localStorage.getItem("bk_admin_cargadores_cloud")) || {};
@@ -4149,11 +4286,15 @@ function registrarCargadorEnHistorialFrecuente(razon, nif, calle, cp, poblacion,
 
     carteraClientesActual[nif] = paqueteEmpresaNueva;
     localStorage.setItem("bk_admin_cargadores_cloud", JSON.stringify(carteraClientesActual));
+    window.diccionarioCargadoresCloud = carteraClientesActual; // Actualiza la RAM del teléfono
 
-    // Guardamos en la variable global para que el buscador predictivo lo lea en el acto
-    window.diccionarioCargadoresCloud = carteraClientesActual;
-    console.log("💾 Respaldo local actualizado en el terminal:", razon);
+    // 2. Si hay señal en este instante, lo subimos directamente de forma preventiva
+    if (database && navigator.onLine) {
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + nif).set(paqueteEmpresaNueva)
+        .catch(e => console.warn("Aviso al guardar cargador en Firebase:", e));
+    }
 }
+
 
 
 // =========================================================================
@@ -4277,50 +4418,65 @@ function sincronizarBotonOscuroAlArrancar() {
 
 
 // =========================================================================
-// ⭐ MOTOR DE AUTO-RELLENO DE PORTES MEDIANTE PLANTILLAS FRECUENTES
+// ⭐ MOTOR HÍBRIDO MÁSTER: GESTIÓN DE PLANTILLAS EN LA NUBE (v3.52)
 // =========================================================================
+
+// 1. Despliega las plantillas del usuario activo en el selector del formulario
 function actualizarDesplegablePlantillasFormulario() {
     const selector = document.getElementById("selector_plantillas_frecuentes");
     if (!selector) return;
 
     selector.innerHTML = '<option value="">-- Selecciona una plantilla de ruta --</option>';
 
-    let lista = [];
-    try { lista = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
+    // 🚀 LECTURA HÍBRIDA MULTI-USUARIO: Lee de la RAM sincronizada de este chófer o del disco duro local
+    let diccionarioPlantillas = window.diccionarioPlantillasCloud;
+
+    if (!diccionarioPlantillas || Object.keys(diccionarioPlantillas).length === 0) {
+        try {
+            diccionarioPlantillas = JSON.parse(localStorage.getItem("bk_admin_plantillas_cloud")) || {};
+        } catch(e) { diccionarioPlantillas = {}; }
+    }
+
+    const lista = Object.keys(diccionarioPlantillas).map(key => {
+        return { id_plantilla_fb: key, ...diccionarioPlantillas[key] };
+    });
 
     if (lista.length === 0) {
         selector.innerHTML = '<option value="">⚠️ No tienes ninguna plantilla guardada todavía (Guárdalas desde el menú "Acciones" de la tabla)</option>';
         return;
     }
 
-    lista.forEach((p, index) => {
+    lista.forEach((p) => {
         const option = document.createElement("option");
-        option.value = index;
+        option.value = p.id_plantilla_fb; // Usamos la llave única de Firebase
         option.innerText = `🏢 ${p.cargador_razon} | ➔ ${p.origen_plaza} hasta ${p.destino_plaza}`;
         selector.appendChild(option);
     });
 }
 
+// 2. Carga los datos de la plantilla elegida en las casillas del formulario gigante
 function cargarDatosDesdePlantillaSeleccionada(selectElement) {
-    const index = selectElement.value;
+    const idPlantilla = selectElement.value;
     const btnPapelera = document.getElementById("btn_eliminar_plantilla_trigger");
 
-    // 🔥 CONTROL DE VISIBILIDAD DINÁMICA
     if (btnPapelera) {
-        if (index === "") {
-            btnPapelera.style.display = "none";  // Si vuelve a seleccionar el mensaje por defecto, esconde el botón
+        if (idPlantilla === "") {
+            btnPapelera.style.display = "none";
             return;
         } else {
-            btnPapelera.style.display = "inline-flex"; // Si elige una plantilla real, muestra la papelera roja
+            btnPapelera.style.display = "inline-flex";
         }
     }
 
-    let lista = [];
-    try { lista = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
-    const p = lista[index];
+    let diccionarioPlantillas = window.diccionarioPlantillasCloud;
+    if (!diccionarioPlantillas) {
+        try { diccionarioPlantillas = JSON.parse(localStorage.getItem("bk_admin_plantillas_cloud")) || {}; } catch(e){}
+    }
+
+    const p = diccionarioPlantillas[idPlantilla];
     if (!p) return;
 
-    // Inyección masiva en las casillas (mantenemos todo tu bloque de campos igual)
+    // Inyección masiva en cascada en los campos del DeCA
     document.getElementById("deca_carg_razon").value = p.cargador_razon || "";
     document.getElementById("deca_carg_nif").value = p.cargador_nif || "";
     document.getElementById("deca_carg_domicilio").value = p.cargador_calle || "";
@@ -4343,52 +4499,51 @@ function cargarDatosDesdePlantillaSeleccionada(selectElement) {
         }
     }
 
-    mostrarAvisoToast("⭐ Formulario auto-rellenado desde plantilla");
+    mostrarAvisoToast("⭐ Formulario auto-rellenado desde plantilla online");
 }
 
 
+
 // =========================================================================
-// ⭐ FUNCIÓN DE PURGA PARA ELIMINAR PLANTILLAS OBSOLETAS EN CABINA
+// ⭐ FUNCIÓN DE PURGA: ELIMINA PLANTILLAS OBSOLETAS DE LA NUBE Y DE CALIENTE
 // =========================================================================
 function eliminarPlantillaFrecuenteSeleccionada() {
     const selector = document.getElementById("selector_plantillas_frecuentes");
     if (!selector) return;
 
-    const index = selector.value;
-    // Si no ha seleccionado ninguna plantilla válida, denegamos la acción
-    if (index === "" || index.includes("--") || index.includes("No tienes")) {
-        return mostrarAlertaCorporativaDeca("Acción Requerida", "Por favor, selecciona primero en el desplegable la plantilla que deseas eliminar de tu memoria local.", "⚠️");
+    const idPlantillaFB = selector.value;
+    if (idPlantillaFB === "" || idPlantillaFB.includes("--") || idPlantillaFB.includes("No tienes")) {
+        return mostrarAlertaCorporativaDeca("Acción Requerida", "Por favor, selecciona primero en el desplegable la plantilla que deseas eliminar de tu memoria.", "⚠️");
     }
 
-    let listaPlantillas = [];
-    try { listaPlantillas = JSON.parse(localStorage.getItem("cfg_deca_mis_plantillas")) || []; } catch(e) {}
+    const mensajePregunta = `¿Estás seguro de que deseas eliminar esta plantilla de ruta de tu cuenta de Firebase de forma permanente? No afectará a tus DeCAs ya emitidos.`;
 
-    const plantillaAEliminar = listaPlantillas[index];
-    if (!plantillaAEliminar) return;
-
-    const mensajePregunta = `¿Estás seguro de que deseas eliminar la plantilla de ruta para "${plantillaAEliminar.cargador_razon || 'Empresa'}" de forma permanente? No afectará a tus DeCAs ya emitidos.`;
-
-    // Conectamos con tu modal corporativo de confirmación estilo TPV
     mostrarConfirmacionCorporativaDeca("Eliminar Plantilla de Ruta", mensajePregunta, function() {
-        mostrarAvisoToast("🗑️ Eliminando plantilla local...");
+        // 🔊 AVISO TOAST INICIAL: Informa al chófer de que el proceso ha comenzado en red
+        mostrarAvisoToast("🗑️ Eliminando plantilla del servidor central...");
 
-        // Sacamos el elemento del array usando su índice de posición
-        listaPlantillas.splice(index, 1);
-
-        // Guardamos el nuevo array en el disco del terminal
-        localStorage.setItem("cfg_deca_mis_plantillas", JSON.stringify(listaPlantillas));
-
-        // Refrescamos el desplegable en caliente para que el conductor vea el cambio al instante
-        actualizarDesplegablePlantillasFormulario();
-
-        // 🔥 LA NUEVA LÍNEA: Esconde la papelera tras borrar el archivo de la memoria
-        if(document.getElementById("btn_eliminar_plantilla_trigger")) {
-            document.getElementById("btn_eliminar_plantilla_trigger").style.display = "none";
+        if (!miUsuarioUIDActivo) {
+            miUsuarioUIDActivo = localStorage.getItem("cfg_uid_recuperado_deca");
         }
 
-        mostrarAvisoToast("🗑️ Plantilla eliminada correctamente.");
+        // Destruimos el nodo exacto en la nube usando su ID único reservado de Firebase
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes/' + idPlantillaFB).remove()
+        .then(() => {
+            // 🔊 AVISO TOAST DE ÉXITO FINAL: Confirma el limpiado del salpicadero
+            mostrarAvisoToast("🗑️ Plantilla eliminada correctamente.");
+
+            // 🔥 LA NUEVA LÍNEA: Esconde la papelera tras borrar el archivo de la memoria
+            if(document.getElementById("btn_eliminar_plantilla_trigger")) {
+                document.getElementById("btn_eliminar_plantilla_trigger").style.display = "none";
+            }
+        })
+        .catch(err => {
+            console.error("Fallo crítico al purgar plantilla:", err);
+            alert("Error de red al borrar la plantilla: " + err.message);
+        });
     });
 }
+
 
 
 // =========================================================================
@@ -5520,7 +5675,7 @@ function cerrarEdicionUsuarioAdminManual() {
         <!-- Cabecera Fija Unificada -->
         <div class="deca-modal-cabecera">
             <h3 id="titulo_perfil_dinamico">Mis Datos Comerciales</h3>
-            <button id="btn_cerrar_perfil" class="deca-modal-cerrar" onclick="document.getElementById('modal_perfil_camionero').style.display = 'none'">✕</button>
+            <button id="btn_cerrar_perfil" class="deca-modal-cerrar" onclick="document.querySelectorAll('#modal_perfil_camionero .deca-input').forEach(i => i.classList.remove('deca-input-error-falta')); document.getElementById('modal_perfil_camionero').style.display = 'none'">✕</button>
         </div>
 
         <!-- Cuerpo Desplazable con las 4 Secciones Comerciales del Chofer -->
@@ -5613,7 +5768,7 @@ function cerrarEdicionUsuarioAdminManual() {
 
         <!-- Botonera Inferior Fija Exclusiva para Editar Perfil Existente -->
         <div class="deca-modal-pie">
-            <button class="deca-btn-pie deca-btn-cancelar" onclick="document.getElementById('modal_perfil_camionero').style.display = 'none'">Cancelar</button>
+            <button class="deca-btn-pie deca-btn-cancelar" onclick="document.querySelectorAll('#modal_perfil_camionero .deca-input').forEach(i => i.classList.remove('deca-input-error-falta')); document.getElementById('modal_perfil_camionero').style.display = 'none'">Cancelar</button>
             <button id="btn_guardar_perfil_ejecutar" class="deca-btn-pie deca-btn-guardar" onclick="registrarNuevoCamioneroEcosistema()">💾 Guardar</button>
         </div>
 
