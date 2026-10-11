@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.70</title>
+    <title>Gestor de DeCAs Transportes v3.66</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1246,39 +1246,32 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF === */
-/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF COMPILADO === */
 @media print {
-    /* 🛡️ TRUCO MAESTRO: Anula los márgenes nativos y destruye URLs/fechas automáticas */
+    /* 🛡️ TRUCO MAESTRO: Pone los márgenes de la página de impresión a cero.
+       Esto destruye los encabezados y pies de página automáticos del navegador (la URL, la fecha, etc.)
+       sin importar que el usuario se olvide de desmarcar la casilla en el ordenador. */
     @page {
         margin: 0mm !important;
-        size: auto;
     }
 
     body {
-        margin: 0 !important;
-        padding: 0 !important;
+        margin: 15mm !important; /* 🚀 Le devolvemos el pasillo de aire al folio por dentro para que no se pegue al ras del papel */
         background: #ffffff !important;
-        color: #000000 !important;
-        -webkit-print-color-adjust: exact !important; /* 🔥 FILTRO GOOGLE CHROME/APK: Fuerza el color azul */
-        print-color-adjust: exact !important;         /* 🔥 FORZADO ESTÁNDAR: Obliga a pintar los fondos */
     }
 
-    /* 🔥 LA REPARACIÓN: Esconde de forma radical los elementos del panel privado en el folio final */
+    /* 🔥 LA REPARACIÓN: Añadimos el ID de las cajas para que desaparezcan por completo del papel PDF */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
     .contenedor-filtros,
     .contenedor-tabla,
     .deca-modal-cabecera,
-    .preview-pie-botones,
-    .deca-modal-pie {
-        display: none !important;
+    .preview-pie-botones {
+        display: none !important; /* Esconde los elementos del panel privado en el archivo final */
     }
 
     .modal-preview-deca {
         position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
         background: none !important;
         display: block !important;
         width: 100% !important;
@@ -1299,37 +1292,27 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         margin: 0 !important;
     }
 
-    /* 🚀 RECENTRADO DE SEGURIDAD A4: Clava el folio blanco en el centro horizontal del papel */
     .folio-deca {
         display: block !important;
-        width: 210mm !important;      /* 📏 Ancho matemático oficial de un papel ISO A4 */
-        max-width: 210mm !important;
-        height: 297mm !important;     /* 📏 Alto matemático oficial de un papel ISO A4 */
-        max-height: 297mm !important;
-        padding: 20mm !important;     /* Margen de aire interno para que no se pegue al ras del corte */
-        margin: 0 auto !important;    /* Centrado milimétrico en el eje horizontal */
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
-        box-sizing: border-box !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
     }
-
-    /* 🔵 RESTAURADOR CORPORATIVO: Devuelve el color azul nítido a las cabeceras en el papel móvil */
-    .folio-header-azul {
-        background: #0f4c81 !important;
-        color: #ffffff !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
 
     #qrcode_real_render img,
     #qrcode_real_render canvas {
         display: block !important;
         width: 100px !important;
         height: 100px !important;
+    }
+    /* Evita que el folio se parta a la mitad al imprimir desde el ordenador */
+    .folio-deca {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 }
 
