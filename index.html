@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.66</title>
+    <title>Gestor de DeCAs Transportes v3.70</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1245,34 +1245,38 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 
-/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF === */
+/* === CORRECCIÓN MAESTRA DE IMPRESIÓN SÍNCRONA PARA EL FICHERO PDF COMPILADO === */
 @media print {
-    /* 🛡️ TRUCO MAESTRO: Pone los márgenes de la página de impresión a cero.
-       Esto destruye los encabezados y pies de página automáticos del navegador (la URL, la fecha, etc.)
-       sin importar que el usuario se olvide de desmarcar la casilla en el ordenador. */
+    /* 🛡️ TRUCO MAESTRO: Anula los márgenes nativos y destruye URLs/fechas automáticas */
     @page {
         margin: 0mm !important;
+        size: A4 portrait; /* Fuerza al papel a posicionarse en vertical A4 */
     }
 
     body {
-        margin: 15mm !important; /* 🚀 Le devolvemos el pasillo de aire al folio por dentro para que no se pegue al ras del papel */
+        margin: 0 !important;
+        padding: 0 !important;
         background: #ffffff !important;
+        color: #000000 !important;
     }
 
-    /* 🔥 LA REPARACIÓN: Añadimos el ID de las cajas para que desaparezcan por completo del papel PDF */
+    /* 🔥 LA REPARACIÓN: Esconde de forma radical los elementos del panel privado en el folio final */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
     .contenedor-filtros,
     .contenedor-tabla,
     .deca-modal-cabecera,
-    .preview-pie-botones {
-        display: none !important; /* Esconde los elementos del panel privado en el archivo final */
+    .preview-pie-botones,
+    .deca-modal-pie {
+        display: none !important;
     }
 
     .modal-preview-deca {
         position: absolute !important;
-        background: none !important;
+        left: 0 !important;
+        top: 0 !important;
+        background: #ffffff !important; /* Limpieza total: fondo blanco puro detrás del folio */
         display: block !important;
         width: 100% !important;
         height: auto !important;
@@ -1286,21 +1290,31 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         max-width: 100% !important;
         height: auto !important;
         overflow: visible !important;
-        background: none !important;
+        background: #ffffff !important; /* Puga radical de los grises de fondo de la APK */
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
     }
 
+    /* 🚀 ZOOM MÁSTER EXCLUSIVO: Estira el folio para que ocupe todo el papel A4 sin recortarse */
     .folio-deca {
         display: block !important;
-        width: 100% !important;
+        width: 100% !important;       /* Se adapta al 100% del ancho real de la página de impresión */
         max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
+        height: auto !important;
+        padding: 15mm !important;      /* Pasillo de aire perimetral ergonómico para que no se pegue al Ras */
+        margin: 0 auto !important;     /* Centrado matemático absoluto */
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
+        box-sizing: border-box !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+
+        /* 📱 EL ACELERADOR ANDROID: Obliga al WebView a escalar el tamaño del folio al papel físico */
+        transform: scale(1.0) !important;
+        transform-origin: top center !important;
+        zoom: 100% !important;
     }
 
     #qrcode_real_render img,
@@ -1308,11 +1322,6 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         display: block !important;
         width: 100px !important;
         height: 100px !important;
-    }
-    /* Evita que el folio se parta a la mitad al imprimir desde el ordenador */
-    .folio-deca {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
     }
 }
 
