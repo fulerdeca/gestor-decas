@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.70</title>
+    <title>Gestor de DeCAs Transportes v3.71</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1314,7 +1314,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
         /* 📱 EL DETONANTE DE ANDROID/WEB: Aplica un escalado del 125% a todo el documento.
            Esto hace que el folio crezca a pantalla completa de forma perfecta y equilibrada. */
-        zoom: 125% !important;
+        zoom: 120% !important;
     }
 
     #qrcode_real_render img,
@@ -1323,7 +1323,37 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         width: 100px !important;
         height: 100px !important;
     }
+
+
+        /* === REEMPLAZA ESTAS DOS REGLAS DENTRO DE TU BLOCK @MEDIA PRINT === */
+    .modal-preview-deca,
+    #modal_preview_deca {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        background: #ffffff !important; /* Tritura el gris de fondo del visor del agente al imprimir */
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .preview-container,
+    .preview-cuerpo-scroll {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: #ffffff !important; /* Purgado total de los grises de fondo de la APK */
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
 }
+
+
 
 
 
