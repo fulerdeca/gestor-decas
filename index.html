@@ -1304,17 +1304,9 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         background: #ffffff !important;
         color: #000000 !important;
 
-        /* 🚀 CONTROL ELÁSTICO POR EJES (Sustituye al zoom) */
-        /* El primer valor estira el ancho (X). El segundo valor estira el alto (Y). */
-        /* Ejemplo: 1.05 es un 105% de escala, y 1.0 es el tamaño original (100%) */
-        transform: scale(1.05, 1.0) !important;
-
-        /* 🔒 ANCLAJE CRÍTICO: Clava el folio arriba a la izquierda */
-        /* Evita que al estirar un solo eje el papel se desplace o flote fuera de los márgenes */
-        transform-origin: top left !important;
-
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+        /* 📱 EL DETONANTE DE ANDROID/WEB: Aplica un escalado del 125% a todo el documento.
+        Esto hace que el folio crezca a pantalla completa de forma perfecta y equilibrada. */
+        zoom: 110% !important;
     }
 
     #qrcode_real_render img,
@@ -1761,12 +1753,9 @@ body.dark-mode #lista_provincias_drop div:hover {
        🚚 CAPA 2: BLOQUE COMERCIAL LIBRE (SE MUEVE CON EL SCROLL)
        ========================================================================== -->
     <div class="deca-bloque-operaciones-libre">
-
-    <!--
         <p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
             La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
         </p>
-    -->
         <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
             <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
             <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
