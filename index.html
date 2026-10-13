@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.00</title>
+    <title>Gestor de DeCAs Transportes v4.01</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2031,8 +2031,9 @@ let misDatosPerfilAutonomo = null;
 let idDocumentoEnEdicion = null;
 
 
+
 // =========================================================================
-// 🔒 ARRANQUE DINÁMICO MEDIANTE PASARELA GATEWAY (SINCRO ANÓNIMA FIJADA v3.99)
+// 🔒 ARRANQUE DINÁMICO MEDIANTE PASARELA GATEWAY (SINCRO ANÓNIMA FIJADA v4.03)
 // =========================================================================
 function iniciarEcosistemaDeCAs() {
     console.log("🛠️ Conectando terminal con la pasarela remota DeCA...");
@@ -2057,27 +2058,38 @@ function iniciarEcosistemaDeCAs() {
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
 
         if (tokenSeguridadLocal) {
-            // 🔓 CASO A: Si el terminal ya está registrado (¡Como tu cuenta de ADMIN!), forzamos el login inmediato de Firebase
+            // 🔓 CASO A: El terminal ya está registrado (¡Tu cuenta de ADMIN!). Forzamos login síncrono
             miUsuarioUIDActivo = tokenSeguridadLocal;
 
-            // 🚀 REPARACIÓN DE PRIVILEGIOS MÁSTER: Iniciamos la sesión de Firebase con tu token local
-            // para que Google valide tus permisos de Administrador y te permita leer el nodo /usuarios
+            // 🚀 REPARACIÓN DE PRIVILEGIOS MÁSTER: Autenticamos el token local ante Google
+            // para validar vuestros permisos de Administrador y liberar los Datos del panel
             return firebase.auth().signInAnonymously().then(() => {
                 console.log("🔓 Conexión establecida con terminal verificado:", miUsuarioUIDActivo);
                 actualizarEstadoRedTerminalCamion(true);
                 verificarExistenciaPerfilCamionero();
             });
         } else {
-            // 🛡️ CASO B (ANTI-FANTASMAS): Si el terminal está completamente limpio de fábrica,
-            // no creamos ninguna sesión en Google todavía. Lanzamos el muro y esperamos a que teclee.
-            desplegarMuroRegistroInicialObligatorioNativo();
+            // 🛡️ CASO B (ANTI-FANTASMAS): Terminal limpio de fábrica. Creamos cuenta anónima
+            // e inmediatamente abrimos el muro de registro obligatorio
+            return firebase.auth().signInAnonymously().then((usuarioCredencial) => {
+                miUsuarioUIDActivo = usuarioCredencial.user.uid;
+                console.log("🌱 Terminal virgen inicializado. UID provisional:", miUsuarioUIDActivo);
+
+                actualizarEstadoRedTerminalCamion(true);
+                desplegarMuroRegistroInicialObligatorioNativo();
+            });
         }
     })
     .catch(error => {
         console.error("❌ Error crítico en el Gateway de arranque:", error);
+        // Si el camión entra en un túnel en frío, salta el búnker local de emergencia
+        if (!navigator.onLine) {
+            actualizarEstadoRedTerminalCamion(false);
+            ejecutarCargaDeEmergenciaDesdeDiscoDuro();
+        }
     });
 
-    // === ☀️ GARANTÍA DIURNA: TEMA COMPACTO CLARO POR DEFECTO AL ARRANCAR v3.99 ===
+    // === ☀️ GARANTÍA DIURNA: TEMA COMPACTO CLARO POR DEFECTO AL ARRANCAR v4.03 ===
     localStorage.setItem("modo_oscuro_deca", "no");
     document.body.classList.remove("dark-mode");
 
@@ -2117,7 +2129,6 @@ function iniciarEcosistemaDeCAs() {
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
-            // 👮 La pasarela de control del agente sí fuerza el sign-in para poder leer el viaje
             firebase.auth().signInAnonymously().then(() => {
                 database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                 .then((snapshot) => {
@@ -2143,15 +2154,12 @@ function iniciarEcosistemaDeCAs() {
     // 🏷️ EXTRACTOR DIGITAL: SELLA LA VERSIÓN DEL TITLE EN EL TECHO FIXED
     // =========================================================================
     try {
-        const textoTituloPestaña = document.title; // "Gestor de DeCAs Transportes v4.00"
-
-        // Buscamos cualquier coincidencia que empiece por 'v' seguida de números y puntos
+        const textoTituloPestaña = document.title;
         const coincidenciaVersion = textoTituloPestaña.match(/v\s*\d+\.\d+/i);
 
         if (coincidenciaVersion) {
             const nodoBadgeTecho = document.getElementById("deca_version_dinamica_techo");
             if (nodoBadgeTecho) {
-                // Inyectamos el texto (ej: "v 4.00") en el span gris de la cabecera
                 nodoBadgeTecho.innerText = coincidenciaVersion[0];
                 console.log("🏷️ Versión del software indexada en cabina:", coincidenciaVersion[0]);
             }
@@ -2159,9 +2167,7 @@ function iniciarEcosistemaDeCAs() {
     } catch (err) {
         console.warn("Aviso residual en el radar del extractor de versión:", err);
     }
-} // 🔒 LLAVE DE CIERRE FINAL DE LA FUNCIÓN INICIARECOSISTEMADECAS
-
-
+}
 
 
 
@@ -6277,9 +6283,9 @@ function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
 
         <!-- Barra de Pestañas Premium Síncronas -->
         <div class="deca-tabs-contenedor">
-            <button id="tab_btn_clientes" class="deca-tab-boton activa" onclick="conmutarPestañaDatosAdmin('clientes')">🏢 Clientes</button>
-            <button id="tab_btn_mercancias" class="deca-tab-boton" onclick="conmutarPestañaDatosAdmin('mercancias')">📦 Cargas</button>
-            <button id="tab_btn_plantillas" class="deca-tab-boton" onclick="conmutarPestañaDatosAdmin('plantillas')">🗺️ Rutas</button>
+            <button id="tab_btn_clientes" class="deca-tab-boton activa" onclick="conmutarPestañaDatosAdmin('clientes')">🏢 Empresas</button>
+            <button id="tab_btn_mercancias" class="deca-tab-boton" onclick="conmutarPestañaDatosAdmin('mercancias')">📦 Mercancías</button>
+            <button id="tab_btn_plantillas" class="deca-tab-boton" onclick="conmutarPestañaDatosAdmin('plantillas')">🗺️ Plantillas</button>
         </div>
 
         <div class="deca-modal-cuerpo" style="padding: 10px 15px; background: #f0f4f8;">
