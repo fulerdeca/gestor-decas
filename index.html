@@ -1294,23 +1294,19 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         margin: 0 !important;
     }
 
-    /* 🚀 ESCALADO HORIZONTAL EXCLUSIVO PARA EL ANCHO DEL FOLIO A4 (v3.86) */
     .folio-deca {
         display: block !important;
-        width: 660px !important;    /* Mantiene tus 660px estables para que el texto interior no sufra */
-        max-width: 660px !important;
-        height: auto !important;
-        padding: 10px !important;
-        margin: 0 auto !important;  /* Centrado simétrico en el papel */
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
-        box-sizing: border-box !important;
 
-        /* 📐 EL TRUCO: scaleX(1.05) estira el folio un 105% SÓLO a lo ancho.
-           Si quisieras estirar sólo lo alto, usarías scaleY(1.05) */
-        transform: scaleX(1.10) !important;
-        transform-origin: top center !important; /* Clava el eje arriba en el centro para que crezca simétrico hacia los lados */
+        /* 📱 EL DETONANTE DE ANDROID/WEB: Aplica un escalado del 125% a todo el documento.
+        Esto hace que el folio crezca a pantalla completa de forma perfecta y equilibrada. */
+        zoom: 105% !important;
     }
 
     #qrcode_real_render img,
