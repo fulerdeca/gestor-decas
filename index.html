@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.80</title>
+    <title>Gestor de DeCAs Transportes v3.81</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1266,8 +1266,10 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     .contenedor-filtros,
     .contenedor-tabla,
     .deca-modal-cabecera,
-    .preview-pie-botones {
-        display: none !important; /* Esconde los elementos del panel privado en el archivo final */
+    .preview-pie-botones,
+    .deca-modal-pie,
+    .deca-bloque-operaciones-libre { /* 👈 Añadido este para triturar la botonera del dashboard */
+        display: none !important;
     }
 
     .modal-preview-deca {
@@ -2053,29 +2055,6 @@ function iniciarEcosistemaDeCAs() {
                         // Cargamos la memoria RAM y disparamos el visor
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                         verFichaDocumento(idDecaInspeccionar);
-
-                        // 🔥 EL DISPARADOR MÁSTER MINISTERIO: Fuerza la descarga directa del archivo .pdf real sin tocar botones
-                        setTimeout(() => {
-                            try {
-                                // Importamos dinámicamente un motor ligero de impresión a PDF para el navegador del agente
-                                const numeroDocumentoOficial = viajeData.numero_documento || "DeCA_Documento";
-                                const tituloOriginalPestaña = document.title;
-
-                                // Cambiamos temporalmente el título del documento para que el archivo se guarde con el número de DeCA real
-                                document.title = numeroDocumentoOficial;
-
-                                // Forzamos la cola de impresión nativa del sistema del teléfono móvil del agente
-                                // En cualquier smartphone (Android/iOS), esto despliega instantáneamente el cuadro "Guardar como PDF" oficial
-                                window.print();
-
-                                // Restauramos el título original de la pestaña web
-                                document.title = tituloOriginalPestaña;
-                                console.log("📥 Archivo PDF nativo transferido de forma directa al terminal del agente.");
-                            } catch (e) {
-                                console.warn("Aviso en pasarela de descarga directa:", e);
-                            }
-                        }, 1200); // Le damos 1.2 segundos para que Firebase rellene la hoja antes de guardarla
-
 
                         // Ocultamos los paneles comerciales traseros del transportista
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
@@ -3123,40 +3102,48 @@ function verFichaDocumento(idFirebase) {
                     correctLevel : QRCode.CorrectLevel.M
                 });
 
-                // El trigger táctil del ministerio continúa exactamente igual abajo...
-                contenedorQR.onclick = function() {
+            // =========================================================================
+            // 🚨 DISPARADOR MINISTERIO v3.85: ACCIÓN INMEDIATA DIRECTA SIN BOTONES
+            // =========================================================================
+            if (window.location.search.includes("verificar")) {
+                console.log("👮 Ejecutando orden de captura directa para la Inspección de Tráfico...");
 
-                    // 🕵️ EVALUACIÓN: ¿Quién está tocando el código QR?
-                    if (window.location.search.includes("verificar")) {
-                        // CASO A: Es el agente de la Guardia Civil en carretera (Página de validación)
-                        // Disparamos ÚNICAMENTE la descarga del PDF nativo limpio, sin abrir el modal gigante negro
-                        try {
-                            const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
-                            const tituloOriginalPestaña = document.title;
+                // Damos un margen de 1.2 segundos para que Android estabilice el canvas del QR en la APK antes de disparar
+                setTimeout(() => {
+                    try {
+                        const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
+                        const tituloOriginalPestaña = document.title;
 
-                            document.title = numeroDocumentoOficial;
-                            console.log("📥 Inspector validado: Forzando descarga directa de PDF sin ampliación visual...");
+                        // Cambiamos el título para que el smartphone guarde el PDF con el nombre real del DeCA
+                        document.title = numeroDocumentoOficial;
 
-                            window.print();
-                            document.title = tituloOriginalPestaña;
-                        } catch (err) {
-                            console.warn("Aviso en el hilo de impresión táctil del inspector:", err);
-                        }
-                    } else {
-                        // CASO B: Es el camionero dentro de su aplicación privada (Dashboard)
-                        // Aquí mantenemos el comportamiento original para que pueda ampliar el QR en su cabina si quiere
-                        abrirModalQRGiganteNativo();
+                        // 🖨️ DISPARADOR INVISIBLE: Lanza de forma nativa la pasarela de guardado del smartphone
+                        window.print();
+
+                        // Restauramos el título para mantener limpia la pestaña del navegador
+                        document.title = tituloOriginalPestaña;
+                        mostrarAvisoToast("📥 Fichero PDF transferido al terminal del agente.");
+                    } catch (err) {
+                        console.warn("Aviso en el hilo de inyección de impresión directa:", err);
                     }
-                };
-
-
-
-            } catch (e) {
-                console.warn("Error al generar el QR en APK:", e);
-                contenedorQR.innerHTML = "<span style='font-size:30px;'>🔳</span>";
+                }, 1200);
             }
-        }, 100);
-    }
+
+            // Mantenemos el trigger manual por si el agente cancela por error y quiere volver a pulsar
+            contenedorQR.onclick = function() {
+                if (window.location.search.includes("verificar")) {
+                    window.print();
+                } else {
+                    abrirModalQRGiganteNativo();
+                }
+            };
+
+        } catch (e) {
+            console.warn("Error al generar el QR en APK:", e);
+            contenedorQR.innerHTML = "<span style='font-size:30px;'>🔳</span>";
+        }
+    }, 100);
+} // 🔒 LLAVE DE CIERRE DE LA FUNCIÓN VERFICHADOCUMENTO
 }
 
 // ==========================================
