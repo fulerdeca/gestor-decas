@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.96</title>
+    <title>Gestor de DeCAs Transportes v3.97</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -3149,8 +3149,9 @@ function verFichaDocumento(idFirebase) {
     document.getElementById("prev_carg_nif").innerText = doc.cargador_nif || "---";
     document.getElementById("prev_carg_domicilio").innerText = doc.cargador_domicilio || "---";
 
-    document.getElementById("prev_transp_razon").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : "---";
-    document.getElementById("prev_transp_nif").innerText = misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : "---";
+    // 🟢 LA SOLUCIÓN: El visor lee directamente del objeto del viaje, igual que hace la web de Tráfico
+    document.getElementById("prev_transp_razon").innerText = doc.transportista_razon || "---";
+    document.getElementById("prev_transp_nif").innerText = doc.transportista_nif || "---";
 
     document.getElementById("prev_fecha_transporte").innerText = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "";
     document.getElementById("prev_matricula_tractor").innerText = doc.matricula_tractor || "---";
@@ -3560,6 +3561,7 @@ function procesarGuardadoDeCAOnline() {
     }
 
 
+// === BUSCA ESTE PAQUETE DENTRO DE PROCESARGARDADODECAONLINE Y REPLÁZALO COMPLETO ===
     const paqueteDeCADatos = {
         cargador_razon: cargRazon,
         cargador_nif: cargNif,
@@ -3568,8 +3570,11 @@ function procesarGuardadoDeCAOnline() {
         cargador_poblacion: cargPoblacion,
         cargador_provincia: cargProvincia,
         cargador_domicilio: domicilioCargadorCompleto,
-        // Sella de forma nativa la Razón Social de tu empresa de transportes en el folio de carretera
-        transportista_razon: misDatosPerfilAutonomo ? misDatosPerfilAutonomo.razon_social : "TRANSPORTISTA EFECTIVO",
+
+        // 🚀 REPARACIÓN DE PASARELA v3.97: Sellado físico indestructible de vuestra identidad fiscal
+        // Al guardarlo así en la lona del viaje, viaja impreso de forma fija a la página de verificación y al PDF
+        transportista_razon: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : "TRANSPORTISTA EFECTIVO",
+        transportista_nif: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : "---",
 
         matricula_tractor: vehiculo,
         matricula_remolque: remolque,
@@ -3585,6 +3590,7 @@ function procesarGuardadoDeCAOnline() {
         estado: estadoCalculado,
         fecha_creacion_sistema: new Date().toLocaleString()
     };
+
 
     // 🚀 CONTROL ELÁSTICO DE GUARDADO (EDICIÓN Y ALTA OFFLINE)
     if (idDocumentoEnEdicion !== null) {
@@ -3837,7 +3843,7 @@ function ejecutarAccionFila(selectElement, idFirebase) {
         abrirFormularioEditarDeCA(idFirebase);
         resetearDesplegableVisual();
 
-    // Camino C: Duplicar Porte Correlativo
+    // Camino C: Duplicar Porte Correlativo (v3.97 BLINDADO)
     } else if (accion === "duplicar") {
         const mensajeClonar = `¿Deseas clonar la retícula de este viaje? Se generará un DeCA nuevo para HOY con los mismos datos comerciales de ${viajeOrigen.cargador_razon || 'Cargador'}.`;
 
@@ -3863,7 +3869,12 @@ function ejecutarAccionFila(selectElement, idFirebase) {
                 fecha_fin_servicio: "",
                 qr_caducidad: nuevaCaducidadQR,
                 estado: "EN_CURSO",
-                fecha_creacion_sistema: hoy.toLocaleString()
+                fecha_creacion_sistema: hoy.toLocaleString(),
+
+                // 🚀 EL BLINDAJE: Sella vuestro NIF y Razón Social en caliente al clonar
+                // Esto repara los datos corruptos de los DeCAs viejos al duplicarlos
+                transportista_razon: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : (viajeOrigen.transportista_razon || "---"),
+                transportista_nif: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : (viajeOrigen.transportista_nif || "---")
             };
 
             delete paqueteDuplicado.id_firebase;
@@ -3872,6 +3883,7 @@ function ejecutarAccionFila(selectElement, idFirebase) {
             ejecutarInyeccionCorrelativaDeCA(paqueteDuplicado);
         });
         resetearDesplegableVisual();
+
 
     // Camino D: Anulación Oficial de Portes
     } else if (accion === "anular") {
