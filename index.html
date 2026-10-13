@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.97</title>
+    <title>Gestor de DeCAs Transportes v4.00</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1748,6 +1748,92 @@ body.dark-mode #lista_provincias_drop div:hover {
     color: #63b3ed !important;             /* Texto resalta en el azul eléctrico de la APK */
 }
 
+
+
+/* ==========================================================================
+   🗂️ SISTEMA PREMIUM DE PESTAÑAS PARA EL NUEVO PANEL DE DATOS (v4.00)
+   ========================================================================== */
+.deca-tabs-contenedor {
+    display: flex !important;
+    width: 100% !important;
+    background: #e2e8f0 !important;
+    border-radius: 8px 8px 0 0 !important;
+    margin-bottom: 15px !important;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.deca-tab-boton {
+    flex: 1 !important;
+    padding: 12px 6px !important;
+    font-size: 11.5px !important;
+    font-weight: bold !important;
+    color: #4a5568 !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+}
+
+/* Pestaña activa: adquiere el color azul corporativo y fondo blanco */
+.deca-tab-boton.activa {
+    background: #ffffff !important;
+    color: #0f4c81 !important;
+    box-shadow: 0 -2px 0 #0f4c81 inset !important;
+}
+
+/* Filas elásticas del listado de base de datos */
+.deca-fila-dato-purgable {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 12px !important;
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    margin-bottom: 6px !important;
+    text-align: left !important;
+    box-sizing: border-box;
+}
+
+.deca-fila-dato-purgable strong {
+    color: #212529;
+    font-size: 13px;
+}
+
+.deca-fila-dato-purgable span {
+    font-size: 11px;
+    color: #718096;
+}
+
+/* Sincronización nocturna del panel de pestañas */
+body.dark-mode .deca-tabs-contenedor { background: #2c2c2e !important; }
+body.dark-mode .deca-tab-boton { color: #a0aec0 !important; }
+body.dark-mode .deca-tab-boton.activa { background: #1c1c1e !important; color: #63b3ed !important; box-shadow: 0 -2px 0 #63b3ed inset !important; }
+body.dark-mode .deca-fila-dato-purgable { background: #1c1c1e !important; border-color: #333336 !important; }
+body.dark-mode .deca-fila-dato-purgable strong { color: #ffffff !important; }
+
+
+
+/* === 🏷️ BADGE DE VERSIÓN DINÁMICA DEL TÍTULO (v4.00) === */
+.deca-version-badge-techo {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #718096 !important; /* Gris plomo suave ergonómico */
+    margin-left: 6px !important;
+    align-self: flex-end !important; /* Clava el texto en la base horizontal del título */
+    padding-bottom: 2px !important;
+    font-family: monospace !important; /* Estilo código limpio de vuestros desarrollos */
+}
+
+/* Sincronización para que no deslumbre en la oscuridad de la cabina */
+body.dark-mode .deca-version-badge-techo {
+    color: #a0aec0 !important;
+}
+
 </style>
 
 </head>
@@ -1768,10 +1854,19 @@ body.dark-mode #lista_provincias_drop div:hover {
 
         <!-- NIVEL A: Identificación de la Plataforma + Controles de Esquina Superior Derecha -->
         <div class="deca-cabecera-marca-fila" style="display: flex !important; justify-content: space-between; align-items: center; width: 100%;">
+
+
+            <!-- === BUSCA ESTA LÍNEA EXACTA EN TU CAPA 1 Y REPLÁZALA === -->
             <div style="display: flex; align-items: center; gap: 10px;">
                 <img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin: 0;" onerror="console.warn('Icono no encontrado');">
-                <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a202c;" class="deca-titulo-texto-nocturno">DeCA</h1>
+                <!-- 🔥 REPARACIÓN: Agrupamos el título y el span para que la versión flote a su lado de corrido -->
+                <div style="display: flex; align-items: baseline;">
+                    <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a202c;" class="deca-titulo-texto-nocturno">DeCA</h1>
+                    <!-- Aquí el script inyectará dinámicamente el texto "v 4.00" extraído de la pestaña -->
+                    <span id="deca_version_dinamica_techo" class="deca-version-badge-techo"></span>
+                </div>
             </div>
+
 
             <!-- === REEMPLAZA EL CONTENEDOR BÚNKER DE ICONOS COMPLETO POR ÉSTE === -->
             <!-- BÚNKER DE ICONOS ULTRACOMPACTO SUPREMO v3.95 -->
@@ -1803,10 +1898,14 @@ body.dark-mode #lista_provincias_drop div:hover {
         <!--<p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
             La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
         </p>-->
+<!-- === REEMPLAZA ESTA BOTONERA EN TU CAPA 2 === -->
         <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
-            <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
-            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
+            <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()">+ Nuevo DeCA</button>
+            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()">👤 Perfil</button>
+            <!-- 🗂️ NUEVO: Acceso directo a las tripas de la base de datos central -->
+            <button class="btn-top btn-recomendar" onclick="abrirPanelCentralDeDatosFrecuentes()">⭐ Datos</button>
         </div>
+
     </div>
 
 
@@ -1933,177 +2032,99 @@ let idDocumentoEnEdicion = null;
 
 
 // =========================================================================
-// 🔒 ARRANQUE DINÁMICO MEDIANTE PASARELA GATEWAY (SINCRO ANÓNIMA FIJADA)
+// 🔒 ARRANQUE DINÁMICO MEDIANTE PASARELA GATEWAY (SINCRO ANÓNIMA FIJADA v3.99)
 // =========================================================================
 function iniciarEcosistemaDeCAs() {
     console.log("🛠️ Conectando terminal con la pasarela remota DeCA...");
 
-    // 🔥 PON AQUÍ TU RUTA REAL: Sustituye este enlace por tu URL "Raw" de GitHub que ya te funcionaba
-    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/c8a9c150434e391b231173786d3b636a/raw/de72f7986d066000a5bd38dbe0fe1aba84f8d640/Firebase-DeCa.json";
+    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/c8a9c150434e391b231173786d3b636a/raw/Firebase-DeCa.json";
 
-    // Si se borran los datos locales, el sistema rescata automáticamente la urlPorDefectoGateway
     let urlDestinoFinal = localStorage.getItem("cfg_gateway_url_deca") || urlPorDefectoGateway;
     localStorage.setItem("cfg_gateway_url_deca", urlDestinoFinal);
 
-    // Consultamos la pasarela de forma asíncrona antes de tocar Firebase
     fetch(urlDestinoFinal)
     .then(res => {
         if (!res.ok) throw new Error("La pasarela remota no responde.");
         return res.json();
     })
-    // ... (Viene de tu fetch de la pasarela original v3.14)
     .then(configFirebase => {
         if (firebase.apps.length === 0) {
             firebase.initializeApp(configFirebase);
         }
         database = firebase.database();
 
-        // 🚀 ROMPE-CANDADOS DE GOOGLE (v4.05 MÁSTER)
+        // Recuperamos el token de seguridad guardado en el disco duro del teléfono
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
 
-        // Si el conductor ha borrado los datos del teléfono (no hay token local)
-        // pero Google Play Services intenta inyectar su usuario antiguo de fondo:
-        if (!tokenSeguridadLocal && firebase.auth().currentUser) {
-            console.warn("🧹 Detectado borrado de datos. Destruyendo Auto-Backup de Google...");
-            // Forzamos el cierre de sesión de Firebase para que el servidor genere un UID nuevo e incorrupto
-            return firebase.auth().signOut().then(() => {
-                return firebase.auth().signInAnonymously();
+        if (tokenSeguridadLocal) {
+            // 🔓 CASO A: Si el terminal ya está registrado (¡Como tu cuenta de ADMIN!), forzamos el login inmediato de Firebase
+            miUsuarioUIDActivo = tokenSeguridadLocal;
+
+            // 🚀 REPARACIÓN DE PRIVILEGIOS MÁSTER: Iniciamos la sesión de Firebase con tu token local
+            // para que Google valide tus permisos de Administrador y te permita leer el nodo /usuarios
+            return firebase.auth().signInAnonymously().then(() => {
+                console.log("🔓 Conexión establecida con terminal verificado:", miUsuarioUIDActivo);
+                actualizarEstadoRedTerminalCamion(true);
+                verificarExistenciaPerfilCamionero();
             });
-        }
-
-        return firebase.auth().signInAnonymously();
-    })
-    .then((usuarioCredencial) => {
-        // ASIGNACIÓN CRÍTICA EN ORDEN: Guardamos primero la identidad
-        const bypassUID = localStorage.getItem("cfg_uid_recuperado_deca");
-        if (bypassUID) {
-            miUsuarioUIDActivo = bypassUID;
         } else {
-            miUsuarioUIDActivo = usuarioCredencial.user.uid;
+            // 🛡️ CASO B (ANTI-FANTASMAS): Si el terminal está completamente limpio de fábrica,
+            // no creamos ninguna sesión en Google todavía. Lanzamos el muro y esperamos a que teclee.
+            desplegarMuroRegistroInicialObligatorioNativo();
         }
-        console.log("✅ Conexión establecida. Llave activa:", miUsuarioUIDActivo);
-
-        actualizarEstadoRedTerminalCamion(true);
-        verificarExistenciaPerfilCamionero();
     })
-
     .catch(error => {
         console.error("❌ Error crítico en el Gateway de arranque:", error);
-        alert("Error crítico de red / Gateway: " + error.message);
     });
 
-    // === ☀️ GARANTÍA DIURNA: TEMA COMPACTO CLARO POR DEFECTO AL ARRANCAR EN FRÍO v3.42 ===
-    localStorage.setItem("modo_oscuro_deca", "no"); // Fuerza modo día rígido en la instalación de la APK
+    // === ☀️ GARANTÍA DIURNA: TEMA COMPACTO CLARO POR DEFECTO AL ARRANCAR v3.99 ===
+    localStorage.setItem("modo_oscuro_deca", "no");
     document.body.classList.remove("dark-mode");
 
     const botonOscuroDOM = document.getElementById("btn_modo_oscuro_switch");
     if (botonOscuroDOM) {
-        botonOscuroDOM.innerText = "☀️"; // Clava el icono del sol en el techo fixed
+        botonOscuroDOM.innerText = "☀️";
     }
 
-
-    // 🚀 RADAR INTERNACIONAL: Detecta si quien entra es un agente o una consulta externa del QR
+    // =========================================================================
+    // 👮 RADAR INTERNACIONAL: PASARELA AUTOMÁTICA REGLAMENTARIA BOE PARA EL AGENTE
+    // =========================================================================
     const parametrosRuta = new URLSearchParams(window.location.search);
     const idDecaInspeccionar = parametrosRuta.get("verificar");
     const idUsuarioInspeccionar = parametrosRuta.get("user");
 
-     if (idDecaInspeccionar && idUsuarioInspeccionar) {
+    if (idDecaInspeccionar && idUsuarioInspeccionar) {
         console.log("👮 MODO INSPECTOR GLOBAL: Activando Visor PDF Virtual Puro en Carretera...");
 
-        // 🎨 MAQUETACIÓN ESTRICTA VISOR ESTILO ADOBE ACROBAT (CON QR BLINDADOS DE FORMA ABSOLUTA)
         const estiloPDFVirtual = document.createElement("style");
         estiloPDFVirtual.innerHTML = `
-            /* 1. TÉCNICA DE ALINEACIÓN: Sincronizado a 100px para clavarlo simétrico con las tablas */
-            #qrcode_real_render {
-                position: relative !important;
-                width: 100px !important;
-                height: 100px !important;
-                margin: 0 0 0 auto !important; /* 🔒 Fuerza al bloque a pegarse de forma milimétrica al ras derecho */
-                display: block !important;
-                box-sizing: border-box !important;
-            }
-            #qrcode_real_render canvas,
-            #qrcode_real_render img {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100px !important;
-                height: 100px !important;
-                max-width: 100px !important;
-                max-height: 100px !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-                box-sizing: border-box !important;
-            }
-
-            /* 2. Filtro cruzado anti-duplicados elástico */
+            #qrcode_real_render { position: relative !important; width: 100px !important; height: 100px !important; margin: 0 0 0 auto !important; display: block !important; box-sizing: border-box !important; }
+            #qrcode_real_render canvas, #qrcode_real_render img { position: absolute !important; top: 0 !important; left: 0 !important; width: 100px !important; height: 100px !important; max-width: 100px !important; max-height: 100px !important; margin: 0 !important; padding: 0 !important; display: block !important; box-sizing: border-box !important; }
             #qrcode_real_render img + canvas { display: none !important; }
             #qrcode_real_render canvas + img { display: none !important; }
             #canvas_render_qr_gigante canvas { display: none !important; }
             #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
-
-
-            /* 3. 🔥 REPARADO: Cambiamos el punto por almohadilla para clavar el ID real en red */
-            #modal_preview_deca {
-                display: block !important;
-                position: fixed !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
-                background: #525659 !important; /* El color gris Acrobat máster */
-                padding: 0 !important;
-                box-sizing: border-box !important;
-                z-index: 999999 !important;
-                overflow-y: auto !important; /* Permite que el fondo gris crezca infinitamente con el scroll */
-                -webkit-overflow-scrolling: touch;
-            }
-
+            #modal_preview_deca { display: block !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
             .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
             .preview-container .deca-modal-cabecera { display: none !important; }
-
-            /* 1. Volvemos al padding estándar pero manteniendo el bloque limpio */
-            .preview-cuerpo-scroll {
-                background: #525659 !important;
-                padding: 20px 10px !important;
-                overflow: visible !important;
-                height: auto !important;
-                box-sizing: border-box !important;
-                width: 100% !important;
-                display: block !important;
-            }
-
-            /* 2. 🔥 LA REPARACIÓN REAL: Forzamos un margen inferior de 80px en el folio blanco.
-               Este bloque físico obliga a la pantalla a estirar el fondo gris 80 píxeles más allá del Sello Legal */
-            .folio-deca {
-                box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
-                margin: 0 auto 80px auto !important; /* 🔒 CLAVE: El tercer valor (80px) es el margen de abajo */
-                background: #ffffff !important;
-                display: block !important;
-                overflow: visible !important;
-                height: auto !important;
-            }
-
+            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
+            .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
             .preview-pie-botones { display: none !important; }
-
-            /* Ocultación de los letreros informativos en la vista del QR en carretera */
             #bloque_banners_normativos_app { display: none !important; }
         `;
         document.head.appendChild(estiloPDFVirtual);
 
-        // Conexión síncrona inmediata con los datos reales guardados en Firebase
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
-            database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
+            // 👮 La pasarela de control del agente sí fuerza el sign-in para poder leer el viaje
+            firebase.auth().signInAnonymously().then(() => {
+                database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
-                        // Cargamos la memoria RAM y disparamos el visor
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                         verFichaDocumento(idDecaInspeccionar);
 
-                        // Ocultamos los paneles comerciales traseros del transportista
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -2113,12 +2134,35 @@ function iniciarEcosistemaDeCAs() {
                         alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                     }
                 });
+            });
         }, 300);
         return;
     }
 
+    // =========================================================================
+    // 🏷️ EXTRACTOR DIGITAL: SELLA LA VERSIÓN DEL TITLE EN EL TECHO FIXED
+    // =========================================================================
+    try {
+        const textoTituloPestaña = document.title; // "Gestor de DeCAs Transportes v4.00"
 
-}
+        // Buscamos cualquier coincidencia que empiece por 'v' seguida de números y puntos
+        const coincidenciaVersion = textoTituloPestaña.match(/v\s*\d+\.\d+/i);
+
+        if (coincidenciaVersion) {
+            const nodoBadgeTecho = document.getElementById("deca_version_dinamica_techo");
+            if (nodoBadgeTecho) {
+                // Inyectamos el texto (ej: "v 4.00") en el span gris de la cabecera
+                nodoBadgeTecho.innerText = coincidenciaVersion[0];
+                console.log("🏷️ Versión del software indexada en cabina:", coincidenciaVersion[0]);
+            }
+        }
+    } catch (err) {
+        console.warn("Aviso residual en el radar del extractor de versión:", err);
+    }
+} // 🔒 LLAVE DE CIERRE FINAL DE LA FUNCIÓN INICIARECOSISTEMADECAS
+
+
+
 
 
 // =========================================================================
@@ -5005,48 +5049,48 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 // =========================================================================
-// 🏢 PROCESADOR DE ALTA NUEVA: REGISTRO BLINDADO EN MODO DESACTIVADO (v4.30)
+// 🏢 PROCESADOR DE ALTA NUEVA: REGISTRO INTEGRAL BLINDADO ANTI-FANTASMAS (v3.97)
 // =========================================================================
 function ejecutarAltaNuevaRegistroInicial() {
     const razon = document.getElementById("reg_inicial_razon").value.trim().toUpperCase();
     const nif = document.getElementById("reg_inicial_nif").value.trim().toUpperCase();
 
-    // 📋 Escáner de obligatorios inicial
+    // 1. 📋 Escáner de obligatorios inicial en local antes de tocar la nube
     let vaciosIniciales = [];
     if (!razon) vaciosIniciales.push("Razón Social del Transportista");
     if (!nif) vaciosIniciales.push("NIF / CIF Comercial");
 
     if (vaciosIniciales.length > 0) {
         const mensajeListado = "Para iniciar la solicitud de licencia, debe rellenar las siguientes casillas obligatorias:\n\n• " + vaciosIniciales.join("\n• ");
-        mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", mensajeListado, "⚠️");
-        return;
+        return mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", mensajeListado, "⚠️");
     }
 
-    mostrarAvisoToast("⏳ Creando credenciales comerciales en red...");
+    // 2. 🛡️ CORTAFUEGOS: Forzamos la autenticación en el acto solo si el formulario es válido
+    mostrarAvisoToast("⏳ Generando licencia comercial segura en red...");
 
-    const estructuraPerfilNuevo = {
-        razon_social: razon,
-        nif_cif: nif,
-        domicilio_calle: "",
-        codigo_postal: "",
-        poblacion: "",
-        provincia: "",
-        domicilio_fiscal: "",
-        matricula_tractor: "",
-        matricula_remolque: "",
-        telefono: "",
-        email: "",
-        fecha_registro: new Date().toLocaleString(),
-        clave_recuperacion: miUsuarioUIDActivo,
-        clave_personalizada_alias: "",
-        estado_activacion: "DESACTIVADO" // 🔒 Todo transportista nuevo nace bloqueado
-    };
+    firebase.auth().signInAnonymously()
+    .then((usuarioCredencial) => {
+        // Capturamos el UID fresco recién nacido
+        miUsuarioUIDActivo = usuarioCredencial.user.uid;
 
-    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').set(estructuraPerfilNuevo)
-    .then(() => {
-        misDatosPerfilAutonomo = estructuraPerfilNuevo;
+        const estructuraPerfilNuevo = {
+            razon_social: razon,
+            nif_cif: nif,
+            domicilio_calle: "",
+            codigo_postal: "",
+            poblacion: "",
+            provincia: "",
+            domicilio_fiscal: "",
+            matricula_tractor: "",
+            matricula_remolque: "",
+            telefono: "",
+            email: "",
+            fecha_registro: new Date().toLocaleString(),
+            clave_recuperacion: miUsuarioUIDActivo,
+            clave_personalizada_alias: "",
+            estado_activacion: "DESACTIVADO" // Nace bloqueado por seguridad
+        };
 
-        // Auto-inyectamos el DeCA de muestra 000000 corporativo de tu v3.22
         const deCADemostracionPrivado = {
             numero_documento: "DeCA-2026-000000",
             fecha_transporte: "2026-10-06",
@@ -5064,17 +5108,30 @@ function ejecutarAltaNuevaRegistroInicial() {
             cargador_domicilio: "CALLE CENTRAL, 10",
             transportista_razon: razon
         };
-        return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(deCADemostracionPrivado);
+
+        // Escribimos toda la estructura junta en un solo bloque atómico para que no sufra cortes
+        return database.ref('usuarios/' + miUsuarioUIDActivo).set({
+            datos_perfil: estructuraPerfilNuevo,
+            documentos_deca: {
+                "muestra_inicial": deCADemostracionPrivado
+            }
+        }).then(() => {
+            misDatosPerfilAutonomo = estructuraPerfilNuevo;
+            localStorage.setItem("cfg_uid_recuperado_deca", miUsuarioUIDActivo);
+
+            document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+            const visorClaveDOM = document.getElementById("txt_clave_maestra_pantalla");
+            if (visorClaveDOM) { visorClaveDOM.innerText = miUsuarioUIDActivo; }
+            document.getElementById("modal_clave_seguridad_deca").style.display = "flex";
+            mostrarAvisoToast("✅ Ficha registrada. Esperando activación.");
+        });
     })
-    .then(() => {
-        document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-        const visorClaveDOM = document.getElementById("txt_clave_maestra_pantalla");
-        if (visorClaveDOM) { visorClaveDOM.innerText = miUsuarioUIDActivo; }
-        document.getElementById("modal_clave_seguridad_deca").style.display = "flex";
-        mostrarAvisoToast("✅ Ficha registrada. Esperando activación del administrador.");
-    })
-    .catch(err => alert("Error al registrar: " + err.message));
+    .catch(err => {
+        console.error("Fallo en pasarela de alta:", err);
+        alert("Error crítico de red al registrar terminal: " + err.message);
+    });
 }
+
 
 
 
@@ -5147,26 +5204,25 @@ function ejecutarCierreDeSesionMultiUsuarioMaster() {
 
 // Función interna que tritura el disco duro una vez desvinculado de Google
 function procesarPurgaFisicaDeMemoriaLocal() {
-    // 2. Apagamos todas las antenas activas de la base de datos
     if (typeof database !== 'undefined' && database && miUsuarioUIDActivo) {
         database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
         database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').off();
     }
 
-    // 3. TRITURACIÓN COMPLETA: Vaciamos el localStorage entero de forma rígida
+    // Trituramos el disco duro local
     localStorage.clear();
-    console.log("🧹 Búnker offline e identidades locales purgadas al 100%.");
+    console.log("🧹 Caché local purgada.");
 
-    // 4. Reseteamos las variables de la memoria RAM para que no quede rastro
     miUsuarioUIDActivo = null;
     misDatosPerfilAutonomo = null;
     documentosDeCA = [];
+    window.decaImpresionAutomaticaEjecutada = false; // Resetea el candado del PDF
 
-    // 5. Provocamos la recarga limpia en frío del terminal
     setTimeout(() => {
         window.location.reload();
     }, 250);
 }
+
 
 
 // =========================================================================
@@ -5420,6 +5476,143 @@ function cerrarEdicionUsuarioAdminManual() {
         document.getElementById("modal_administrador_global_deca").style.display = "none";
     }
 }
+
+
+
+// =========================================================================
+// 🗂️ CONTROLADOR MÁSTER: PANEL CENTRAL DE DATOS POR PESTAÑAS (v4.00)
+// =========================================================================
+let pestañaDatosActivaActualmente = "clientes";
+
+function abrirPanelCentralDeDatosFrecuentes() {
+    document.getElementById("modal_central_datos_deca").style.display = "flex";
+    conmutarPestañaDatosAdmin(pestañaDatosActivaActualmente); // Carga la pestaña que se quedó en memoria
+}
+
+function conmutarPestañaDatosAdmin(destinoPestaña) {
+    pestañaDatosActivaActualmente = destinoPestaña;
+
+    // 1. Apagamos visualmente los estados de todos los botones de las pestañas
+    document.getElementById("tab_btn_clientes").classList.remove("activa");
+    document.getElementById("tab_btn_mercancias").classList.remove("activa");
+    document.getElementById("tab_btn_plantillas").classList.remove("activa");
+
+    // 2. Encendemos el botón seleccionado
+    if (destinoPestaña === "clientes") document.getElementById("tab_btn_clientes").classList.add("activa");
+    if (destinoPestaña === "mercancias") document.getElementById("tab_btn_mercancias").classList.add("activa");
+    if (destinoPestaña === "plantillas") document.getElementById("tab_btn_plantillas").classList.add("activa");
+
+    // 3. Lanzamos el renderizador de datos específicos
+    renderizarContenidoInternoPestañaDatos();
+}
+
+function renderizarContenidoInternoPestañaDatos() {
+    const contenedor = document.getElementById("lista_datos_frecuentes_render");
+    if (!contenedor) return;
+
+    contenedor.innerHTML = '<p style="color:#666; font-style:italic; text-align:center; padding:20px;">Abriendo registros...</p>';
+
+    // --- CASE A: PESTAÑA CARTERA DE CLIENTES ---
+    if (pestañaDatosActivaActualmente === "clientes") {
+        let clientes = window.diccionarioCargadoresCloud || {};
+        let llaves = Object.keys(clientes);
+
+        if (llaves.length === 0) {
+            contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:20px; font-style:italic;">No tienes cargadores habituales guardados</p>';
+            return;
+        }
+
+        contenedor.innerHTML = llaves.map(nif => {
+            const c = clientes[nif];
+            return `
+            <div class="deca-fila-dato-purgable">
+                <div>
+                    <strong>🏢 ${c.razon || 'EMPRESA'}</strong><br>
+                    <span>NIF: ${nif} | CP: ${c.cp || '---'} - ${c.poblacion || ''}</span>
+                </div>
+                <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('clientes', '${nif}')" style="padding:6px 10px !important; font-size:12px !important;">🗑️ Borrar</button>
+            </div>`;
+        }).join("");
+    }
+
+    // --- CASE B: PESTAÑA HISTORIAL DE MERCANCÍAS ---
+    else if (pestañaDatosActivaActualmente === "mercancias") {
+        let mercancias = window.diccionarioMercanciasCloud || {};
+        let llaves = Object.keys(mercancias);
+
+        if (llaves.length === 0) {
+            contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:20px; font-style:italic;">No tienes mercancías frecuentes guardadas</p>';
+            return;
+        }
+
+        contenedor.innerHTML = llaves.map(key => {
+            const m = mercancias[key];
+            const nombreM = typeof m === 'object' ? (m.nombre || key) : m;
+            return `
+            <div class="deca-fila-dato-purgable">
+                <div>
+                    <strong>📦 ${nombreM}</strong>
+                </div>
+                <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('mercancias', '${key}')" style="padding:6px 10px !important; font-size:12px !important;">🗑️ Borrar</button>
+            </div>`;
+        }).join("");
+    }
+
+    // --- CASE C: PESTAÑA HISTORIAL DE PLANTILLAS ---
+    else if (pestañaDatosActivaActualmente === "plantillas") {
+        let plantillas = window.diccionarioPlantillasCloud || {};
+        let llaves = Object.keys(plantillas);
+
+        if (llaves.length === 0) {
+            contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:20px; font-style:italic;">No tienes plantillas de ruta guardadas</p>';
+            return;
+        }
+
+        contenedor.innerHTML = llaves.map(idFB => {
+            const p = plantillas[idFB];
+            return `
+            <div class="deca-fila-dato-purgable">
+                <div style="max-width: 75%;">
+                    <strong>🗺️ ${p.cargador_razon || 'Ruta'}</strong><br>
+                    <span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">➔ ${p.origen_plaza} - ${p.destino_plaza}</span>
+                </div>
+                <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('plantillas', '${idFB}')" style="padding:6px 10px !important; font-size:12px !important;">🗑️ Borrar</button>
+            </div>`;
+        }).join("");
+    }
+}
+
+function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
+    if (!database || !miUsuarioUIDActivo) return;
+
+    let rutaNodo = '';
+    let mensajeConfirm = '';
+
+    if (categoria === 'clientes') {
+        rutaNodo = 'usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + llaveIdentificador;
+        mensajeConfirm = `¿Deseas eliminar este cliente de tu lista habitual de red? No afectará a tus DeCAs emitidos.`;
+    } else if (categoria === 'mercancias') {
+        rutaNodo = 'usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + llaveIdentificador;
+        mensajeConfirm = `¿Deseas eliminar esta mercancía de tu buscador predictivo?`;
+    } else if (categoria === 'plantillas') {
+        rutaNodo = 'usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes/' + llaveIdentificador;
+        mensajeConfirm = `¿Deseas destruir esta plantilla de ruta frecuente del servidor?`;
+    }
+
+    mostrarConfirmacionCorporativaDeca("Eliminar Registro Almacenado", mensajeConfirm, function() {
+        mostrarAvisoToast("🗑️ Destruyendo registro de la nube...");
+
+        database.ref(rutaNodo).remove()
+        .then(() => {
+            mostrarAvisoToast("🗑️ Registro eliminado con éxito.");
+            // Refrescamos en caliente la pestaña donde estábamos metidos
+            renderizarContenidoInternoPestañaDatos();
+        })
+        .catch(err => alert("Error de red al purgar: " + err.message));
+    });
+}
+
+
 
 
 </script>
@@ -6070,6 +6263,33 @@ function cerrarEdicionUsuarioAdminManual() {
             Fuler® DeCA Licencias de Emisión Autorizadas
         </div>
 
+    </div>
+</div>
+
+<!-- === 🗂️ MODAL MAESTRO: PANEL CENTRAL DE DATOS FRECUENTES (v4.00) === -->
+<div id="modal_central_datos_deca" class="modal-deca-gigante">
+    <div class="deca-modal-contenido">
+
+        <div class="deca-modal-cabecera">
+            <h3>⭐ Gestión de Archivos Guardados</h3>
+            <button class="deca-modal-cerrar" onclick="document.getElementById('modal_central_datos_deca').style.display='none'">✕</button>
+        </div>
+
+        <!-- Barra de Pestañas Premium Síncronas -->
+        <div class="deca-tabs-contenedor">
+            <button id="tab_btn_clientes" class="deca-tab-boton activa" onclick="conmutarPestañaDatosAdmin('clientes')">🏢 Clientes</button>
+            <button id="tab_btn_mercancias" class="deca-tab-boton" onclick="conmutarPestañaDatosAdmin('mercancias')">📦 Cargas</button>
+            <button id="tab_btn_plantillas" class="deca-tab-boton" onclick="conmutarPestañaDatosAdmin('plantillas')">🗺️ Rutas</button>
+        </div>
+
+        <div class="deca-modal-cuerpo" style="padding: 10px 15px; background: #f0f4f8;">
+            <!-- Contenedor Único Elástico donde el JavaScript inyectará las filas de red -->
+            <div id="lista_datos_frecuentes_render" style="width: 100%; height: auto;"></div>
+        </div>
+
+        <div class="deca-modal-pie">
+            <button class="deca-btn-pie deca-btn-cancelar" onclick="document.getElementById('modal_central_datos_deca').style.display='none'">Cerrar Panel</button>
+        </div>
     </div>
 </div>
 
