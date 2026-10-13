@@ -1304,9 +1304,17 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         background: #ffffff !important;
         color: #000000 !important;
 
-        /* 📱 EL DETONANTE DE ANDROID/WEB: Aplica un escalado del 125% a todo el documento.
-        Esto hace que el folio crezca a pantalla completa de forma perfecta y equilibrada. */
-        zoom: 105% !important;
+        /* 🚀 CONTROL ELÁSTICO POR EJES (Sustituye al zoom) */
+        /* El primer valor estira el ancho (X). El segundo valor estira el alto (Y). */
+        /* Ejemplo: 1.05 es un 105% de escala, y 1.0 es el tamaño original (100%) */
+        transform: scale(1.05, 1.0) !important;
+
+        /* 🔒 ANCLAJE CRÍTICO: Clava el folio arriba a la izquierda */
+        /* Evita que al estirar un solo eje el papel se desplace o flote fuera de los márgenes */
+        transform-origin: top left !important;
+
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 
     #qrcode_real_render img,
