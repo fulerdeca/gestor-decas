@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.85</title>
+    <title>Gestor de DeCAs Transportes v3.88</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -3100,62 +3100,63 @@ function verFichaDocumento(idFirebase) {
 
         urlControlQRGiganteActivo = enlaceInspeccionReal;
 
-        // Mostramos el modal primero para que el contenedor adquiera dimensiones físicas en pantalla antes de dibujar el QR
-        document.getElementById("modal_preview_deca").style.display = "flex";
+            // Mostramos el modal primero para que el contenedor adquiera dimensiones físicas
+            document.getElementById("modal_preview_deca").style.display = "flex";
 
-        // Le damos un pequeño respiro a Android (100ms) para inicializar el contenedor gráfico
-        setTimeout(() => {
-            try {
-                new QRCode(contenedorQR, {
-                    text: enlaceInspeccionReal,
-                    width: 100,  // 🔒 Sincronizado a 100px exactos
-                    height: 100, // 🔒 Sincronizado a 100px exactos
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.M
-                });
-
-            // =========================================================================
-            // 🚨 DISPARADOR MINISTERIO v3.85: ACCIÓN INMEDIATA DIRECTA SIN BOTONES
-            // =========================================================================
-            if (window.location.search.includes("verificar")) {
-                console.log("👮 Ejecutando orden de captura directa para la Inspección de Tráfico...");
-
-                // Damos un margen de 1.2 segundos para que Android estabilice el canvas del QR en la APK antes de disparar
-                setTimeout(() => {
-                    try {
-                        const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
-                        const tituloOriginalPestaña = document.title;
-
-                        // Cambiamos el título para que el smartphone guarde el PDF con el nombre real del DeCA
-                        document.title = numeroDocumentoOficial;
-
-                        // 🖨️ DISPARADOR INVISIBLE: Lanza de forma nativa la pasarela de guardado del smartphone
-                        window.print();
-
-                        // Restauramos el título para mantener limpia la pestaña del navegador
-                        document.title = tituloOriginalPestaña;
-                        mostrarAvisoToast("📥 Fichero PDF transferido al terminal del agente.");
-                    } catch (err) {
-                        console.warn("Aviso en el hilo de inyección de impresión directa:", err);
-                    }
-                }, 1200);
+            // 🚀 INTERRUPTOR DE SEGURIDAD ANTI-DUPLICADOS MÁSTER v3.86
+            // Evita de forma rígida que Google Chrome re-ejecute la cola de impresión al refrescar el DOM
+            if (!window.decaImpresionAutomaticaEjecutada) {
+                window.decaImpresionAutomaticaEjecutada = false;
             }
 
-            // Mantenemos el trigger manual por si el agente cancela por error y quiere volver a pulsar
-            contenedorQR.onclick = function() {
-                if (window.location.search.includes("verificar")) {
-                    window.print();
-                } else {
-                    abrirModalQRGiganteNativo();
-                }
-            };
+            setTimeout(() => {
+                try {
+                    new QRCode(contenedorQR, {
+                        text: enlaceInspeccionReal,
+                        width: 100,
+                        height: 100,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
 
-        } catch (e) {
-            console.warn("Error al generar el QR en APK:", e);
-            contenedorQR.innerHTML = "<span style='font-size:30px;'>🔳</span>";
-        }
-    }, 100);
+                    // =========================================================================
+                    // 🚨 DISPARADOR MINISTERIO v3.86: CANDADO DE DISPARO ÚNICO EN RED
+                    // =========================================================================
+                    if (window.location.search.includes("verificar") && !window.decaImpresionAutomaticaEjecutada) {
+                        window.decaImpresionAutomaticaEjecutada = true; // Cerramos el candado de inmediato
+                        console.log("👮 Ejecutando disparo reglamentario único de Inspección...");
+
+                        setTimeout(() => {
+                            try {
+                                const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
+                                const tituloOriginalPestaña = document.title;
+
+                                document.title = numeroDocumentoOficial;
+                                window.print();
+                                document.title = tituloOriginalPestaña;
+                                mostrarAvisoToast("📥 Fichero PDF transferido al terminal.");
+                            } catch (err) {
+                                console.warn("Aviso en el hilo de impresión:", err);
+                            }
+                        }, 1100); // 1.1 segundos de cortesía para clavar las cabeceras
+                    }
+
+                    // Disparador manual de respaldo por si el agente cancela y quiere volver a pulsar con el dedo
+                    contenedorQR.onclick = function() {
+                        if (window.location.search.includes("verificar")) {
+                            window.print();
+                        } else {
+                            abrirModalQRGiganteNativo();
+                        }
+                    };
+
+                } catch (e) {
+                    console.warn("Error al generar el QR en APK:", e);
+                    contenedorQR.innerHTML = "<span style='font-size:30px;'>🔳</span>";
+                }
+            }, 100);
+
 } // 🔒 LLAVE DE CIERRE DE LA FUNCIÓN VERFICHADOCUMENTO
 }
 
