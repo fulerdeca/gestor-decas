@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.89</title>
+    <title>Gestor de DeCAs Transportes v3.96</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -659,6 +659,21 @@
     border: 2px solid #dc3545 !important;    /* Contorno carmín rígido de advertencia */
 }
 
+/* === 🟢 PARCHE VISUAL: DAR ESPACIO AL SELECTOR DE LICENCIAS DEL PANEL ADMIN === */
+#sel_admin_estado_activacion {
+    font-size: 11.5px !important;    /* Reduce la letra de 14px a 11.5px para dar pasillo */
+    font-weight: 700 !important;    /* Suaviza un punto la negrita extrema para estrechar el texto */
+    padding: 6px 30px 6px 10px !important; /* Reserva 30px en el lateral derecho para la flecha */
+    letter-spacing: 0.1px !important;
+}
+
+/* Tamaño de las opciones interiores cuando el chófer despliega la lista dropdown */
+#sel_admin_estado_activacion option {
+    font-size: 12.5px !important;
+    font-weight: bold !important;
+}
+
+
 </style>  <!-- === FIN DEL BLOQUE 1 DE ESTILOS === -->
 
 
@@ -952,9 +967,7 @@ body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #44
 
 /* RESTO DE ESTILOS DE PREVIEW Y MODALES SE MANTIENEN IGUAL... */
 
-
-
-                .btn-paginacion { background: var(--blue-primary); color: white; border: none; width: 30px; height: 30px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-left: 4px; }
+        .btn-paginacion { background: var(--blue-primary); color: white; border: none; width: 30px; height: 30px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-left: 4px; }
 
         /* Ajustes nocturnos para la tabla */
         body.dark-mode th { background: #1c1c1e; color: #a0aec0; }
@@ -1337,9 +1350,6 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 }
 
 
-
-
-
 /* Letrero de Advertencia para el Folio del DeCA Anulado (Estilo Sello de Custodia) */
 .sello-anulado-deca {
     display: none;
@@ -1590,7 +1600,29 @@ body.dark-mode .banner-inspeccion-nota {
         /* 🌙 Adaptación nocturna del panel de control de administración */
         body.dark-mode #modal_administrador_global_deca .deca-modal-contenido { background: #121212; border-color: #333336; }
         body.dark-mode #modal_administrador_global_deca .deca-modal-cuerpo { background: #121212; }
-        body.dark-mode #lista_usuarios_admin_render { background: #1c1c1e; border-color: #333336; color: #fff; }
+
+/* === 🛠️ OPTIMIZACIÓN GEOMÉTRICA: EXPANSIÓN MÁXIMA DEL CONTENEDOR DE TERMINALES === */
+body.dark-mode #lista_usuarios_admin_render,
+#lista_usuarios_admin_render {
+    background: #ffffff;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 6px;
+    box-sizing: border-box;
+
+    /* 🚀 LA CLAVE: Ampliamos el tope del 40% al 65% del alto de la pantalla de tu móvil */
+    max-height: 63vh !important;
+    overflow-y: auto !important; /* Mantiene el scroll interno suave si la lista supera el límite */
+}
+
+/* Sincronización exacta de fondo para el Modo Noche de la lista expandida */
+body.dark-mode #lista_usuarios_admin_render {
+    background: #1c1c1e !important;
+    border-color: #333336 !important;
+    color: #ffffff !important;
+}
+
+
         body.dark-mode #bloque_edicion_usuario_admin { background: #1c1c1e; border-color: #333336; color: #fff; }
 
         /* 🌙 Sincronización del semáforo de red y modales de cobertura en la oscuridad */
@@ -1768,9 +1800,9 @@ body.dark-mode #lista_provincias_drop div:hover {
        🚚 CAPA 2: BLOQUE COMERCIAL LIBRE (SE MUEVE CON EL SCROLL)
        ========================================================================== -->
     <div class="deca-bloque-operaciones-libre">
-        <p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
+        <!--<p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
             La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
-        </p>
+        </p>-->
         <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
             <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
             <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
@@ -2344,22 +2376,23 @@ function descargarCatalogoUsuariosAdminCompleto() {
         let listaFormateadaAdmin = [];
 
         // Recorremos matemáticamente todas las carpetas UID del servidor
+        // Recorremos matemáticamente todas las carpetas UID del servidor
         Object.keys(mapaGlobalUsuarios).forEach(uidKey => {
             const nodoUsuario = mapaGlobalUsuarios[uidKey];
 
-            // Si el nodo tiene la carpeta de datos fiscales (perfil)
-            if (nodoUsuario && nodoUsuario.datos_perfil) {
-                const perfil = nodoUsuario.datos_perfil;
+            // 🚀 REPARACIÓN v3.96: Si el nodo está vacío o es un registro fantasma sin datos_perfil
+            // le creamos una ficha temporal para que el administrador pueda visualizarlo y borrarlo
+            const perfil = (nodoUsuario && nodoUsuario.datos_perfil) ? nodoUsuario.datos_perfil : {};
 
-                listaFormateadaAdmin.push({
-                    uid_firebase: uidKey,
-                    razon_social: perfil.razon_social || "EMPRESA SIN CONFIGURAR",
-                    nif_cif: perfil.nif_cif || "---",
-                    estado_activacion: perfil.estado_activacion || "DESACTIVADO",
-                    clave_alias: perfil.clave_personalizada_alias || ""
-                });
-            }
+            listaFormateadaAdmin.push({
+                uid_firebase: uidKey,
+                razon_social: perfil.razon_social || "⚠️ TERMINAL CORRUPTO / INCOMPLETO",
+                nif_cif: perfil.nif_cif || "---",
+                estado_activacion: perfil.estado_activacion || "DESACTIVADO",
+                clave_alias: perfil.clave_personalizada_alias || "" // 🔒 Salvavidas: Si es null, pasa a ser ""
+            });
         });
+
 
         // Guardamos el catálogo en la memoria RAM del administrador
         arrayGlobalUsuariosAdmin = listaFormateadaAdmin;
@@ -2377,21 +2410,30 @@ function descargarCatalogoUsuariosAdminCompleto() {
 
 
 
-// Filtra e inyecta la lista elástica en el modal con un diseño hiper-limpio
+// =========================================================================
+// 👑 MÓDULO MAESTRO: RENDERIZADOR FILTRADO DE TERMINALES TOTAL (v3.96 CLEAN)
+// =========================================================================
 function renderizarListaUsuariosAdmin() {
-    // 🔒 RECOLECCIÓN DE SEGURIDAD: Esconde el formulario inferior al teclear arriba para evitar ediciones cruzadas
+    // Esconde el formulario inferior al teclear arriba para evitar ediciones cruzadas
     document.getElementById("bloque_edicion_usuario_admin").style.display = "none";
 
     const contenedor = document.getElementById("lista_usuarios_admin_render");
     const buscarTexto = document.getElementById("bus_admin_usuarios").value.toLowerCase().trim();
     if (!contenedor) return;
 
-    const filtrados = arrayGlobalUsuariosAdmin.filter(u =>
-        u.uid_firebase.toLowerCase().includes(buscarTexto) ||
-        u.razon_social.toLowerCase().includes(buscarTexto) ||
-        u.nif_cif.toLowerCase().includes(buscarTexto) ||
-        u.clave_alias.toLowerCase().includes(buscarTexto)
-    );
+    // 🔒 BLINDAJE ABSOLUTO CON LECTURA TOLERANTE A NULOS
+    const filtrados = arrayGlobalUsuariosAdmin.filter(u => {
+        const uid = (u.uid_firebase || "").toLowerCase();
+        const razon = (u.razon_social || "").toLowerCase();
+        const nif = (u.nif_cif || "").toLowerCase();
+        const alias = (u.clave_alias || "").toLowerCase(); // Evita de forma rígida el crash de toLowerCase()
+
+        return buscarTexto === "" ||
+               uid.includes(buscarTexto) ||
+               razon.includes(buscarTexto) ||
+               nif.includes(buscarTexto) ||
+               alias.includes(buscarTexto);
+    });
 
     if (filtrados.length === 0) {
         contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:15px; font-style:italic;">No se encontraron terminales</p>';
@@ -2407,6 +2449,9 @@ function renderizarListaUsuariosAdmin() {
         const colorTextoSecundario = esModoOscuro ? "#a0aec0" : "#555";
         const colorBordeFila = esModoOscuro ? "#333336" : "#f0f0f0";
 
+        // Muestra la etiqueta (Sin Contraseña) de forma visual limpia si no tiene alias
+        const textoAliasOpcional = u.clave_alias ? ` | 🔑 ${u.clave_alias}` : ' | ❌ SIN ALIAS';
+
         return `
         <div style="padding: 10px 8px; border-bottom: 1px solid ${colorBordeFila}; cursor: pointer; text-align: left;"
              onclick="seleccionarUsuarioParaEditarAdmin('${u.uid_firebase}')"
@@ -2417,11 +2462,12 @@ function renderizarListaUsuariosAdmin() {
                 <span style="font-size:11px; color:${colorTextoSecundario}; font-family:monospace;">${u.nif_cif}</span>
             </div>
             <div style="font-size:10px; color:${colorTextoSecundario}; margin-top:2px; word-break:break-all;">
-                UID: ${u.uid_firebase} ${u.clave_alias ? ' | 🔑 ' + u.clave_alias : ''}
+                UID: ${u.uid_firebase} ${textoAliasOpcional}
             </div>
         </div>`;
     }).join("");
 }
+
 
 // Carga el chofer elegido en las casillas inferiores del formulario de control
 function seleccionarUsuarioParaEditarAdmin(uid) {
@@ -2431,9 +2477,28 @@ function seleccionarUsuarioParaEditarAdmin(uid) {
     idUsuarioAdminSeleccionado = uid;
     aliasOriginalUsuarioAdminSeleccionado = u.clave_alias;
 
+// === BUSCA EL FINAL DE SELECCIONARUSUARIOPARAEDITARADMIN Y DÉJALO ASÍ ===
     document.getElementById("lbl_admin_uid_seleccionado").innerText = "UID: " + uid;
     document.getElementById("sel_admin_estado_activacion").value = u.estado_activacion;
     document.getElementById("txt_admin_alias_usuario").value = u.clave_alias || "(Sin Contraseña Propia)";
+
+    // 🔒 ESCUDO ANTI-DESASTRES v3.97: Si el usuario es ADMIN, capamos el botón de borrado
+    const botonEliminarAdmin = document.getElementById("btn_admin_eliminar_chofer_trigger");
+    if (botonEliminarAdmin) {
+        if (u.estado_activacion === "ADMIN") {
+            botonEliminarAdmin.disabled = true; // Desactiva el click por hardware
+            botonEliminarAdmin.style.setProperty("background", "#718096", "important"); // Lo vuelve gris apagado
+            botonEliminarAdmin.style.setProperty("opacity", "0.4", "important");       // Le da transparencia de bloqueo
+            botonEliminarAdmin.style.setProperty("cursor", "not-allowed", "important");
+            botonEliminarAdmin.innerText = "🔒 Bloqueado (Es Admin)";
+        } else {
+            botonEliminarAdmin.disabled = false; // Lo libera para conductores normales
+            botonEliminarAdmin.style.setProperty("background", "#dc3545", "important"); // Recupera el rojo vivo
+            botonEliminarAdmin.style.setProperty("opacity", "1", "important");
+            botonEliminarAdmin.style.setProperty("cursor", "pointer", "important");
+            botonEliminarAdmin.innerText = "🗑️ Eliminar";
+        }
+    }
 
     document.getElementById("bloque_edicion_usuario_admin").style.display = "block";
 
@@ -2441,6 +2506,7 @@ function seleccionarUsuarioParaEditarAdmin(uid) {
     const cuerpoModal = document.querySelector("#modal_administrador_global_deca .deca-modal-cuerpo");
     if(cuerpoModal) cuerpoModal.scrollTo({ top: cuerpoModal.scrollHeight, behavior: 'smooth' });
 }
+
 
 // Modifica el estado de activación y permite sobreescribir la contraseña alias en caliente
 function ejecutarGuardadoCambiosUsuarioAdmin() {
@@ -2607,7 +2673,13 @@ function activarEscuchaRealtimeDeCAs() {
         Object.keys(datosCloud).forEach(key => {
             const viaje = datosCloud[key];
 
-            // Si el viaje contiene un cargador válido, forzamos su registro automático en la nube
+            // 🛡️ FILTRO CORPORATIVO DE SEGURIDAD (v3.98): Prohíbe indexar el cargador ficticio de muestra
+            if (viaje && viaje.cargador_nif === "A00000000" && viaje.cargador_razon.includes("CARGADOR EJEMPLO")) {
+                console.log("🤫 Ignorando indexación en red del cargador de pruebas...");
+                return; // Pasa de largo de forma silenciosa sin tocar Firebase
+            }
+
+            // Si el viaje contiene un cargador real y válido, procedemos a su registro automático
             if (viaje && viaje.cargador_nif && viaje.cargador_razon) {
                 database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + viaje.cargador_nif).update({
                     razon: viaje.cargador_razon,
@@ -2785,10 +2857,26 @@ function renderizarTablaResultados(listaFiltrada) {
             fQrTxt = doc.qr_caducidad || "---";
         }
 
+
         let claseEstado = "cerrado", textoEstado = "⚪ Cerrado";
-        if (doc.estado === "EN_CURSO") { claseEstado = "en-curso"; textoEstado = "🟢 En Curso"; }
-        if (doc.estado === "PROGRAMADO") { claseEstado = "programado"; textoEstado = "🟡 Programado"; }
-        if (doc.estado === "ANULADO") { claseEstado = "anulado-rojo"; textoEstado = "🚫 Anulado"; }
+        let colorNumeroEstado = "#989FAA"; // ⚪ Gris fuerte de serie para cerrados
+
+        if (doc.estado === "EN_CURSO") {
+            claseEstado = "en-curso";
+            textoEstado = "🟢 En Curso";
+            colorNumeroEstado = "#01B101"; // 🟢 En curso se queda en vuestro azul corporativo original
+        }
+        if (doc.estado === "PROGRAMADO") {
+            claseEstado = "programado";
+            textoEstado = "🟡 Programado";
+            colorNumeroEstado = "#E3B044"; // 🟡 Naranja fuerte de alta visibilidad comercial
+        }
+        if (doc.estado === "ANULADO") {
+            claseEstado = "anulado-rojo";
+            textoEstado = "🚫 Anulado";
+            colorNumeroEstado = "#FF7373"; // 🚫 Rojo carmín rígido de alerta
+        }
+
 
         // 🚚 BADGE DE REMOLQUE CONCATENADO LIMPIO
         let badgeRemolqueHTML = "";
@@ -2823,13 +2911,15 @@ function renderizarTablaResultados(listaFiltrada) {
         }
 
         // INYECCIÓN DE LA FILA EN LA TABLA MÁSTER
+        // === BUSCA LA CELDA DEL NÚMERO DOCUMENTO EN EL HTMLFINAL Y REPLÁZALA POR ÉSTA ===
         htmlFinal += `
         <tr ${estiloFondoFilaEdicion}>
             <td>
-            <span class="doc-numero" onclick="verFichaDocumento('${doc.id_firebase}')">${doc.numero_documento}</span>
+            <span class="doc-numero" onclick="verFichaDocumento('${doc.id_firebase}')" style="color: ${colorNumeroEstado} !important;">${doc.numero_documento}</span>
             ${!navigator.onLine ? '<span style="font-size:11px; margin-left:4px;" title="Retenido localmente esperando cobertura">⏳</span>' : ''}
             </td>
             <td>${fTxt}</td>
+
             <td class="celda-matriculas-flex">
                 <div style="display: flex; flex-direction: column; align-items: flex-start; justify-content: center; width: 100%;">
                     <span class="badge-matricula">📋 ${doc.matricula_tractor || '---'}</span>
@@ -5895,10 +5985,13 @@ function cerrarEdicionUsuarioAdminManual() {
                     </div>
 
 
+                    <!-- === BUSCA ESTA BOTONERA EN EL MODAL DE ADMINISTRADOR GLOBAL Y REPLÁZALA === -->
                     <div style="display: flex; gap: 8px; margin-top: 15px; width: 100%;">
                         <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoCambiosUsuarioAdmin()" style="flex: 1; margin: 0; background: #28a745 !important; box-shadow: none;">💾 Guardar</button>
-                        <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarEliminacionCompletaUsuarioAdmin()" style="flex: 1; margin: 0; background: #dc3545 !important; box-shadow: none;">🗑️ Eliminar</button>
+                        <!-- 🔒 Añadido el ID 'btn_admin_eliminar_chofer_trigger' para poder caparlo desde el script -->
+                        <button type="button" id="btn_admin_eliminar_chofer_trigger" class="btn-top btn-salir-rojo" onclick="ejecutarEliminacionCompletaUsuarioAdmin()" style="flex: 1; margin: 0; background: #dc3545 !important; box-shadow: none;">🗑️ Eliminar</button>
                     </div>
+
 
             </div> <!-- Cierre de bloque_edicion_usuario_admin -->
 
