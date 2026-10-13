@@ -2031,7 +2031,7 @@ let idDocumentoEnEdicion = null;
 
 
 // =========================================================================
-// 🔒 ARRANQUE DINÁMICO MEDIANTE PASARELA GATEWAY (SINCRO ANÓNIMA FIJADA v3.99)
+// 🔒 ARRANQUE DINÁMICO MEDIANTE PASARELA GATEWAY (SINCRO ANÓNIMA FIJADA v4.01)
 // =========================================================================
 function iniciarEcosistemaDeCAs() {
     console.log("🛠️ Conectando terminal con la pasarela remota DeCA...");
@@ -2052,23 +2052,21 @@ function iniciarEcosistemaDeCAs() {
         }
         database = firebase.database();
 
-        // Recuperamos el token de seguridad guardado en el disco duro del teléfono
+        // 🚀 CONTROL RADAR DE PERSISTENCIA MÁSTER
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
 
         if (tokenSeguridadLocal) {
-            // 🔓 CASO A: Si el terminal ya está registrado (¡Como tu cuenta de ADMIN!), forzamos el login inmediato de Firebase
+            // CASO A: El conductor ya está registrado. Nos logueamos y entramos directo al salpicadero
             miUsuarioUIDActivo = tokenSeguridadLocal;
-
-            // 🚀 REPARACIÓN DE PRIVILEGIOS MÁSTER: Iniciamos la sesión de Firebase con tu token local
-            // para que Google valide tus permisos de Administrador y te permita leer el nodo /usuarios
             return firebase.auth().signInAnonymously().then(() => {
-                console.log("🔓 Conexión establecida con terminal verificado:", miUsuarioUIDActivo);
+                console.log("Apertura directa de terminal verificado:", miUsuarioUIDActivo);
                 actualizarEstadoRedTerminalCamion(true);
                 verificarExistenciaPerfilCamionero();
             });
         } else {
-            // 🛡️ CASO B (ANTI-FANTASMAS): Si el terminal está completamente limpio de fábrica,
-            // no creamos ninguna sesión en Google todavía. Lanzamos el muro y esperamos a que teclee.
+            // 🛡️ CASO B (ANTI-FANTASMAS): Terminal limpio de fábrica. No creamos cuenta anónima todavía.
+            // Desplegamos el modal en pantalla para que teclee sus datos comerciales en frío.
+            console.log("🌱 Terminal virgen detectado. Desplegando muro de alta comercial...");
             desplegarMuroRegistroInicialObligatorioNativo();
         }
     })
@@ -2076,13 +2074,28 @@ function iniciarEcosistemaDeCAs() {
         console.error("❌ Error crítico en el Gateway de arranque:", error);
     });
 
-    // === ☀️ GARANTÍA DIURNA: TEMA COMPACTO CLARO POR DEFECTO AL ARRANCAR v3.99 ===
+    // === ☀️ GARANTÍA DIURNA: TEMA COMPACTO CLARO POR DEFECTO AL ARRANCAR v4.01 ===
     localStorage.setItem("modo_oscuro_deca", "no");
     document.body.classList.remove("dark-mode");
 
     const botonOscuroDOM = document.getElementById("btn_modo_oscuro_switch");
     if (botonOscuroDOM) {
         botonOscuroDOM.innerText = "☀️";
+    }
+
+    // =========================================================================
+    // 🏷️ MOTOR VISUAL: LECTURA EXTRACTORA DINÁMICA DE LA VERSIÓN DESDE EL TITLE
+    // =========================================================================
+    try {
+        const textoTituloOriginal = document.title;
+        const posicionDeLaV = textoTituloOriginal.lastIndexOf("v");
+        if (posicionDeLaV !== -1) {
+            const versionExtraidaLimpia = textoTituloOriginal.substring(posicionDeLaV);
+            const contenedorVersionDOM = document.getElementById("txt_version_apk_dinamico");
+            if (contenedorVersionDOM) contenedorVersionDOM.innerText = versionExtraidaLimpia;
+        }
+    } catch (err) {
+        console.warn("Aviso en el extractor de versión:", err);
     }
 
     // =========================================================================
@@ -2115,15 +2128,12 @@ function iniciarEcosistemaDeCAs() {
 
         setTimeout(() => {
             miUsuarioUIDActivo = idUsuarioInspeccionar;
-
-            // 👮 La pasarela de control del agente sí fuerza el sign-in para poder leer el viaje
             firebase.auth().signInAnonymously().then(() => {
                 database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                         verFichaDocumento(idDecaInspeccionar);
-
                         if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                         if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                         if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -2137,28 +2147,7 @@ function iniciarEcosistemaDeCAs() {
         }, 300);
         return;
     }
-
-    // =========================================================================
-    // 🏷️ EXTRACTOR DIGITAL: SELLA LA VERSIÓN DEL TITLE EN EL TECHO FIXED
-    // =========================================================================
-    try {
-        const textoTituloPestaña = document.title; // "Gestor de DeCAs Transportes v4.00"
-
-        // Buscamos cualquier coincidencia que empiece por 'v' seguida de números y puntos
-        const coincidenciaVersion = textoTituloPestaña.match(/v\s*\d+\.\d+/i);
-
-        if (coincidenciaVersion) {
-            const nodoBadgeTecho = document.getElementById("deca_version_dinamica_techo");
-            if (nodoBadgeTecho) {
-                // Inyectamos el texto (ej: "v 4.00") en el span gris de la cabecera
-                nodoBadgeTecho.innerText = coincidenciaVersion[0];
-                console.log("🏷️ Versión del software indexada en cabina:", coincidenciaVersion[0]);
-            }
-        }
-    } catch (err) {
-        console.warn("Aviso residual en el radar del extractor de versión:", err);
-    }
-} // 🔒 LLAVE DE CIERRE FINAL DE LA FUNCIÓN INICIARECOSISTEMADECAS
+}
 
 
 
@@ -5135,7 +5124,7 @@ function ejecutarAltaNuevaRegistroInicial() {
 
 
 // =========================================================================
-// 🕵️ MOTOR DE RECUPERACIÓN REAL DE CREDENCIALES (CAMBIO DE IDENTIDAD REAL)
+// 🕵️ MOTOR DE RECUPERACIÓN REAL DE CREDENCIALES (VINCULACIÓN SEGURA v4.01)
 // =========================================================================
 function ejecutarRecuperacionRegistroInicial() {
     const claveAValidar = document.getElementById("reg_inicial_clave_buscar").value.trim();
@@ -5143,40 +5132,46 @@ function ejecutarRecuperacionRegistroInicial() {
 
     mostrarAvisoToast("🔍 Rescatando portes en el clúster central...");
 
-    // 1. Buscamos primero si introdujo una contraseña personalizada (Alias)
-    database.ref('alias_claves/' + claveAValidar).once('value').then((snapshotAlias) => {
+    // Despertamos de forma preventiva la pasarela de red anónima para tener derecho a consultar alias
+    firebase.auth().signInAnonymously()
+    .then(() => {
+        // CAMINO A: Comprobar primero en el nodo puente de alias (contraseñas personalizadas)
+        return database.ref('alias_claves/' + claveAValidar).once('value');
+    })
+    .then((snapshotAlias) => {
         let uidDestinoFinal = null;
 
         if (snapshotAlias.exists()) {
             uidDestinoFinal = snapshotAlias.val();
         } else {
-            uidDestinoFinal = claveAValidar; // Asumimos que metió el UID maestro largo directo
+            uidDestinoFinal = claveAValidar; // Asumimos que introdujo el UID maestro largo directo
         }
 
-        // 2. Comprobamos si el perfil existe realmente en el nodo usuarios antes de pisar nada
-        database.ref('usuarios/' + uidDestinoFinal + '/datos_perfil').once('value').then((snapshotUID) => {
+        // Comprobamos si el perfil existe realmente en el nodo usuarios antes de pisar nada
+        database.ref('usuarios/' + uidDestinoFinal + '/datos_perfil').once('value')
+        .then((snapshotUID) => {
             if (snapshotUID.exists()) {
-
-                // 🚀 LA CLAVE DEL ÉXITO: Forzamos al disco local a memorizar el UID recuperado
+                // Forzamos al disco local a memorizar el UID recuperado
                 localStorage.setItem("cfg_uid_recuperado_deca", uidDestinoFinal);
                 miUsuarioUIDActivo = uidDestinoFinal;
 
-                // Apagamos los muros de registro obligatorios
-                if (document.getElementById("modal_registro_inicial_obligatorio")) {
-                    document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-                }
-
+                // Apagamos el muro de registro obligatorio al recuperar con éxito
+                document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
                 mostrarAvisoToast("✅ Identidad vinculada correctamente.");
 
                 // Forzamos la recarga limpia de las antenas con la nueva identidad
                 verificarExistenciaPerfilCamionero();
-
             } else {
                 alert("❌ La contraseña o código maestro introducido no coincide con ningún transportista activo.");
             }
-        }).catch(err => alert("Error de comunicación: " + err.message));
-    }).catch(err => alert("Error en pasarela: " + err.message));
+        });
+    })
+    .catch(err => {
+        console.error("Fallo crítico en puente de recuperación:", err);
+        alert("Error de comunicación con el servidor central: " + err.message);
+    });
 }
+
 
 
 
