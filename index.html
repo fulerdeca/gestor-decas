@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.88</title>
+    <title>Gestor de DeCAs Transportes v3.89</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1245,11 +1245,11 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 
-/* === CORRECCIÓN MAESTRA: CENTRADO ABSOLUTO DEL FOLIO EN LA HOJA DE IMPRESIÓN (v3.90) === */
+/* === CORRECCIÓN MAESTRA: CENTRADO ABSOLUTO EN 1 ÚNICA PÁGINA IMPERMEABLE (v3.95) === */
 @media print {
     @page {
         margin: 0mm !important; /* Destruye las cabeceras, fechas y URLs automáticas del navegador */
-        size: portrait;        /* Fuerza la orientación vertical estándar */
+        size: A4 portrait !important; /* Fuerza de forma rígida el formato oficial A4 vertical */
     }
 
     body {
@@ -1257,13 +1257,10 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
-
-        /* 🚀 EL ANCLA DE CENTRADO: Convierte el papel en un contenedor flexible de pantalla completa */
-        display: flex !important;
-        align-items: center !important;  /* Centrado vertical absoluto (arriba/abajo) */
-        justify-content: center !important; /* Centrado horizontal absoluto (izquierda/derecha) */
-        min-height: 100vh !important;
-        width: 100vw !important;
+        /* 🧼 SOLUCIÓN CHROME MÓVIL: Eliminamos display:flex y min-height del body para prohibir la segunda página */
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
     }
 
     /* Ocultación rígida de paneles comerciales y botones del salpicadero */
@@ -1279,17 +1276,14 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         display: none !important;
     }
 
-    /* Forzamos a las capas contenedoras a ocupar todo el papel de forma transparente */
+    /* Forzamos a las capas contenedoras a ser pasillos transparentes sin empujar el papel */
     .modal-preview-deca,
     #modal_preview_deca,
     .preview-container,
     .preview-cuerpo-scroll {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        display: block !important; /* Caja de bloque pura */
         width: 100% !important;
-        height: 100% !important;
-        min-height: 100vh !important;
+        height: auto !important;
         overflow: visible !important;
         background: #ffffff !important; /* Purgado total de grises en la impresión */
         box-shadow: none !important;
@@ -1298,7 +1292,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         box-sizing: border-box !important;
     }
 
-    /* 📄 EL FOLIO BLANCO: Mantiene tu tamaño pero centrado matemáticamente */
+    /* 📄 EL FOLIO BLANCO: Centrado simétrico horizontal y vertical sin romper los ejes */
     .folio-deca {
         display: block !important;
         width: 660px !important;    /* Tu ancho original estable que no descuadra los textos */
@@ -1306,17 +1300,24 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         height: auto !important;
         padding: 20px !important;
 
-        /* 🔒 EL SELLO DE CENTRADO: Distribuye de forma automática los huecos sobrantes en los 4 márgenes */
-        margin: auto !important;
+        /* 🔒 EL CANDADO ANCHURA DE PÁGINA (A4):
+           Al meter 45px arriba obligamos a la hoja a bajar al centro visual del papel,
+           y el 'margin: 45px auto auto auto' distribuye el pasillo lateral a partes iguales,
+           impidiendo físicamente que Chrome genere una segunda hoja. */
+        margin: 45px auto auto auto !important;
 
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
         box-sizing: border-box !important;
+
+        /* Forzado estricto de página única */
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
 
-        /* 📱 Mantén aquí el porcentaje de zoom que mejor te responda en el test (105% o 110%) */
+        /* Tu porcentaje de zoom máster de la v3.85 */
         zoom: 105% !important;
     }
 
@@ -1334,6 +1335,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         height: 100px !important;
     }
 }
+
 
 
 
