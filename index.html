@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v3.81</title>
+    <title>Gestor de DeCAs Transportes v3.85</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1294,19 +1294,23 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         margin: 0 !important;
     }
 
+    /* 🚀 ESCALADO HORIZONTAL EXCLUSIVO PARA EL ANCHO DEL FOLIO A4 (v3.86) */
     .folio-deca {
         display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
+        width: 660px !important;    /* Mantiene tus 660px estables para que el texto interior no sufra */
+        max-width: 660px !important;
+        height: auto !important;
+        padding: 10px !important;
+        margin: 0 auto !important;  /* Centrado simétrico en el papel */
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
+        box-sizing: border-box !important;
 
-        /* 📱 EL DETONANTE DE ANDROID/WEB: Aplica un escalado del 125% a todo el documento.
-        Esto hace que el folio crezca a pantalla completa de forma perfecta y equilibrada. */
-        zoom: 110% !important;
+        /* 📐 EL TRUCO: scaleX(1.05) estira el folio un 105% SÓLO a lo ancho.
+           Si quisieras estirar sólo lo alto, usarías scaleY(1.05) */
+        transform: scaleX(1.25) !important;
+        transform-origin: top center !important; /* Clava el eje arriba en el centro para que crezca simétrico hacia los lados */
     }
 
     #qrcode_real_render img,
@@ -1753,9 +1757,12 @@ body.dark-mode #lista_provincias_drop div:hover {
        🚚 CAPA 2: BLOQUE COMERCIAL LIBRE (SE MUEVE CON EL SCROLL)
        ========================================================================== -->
     <div class="deca-bloque-operaciones-libre">
+
+    <!--
         <p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
             La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
         </p>
+    -->
         <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
             <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()" style="margin: 0;">+ Nuevo DeCA</button>
             <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="margin: 0;">👤 Mis Datos</button>
@@ -5114,14 +5121,15 @@ function ejecutarRecuperacionRegistroInicial() {
 document.addEventListener("input", function(evento) {
     if (evento.target && (evento.target.tagName === "INPUT" || evento.target.tagName === "TEXTAREA")) {
 
-        // 🚀 FILTRO PROTECTOR: Si es una casilla de fecha, número, email o CONTRASEÑAS, no tocamos nada
+        // 🚀 FILTRO PROTECTOR ACTUALIZADO (v3.85): Añadida la casilla alias de la administración
         if (
             evento.target.type !== "date" &&
             evento.target.type !== "number" &&
             evento.target.type !== "email" &&
             evento.target.id !== "reg_inicial_clave_buscar" && // Campo recuperar entrada
             evento.target.id !== "reg_clave_recuperar" &&       // Campo recuperar antiguo
-            evento.target.id !== "reg_transp_password"          // Campo cambiar alias Mis Datos
+            evento.target.id !== "reg_transp_password" &&       // Campo cambiar alias Mis Datos
+            evento.target.id !== "txt_admin_alias_usuario"      // 🔑 NUEVO: Contraseña alias del Panel Admin
         ) {
             const posicionCursorCursor = evento.target.selectionStart;
 
@@ -5133,6 +5141,7 @@ document.addEventListener("input", function(evento) {
         }
     }
 });
+
 
 
 
@@ -5869,15 +5878,17 @@ function cerrarEdicionUsuarioAdminManual() {
                     </select>
                 </div>
 
+                    <!-- === BUSCA ESTA LÍNEA EXACTA EN TU HTML Y REPLÁZALA === -->
                     <div class="deca-form-grupo" style="margin-bottom: 15px; width: 100%;">
                         <label>Contraseña / Alias de Recuperación</label>
-                        <!-- 🔓 CORREGIDO: Campo activo, editable y con fondo blanco limpio -->
-                        <input type="text" id="txt_admin_alias_usuario" class="deca-input" style="height: 38px; width: 100%; font-family: monospace; font-weight: bold; background: #ffffff;">
+                        <!-- 🔓 REPARACIÓN: Forzamos text-transform: none directo en línea para anular la clase deca-input global -->
+                        <input type="text" id="txt_admin_alias_usuario" class="deca-input" style="height: 38px; width: 100%; font-family: monospace; font-weight: bold; background: #ffffff; text-transform: none !important;">
                     </div>
+
 
                     <div style="display: flex; gap: 8px; margin-top: 15px; width: 100%;">
                         <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoCambiosUsuarioAdmin()" style="flex: 1; margin: 0; background: #28a745 !important; box-shadow: none;">💾 Guardar</button>
-                        <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarEliminacionCompletaUsuarioAdmin()" style="flex: 1; margin: 0; background: #dc3545 !important; box-shadow: none;">🗑️ Eliminar Chofer</button>
+                        <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarEliminacionCompletaUsuarioAdmin()" style="flex: 1; margin: 0; background: #dc3545 !important; box-shadow: none;">🗑️ Eliminar</button>
                     </div>
 
             </div> <!-- Cierre de bloque_edicion_usuario_admin -->
