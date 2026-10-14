@@ -2427,15 +2427,25 @@ function verificarExistenciaPerfilCamionero() {
                     if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "flex";
                 }
             } else {
+                // 🛡️ SEGURO ANTI-FANTASMAS TRUCK: Al ser un terminal limpio o borrado de datos,
+                // desconectamos de inmediato las antenas automáticas del nodo de portes para este UID provisional.
+                // Así impedimos físicamente que se autoejecute la inicialización de la muestra en segundo plano.
+                if (database && miUsuarioUIDActivo) {
+                    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
+                }
                 desplegarMuroRegistroInicialObligatorioNativo();
             }
         } else {
+            if (database && miUsuarioUIDActivo) {
+                database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
+            }
             desplegarMuroRegistroInicialObligatorioNativo();
         }
     }, (error) => {
         console.error("Fallo de comunicación en el módulo de licencias:", error);
     });
 }
+
 
 
 // Despliega el búnker de registro aposta limpiando los campos
