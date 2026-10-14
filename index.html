@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.08</title>
+    <title>Gestor de DeCAs Transportes v4.12</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2238,27 +2238,34 @@ function iniciarEcosistemaDeCAs() {
         `;
         document.head.appendChild(estiloPDFVirtual);
 
-        setTimeout(() => {
-            miUsuarioUIDActivo = idUsuarioInspeccionar;
+        // 🚀 REPARACIÓN MÓVIL: Eliminamos el setTimeout ciego de 300ms.
+        // Forzamos la autenticación y la lectura en frío directamente garantizando la sincronía.
+        miUsuarioUIDActivo = idUsuarioInspeccionar;
 
-            firebase.auth().signInAnonymously().then(() => {
-                database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
-                        verFichaDocumento(idDecaInspeccionar);
+        firebase.auth().signInAnonymously().then(() => {
+            console.log("📡 Conexión establecida en pestaña de inspección. Solicitando datos del porte...");
 
-                        if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
-                        if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
-                        if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
-                        if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.display = "none";
-                        if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
-                    } else {
-                        alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
-                    }
-                });
-            });
-        }, 300);
+            database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    console.log("✅ Datos del DeCA recibidos de la nube. Procediendo a renderizar Folio.");
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
+
+                    // 1. Pintamos los datos en el Folio Blanco oficial
+                    verFichaDocumento(idDecaInspeccionar);
+
+                    // 2. Apagamos de forma segura los elementos sobrantes de la pantalla principal
+                    if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.setProperty("display", "none", "important");
+                    if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.setProperty("display", "none", "important");
+                    if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.setProperty("display", "none", "important");
+                    if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.setProperty("display", "none", "important");
+                    if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.setProperty("display", "none", "important");
+                } else {
+                    alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
+                }
+            }).catch(err => console.error("Error al leer el documento remoto:", err));
+        }).catch(err => console.error("Error en autenticación de pasarela:", err));
+
         return;
     }
 
@@ -3671,6 +3678,22 @@ function procesarGuardadoDeCAOnline() {
     }
 
 
+    // 🚨 CONTROL DE FORMATOS LEGALES (Emisión Nuevo DeCA)
+    const elNifDeca = document.getElementById("deca_carg_nif");
+    const elCpDeca = document.getElementById("deca_carg_cp");
+
+    if (elNifDeca && !validarFormatoNifCif(cargNif)) {
+        elNifDeca.classList.add("deca-input-error-falta");
+        mostrarAlertaCorporativaDeca("NIF de Cargador Erróneo", "El NIF o CIF contractual proporcionado no es válido en el territorio nacional.", "⚠️");
+        elNifDeca.focus();
+        return;
+    }
+    if (elCpDeca && !validarFormatoCodigoPostal(cargCp)) {
+        elCpDeca.classList.add("deca-input-error-falta");
+        mostrarAlertaCorporativaDeca("Código Postal Incorrecto", "El Código Postal de la dirección del cargador debe tener 5 números exactos.", "⚠️");
+        elCpDeca.focus();
+        return;
+    }
 
 
 
@@ -4365,6 +4388,36 @@ function registrarNuevoCamioneroEcosistema() {
         return; // Aborta el guardado
     }
 
+    // 🚨 CONTROL DE FORMATOS COMERCIALES (Ficha del Transportista)
+    const elNifPerfil = document.getElementById("reg_transp_nif");
+    const elCpPerfil = document.getElementById("reg_transp_cp");
+    const elTelPerfil = document.getElementById("reg_transp_telefono");
+    const elEmailPerfil = document.getElementById("reg_transp_email");
+
+    if (elNifPerfil && !validarFormatoNifCif(nif)) {
+        elNifPerfil.classList.add("deca-input-error-falta");
+        mostrarAlertaCorporativaDeca("Identificación Inválida", "Su NIF/CIF no cumple con la estructura fiscal obligatoria.", "⚠️");
+        elNifPerfil.focus();
+        return;
+    }
+    if (elCpPerfil && !validarFormatoCodigoPostal(cp)) {
+        elCpPerfil.classList.add("deca-input-error-falta");
+        mostrarAlertaCorporativaDeca("Código Postal Erróneo", "Por favor, introduzca un Código Postal nacional de 5 dígitos válido.", "⚠️");
+        elCpPerfil.focus();
+        return;
+    }
+    if (elTelPerfil && !validarFormatoTelefono(telefono)) {
+        elTelPerfil.classList.add("deca-input-error-falta");
+        mostrarAlertaCorporativaDeca("Teléfono Inválido", "El número de teléfono debe tener 9 dígitos y empezar por 6, 7, 8 o 9 (Se permiten prefijos internacionales como +34).", "⚠️");
+        elTelPerfil.focus();
+        return;
+    }
+    if (elEmailPerfil && email !== "" && !validarFormatoEmail(email)) {
+        elEmailPerfil.classList.add("deca-input-error-falta");
+        mostrarAlertaCorporativaDeca("Correo Electrónico Incorrecto", "El formato del email introducido no es válido (ejemplo: transportes@empresa.com).", "⚠️");
+        elEmailPerfil.focus();
+        return;
+    }
 
 
     let domicilioFiscalCompleto = domicilio;
@@ -5681,6 +5734,10 @@ function restablecerMiniFormularioDatosPorDefecto() {
 
 // 🧹 FUNCIÓN AUXILIAR ESCAPE: Vacía las casillas de texto si el chófer se arrepiente y da a Cancelar
 function limpiarCamposMiniFormularioFrecuentes() {
+    // 🧼 CORTAFUEGOS VISUAL: Tritura cualquier color rojo de error residual del mini formulario
+    const inputsMiniForm = document.querySelectorAll("#deca_mini_formulario_datos_bloque .deca-input");
+    inputsMiniForm.forEach(input => input.classList.remove("deca-input-error-falta"));
+
     const inputRazon = document.getElementById("mini_carg_razon");
     const inputNif = document.getElementById("mini_carg_nif");
     const inputCalle = document.getElementById("mini_carg_calle");
@@ -5810,12 +5867,73 @@ function ejecutarGuardadoDatoFrecuenteExpress() {
         const pob = document.getElementById("mini_carg_poblacion").value.trim().toUpperCase();
         const prov = document.getElementById("mini_carg_provincia").value.trim().toUpperCase();
 
-        if (!razon || !nif) return alert("⚠ Razón Social y NIF son campos obligatorios.");
+        // 🧼 Primero limpiamos cualquier rastro de error rosa de intentos anteriores
+        const inputsMiniForm = document.querySelectorAll("#deca_mini_formulario_datos_bloque .deca-input");
+        inputsMiniForm.forEach(input => input.classList.remove("deca-input-error-falta"));
+
+        let camposFaltantesMini = [];
+
+        // Auxiliar máster inteligente para chequear e inyectar el color de advertencia
+        function verificarObligatorioMini(idCampo, nombreLegible) {
+            const elemento = document.getElementById(idCampo);
+            if (!elemento || elemento.value.trim() === "") {
+                camposFaltantesMini.push(nombreLegible);
+                if (elemento) {
+                    elemento.classList.add("deca-input-error-falta"); // Inyecta el fondo rosa
+
+                    // Centinela ergonómico: En cuanto el chófer empiece a escribir, le quita el rojo
+                    elemento.oninput = function() {
+                        if (this.value.trim() !== "") this.classList.remove("deca-input-error-falta");
+                    };
+                }
+            }
+        }
+
+        // Ejecutamos el radar sobre las 6 casillas fiscales obligatorias
+        verificarObligatorioMini("mini_carg_razon", "Razón Social del Cargador");
+        verificarObligatorioMini("mini_carg_nif", "NIF / CIF del Cargador");
+        verificarObligatorioMini("mini_carg_calle", "Domicilio (Calle, Número)");
+        verificarObligatorioMini("mini_carg_cp", "Código Postal");
+        verificarObligatorioMini("mini_carg_poblacion", "Población / Localidad");
+        verificarObligatorioMini("mini_carg_provincia", "Provincia (España)");
+
+                // 🚨 SI PASAN EL FILTRO DE VACÍOS, EVALUAMOS EL FORMATO CORPORATIVO
+        if (camposFaltantesMini.length === 0) {
+            const elNif = document.getElementById("mini_carg_nif");
+            const elCp = document.getElementById("mini_carg_cp");
+
+            if (elNif && !validarFormatoNifCif(nif)) {
+                elNif.classList.add("deca-input-error-falta");
+                mostrarAlertaCorporativaDeca("Error de Identificación", "El NIF/CIF introducido no cumple con el patrón oficial español (8 números y 1 letra, o código de empresa válido).", "⚠️");
+                elNif.focus();
+                return;
+            }
+            if (elCp && !validarFormatoCodigoPostal(cp)) {
+                elCp.classList.add("deca-input-error-falta");
+                mostrarAlertaCorporativaDeca("Error de Ubicación", "El Código Postal debe estar compuesto por exactamente 5 dígitos numéricos válidos (01000 a 52999).", "⚠️");
+                elCp.focus();
+                return;
+            }
+        }
+
+
+        // 🚨 CORTAFUEGOS NORMATIVO: Bloquea el guardado si falta algo
+        if (camposFaltantesMini.length > 0) {
+            const mensajeErrorMini = "Para guardar un cliente frecuente en la base de datos, es obligatorio cumplimentar las casillas resaltadas en rojo claro:\n\n• " + camposFaltantesMini.join("\n• ");
+            mostrarAlertaCorporativaDeca("Datos de Cliente Incompletos", mensajeErrorMini, "⚠️");
+
+            // Enfoca automáticamente la primera casilla vacía para agilizar el tecleo en ruta
+            const primerErrorMini = document.querySelector("#deca_mini_formulario_datos_bloque .deca-input-error-falta");
+            if (primerErrorMini) primerErrorMini.focus();
+            return;
+        }
 
         const domicilioCpl = `${calle} (CP: ${cp} - ${pob} - ${prov})`;
-        const paqueteCliente = { razon: razon, nif: nif, calle: calle, cp: cp, poblacion: pob, provincia: prov, domicilio: domicilioCpl };
+        const paqueteCliente = { razon: razon, nif: nif, calle: calle, cp: cp, población: pob, provincia: prov, domicilio: domicilioCpl };
 
         mostrarAvisoToast("⏳ Añadiendo nueva empresa al servidor...");
+
+
         database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + nif).set(paqueteCliente)
         .then(function() {
             mostrarAvisoToast("✅ Empresa guardada en tu catálogo.");
@@ -5827,12 +5945,38 @@ function ejecutarGuardadoDatoFrecuenteExpress() {
     }
     // --- SECCIÓN B: ALTA PURA DE NUEVAS NATURALEZAS (MERCANCÍAS) ---
     else if (pestañaDatosActivaActualmente === "mercancias") {
-        const nombreM = document.getElementById("mini_mercan_nombre").value.trim().toUpperCase();
-        if (!nombreM) return alert("⚠ Escribe el nombre de la mercancía.");
+        const elementoMercan = document.getElementById("mini_mercan_nombre");
+        const nombreM = elementoMercan ? elementoMercan.value.trim().toUpperCase() : "";
+
+        // 🧼 Limpiamos el borde de error anterior si existiera
+        if (elementoMercan) elementoMercan.classList.remove("deca-input-error-falta");
+
+        // 🚨 CORTAFUEGOS CON MODAL CORPORATIVO: Si está vacío, activamos el aviso premium y el fondo rosa
+        if (!nombreM) {
+            if (elementoMercan) {
+                elementoMercan.classList.add("deca-input-error-falta");
+
+                // Centinela para quitar el rosa en cuanto el usuario empiece a teclear
+                elementoMercan.oninput = function() {
+                    if (this.value.trim() !== "") this.classList.remove("deca-input-error-falta");
+                };
+                elementoMercan.focus();
+            }
+
+            mostrarAlertaCorporativaDeca(
+                "Campo Obligatorio Vacío",
+                "Para poder añadir una nueva mercancía habitual al catálogo, es obligatorio escribir su descripción o naturaleza en la casilla resaltada.",
+                "📦"
+            );
+            return;
+        }
 
         // Sanitización rígida anti-cortocircuitos para Firebase
         const nuevaLlaveFB = nombreM.replace(/[\.\#\$\[\]]/g, "-");
-        mostrarAvisoToast("⏳ Subiendo nueva mercancía a la lona...");
+
+
+
+        mostrarAvisoToast("⏳ Subiendo nueva mercancía a la nube...");
 
         /* =========================================================================
            🕒 RECAMARA DE EDICIÓN ASÍNCRONA: Comentada temporalmente para evitar clones
@@ -5893,6 +6037,42 @@ function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
         })
         .catch(err => alert("Error de red al purgar: " + err.message));
     });
+}
+
+
+// =========================================================================
+// 🧮 MOTOR DE VALIDACIÓN FISCAL Y COMERCIAL UNIVERSAL (DeCA v4.06)
+// =========================================================================
+
+// 1. Validador estricto de NIF / CIF / NIE español
+function validarFormatoNifCif(documento) {
+    const docLimpio = documento.trim().toUpperCase();
+    if (docLimpio.length < 9 || docLimpio.length > 10) return false;
+
+    // Expresión regular oficial para NIF (personas físicas), CIF (empresas) y NIE (extranjeros)
+    const regexFiscal = /^[XYZKMX]?[0-9]{7,8}[A-Z]$|^[A-HJNPQRSUVW][0-9]{7}[A-J0-9]$/;
+    return regexFiscal.test(docLimpio);
+}
+
+// 2. Validador de Código Postal Español (5 dígitos exactos numéricos)
+function validarFormatoCodigoPostal(cp) {
+    const cpLimpio = cp.trim();
+    // Debe medir 5 caracteres, ser numérico y estar entre el 01000 y el 52999
+    return /^[0-9]{5}$/.test(cpLimpio) && parseInt(cpLimpio, 10) >= 1000 && parseInt(cpLimpio, 10) <= 52999;
+}
+
+// 3. Validador de Teléfono (Soporta fijos y móviles españoles, con o sin prefijo)
+function validarFormatoTelefono(tel) {
+    const telLimpio = tel.trim().replace(/\s+/g, ""); // Purgamos espacios intermedios
+    // Permite prefijos como +34 o 0034 seguidos de 9 dígitos que empiecen por 6, 7, 8 o 9
+    return /^(?:\+34|0034)?[6789][0-9]{8}$/.test(telLimpio);
+}
+
+// 4. Validador de Correo Electrónico Estándar
+function validarFormatoEmail(email) {
+    const emailLimpio = email.trim().toLowerCase();
+    if (emailLimpio === "") return true; // El email suele ser opcional, si está vacío no bloquea
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpio);
 }
 
 
