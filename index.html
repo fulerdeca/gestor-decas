@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.01</title>
+    <title>Gestor de DeCAs Transportes v4.04</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -269,7 +269,7 @@
         /* 🎨 SEMÁFORO FISCAL DIURNO: CONFIGURACIÓN POR TRANSPARENCIAS EDITABLES (AL 15%) */
         .tarjeta-contador.total {
             border-left-color: #0f4c81 !important;
-            background-color: rgba(15, 76, 129, 0.05) !important; /* Azul corporativo diurno */
+            background-color: rgba(15, 76, 129, 0.05) !important;  /* Azul cian finalizados diurno */
         }
         .tarjeta-contador.en-curso {
             border-left-color: #28a745 !important;
@@ -280,8 +280,8 @@
             background-color: rgba(253, 126, 20, 0.05) !important; /* Naranja/Amarillo alerta diurno */
         }
         .tarjeta-contador.post-viaje {
-            border-left-color: #17a2b8 !important;
-            background-color: rgba(23, 162, 184, 0.05) !important;  /* Azul cian finalizados diurno */
+            border-left-color: #808080 !important;
+            background-color: rgba(128, 128, 128, 0.05) !important; /* Azul corporativo diurno */
         }
 
         /* 🌙 SEMÁFORO FISCAL NOCTURNO: FONDOS CON MÁXIMA TRANSLUCIDEZ (AL 5%) */
@@ -298,8 +298,8 @@
             background-color: rgba(253, 126, 20, 0.15) !important; /* Fondo naranja ultratransparente */
         }
         body.dark-mode .tarjeta-contador.post-viaje {
-            border-left-color: #17a2b8 !important;
-            background-color: rgba(23, 162, 184, 0.15) !important; /* Fondo cian ultratransparente */
+            border-left-color: #A8A8A8 !important;
+            background-color: rgba(168, 168, 168, 0.15) !important; /* Fondo cian ultratransparente */
         }
 
         /* Garantiza el contraste nítido de los textos sobre el fondo negro */
@@ -1834,6 +1834,65 @@ body.dark-mode .deca-version-badge-techo {
     color: #a0aec0 !important;
 }
 
+
+/* === 🆔 AVATAR CUADRADO DINÁMICO DE INICIALES PARA EL BOTÓN PERFIL === */
+.deca-avatar-iniciales-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 22px !important;
+    height: 22px !important;
+    background: #0f4c81 !important; /* Azul corporativo que contrasta con el fondo blanco */
+    color: #ffffff !important;      /* Letras en blanco puro nítido */
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    border-radius: 4px !important;  /* Esquinas suavizadas compactas a juego con la app */
+    text-transform: uppercase !important;
+    line-height: 1 !important;
+    margin-right: 2px !important;   /* Pasillo de aire antes del texto "Perfil" */
+    flex-shrink: 0 !important;
+}
+
+/* Adaptación cromática para que resalte correctamente en el Modo Noche */
+body.dark-mode .deca-avatar-iniciales-btn {
+    background: #63b3ed !important; /* Azul eléctrico brillante de cabina */
+    color: #121212 !important;      /* Texto oscuro para máximo contraste nocturno */
+}
+
+
+/* ==========================================================================
+   ⚙️ FORMULARIO DE ACCIONES RÁPIDAS PARA PANEL DE DATOS FRECUENTES (v4.10)
+   ========================================================================== */
+.deca-mini-form-datos {
+    background: #ffffff !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    border: 1px dashed var(--blue-primary) !important;
+    margin-bottom: 15px !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
+}
+
+.deca-mini-form-titulo {
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    color: var(--blue-primary) !important;
+    text-transform: uppercase !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+}
+
+/* Sincronización nocturna del mini formulario */
+body.dark-mode .deca-mini-form-datos {
+    background: #1c1c1e !important;
+    border-color: #444446 !important;
+}
+body.dark-mode .deca-mini-form-titulo {
+    color: #63b3ed !important;
+}
+
+
+
 </style>
 
 </head>
@@ -1898,11 +1957,13 @@ body.dark-mode .deca-version-badge-techo {
         <!--<p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.4; text-align: left;">
             La descarga por QR permanece activa durante el servicio y los 7 días naturales posteriores. Los documentos se conservan 1 año (Res. 5/6/2026).
         </p>-->
-<!-- === REEMPLAZA ESTA BOTONERA EN TU CAPA 2 === -->
+
         <div class="grupo-botones-top" style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-start; width: 100%;">
             <button class="btn-top btn-nuevo-deca" onclick="abrirFormularioNuevoDeCA()">+ Nuevo DeCA</button>
-            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()">👤 Perfil</button>
-            <!-- 🗂️ NUEVO: Acceso directo a las tripas de la base de datos central -->
+            <!-- 🚀 REPARACIÓN VISUAL: Añadido el contenedor span para las iniciales dinámicas -->
+            <button class="btn-top btn-recomendar" onclick="abrirPanelMisDatosCamionero()" style="display: inline-flex; align-items: center; gap: 4px;">
+                <span id="deca_perfil_avatar_letras" class="deca-avatar-iniciales-btn">--</span> Perfil
+            </button>
             <button class="btn-top btn-recomendar" onclick="abrirPanelCentralDeDatosFrecuentes()">⭐ Datos</button>
         </div>
 
@@ -2248,6 +2309,9 @@ function verificarExistenciaPerfilCamionero() {
 
                     console.log("🔓 Licencia validada y perfil íntegro: Liberando interfaz...");
                     misDatosPerfilAutonomo = copiaPerfilRAM;
+
+                    actualizarAvatarInicialesPerfilTecho(copiaPerfilRAM.razon_social); // 🚀 Inyección Máster en Caliente
+
 
                     // Apagamos todas las pantallas de control si todo está al 100% relleno
                     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
@@ -4585,7 +4649,7 @@ function actualizarDesplegablePlantillasFormulario() {
     });
 
     if (lista.length === 0) {
-        selector.innerHTML = '<option value="">⚠️ No tienes ninguna plantilla guardada todavía (Guárdalas desde el menú "Acciones" de la tabla)</option>';
+        selector.innerHTML = '<option value="">⚠️ No tienes ninguna plantilla guardada (Guárdalas desde el menú "Acciones" de la tabla)</option>';
         return;
     }
 
@@ -4999,7 +5063,12 @@ function ejecutarCargaDeEmergenciaDesdeDiscoDuro() {
         const copiaPerfilGuardada = localStorage.getItem("bk_admin_perfil_autonomo");
         const copiaViajesGuardada = localStorage.getItem("bk_admin_lista_viajes_deca");
 
-        if (copiaPerfilGuardada) { misDatosPerfilAutonomo = JSON.parse(copiaPerfilGuardada); }
+        // 🟢 LA SOLUCIÓN: Mantiene las iniciales calculadas incluso si el terminal está sin señal
+        if (copiaPerfilGuardada) {
+            misDatosPerfilAutonomo = JSON.parse(copiaPerfilGuardada);
+            actualizarAvatarInicialesPerfilTecho(misDatosPerfilAutonomo.razon_social); // 🚀 Inyección Máster Offline
+        }
+
         if (copiaViajesGuardada) { documentosDeCA = JSON.parse(copiaViajesGuardada); }
 
         if (documentosDeCA && documentosDeCA.length > 0) {
@@ -5483,110 +5552,327 @@ function cerrarEdicionUsuarioAdminManual() {
     }
 }
 
+// =========================================================================
+// 🔤 LOGÍSTICA ACCESIBLE: EXTRACTOR DINÁMICO DE INICIALES CORPORATIVAS
+// =========================================================================
+function actualizarAvatarInicialesPerfilTecho(razonSocialCompleta) {
+    const nodoAvatar = document.getElementById("deca_perfil_avatar_letras");
+    if (!nodoAvatar) return;
+
+    if (!razonSocialCompleta || razonSocialCompleta.trim() === "" || razonSocialCompleta.includes("SIN CONFIGURAR")) {
+        nodoAvatar.innerText = "??";
+        return;
+    }
+
+    try {
+        const palabras = razonSocialCompleta.trim().split(/\s+/);
+        let iniciales = "";
+
+        if (palabras.length >= 2) {
+            // 🔒 CORRECCIÓN v4.03: Acceso por índice de matriz rígido para compatibilidad APK
+            iniciales = palabras[0].charAt(0) + palabras[1].charAt(0);
+        } else if (palabras.length === 1 && palabras[0].length > 0) {
+            iniciales = palabras[0].substring(0, 2);
+        }
+
+        nodoAvatar.innerText = iniciales.toUpperCase();
+    } catch (err) {
+        console.warn("Aviso en el cálculo síncrono de iniciales:", err);
+        nodoAvatar.innerText = "??";
+    }
+}
+
+
 
 
 // =========================================================================
-// 🗂️ CONTROLADOR MÁSTER: PANEL CENTRAL DE DATOS POR PESTAÑAS (v4.00)
+// 🗂️ MOTOR SUPREMO - PARTE A: NAVEGACIÓN Y RENDERIZADO (v4.10 MÁSTER)
 // =========================================================================
 let pestañaDatosActivaActualmente = "clientes";
+let idRegistroDatoEnEdicion = null; // null = Modo Añadir | string = Modo Editar
 
 function abrirPanelCentralDeDatosFrecuentes() {
     document.getElementById("modal_central_datos_deca").style.display = "flex";
-    conmutarPestañaDatosAdmin(pestañaDatosActivaActualmente); // Carga la pestaña que se quedó en memoria
+    conmutarPestañaDatosAdmin(pestañaDatosActivaActualmente);
 }
 
+// =========================================================================
+// 🗂️ CONTROLADOR: CONMUTADOR DE PESTAÑAS INTEGRADO CON DIBUJADO (v4.05)
+// =========================================================================
 function conmutarPestañaDatosAdmin(destinoPestaña) {
     pestañaDatosActivaActualmente = destinoPestaña;
+    idRegistroDatoEnEdicion = null; // Reseteamos el control de edición de forma rígida
 
-    // 1. Apagamos visualmente los estados de todos los botones de las pestañas
+    // 1. Gestionamos el resalte visual elástico de los botones de arriba
     document.getElementById("tab_btn_clientes").classList.remove("activa");
     document.getElementById("tab_btn_mercancias").classList.remove("activa");
     document.getElementById("tab_btn_plantillas").classList.remove("activa");
 
-    // 2. Encendemos el botón seleccionado
     if (destinoPestaña === "clientes") document.getElementById("tab_btn_clientes").classList.add("activa");
     if (destinoPestaña === "mercancias") document.getElementById("tab_btn_mercancias").classList.add("activa");
     if (destinoPestaña === "plantillas") document.getElementById("tab_btn_plantillas").classList.add("activa");
 
-    // 3. Lanzamos el renderizador de datos específicos
+    // 2. Dibujamos los inputs superiores y sus respectivos botones de Cancelar/Guardar
+    restablecerMiniFormularioDatosPorDefecto();
+
+    // 3. 🚀 EL DISPARADOR ORDENADO: Forzamos al teléfono a repintar el listado inferior
+    // al cambiar de pestaña, garantizando que el historial emerja relleno al instante
     renderizarContenidoInternoPestañaDatos();
 }
 
+
+
+// =========================================================================
+// 📐 INYECTOR: MINI-FORMULARIOS CON COMANDO CANCELAR INTEGRADO (v4.05)
+// =========================================================================
+function restablecerMiniFormularioDatosPorDefecto() {
+    idRegistroDatoEnEdicion = null;
+    const contCampos = document.getElementById("deca_mini_form_campos_dinamicos");
+    const txtTitulo = document.getElementById("deca_mini_form_accion_titulo");
+    const btnCancel = document.getElementById("btn_cancelar_edicion_mini_form");
+
+    if (!contCampos || !txtTitulo || !btnCancel) return;
+
+    // 🛡️ CONTROL VISUAL: Ocultamos el botón cancelar maestro del pie del mini-form
+    // porque ahora cada pestaña gestiona su pasillo de escape de forma elástica
+    btnCancel.style.display = "none";
+
+    // Liberamos la casilla del NIF por si se había quedado bloqueada en lectura
+    const inputNif = document.getElementById("mini_carg_nif");
+    if (inputNif) inputNif.readOnly = false;
+
+    // --- SECCIÓN A: MAQUETACIÓN PESTAÑA EMPRESAS (CLIENTES) ---
+    if (pestañaDatosActivaActualmente === "clientes") {
+        txtTitulo.innerText = "Añadir Nuevo Cliente";
+        contCampos.style.gridTemplateColumns = "repeat(auto-fit, minmax(130px, 1fr))";
+        contCampos.innerHTML = `
+            <div class="deca-form-grupo"><label>Razón Social</label><input type="text" id="mini_carg_razon" class="deca-input" placeholder="Nombre Empresa" style="padding:6px; font-size:13px;"></div>
+            <div class="deca-form-grupo"><label>NIF / CIF</label><input type="text" id="mini_carg_nif" class="deca-input" placeholder="A00000000" style="padding:6px; font-size:13px;"></div>
+            <div class="deca-form-grupo"><label>Domicilio</label><input type="text" id="mini_carg_calle" class="deca-input" placeholder="Calle, nº" style="padding:6px; font-size:13px;"></div>
+            <div class="deca-form-grupo"><label>C.P.</label><input type="text" id="mini_carg_cp" class="deca-input" placeholder="16630" style="padding:6px; font-size:13px;"></div>
+            <div class="deca-form-grupo"><label>Población</label><input type="text" id="mini_carg_poblacion" class="deca-input" placeholder="Localidad" style="padding:6px; font-size:13px;"></div>
+            <div class="deca-form-grupo"><label>Provincia</label><input type="text" id="mini_carg_provincia" class="deca-input" placeholder="CUENCA" style="padding:6px; font-size:13px;"></div>
+
+            <!-- 🚀 REPARACIÓN: Fila impermeable que clava los botones de acción abajo a la derecha del miniform -->
+            <div style="grid-column: 1 / -1; display: flex; gap: 6px; justify-content: flex-end; margin-top: 5px;">
+                <button type="button" class="btn-top" onclick="limpiarCamposMiniFormularioFrecuentes()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">Cancelar</button>
+                <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoDatoFrecuenteExpress()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">💾 Guardar</button>
+            </div>
+        `;
+        // Escondemos los botones nativos del HTML fijo para que no salgan duplicados abajo
+        document.getElementById("btn_guardar_mini_form").style.setProperty("display", "none", "important");
+    }
+    // --- SECCIÓN B: MAQUETACIÓN PESTAÑA MERCANCÍAS ---
+    else if (pestañaDatosActivaActualmente === "mercancias") {
+        txtTitulo.innerText = "Añadir Nueva Mercancía";
+        contCampos.style.gridTemplateColumns = "1fr";
+        contCampos.innerHTML = `
+            <div class="deca-form-grupo"><label>Naturaleza de la Carga</label><input type="text" id="mini_mercan_nombre" class="deca-input" placeholder="p. ej. CEBADA LIMPIA" style="padding:6px; font-size:13px;"></div>
+
+            <!-- 🚀 REPARACIÓN: Botonera elástica integrada para la pestaña de cargas -->
+            <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 5px;">
+                <button type="button" class="btn-top" onclick="limpiarCamposMiniFormularioFrecuentes()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">Cancelar</button>
+                <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoDatoFrecuenteExpress()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">💾 Guardar</button>
+            </div>
+        `;
+        document.getElementById("btn_guardar_mini_form").style.setProperty("display", "none", "important");
+    }
+    // --- SECCIÓN C: MAQUETACIÓN PESTAÑA PLANTILLAS ---
+    else if (pestañaDatosActivaActualmente === "plantillas") {
+        txtTitulo.innerText = "Las plantillas se guardan desde las acciones de la tabla principal";
+        contCampos.style.gridTemplateColumns = "1fr";
+        contCampos.innerHTML = `<p style="font-size:11px; color:#718096; margin:0; text-align:left;">Para generar una plantilla máster, use el menú 'Acciones ➔ Guardar Plantilla' en cualquier porte del historial.</p>`;
+        document.getElementById("btn_guardar_mini_form").style.setProperty("display", "none", "important");
+    }
+}
+
+// 🧹 FUNCIÓN AUXILIAR ESCAPE: Vacía las casillas de texto si el chófer se arrepiente y da a Cancelar
+function limpiarCamposMiniFormularioFrecuentes() {
+    const inputRazon = document.getElementById("mini_carg_razon");
+    const inputNif = document.getElementById("mini_carg_nif");
+    const inputCalle = document.getElementById("mini_carg_calle");
+    const inputCp = document.getElementById("mini_carg_cp");
+    const inputPob = document.getElementById("mini_carg_poblacion");
+    const inputProv = document.getElementById("mini_carg_provincia");
+    const inputMercan = document.getElementById("mini_mercan_nombre");
+
+    if (inputRazon) inputRazon.value = "";
+    if (inputNif) { inputNif.value = ""; inputNif.readOnly = false; }
+    if (inputCalle) inputCalle.value = "";
+    if (inputCp) inputCp.value = "";
+    if (inputPob) inputPob.value = "";
+    if (inputProv) inputProv.value = "";
+    if (inputMercan) inputMercan.value = "";
+
+    idRegistroDatoEnEdicion = null;
+    mostrarAvisoToast("🧹 Formulario reseteado");
+}
+
+
+
+// =========================================================================
+// 🗂️ RENDERIZADOR CENTRAL: LISTADOS CON EDICIÓN DESACTIVADA (v4.04 STANDBY)
+// =========================================================================
 function renderizarContenidoInternoPestañaDatos() {
     const contenedor = document.getElementById("lista_datos_frecuentes_render");
     if (!contenedor) return;
-
-    contenedor.innerHTML = '<p style="color:#666; font-style:italic; text-align:center; padding:20px;">Abriendo registros...</p>';
 
     // --- CASE A: PESTAÑA CARTERA DE CLIENTES ---
     if (pestañaDatosActivaActualmente === "clientes") {
         let clientes = window.diccionarioCargadoresCloud || {};
         let llaves = Object.keys(clientes);
-
-        if (llaves.length === 0) {
-            contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:20px; font-style:italic;">No tienes cargadores habituales guardados</p>';
-            return;
-        }
+        if (llaves.length === 0) { contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:15px; font-style:italic;">Cartera vacía</p>'; return; }
 
         contenedor.innerHTML = llaves.map(nif => {
             const c = clientes[nif];
             return `
             <div class="deca-fila-dato-purgable">
-                <div>
-                    <strong>🏢 ${c.razon || 'EMPRESA'}</strong><br>
-                    <span>NIF: ${nif} | CP: ${c.cp || '---'} - ${c.poblacion || ''}</span>
+                <div style="max-width: 70%;"><strong>🏢 ${c.razon}</strong><br><span>NIF: ${nif} | Domicilio: ${c.calle || '---'}</span></div>
+                <div style="display:flex; gap:4px;">
+                    <!-- 🕒 EN RESERVA: Botón desactivado temporalmente para evitar bucles asíncronos -->
+                    <button class="btn-top" disabled style="padding:6px 10px !important; font-size:12px !important; margin:0; opacity:0.3; cursor:not-allowed;" title="Edición deshabilitada temporalmente">✏️</button>
+                    <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('clientes', '${nif}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
                 </div>
-                <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('clientes', '${nif}')" style="padding:6px 10px !important; font-size:12px !important;">🗑️ Borrar</button>
             </div>`;
         }).join("");
     }
-
     // --- CASE B: PESTAÑA HISTORIAL DE MERCANCÍAS ---
     else if (pestañaDatosActivaActualmente === "mercancias") {
         let mercancias = window.diccionarioMercanciasCloud || {};
         let llaves = Object.keys(mercancias);
-
-        if (llaves.length === 0) {
-            contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:20px; font-style:italic;">No tienes mercancías frecuentes guardadas</p>';
-            return;
-        }
+        if (llaves.length === 0) { contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:15px; font-style:italic;">Historial de cargas vacío</p>'; return; }
 
         contenedor.innerHTML = llaves.map(key => {
             const m = mercancias[key];
             const nombreM = typeof m === 'object' ? (m.nombre || key) : m;
             return `
             <div class="deca-fila-dato-purgable">
-                <div>
-                    <strong>📦 ${nombreM}</strong>
+                <div><strong>📦 ${nombreM}</strong></div>
+                <div style="display:flex; gap:4px;">
+                    <!-- 🕒 EN RESERVA: Botón desactivado temporalmente para evitar bucles asíncronos -->
+                    <button class="btn-top" disabled style="padding:6px 10px !important; font-size:12px !important; margin:0; opacity:0.3; cursor:not-allowed;" title="Edición deshabilitada temporalmente">✏️</button>
+                    <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('mercancias', '${key}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
                 </div>
-                <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('mercancias', '${key}')" style="padding:6px 10px !important; font-size:12px !important;">🗑️ Borrar</button>
             </div>`;
         }).join("");
     }
-
     // --- CASE C: PESTAÑA HISTORIAL DE PLANTILLAS ---
     else if (pestañaDatosActivaActualmente === "plantillas") {
         let plantillas = window.diccionarioPlantillasCloud || {};
         let llaves = Object.keys(plantillas);
-
-        if (llaves.length === 0) {
-            contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:20px; font-style:italic;">No tienes plantillas de ruta guardadas</p>';
-            return;
-        }
+        if (llaves.length === 0) { contenedor.innerHTML = '<p style="color:#888; text-align:center; padding:15px; font-style:italic;">Matriz de rutas vacía</p>'; return; }
 
         contenedor.innerHTML = llaves.map(idFB => {
             const p = plantillas[idFB];
             return `
             <div class="deca-fila-dato-purgable">
-                <div style="max-width: 75%;">
-                    <strong>🗺️ ${p.cargador_razon || 'Ruta'}</strong><br>
-                    <span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">➔ ${p.origen_plaza} - ${p.destino_plaza}</span>
-                </div>
-                <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('plantillas', '${idFB}')" style="padding:6px 10px !important; font-size:12px !important;">🗑️ Borrar</button>
+                <div style="max-width: 80%;"><strong>🗺️ ${p.cargador_razon}</strong><br><span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">➔ ${p.origen_plaza} - ${p.destino_plaza}</span></div>
+                <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('plantillas', '${idFB}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
             </div>`;
         }).join("");
     }
 }
+
+/* =========================================================================
+   ✏️ RECAMARA HISTÓRICA: MAPEO INVERSO COMENTADO PARA FUTURA ACTIVACIÓN
+   =========================================================================
+function cargarClienteParaEditarExpress(nif) {
+    const c = window.diccionarioCargadoresCloud[nif];
+    if (!c) return;
+    idRegistroDatoEnEdicion = nif;
+    document.getElementById("deca_mini_form_accion_titulo").innerText = `✏️ Modificar Cliente: ${nif}`;
+    document.getElementById("btn_cancelar_edicion_mini_form").style.display = "inline-flex";
+    document.getElementById("mini_carg_razon").value = c.razon || "";
+    document.getElementById("mini_carg_nif").value = nif;
+    document.getElementById("mini_carg_nif").readOnly = true;
+    document.getElementById("mini_carg_calle").value = c.calle || "";
+    document.getElementById("mini_carg_cp").value = c.cp || "";
+    document.getElementById("mini_carg_poblacion").value = c.poblacion || "";
+    document.getElementById("mini_carg_provincia").value = c.provincia || "";
+}
+
+function cargarMercanciaParaEditarExpress(key) {
+    const m = window.diccionarioMercanciasCloud[key];
+    if (!m) return;
+    idRegistroDatoEnEdicion = key;
+    document.getElementById("deca_mini_form_accion_titulo").innerText = "✏️ Modificar Naturaleza Mercancía";
+    document.getElementById("btn_cancelar_edicion_mini_form").style.display = "inline-flex";
+    document.getElementById("mini_mercan_nombre").value = typeof m === 'object' ? (m.nombre || key) : m;
+}
+*/
+
+
+// =========================================================================
+// ✍️ PROCESADOR: ALTAS ATÓMICAS EN TIEMPO REAL CON EDICIÓN COMENTADA (v4.04)
+// =========================================================================
+function ejecutarGuardadoDatoFrecuenteExpress() {
+    if (!database || !miUsuarioUIDActivo) return;
+
+    // --- SECCIÓN A: ALTA PURA DE NUEVAS EMPRESAS (CLIENTES) ---
+    if (pestañaDatosActivaActualmente === "clientes") {
+        const razon = document.getElementById("mini_carg_razon").value.trim().toUpperCase();
+        const nif = document.getElementById("mini_carg_nif").value.trim().toUpperCase();
+        const calle = document.getElementById("mini_carg_calle").value.trim().toUpperCase();
+        const cp = document.getElementById("mini_carg_cp").value.trim();
+        const pob = document.getElementById("mini_carg_poblacion").value.trim().toUpperCase();
+        const prov = document.getElementById("mini_carg_provincia").value.trim().toUpperCase();
+
+        if (!razon || !nif) return alert("⚠ Razón Social y NIF son campos obligatorios.");
+
+        const domicilioCpl = `${calle} (CP: ${cp} - ${pob} - ${prov})`;
+        const paqueteCliente = { razon: razon, nif: nif, calle: calle, cp: cp, poblacion: pob, provincia: prov, domicilio: domicilioCpl };
+
+        mostrarAvisoToast("⏳ Añadiendo nueva empresa al servidor...");
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + nif).set(paqueteCliente)
+        .then(function() {
+            mostrarAvisoToast("✅ Empresa guardada en tu catálogo.");
+            restablecerMiniFormularioDatosPorDefecto();
+            renderizarContenidoInternoPestañaDatos();
+        }).catch(function(err) {
+            alert("Error de red: " + err.message);
+        });
+    }
+    // --- SECCIÓN B: ALTA PURA DE NUEVAS NATURALEZAS (MERCANCÍAS) ---
+    else if (pestañaDatosActivaActualmente === "mercancias") {
+        const nombreM = document.getElementById("mini_mercan_nombre").value.trim().toUpperCase();
+        if (!nombreM) return alert("⚠ Escribe el nombre de la mercancía.");
+
+        // Sanitización rígida anti-cortocircuitos para Firebase
+        const nuevaLlaveFB = nombreM.replace(/[\.\#\$\[\]]/g, "-");
+        mostrarAvisoToast("⏳ Subiendo nueva mercancía a la lona...");
+
+        /* =========================================================================
+           🕒 RECAMARA DE EDICIÓN ASÍNCRONA: Comentada temporalmente para evitar clones
+           =========================================================================
+           const registroViejoAPurgar = idRegistroDatoEnEdicion;
+
+           database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + nuevaLlaveFB).set({ nombre: nombreM })
+           .then(function() {
+               if (registroViejoAPurgar !== null && registroViejoAPurgar !== nuevaLlaveFB) {
+                   if (window.diccionarioMercanciasCloud && window.diccionarioMercanciasCloud[registroViejoAPurgar]) {
+                       delete window.diccionarioMercanciasCloud[registroViejoAPurgar];
+                   }
+                   return database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + registroViejoAPurgar).remove();
+               }
+               return Promise.resolve();
+           })
+           ========================================================================= */
+
+        // Ejecución de inserción de alta limpia directa
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + nuevaLlaveFB).set({ nombre: nombreM })
+        .then(function() {
+            mostrarAvisoToast("✅ Mercancía añadida de forma limpia.");
+            restablecerMiniFormularioDatosPorDefecto();
+            renderizarContenidoInternoPestañaDatos(); // Dibuja la rejilla refrescada al instante
+        })
+        .catch(function(err) {
+            console.error("Fallo en sincronización express de mercancías:", err);
+            alert("Error de comunicación: " + err.message);
+        });
+    }
+}
+
+
 
 function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
     if (!database || !miUsuarioUIDActivo) return;
@@ -5596,29 +5882,25 @@ function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
 
     if (categoria === 'clientes') {
         rutaNodo = 'usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + llaveIdentificador;
-        mensajeConfirm = `¿Deseas eliminar este cliente de tu lista habitual de red? No afectará a tus DeCAs emitidos.`;
+        mensajeConfirm = `¿Deseas eliminar permanentemente a este cliente de tu lista? No afectará a tus DeCAs emitidos.`;
     } else if (categoria === 'mercancias') {
         rutaNodo = 'usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + llaveIdentificador;
-        mensajeConfirm = `¿Deseas eliminar esta mercancía de tu buscador predictivo?`;
+        mensajeConfirm = `¿Deseas triturar esta mercancía de tu buscador predictivo?`;
     } else if (categoria === 'plantillas') {
         rutaNodo = 'usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes/' + llaveIdentificador;
-        mensajeConfirm = `¿Deseas destruir esta plantilla de ruta frecuente del servidor?`;
+        mensajeConfirm = `¿Deseas destruir esta plantilla de ruta del servidor?`;
     }
 
     mostrarConfirmacionCorporativaDeca("Eliminar Registro Almacenado", mensajeConfirm, function() {
         mostrarAvisoToast("🗑️ Destruyendo registro de la nube...");
-
         database.ref(rutaNodo).remove()
         .then(() => {
             mostrarAvisoToast("🗑️ Registro eliminado con éxito.");
-            // Refrescamos en caliente la pestaña donde estábamos metidos
             renderizarContenidoInternoPestañaDatos();
         })
         .catch(err => alert("Error de red al purgar: " + err.message));
     });
 }
-
-
 
 
 </script>
@@ -6053,8 +6335,8 @@ function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
                 <!-- Zona de Seguridad Multi-Usuario -->
                 <div style="background: rgba(220, 53, 69, 0.06); padding: 14px; border-radius: 6px; border: 1px dashed #dc3545; box-sizing: border-box; width: 100%; text-align: left;">
                     <label style="color: #dc3545; font-weight: bold; display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase;">⚠️ Zona de Seguridad: Gestión de Cuentas</label>
-                    <p style="font-size: 11px; color: #555; margin: 0 0 10px 0; line-height: 1.3;">Pulse este botón si necesita desvincular este smartphone de su empresa para coger otro camión o cambiar a un perfil de pruebas.</p>
-                    <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarCierreDeSesionMultiUsuarioMaster()" style="width: 100%; margin: 0; padding: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: none;">🚪 Cerrar Sesión y Cambiar de Chofer</button>
+                    <p style="font-size: 11px; color: #555; margin: 0 0 10px 0; line-height: 1.3;">Pulse este botón si necesita desvincular este smartphone de su empresa para coger otro camión o cambiar de perfil.</p>
+                    <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarCierreDeSesionMultiUsuarioMaster()" style="width: 100%; margin: 0; padding: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: none;">🚪 Cerrar Sesión y Cambiar de Perfil</button>
                 </div>
             </div>
 
@@ -6160,7 +6442,7 @@ function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
     <div class="deca-modal-contenido" style="max-width: 600px; height: 88vh; margin: auto;">
 
         <div class="deca-modal-cabecera" style="background: #111111; color: white;">
-            <h3 style="color: white !important;">🛠️ Panel Maestro: Control de Licencias</h3>
+            <h3 style="color: white !important;">🛠️ Control de Licencias</h3>
             <button class="deca-modal-cerrar" onclick="document.getElementById('modal_administrador_global_deca').style.display='none'">✕</button>
         </div>
 
@@ -6288,10 +6570,26 @@ function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
             <button id="tab_btn_plantillas" class="deca-tab-boton" onclick="conmutarPestañaDatosAdmin('plantillas')">🗺️ Plantillas</button>
         </div>
 
-        <div class="deca-modal-cuerpo" style="padding: 10px 15px; background: #f0f4f8;">
-            <!-- Contenedor Único Elástico donde el JavaScript inyectará las filas de red -->
-            <div id="lista_datos_frecuentes_render" style="width: 100%; height: auto;"></div>
-        </div>
+            <!-- === REEMPLAZA EL CUERPO INTERIOR DEL MODAL CENTRAL DE DATOS POR ÉSTE === -->
+            <div class="deca-modal-cuerpo" style="padding: 15px; background: #f0f4f8;">
+
+                <!-- ⚡ Mini Formulario Dinámico para Añadir / Editar Registros -->
+                <div id="deca_mini_formulario_datos_bloque" class="deca-mini-form-datos">
+                    <span id="deca_mini_form_accion_titulo" class="deca-mini-form-titulo">➕ Añadir Nueva Empresa</span>
+
+                    <!-- Contenedor elástico donde el JS inyectará las casillas según la pestaña -->
+                    <div id="deca_mini_form_campos_dinamicos" class="deca-form-grid" style="gap: 8px; margin-bottom: 10px;"></div>
+
+                    <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px;">
+                        <button id="btn_cancelar_edicion_mini_form" class="btn-top" onclick="restablecerMiniFormularioDatosPorDefecto()" style="display: none; padding: 6px 12px; font-size: 12px; margin: 0;">Cancelar</button>
+                        <button id="btn_guardar_mini_form" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoDatoFrecuenteExpress()" style="padding: 6px 16px; font-size: 12px; margin: 0;">💾 Guardar</button>
+                    </div>
+                </div>
+
+                <!-- Contenedor Único Elástico para el listado inferior con Scroll -->
+                <div id="lista_datos_frecuentes_render" style="width: 100%; height: auto;"></div>
+            </div>
+
 
         <div class="deca-modal-pie">
             <button class="deca-btn-pie deca-btn-cancelar" onclick="document.getElementById('modal_central_datos_deca').style.display='none'">Cerrar Panel</button>
