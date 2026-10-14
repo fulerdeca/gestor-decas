@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.13</title>
+    <title>Gestor de DeCAs Transportes v4.14</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2970,6 +2970,29 @@ function activarEscuchaRealtimeDeCAs() {
             }
         }, (error) => {
             console.warn("Advertencia en la antena remota de cargadores:", error);
+        });
+    }
+
+    // 📡 ANTENA DE MERCANCÍAS: Descarga e indexación en vivo desde Firebase para la pestaña de Datos
+    if (database && miUsuarioUIDActivo) {
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes').on('value', (snapshot) => {
+            const datosMercanciasCloud = snapshot.val() || {};
+            window.diccionarioMercanciasCloud = datosMercanciasCloud;
+            console.log("📦 Catálogo de mercancías sincronizado desde la nube:", Object.keys(datosMercanciasCloud).length);
+
+            // Guardamos la copia local de seguridad anti-túneles por si se entra en zona sin cobertura
+            try {
+                localStorage.setItem("bk_admin_mercancias_cloud", JSON.stringify(datosMercanciasCloud));
+
+                // 🚀 REFRESCADOR EN CALIENTE: Si el panel de Datos / Mercancías está abierto en pantalla, lo repinta al instante
+                if (document.getElementById("modal_central_datos_deca").style.display === "flex" && pestañaDatosActivaActualmente === "mercancias") {
+                    renderizarContenidoInternoPestañaDatos();
+                }
+            } catch(e) {
+                console.warn("Error en el backup local de mercancías", e);
+            }
+        }, (error) => {
+            console.warn("Advertencia en la antena remota de mercancías:", error);
         });
     }
 
