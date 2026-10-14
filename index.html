@@ -1932,6 +1932,11 @@ body.dark-mode .deca-mini-form-titulo {
     color: #63b3ed !important;
 }
 
+/* 🚫 OCULTACIÓN RIGIDA DE LA FRASE DEL QR (Dashboard, Web y PDF) */
+#qrcode_real_render + span,
+#qrcode_real_render ~ span {
+    display: none !important;
+}
 
 
 </style>
