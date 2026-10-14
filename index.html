@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.12</title>
+    <title>Gestor de DeCAs Transportes v4.13</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2161,12 +2161,40 @@ function iniciarEcosistemaDeCAs() {
         }
         database = firebase.database();
 
-        // 🛡️ EL CANDADO DEFINITIVO: Forzamos a Firebase a trabajar en modo sesión temporal.
-        // Esto aísla por completo las pestañas de PDF/Verificación evitando que levanten hilos automáticos corruptos.
-        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+        // 🔒 RETORNO A PERSISTENCIA LOCAL: Mantiene las credenciales vivas en el móvil para que carguen los datos
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        // Recuperamos el token de seguridad guardado en el disco duro del teléfono
+        // 👮 RADAR DE INTERCEPCIÓN DEL AGENTE (Elimina los guiones de raíz en la web pública)
+        const parametrosRadar = new URLSearchParams(window.location.search);
+        const idDecaInspeccionar = parametrosRadar.get("verificar");
+        const idUsuarioInspeccionar = parametrosRadar.get("user");
+
+        if (idDecaInspeccionar && idUsuarioInspeccionar) {
+            console.log("👮 Vista Pública del Agente Detectada. Ejecutando lectura pasiva directa...");
+            miUsuarioUIDActivo = idUsuarioInspeccionar;
+
+            // 🛡️ ACCESO DIRECTO SÍNCRONO: Atacamos directamente el nodo sin forzar un login anónimo comercial
+            database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
+                    verFichaDocumento(idDecaInspeccionar);
+
+                    // Purgamos la botonera del dashboard para que el inspector solo vea el folio blanco
+                    if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.setProperty("display", "none", "important");
+                    if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.setProperty("display", "none", "important");
+                    if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.setProperty("display", "none", "important");
+                    if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.setProperty("display", "none", "important");
+                } else {
+                    alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
+                }
+            }).catch(err => console.error("Error en lectura pasiva del inspector:", err));
+            return; // Aborta por completo el inicio de sesión y el bucle comercial para esta pestaña
+        }
+
+        // --- FLUJO NORMAL DE LA APLICACIÓN DE CABINA DEL CONDUCTOR ---
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
+
 
 
         if (tokenSeguridadLocal) {
