@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.04</title>
+    <title>Gestor de DeCAs Transportes v4.08</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -152,8 +152,49 @@
 
         .logo-app { width: 34px; height: 34px; object-fit: cover; border-radius: 6px; }
 
-        /* BOTONERA PREMIUM DASHBOARD */
-        .grupo-botones-top { display: flex; gap: 8px; flex-wrap: wrap; }
+/* BOTONERA DASHBOARD PREMIUM: ALINEACIÓN EXTREMA Y ALTURA DE CABINA */
+.grupo-botones-top {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important; /* 🔒 Prohíbe saltar a una segunda hilera */
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 📐 CONGELADOR DE ALTURA PREMIUM: Fuerza a todos los botones de la hilera a medir exactamente igual,
+   compensando los bordes nativos y emojis en cualquier pantalla */
+.grupo-botones-top button,
+.grupo-botones-top .btn-top {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    padding: 0 16px !important; /* Sincroniza el pasillo de aire interior de las letras */
+    margin: 0 !important;
+}
+/* El botón de nuevo DeCA se asegura su posición fija original */
+.grupo-botones-top .btn-nuevo-deca {
+    flex: none !important;
+}
+
+/* 🚀 LOS BOTONES DE GESTIÓN DE LA DERECHA */
+.grupo-botones-top .btn-recomendar {
+    flex: none !important;
+    white-space: nowrap !important;
+}
+
+/* 🧲 EL TAPÓN ELÁSTICO: Buscamos al primer botón de clase "btn-recomendar" (Perfil).
+   Le metemos un margen izquierdo automático que actúa como un muelle, empujándolo a él
+   y al de "Datos" al extremo derecho, dejando al de "Nuevo DeCA" solo a la izquierda */
+.grupo-botones-top .btn-nuevo-deca + .btn-recomendar {
+    margin-left: auto !important;
+    margin-right: 8px !important; /* Separa el botón Perfil del de Datos */
+}
+
+
         .btn-top {
             padding: 10px 16px;
             font-size: 14px;
@@ -2115,8 +2156,13 @@ function iniciarEcosistemaDeCAs() {
         }
         database = firebase.database();
 
+        // 🛡️ EL CANDADO DEFINITIVO: Forzamos a Firebase a trabajar en modo sesión temporal.
+        // Esto aísla por completo las pestañas de PDF/Verificación evitando que levanten hilos automáticos corruptos.
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION);
+
         // Recuperamos el token de seguridad guardado en el disco duro del teléfono
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
+
 
         if (tokenSeguridadLocal) {
             // 🔓 CASO A: El terminal ya está registrado (¡Tu cuenta de ADMIN!). Forzamos login síncrono
@@ -2759,25 +2805,35 @@ function cerrarModalClaveMaestraYEntrar() {
 function activarEscuchaRealtimeDeCAs() {
     if (!database || !miUsuarioUIDActivo) return;
 
-    // 🔥 DEPURADOR DE CUSTODIA LEGAL AUTOMÁTICO (Borra de Firebase lo que tiene más de 1 año)
+    // 🔥 DEPURADOR DE CUSTODIA LEGAL AUTOMÁTICO (Limpieza en un solo bloque atómico)
     database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').once('value').then((snapshot) => {
         const datosDepurar = snapshot.val() || {};
         const unAnoEnMilisegundos = 365 * 24 * 60 * 60 * 1000;
         const limiteTiempoCustodia = Date.now() - unAnoEnMilisegundos;
+        let actualizacionesDeBorrado = {};
+        let hayDatosQueBorrar = false;
 
         Object.keys(datosDepurar).forEach(key => {
             const viaje = datosDepurar[key];
-            if (viaje.fecha_creacion_sistema) {
+            if (viaje && viaje.fecha_creacion_sistema) {
                 const fechaCreacion = new Date(viaje.fecha_creacion_sistema).getTime();
                 if (!isNaN(fechaCreacion) && fechaCreacion < limiteTiempoCustodia) {
-                    console.log("🧹 Depuración legal: Eliminando DeCA caducado con más de 1 año:", viaje.numero_documento);
-                    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + key).remove();
+                    console.log("🧹 Encolando para depuración legal DeCA caducado:", viaje.numero_documento);
+                    actualizacionesDeBorrado[key] = null; // Asignar null en Firebase equivale a borrar (.remove)
+                    hayDatosQueBorrar = true;
                 }
             }
         });
+
+        if (hayDatosQueBorrar) {
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').update(actualizacionesDeBorrado)
+                .then(() => console.log("🧹 Depuración legal completada con éxito."))
+                .catch(err => console.warn("Error en actualización atómica de depuración:", err));
+        }
     }).catch(err => {
         console.warn("⚠️ Advertencia preventiva en el módulo de depuración temporal:", err);
     });
+
 
     // 📡 ESCUCHA EN TIEMPO REAL ACTIVA PARA RENDERIZAR EL DASHBOARD DEL CAMIONERO
     database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').on('value', (snapshot) => {
@@ -2850,40 +2906,23 @@ function activarEscuchaRealtimeDeCAs() {
         } catch(e) {}
     });
 
-    // =========================================================================
-    // 📡 ANTENA DE CLIENTES: Sincronización en vivo desde Firebase al arrancar
-    // =========================================================================
+    // 📡 ANTENA DE CLIENTES: Sincronización en vivo e inmune a túneles sin cobertura
     if (database && miUsuarioUIDActivo) {
         database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes').on('value', (snapshot) => {
             const datosClientesCloud = snapshot.val() || {};
             window.diccionarioCargadoresCloud = datosClientesCloud;
             console.log("📦 Cartera de clientes descargada de la nube:", Object.keys(datosClientesCloud).length);
 
-            // Guardamos una copia local actualizada para cuando entremos en zonas sin cobertura
             try {
                 localStorage.setItem("bk_admin_cargadores_cloud", JSON.stringify(datosClientesCloud));
-            } catch(e) {}
+            } catch(e) {
+                console.warn("Error al guardar backup local de cargadores", e);
+            }
         }, (error) => {
             console.warn("Advertencia en la antena remota de cargadores:", error);
         });
     }
-    // =========================================================================
-    // 📡 ANTENA DE MERCANCÍAS: Sincronización en vivo desde Firebase al arrancar
-    // =========================================================================
-    if (database && miUsuarioUIDActivo) {
-        database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes').on('value', (snapshot) => {
-            const datosMercanciasCloud = snapshot.val() || {};
-            window.diccionarioMercanciasCloud = datosMercanciasCloud;
-            console.log("📦 Catálogo de mercancías sincronizado desde la nube:", Object.keys(datosMercanciasCloud).length);
 
-            // Guardamos la copia local de seguridad anti-túneles
-            try {
-                localStorage.setItem("bk_admin_mercancias_cloud", JSON.stringify(datosMercanciasCloud));
-            } catch(e) {}
-        }, (error) => {
-            console.warn("Advertencia en la antena remota de mercancías:", error);
-        });
-    }
 
     // =========================================================================
     // 📡 ANTENA DE PLANTILLAS: Sincronización en vivo aislada por UID del chófer
@@ -2916,6 +2955,7 @@ function activarEscuchaRealtimeDeCAs() {
 // =========================================================================
 // 🎛️ RECALCULADOR DICTATORIAL DE CONTADORES SUPERIORES (SEMÁFORO SINCRO)
 // =========================================================================
+
 function actualizarContadoresSuperiores() {
     let total = documentosDeCA.length;
     let enCurso = 0, programados = 0, finalizados = 0;
@@ -2923,20 +2963,17 @@ function actualizarContadoresSuperiores() {
     documentosDeCA.forEach(doc => {
         if (doc.estado === "EN_CURSO") enCurso++;
         if (doc.estado === "PROGRAMADO") programados++;
-        // 🚀 SINCRO: Cuenta de forma directa todos vuestros portes cerrados de la nube
         if (doc.estado === "CERRADO") finalizados++;
     });
 
-    document.getElementById("num_total").innerText = total;
-    document.getElementById("num_en_curso").innerText = enCurso;
-    document.getElementById("num_programados").innerText = programados;
-    document.getElementById("num_post_viaje").innerText = finalizados; // Modifica el valor del cuarto nodo
+    if (document.getElementById("num_total")) document.getElementById("num_total").innerText = total;
+    if (document.getElementById("num_en_curso")) document.getElementById("num_en_curso").innerText = enCurso;
+    if (document.getElementById("num_programados")) document.getElementById("num_programados").innerText = programados;
+    if (document.getElementById("num_post_viaje")) document.getElementById("num_post_viaje").innerText = finalizados;
 }
 
 
-// =========================================================================
-// 🖌️ RENDERIZADOR COMPACTO DE FILAS (SOLUCIÓN DEFINITIVA DE DATOS v2.97)
-// =========================================================================
+
 // =========================================================================
 // 🖌️ RENDERIZADOR COMPACTO DE FILAS (SOLUCIÓN DEFINITIVA DE DATOS v2.97)
 // =========================================================================
@@ -5219,34 +5256,28 @@ function ejecutarRecuperacionRegistroInicial() {
 
     mostrarAvisoToast("🔍 Rescatando portes en el clúster central...");
 
-    // 1. Buscamos primero si introdujo una contraseña personalizada (Alias)
+    // Comprobar primero en el nodo puente de alias
     database.ref('alias_claves/' + claveAValidar).once('value').then((snapshotAlias) => {
         let uidDestinoFinal = null;
 
         if (snapshotAlias.exists()) {
             uidDestinoFinal = snapshotAlias.val();
         } else {
-            uidDestinoFinal = claveAValidar; // Asumimos que metió el UID maestro largo directo
+            uidDestinoFinal = claveAValidar; // Asumimos código maestro directo
         }
 
-        // 2. Comprobamos si el perfil existe realmente en el nodo usuarios antes de pisar nada
+        // Comprobamos si el perfil existe en la base de datos antes de vincular
         database.ref('usuarios/' + uidDestinoFinal + '/datos_perfil').once('value').then((snapshotUID) => {
             if (snapshotUID.exists()) {
-
-                // 🚀 LA CLAVE DEL ÉXITO: Forzamos al disco local a memorizar el UID recuperado
                 localStorage.setItem("cfg_uid_recuperado_deca", uidDestinoFinal);
                 miUsuarioUIDActivo = uidDestinoFinal;
 
-                // Apagamos los muros de registro obligatorios
                 if (document.getElementById("modal_registro_inicial_obligatorio")) {
                     document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
                 }
 
                 mostrarAvisoToast("✅ Identidad vinculada correctamente.");
-
-                // Forzamos la recarga limpia de las antenas con la nueva identidad
                 verificarExistenciaPerfilCamionero();
-
             } else {
                 alert("❌ La contraseña o código maestro introducido no coincide con ningún transportista activo.");
             }
@@ -5312,49 +5343,6 @@ function conmutarVistasRegistroInicial(mostrarRecuperacion) {
     }
 }
 
-function ejecutarRecuperacionRegistroInicial() {
-    const claveAValidar = document.getElementById("reg_inicial_clave_buscar").value.trim();
-    if (!claveAValidar) return alert("⚠ Introduce un código o alias válido.");
-
-    mostrarAvisoToast("🔍 Rescatando portes en el clúster central...");
-
-    // CAMINO A: Comprobar primero en el nodo puente de alias (contraseñas personalizadas)
-    database.ref('alias_claves/' + claveAValidar).once('value').then((snapshotAlias) => {
-        if (snapshotAlias.exists()) {
-            const uidRealAsociado = snapshotAlias.val();
-            localStorage.setItem("cfg_uid_recuperado_deca", uidRealAsociado);
-            miUsuarioUIDActivo = uidRealAsociado;
-
-            // Apagamos el muro de registro obligatorio al recuperar con éxito
-            if (document.getElementById("modal_registro_inicial_obligatorio")) {
-                document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-            }
-            mostrarAvisoToast("✅ Perfil recuperado mediante alias.");
-
-            // Relanzamos el sensor de licencias para dar paso libre al dashboard comercial
-            verificarExistenciaPerfilCamionero();
-        } else {
-            // CAMINO B: Comprobar si introdujo el código largo maestro UID de Firebase directo
-            database.ref('usuarios/' + claveAValidar + '/datos_perfil').once('value').then((snapshotUID) => {
-                if (snapshotUID.exists()) {
-                    localStorage.setItem("cfg_uid_recuperado_deca", claveAValidar);
-                    miUsuarioUIDActivo = claveAValidar;
-
-                    // Apagamos el muro de registro obligatorio al recuperar con éxito
-                    if (document.getElementById("modal_registro_inicial_obligatorio")) {
-                        document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-                    }
-                    mostrarAvisoToast("✅ Perfil recuperado mediante código maestro.");
-
-                    // Relanzamos el sensor de licencias para dar paso libre al dashboard comercial
-                    verificarExistenciaPerfilCamionero();
-                } else {
-                    alert("❌ La contraseña o código maestro introducido no coincide con ningún transportista activo.");
-                }
-            }).catch(err => alert("Error de validación UID: " + err.message));
-        }
-    }).catch(err => alert("Error de validación Alias: " + err.message));
-}
 
 
 // =========================================================================
@@ -6182,7 +6170,7 @@ function ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificador) {
                     <!-- 🔥 COLUMNA DEL QR CORREGIDA: Centra los textos y alinea el bloque al ras derecho de las tablas -->
                     <div style="text-align:center; width:35%; max-width:110px; flex-shrink:0; box-sizing:border-box; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; margin-left:auto;">
                         <div id="qrcode_real_render" title="Toca para descargar PDF Legal"></div>
-                        <span style="font-size:5.5px; color:#0f4c81; font-weight:bold; display:block; margin-top:5px; line-height:1.2; text-align:center; text-transform:uppercase; width:100%;">🔍 TOCAR AQUÍ PARA<br>DESCARGAR PDF LEGAL</span>
+
                     </div>
             </div>
 
