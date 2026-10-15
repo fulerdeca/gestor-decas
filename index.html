@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.35</title>
+    <title>Gestor de DeCAs Transportes v4.40</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -175,24 +175,21 @@
     padding: 0 16px !important; /* Sincroniza el pasillo de aire interior de las letras */
     margin: 0 !important;
 }
-/* El botón de nuevo DeCA se asegura su posición fija original */
-.grupo-botones-top .btn-nuevo-deca {
-    flex: none !important;
-}
 
-/* 🚀 LOS BOTONES DE GESTIÓN DE LA DERECHA */
+/* 📐 REPARACIÓN GEOMÉTRICA MÁSTER: Fuerza a los 3 botones superiores a medir exactamente el mismo ancho proporcionales */
+.grupo-botones-top .btn-nuevo-deca,
 .grupo-botones-top .btn-recomendar {
-    flex: none !important;
+    flex: 1 !important; /* 🔒 Clava el reparto simétrico al 33.33% del ancho de la pantalla */
+    max-width: 100% !important;
     white-space: nowrap !important;
 }
 
-/* 🧲 EL TAPÓN ELÁSTICO: Buscamos al primer botón de clase "btn-recomendar" (Perfil).
-   Le metemos un margen izquierdo automático que actúa como un muelle, empujándolo a él
-   y al de "Datos" al extremo derecho, dejando al de "Nuevo DeCA" solo a la izquierda */
+/* 🧲 SEPARACIÓN PROPORCIONAL: Recuperamos un pasillo de aire fijo de 8px entre cada uno de los tres bloques */
 .grupo-botones-top .btn-nuevo-deca + .btn-recomendar {
-    margin-left: auto !important;
-    margin-right: 8px !important; /* Separa el botón Perfil del de Datos */
+    margin-left: 8px !important;
+    margin-right: 8px !important; /* Pasillo intermedio simétrico entre los tres elementos */
 }
+
 
 
         .btn-top {
@@ -1328,10 +1325,11 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 /* === CORRECCIÓN MAESTRA: CENTRADO ABSOLUTO EN 1 ÚNICA PÁGINA IMPERMEABLE (v3.95) === */
+/* === CORRECCIÓN GEOMÉTRICA ELÁSTICA: A4 IMPERMEABLE EN ALTA RESOLUCIÓN (v4.40) === */
 @media print {
     @page {
-        margin: 0mm !important; /* Destruye las cabeceras, fechas y URLs automáticas del navegador */
-        size: A4 portrait !important; /* Fuerza de forma rígida el formato oficial A4 vertical */
+        margin: 0mm !important; /* Tritura las cabeceras, fechas y URLs sueltas del navegador */
+        size: A4 portrait !important; /* Fuerza el estándar oficial A4 vertical en ruta */
     }
 
     body {
@@ -1339,13 +1337,14 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
-        /* 🧼 SOLUCIÓN CHROME MÓVIL: Eliminamos display:flex y min-height del body para prohibir la segunda página */
         display: block !important;
         height: auto !important;
         min-height: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
-    /* Ocultación rígida de paneles comerciales y botones del salpicadero */
+    /* Ocultación estricta de paneles de control y salpicaderos */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
@@ -1358,49 +1357,48 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         display: none !important;
     }
 
-    /* Forzamos a las capas contenedoras a ser pasillos transparentes sin empujar el papel */
+    /* Purgado total de desbordes en las capas intermedias del visor */
     .modal-preview-deca,
     #modal_preview_deca,
     .preview-container,
     .preview-cuerpo-scroll {
-        display: block !important; /* Caja de bloque pura */
+        display: block !important;
         width: 100% !important;
         height: auto !important;
         overflow: visible !important;
-        background: #ffffff !important; /* Purgado total de grises en la impresión */
+        background: #ffffff !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
         box-sizing: border-box !important;
     }
 
-    /* 📄 EL FOLIO BLANCO: Centrado simétrico horizontal y vertical sin romper los ejes */
+    /* 📄 EL FOLIO BLANCO RE-MAQUETADO: Devora el espacio horizontal reduciendo el alto vertical */
     .folio-deca {
         display: block !important;
-        width: 660px !important;    /* Tu ancho original estable que no descuadra los textos */
-        max-width: 660px !important;
+        width: 92% !important;      /* 🚀 EL CAMBIO: Ensanchamos del 75% al 92% para ensanchar las tablas */
+        max-width: 92% !important;
         height: auto !important;
-        padding: 20px !important;
+        padding: 25px 30px !important; /* Más aire interno comercial */
 
-        /* 🔒 EL CANDADO ANCHURA DE PÁGINA (A4):
-           Al meter 45px arriba obligamos a la hoja a bajar al centro visual del papel,
-           y el 'margin: 45px auto auto auto' distribuye el pasillo lateral a partes iguales,
-           impidiendo físicamente que Chrome genere una segunda hoja. */
-        margin: 45px auto auto auto !important;
+        /* 🔒 EL CANDADO DE PÁGINA ÚNICA PERFECTA:
+           Establecemos un pasillo de respiración del 4% en los laterales para centrar el folio,
+           y reducimos el margen superior a 35px para que nunca desborde el folio por abajo. */
+        margin: 35px 4% auto 4% !important;
 
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
         box-sizing: border-box !important;
 
-        /* Forzado estricto de página única */
+        /* Forzado rígido anti-segunda hoja */
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         page-break-after: avoid !important;
         break-after: avoid !important;
 
-        /* Tu porcentaje de zoom máster de la v3.85 */
-        zoom: 105% !important;
+        /* 🚀 ESCALADO ERGONÓMICO: Bajamos el zoom al 96% para compactar las hileras de las tablas */
+        zoom: 96% !important;
     }
 
     .folio-header-azul {
@@ -1417,6 +1415,11 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         height: 100px !important;
     }
 }
+
+/* === MEDIA PRINT === */
+
+
+
 
 
 /* Letrero de Advertencia para el Folio del DeCA Anulado (Estilo Sello de Custodia) */
@@ -3095,12 +3098,35 @@ function activarEscuchaRealtimeDeCAs() {
             }
         });
 
+        // 🚀 RECALCULADOR DE ESTADOS REMOTOS EN VIVO (v4.39 BLINDADO)
+        // Obtenemos la fecha de hoy en formato rígido limpio YYYY-MM-DD para comparar
+        const objetoHoy = new Date();
+        const cadenaHoyRígida = objetoHoy.getFullYear() + '-' + String(objetoHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objetoHoy.getDate()).padStart(2, '0');
+
         documentosDeCA = Object.keys(datosCloud).map(key => {
-            return { id_firebase: key, ...datosCloud[key] };
+            let viaje = datosCloud[key];
+
+            // 🏁 SENSOR DE EXPIRACIÓN: Si el viaje está PROGRAMADO pero su fecha ya es HOY o PASADA...
+            if (viaje && viaje.estado === "PROGRAMADO" && viaje.fecha_transporte && viaje.fecha_transporte <= cadenaHoyRígida) {
+                console.log("⚡ Sensor Temporal: Forzando apertura en curso para DeCA agendado v4.39:", viaje.numero_documento);
+
+                // 1. Modificamos el estado en la memoria RAM del teléfono al instante
+                viaje.estado = "EN_CURSO";
+
+                // 2. Sincronizamos el cambio en segundo plano de forma silenciosa en tu servidor de Google Firebase
+                if (database && navigator.onLine) {
+                    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + key).update({
+                        estado: "EN_CURSO"
+                    }).catch(err => console.warn("Aviso en sync de actualización temporal:", err));
+                }
+            }
+
+            return { id_firebase: key, ...viaje };
         }).reverse();
 
 
         // 🚀 COPIA DE SEGURIDAD EN CALIENTE (v3.80 MÁSTER)
+
         try {
             localStorage.setItem("bk_admin_lista_viajes_deca", JSON.stringify(documentosDeCA));
             if (misDatosPerfilAutonomo) {
@@ -4454,12 +4480,18 @@ const PROVINCIAS_ESPANA = [
 ];
 
 // =========================================================================
-// 🔍 MOTOR PREDICTIVO DE PROVINCIAS PARA EL PERFIL (SELECT EN ESCRITURA)
+// 🔍 MOTOR PREDICTIVO DE PROVINCIAS ADAPTATIVO MULTI-VENTANA (v4.38)
 // =========================================================================
 function filtrarProvinciasPredictivo(inputElement) {
     const textoBuscar = inputElement.value.toUpperCase().trim();
-    const dropdown = document.getElementById("lista_provincias_drop");
 
+    // 🚀 LA CLAVE: Seleccionamos de forma elástica el contenedor correcto según la casilla activa
+    let idContenedorDestino = "lista_provincias_drop";
+    if (inputElement.id === "mini_carg_provincia") {
+        idContenedorDestino = "mini_lista_provincias_drop";
+    }
+
+    const dropdown = document.getElementById(idContenedorDestino);
     if (!dropdown) return;
     dropdown.innerHTML = "";
 
@@ -4483,7 +4515,6 @@ function filtrarProvinciasPredictivo(inputElement) {
         item.style.color = esModoOscuro ? "#ffffff" : "#212529";
         item.style.textAlign = "left";
 
-        // Efectos dinámicos táctiles en cabina nocturna y diurna
         item.onmouseover = function() {
             this.style.background = esModoOscuro ? "#2c2c2e" : "#eef5fc";
             if(!esModoOscuro) this.style.color = "#0f4c81";
@@ -4493,14 +4524,11 @@ function filtrarProvinciasPredictivo(inputElement) {
             this.style.color = esModoOscuro ? "#ffffff" : "#212529";
         };
 
-        // Al tocar con el dedo con fuerza, auto-rellena la provincia y esconde el muelle
         item.onclick = function(e) {
             e.stopPropagation();
             inputElement.value = prov;
             dropdown.style.display = "none";
             mostrarAvisoToast("⚡ Provincia asignada");
-
-            // Forzamos al validador rosa a limpiarse al instante
             inputElement.classList.remove("deca-input-error-falta");
         };
 
@@ -4509,6 +4537,7 @@ function filtrarProvinciasPredictivo(inputElement) {
 
     dropdown.style.display = "block";
 }
+
 
 
 
@@ -4555,15 +4584,20 @@ function filtrarProvinciasCargadorPredictivo(inputElement) {
 
 // === ESCUDO PERIMETRAL ÚNICO: CIERRE DE TODOS LOS DROPDOWNS AL PINCHAR FUERA ===
 document.addEventListener("click", function(e) {
-    // Cerrar provincias del cargador
+    // Cerrar provincias del cargador contractual
     if (e.target.id !== "deca_carg_provincia") {
         const dropCargProv = document.getElementById("lista_provincias_carg_drop");
         if (dropCargProv) dropCargProv.style.display = "none";
     }
-    // Cerrar provincias del transportista
+    // Cerrar provincias del Perfil comercial
     if (e.target.id !== "reg_transp_provincia") {
         const dropTranspProv = document.getElementById("lista_provincias_drop");
         if (dropTranspProv) dropTranspProv.style.display = "none";
+    }
+    // 🚀 NUEVO CANDADO DATOS: Cerrar provincias de la pestaña de Empresas habituales
+    if (e.target.id !== "mini_carg_provincia") {
+        const dropMiniProv = document.getElementById("mini_lista_provincias_drop");
+        if (dropMiniProv) dropMiniProv.style.display = "none";
     }
     // Cerrar cargadores habituales
     if (e.target.id !== "deca_carg_razon") {
@@ -4571,6 +4605,8 @@ document.addEventListener("click", function(e) {
         if (dropCargHab) dropCargHab.style.display = "none";
     }
 });
+
+
 
 
 // =========================================================================
@@ -4743,9 +4779,14 @@ function registrarNuevoCamioneroEcosistema() {
                     estado: "EN_CURSO",
                     cargador_razon: "CARGADOR EJEMPLO, S.L.",
                     cargador_nif: "A00000000",
-                    cargador_domicilio: "CALLE CENTRAL, 10",
+                    cargador_domicilio: "CALLE CENTRAL, 10 (CP: 16650 - LAS MESAS - CUENCA)",
+                    // 🚀 SELLADO DE DIRECCIÓN SEGMENTADA: Rellenamos las tres casillas para el visor del chofer
+                    cargador_cp: "16650",
+                    cargador_poblacion: "LAS MESAS",
+                    cargador_provincia: "CUENCA",
                     transportista_razon: estructuraPerfil.razon_social
                 };
+
                 return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(deCADemostracionPrivado);
             } else {
                 return Promise.resolve();
@@ -5550,23 +5591,28 @@ function ejecutarAltaNuevaRegistroInicial() {
             estado_activacion: "DESACTIVADO" // Nace bloqueado por seguridad
         };
 
-        const deCADemostracionPrivado = {
-            numero_documento: "DeCA-2026-000000",
-            fecha_transporte: "2026-10-06",
-            matricula_tractor: "1111 AAA",
-            matricula_remolque: "R-2222 BBB",
-            origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
-            destino_plaza: "CALLE DESTINO, 28 - 16660 LAS PEDROÑERAS (CUENCA) - ESPAÑA",
-            mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM. (MUESTRA PRIVADA)",
-            mercancia_peso: "23.000 kg",
-            mercancia_bultos: "23",
-            qr_caducidad: "2026-10-13",
-            estado: "EN_CURSO",
-            cargador_razon: "CARGADOR EJEMPLO, S.L.",
-            cargador_nif: "A00000000",
-            cargador_domicilio: "CALLE CENTRAL, 10",
-            transportista_razon: razon
-        };
+                const deCADemostracionPrivado = {
+                    numero_documento: "DeCA-2026-000000",
+                    fecha_transporte: "2026-10-06",
+                    matricula_tractor: estructuraPerfil.matricula_tractor || "1111 AAA",
+                    matricula_remolque: estructuraPerfil.matricula_remolque || "R-2222 BBB",
+                    origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
+                    destino_plaza: "CALLE DESTINO, 28 - 16660 LAS PEDROÑERAS (CUENCA) - ESPAÑA",
+                    mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM. (MUESTRA PRIVADA)",
+                    mercancia_peso: "23.000 kg",
+                    mercancia_bultos: "23",
+                    qr_caducidad: "2026-10-13",
+                    estado: "EN_CURSO",
+                    cargador_razon: "CARGADOR EJEMPLO, S.L.",
+                    cargador_nif: "A00000000",
+                    cargador_domicilio: "CALLE CENTRAL, 10 (CP: 16650 - LAS MESAS - CUENCA)",
+                    // 🚀 SELLADO DE DIRECCIÓN SEGMENTADA: Rellenamos las tres casillas para el visor del chofer
+                    cargador_cp: "16650",
+                    cargador_poblacion: "LAS MESAS",
+                    cargador_provincia: "CUENCA",
+                    transportista_razon: estructuraPerfil.razon_social
+                };
+
 
         // Escribimos toda la estructura junta en un solo bloque atómico para que no sufra cortes
         return database.ref('usuarios/' + miUsuarioUIDActivo).set({
@@ -6024,7 +6070,14 @@ function restablecerMiniFormularioDatosPorDefecto() {
             <div class="deca-form-grupo"><label>Domicilio</label><input type="text" id="mini_carg_calle" class="deca-input" placeholder="Calle, nº" style="padding:6px; font-size:13px;"></div>
             <div class="deca-form-grupo"><label>C.P.</label><input type="text" id="mini_carg_cp" class="deca-input" placeholder="16630" style="padding:6px; font-size:13px;"></div>
             <div class="deca-form-grupo"><label>Población</label><input type="text" id="mini_carg_poblacion" class="deca-input" placeholder="Localidad" style="padding:6px; font-size:13px;"></div>
-            <div class="deca-form-grupo"><label>Provincia</label><input type="text" id="mini_carg_provincia" class="deca-input" placeholder="CUENCA" style="padding:6px; font-size:13px;"></div>
+
+            <!-- 🚀 REPARACIÓN: Agregamos el muelle de búsqueda predictiva de provincias al catálogo de Empresas -->
+            <div class="deca-form-grupo" style="position: relative !important;">
+                <label>Provincia</label>
+                <input type="text" id="mini_carg_provincia" class="deca-input" placeholder="Escribe para buscar..." oninput="filtrarProvinciasPredictivo(this)" onfocus="filtrarProvinciasPredictivo(this)" style="padding:6px; font-size:13px;">
+                <!-- 🚀 REPARACIÓN: ID Exclusivo para el catálogo de Datos Frecuentes -->
+                <div id="mini_lista_provincias_drop" style="display: none; position: absolute !important; top: 100% !important; left: 0 !important; width: 100% !important; max-height: 180px !important; overflow-y: auto !important; background: white !important; border: 1px solid #cbd5e0 !important; border-radius: 0 0 6px 6px !important; z-index: 999999 !important; box-shadow: 0 6px 14px rgba(0,0,0,0.15) !important;"></div>
+            </div>
 
             <!-- 🚀 REPARACIÓN: Fila impermeable que clava los botones de acción abajo a la derecha del miniform -->
             <div style="grid-column: 1 / -1; display: flex; gap: 6px; justify-content: flex-end; margin-top: 5px;">
