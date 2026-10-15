@@ -1324,11 +1324,14 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 
-/* === CORRECCIÓN MAESTRA: CENTRADO ABSOLUTO EN 1 ÚNICA PÁGINA IMPERMEABLE (v3.95) === */
+/* === CORRECCIÓN GEOMÉTRICA HÍBRIDA TOLERANTE A FORMATOS MÓVILES (v4.41) === */
 @media print {
     @page {
-        margin: 0mm !important; /* Destruye las cabeceras, fechas y URLs automáticas del navegador */
-        size: A4 portrait !important; /* Fuerza de forma rígida el formato oficial A4 vertical */
+        margin: 0mm !important; /* Tritura las cabeceras, fechas y URLs sueltas del navegador */
+        /* 🚀 EL TRUCO UNIVERSAL: Al cambiar A4 por auto, el CSS deja de pelearse con el sistema operativo.
+           Heredará matemáticamente la hoja que tenga seleccionada el móvil (Carta, A4, etc.)
+           y estirará las tablas al ras del contorno disponible de forma nativa */
+        size: auto !important;
     }
 
     body {
