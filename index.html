@@ -1403,12 +1403,24 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         zoom: 96% !important;
     }
 
+    /* 🚀 INYECTOR ATÓMICO ANTI-IMPRESORAS SIN GRÁFICOS: Forza el renderizado de color azul
+       obligando al móvil y al PC a pintar las lolas aunque la casilla esté desmarcada */
     .folio-header-azul {
-        background: #0f4c81 !important;
+        background-color: #0f4c81 !important;
         color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important; /* 🔒 Forzado estricto motor Chrome/APK */
+        print-color-adjust: exact !important;         /* 🔒 Forzado estricto motor Firefox */
+    }
+
+    /* 🛡️ SEGURO GEOMÉTRICO RETÍCULA: Clava los fondos de las celdas del folio blanco */
+    .folio-tabla td,
+    .folio-deca div,
+    .folio-deca span,
+    .sello-anulado-deca {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+
 
     #qrcode_real_render img,
     #qrcode_real_render canvas {
