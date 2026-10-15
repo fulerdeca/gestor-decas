@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.40</title>
+    <title>Gestor de DeCAs Transportes v4.39</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1324,14 +1324,11 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 
-/* === CORRECCIÓN GEOMÉTRICA HÍBRIDA TOLERANTE A FORMATOS MÓVILES (v4.41) === */
+/* === CORRECCIÓN MAESTRA: CENTRADO ABSOLUTO EN 1 ÚNICA PÁGINA IMPERMEABLE (v3.95) === */
 @media print {
     @page {
-        margin: 0mm !important; /* Tritura las cabeceras, fechas y URLs sueltas del navegador */
-        /* 🚀 EL TRUCO UNIVERSAL: Al cambiar A4 por auto, el CSS deja de pelearse con el sistema operativo.
-           Heredará matemáticamente la hoja que tenga seleccionada el móvil (Carta, A4, etc.)
-           y estirará las tablas al ras del contorno disponible de forma nativa */
-        size: auto !important;
+        margin: 0mm !important; /* Destruye las cabeceras, fechas y URLs automáticas del navegador */
+        size: A4 portrait !important; /* Fuerza de forma rígida el formato oficial A4 vertical */
     }
 
     body {
@@ -1339,14 +1336,13 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
+        /* 🧼 SOLUCIÓN CHROME MÓVIL: Eliminamos display:flex y min-height del body para prohibir la segunda página */
         display: block !important;
         height: auto !important;
         min-height: 0 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
     }
 
-    /* Ocultación estricta de paneles de control y salpicaderos */
+    /* Ocultación rígida de paneles comerciales y botones del salpicadero */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
@@ -1359,68 +1355,57 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         display: none !important;
     }
 
-    /* Purgado total de desbordes en las capas intermedias del visor */
+    /* Forzamos a las capas contenedoras a ser pasillos transparentes sin empujar el papel */
     .modal-preview-deca,
     #modal_preview_deca,
     .preview-container,
     .preview-cuerpo-scroll {
-        display: block !important;
+        display: block !important; /* Caja de bloque pura */
         width: 100% !important;
         height: auto !important;
         overflow: visible !important;
-        background: #ffffff !important;
+        background: #ffffff !important; /* Purgado total de grises en la impresión */
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
         box-sizing: border-box !important;
     }
 
-    /* 📄 EL FOLIO BLANCO RE-MAQUETADO: Devora el espacio horizontal reduciendo el alto vertical */
+    /* 📄 EL FOLIO BLANCO: Centrado simétrico horizontal y vertical sin romper los ejes */
     .folio-deca {
         display: block !important;
-        width: 92% !important;      /* 🚀 EL CAMBIO: Ensanchamos del 75% al 92% para ensanchar las tablas */
-        max-width: 92% !important;
+        width: 660px !important;    /* Tu ancho original estable que no descuadra los textos */
+        max-width: 660px !important;
         height: auto !important;
-        padding: 25px 30px !important; /* Más aire interno comercial */
+        padding: 20px !important;
 
-        /* 🔒 EL CANDADO DE PÁGINA ÚNICA PERFECTA:
-           Establecemos un pasillo de respiración del 4% en los laterales para centrar el folio,
-           y reducimos el margen superior a 35px para que nunca desborde el folio por abajo. */
-        margin: 35px 4% auto 4% !important;
+        /* 🔒 EL CANDADO ANCHURA DE PÁGINA (A4):
+           Al meter 45px arriba obligamos a la hoja a bajar al centro visual del papel,
+           y el 'margin: 45px auto auto auto' distribuye el pasillo lateral a partes iguales,
+           impidiendo físicamente que Chrome genere una segunda hoja. */
+        margin: 45px auto auto auto !important;
 
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
         box-sizing: border-box !important;
 
-        /* Forzado rígido anti-segunda hoja */
+        /* Forzado estricto de página única */
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         page-break-after: avoid !important;
         break-after: avoid !important;
 
-        /* 🚀 ESCALADO ERGONÓMICO: Bajamos el zoom al 96% para compactar las hileras de las tablas */
-        zoom: 96% !important;
+        /* Tu porcentaje de zoom máster de la v3.85 */
+        zoom: 105% !important;
     }
 
-    /* 🚀 INYECTOR ATÓMICO ANTI-IMPRESORAS SIN GRÁFICOS: Forza el renderizado de color azul
-       obligando al móvil y al PC a pintar las lolas aunque la casilla esté desmarcada */
     .folio-header-azul {
-        background-color: #0f4c81 !important;
+        background: #0f4c81 !important;
         color: #ffffff !important;
-        -webkit-print-color-adjust: exact !important; /* 🔒 Forzado estricto motor Chrome/APK */
-        print-color-adjust: exact !important;         /* 🔒 Forzado estricto motor Firefox */
-    }
-
-    /* 🛡️ SEGURO GEOMÉTRICO RETÍCULA: Clava los fondos de las celdas del folio blanco */
-    .folio-tabla td,
-    .folio-deca div,
-    .folio-deca span,
-    .sello-anulado-deca {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
-
 
     #qrcode_real_render img,
     #qrcode_real_render canvas {
@@ -1429,11 +1414,6 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         height: 100px !important;
     }
 }
-
-/* === MEDIA PRINT === */
-
-
-
 
 
 /* Letrero de Advertencia para el Folio del DeCA Anulado (Estilo Sello de Custodia) */
