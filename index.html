@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.14</title>
+    <title>Gestor de DeCAs Transportes v4.33</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -694,6 +694,12 @@
             background: #a0aec0 !important; /* Resalte sutil al pasar el dedo o ratón */
         }
 
+        /* Ajuste de resalte nocturno para el botón de actualizar admin */
+        body.dark-mode .deca-modal-cuerpo button[onclick*="descargarCatalogoUsuariosAdminCompleto"]:hover {
+            background: #0b3459 !important;
+        }
+
+
 /* === REGLA EXCLUSIVA PARA LOS CAMPOS OBLIGATORIOS VACÍOS === */
 .deca-input-error-falta {
     background-color: #fdf2f2 !important; /* Rojo claro / rosa suave corporativo */
@@ -714,6 +720,28 @@
     font-weight: bold !important;
 }
 
+/* 🚫 CORTAFUEGOS FISCAL: Cuando el modal esté bloqueado, pulverizamos la zona de seguridad
+   buscando el botón de deslogueo interno, sin importar temas diurnos o nocturnos */
+.deca-perfil-bloqueado button[onclick*="ejecutarCierreDeSesionMultiUsuarioMaster"] {
+    display: none !important;
+}
+
+.deca-perfil-bloqueado button[onclick*="ejecutarCierreDeSesionMultiUsuarioMaster"] ~ *,
+.deca-perfil-bloqueado button[onclick*="ejecutarCierreDeSesionMultiUsuarioMaster"] + *,
+.deca-perfil-bloqueado button[onclick*="ejecutarCierreDeSesionMultiUsuarioMaster"] {
+    display: none !important;
+}
+
+/* Ocultación complementaria por patrón de color de fondo dashed carmín */
+.deca-perfil-bloqueado div[style*="rgba(220, 53, 69"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
 
 </style>  <!-- === FIN DEL BLOQUE 1 DE ESTILOS === -->
 
@@ -1938,6 +1966,34 @@ body.dark-mode .deca-mini-form-titulo {
     display: none !important;
 }
 
+/* 🔓 LIBERACIÓN MAESTRA DE CONTRASEÑA INICIAL: Rompe el forzado de mayúsculas visual del CSS */
+#reg_inicial_password {
+    text-transform: none !important;
+}
+
+
+/* 🚨 ANIMACIÓN ADmIN: Hace que el logotipo pulse suavemente en naranja si hay licencias retenidas */
+.camion-alerta-pendiente img {
+    border: 2px solid #fd7e14 !important;
+    animation: pulsoAlertaAdmin 1.8s infinite ease-in-out;
+}
+
+body.dark-mode .camion-alerta-pendiente img {
+    border: 2px solid #63b3ed !important; /* Azul eléctrico en la oscuridad */
+    animation: pulsoAlertaAdminNocturno 1.8s infinite ease-in-out;
+}
+
+@keyframes pulsoAlertaAdmin {
+    0% { box-shadow: 0 0 0 0 rgba(253, 126, 20, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(253, 126, 20, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(253, 126, 20, 0); }
+}
+
+@keyframes pulsoAlertaAdminNocturno {
+    0% { box-shadow: 0 0 0 0 rgba(99, 179, 237, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(99, 179, 237, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(99, 179, 237, 0); }
+}
 
 </style>
 
@@ -1961,16 +2017,20 @@ body.dark-mode .deca-mini-form-titulo {
         <div class="deca-cabecera-marca-fila" style="display: flex !important; justify-content: space-between; align-items: center; width: 100%;">
 
 
-            <!-- === BUSCA ESTA LÍNEA EXACTA EN TU CAPA 1 Y REPLÁZALA === -->
+            <!-- === CAPA 1 MODIFICADA: LOGO CON ANTENA DE GLOBO FLOTANTE ADMIN (v4.31) === -->
             <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin: 0;" onerror="console.warn('Icono no encontrado');">
-                <!-- 🔥 REPARACIÓN: Agrupamos el título y el span para que la versión flote a su lado de corrido -->
+                <!-- Contenedor relativo para poder posicionar el globo de alerta en la esquina del camión -->
+                <div style="position: relative; width: 34px; height: 34px; flex-shrink: 0;">
+                    <img src="camion.jpg" class="logo-app" alt="Logo" style="width: 34px; height: 34px; object-fit: cover; border-radius: 6px; margin: 0; display: block;" onerror="console.warn('Icono no encontrado');">
+                    <!-- 🎈 GLOBO DIGITAL: Nace invisible (display: none) y el JS lo despertará con el número de altas -->
+                    <div id="globo_alert_admin" style="display: none; position: absolute; top: -6px; right: -6px; background: #fd7e14; color: white; font-size: 9px; font-weight: 900; font-family: monospace; border-radius: 50%; width: 16px; height: 16px; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10000;">0</div>
+                </div>
                 <div style="display: flex; align-items: baseline;">
                     <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #1a202c;" class="deca-titulo-texto-nocturno">DeCA</h1>
-                    <!-- Aquí el script inyectará dinámicamente el texto "v 4.00" extraído de la pestaña -->
                     <span id="deca_version_dinamica_techo" class="deca-version-badge-techo"></span>
                 </div>
             </div>
+
 
 
             <!-- === REEMPLAZA EL CONTENEDOR BÚNKER DE ICONOS COMPLETO POR ÉSTE === -->
@@ -2407,6 +2467,11 @@ function verificarExistenciaPerfilCamionero() {
                     // Encendemos el motor general de los portes
                     activarEscuchaRealtimeDeCAs();
 
+                    // 🚀 DISPARADOR ADMIN: Si eres el jefe, encendemos el radar de notificaciones en el acto
+                    if (copiaPerfilRAM.estado_activacion === "ADMIN") {
+                        activarRadarNotificacionesAdminGlobal();
+                    }
+
                     // 🚀 DISPARADOR PEDAGÓGICO DE BIENVENIDA MÁSTER (v3.42):
                     // Si el usuario acaba de completar su ficha y la app ve que el único documento en la RAM es la muestra 000000
                     setTimeout(() => {
@@ -2420,27 +2485,31 @@ function verificarExistenciaPerfilCamionero() {
                         }
                     }, 800); // Retardo elástico para esperar a que la escucha realtime dibuje la tabla detrás
                 } else {
+                    // 🔒 CASO EN ESPERA: El transportista existe en la nube pero su estado es DESACTIVADO
                     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
                     if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+
                     const campoIDTerminal = document.getElementById("txt_licencia_uid_terminal");
                     if (campoIDTerminal) campoIDTerminal.innerText = "ID TERMINAL: " + miUsuarioUIDActivo;
+
+                    // Levantamos el candado rojo en su pantalla
                     if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "flex";
+
+                    // 🛡️ PROTECCIÓN DE CANAL: Apagamos el nodo de documentos temporalmente mientras espera la activación
+                    // para que los listeners cruzados en frío no inyecten datos basura
+                    if (database && miUsuarioUIDActivo) {
+                        database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
+                    }
                 }
             } else {
-                // 🛡️ SEGURO ANTI-FANTASMAS TRUCK: Al ser un terminal limpio o borrado de datos,
-                // desconectamos de inmediato las antenas automáticas del nodo de portes para este UID provisional.
-                // Así impedimos físicamente que se autoejecute la inicialización de la muestra en segundo plano.
-                if (database && miUsuarioUIDActivo) {
-                    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
-                }
+                // Caso: El nodo existe pero datos_perfil viene vacío o corrupto
                 desplegarMuroRegistroInicialObligatorioNativo();
             }
         } else {
-            if (database && miUsuarioUIDActivo) {
-                database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').off();
-            }
+            // Caso: Cuenta completamente virgen sin registro en el servidor
             desplegarMuroRegistroInicialObligatorioNativo();
         }
+
     }, (error) => {
         console.error("Fallo de comunicación en el módulo de licencias:", error);
     });
@@ -2488,19 +2557,25 @@ function abrirPanelMisDatosCamionero(forzarBloqueoSalida = false) {
     // Levantamos el panel flotante de Mis Datos
     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "flex";
 
-    // 🚀 APLICACIÓN DEL CERROJO DESDE EL CORAZÓN DE LA FUNCIÓN
+    // 🚀 APLICACIÓN DEL CERROJO DESDE EL CORAZÓN DE LA FUNCIÓN (v4.17 ATÓMICO)
     const btnCerrarAspa = document.getElementById("btn_cerrar_perfil");
     const btnCancelarPie = document.querySelector("#modal_perfil_camionero .deca-btn-cancelar");
+    const cuadroCerrarSesion = document.getElementById("deca_zona_seguridad_perfil");
+
+    const contenedorModalCompleto = document.getElementById("modal_perfil_camionero");
 
     if (forzarBloqueoSalida === true) {
-        // 🔒 CASO INCOMPLETO EN FRÍO: Fino y fulminante, escondemos los escapes del tirón
+        // 🔒 CASO INCOMPLETO EN FRÍO: Escondemos escapes y marcamos el contenedor con el candado CSS
+        if (contenedorModalCompleto) contenedorModalCompleto.classList.add("deca-perfil-bloqueado");
         if (btnCerrarAspa) btnCerrarAspa.style.setProperty("display", "none", "important");
         if (btnCancelarPie) btnCancelarPie.style.setProperty("display", "none", "important");
     } else {
-        // 🔓 CASO NORMAL: Si pincha desde el Dashboard privado, los botones nacen visibles para cotillear
+        // 🔓 CASO NORMAL: Limpiamos el candado y liberamos los controles de la interfaz
+        if (contenedorModalCompleto) contenedorModalCompleto.classList.remove("deca-perfil-bloqueado");
         if (btnCerrarAspa) btnCerrarAspa.style.setProperty("display", "block", "important");
         if (btnCancelarPie) btnCancelarPie.style.setProperty("display", "inline-flex", "important");
     }
+
 
     const cuerpoMisDatos = document.querySelector("#modal_perfil_camionero .deca-modal-cuerpo");
     if (cuerpoMisDatos) cuerpoMisDatos.scrollTop = 0;
@@ -2518,48 +2593,145 @@ let aliasOriginalUsuarioAdminSeleccionado = "";
 let contadorClicksLogoCamion = 0;
 let temporizadorClicksLogo;
 
-// centinela oculto táctil: Escucha los tres toques seguidos en el camión de la cabecera
+// =========================================================================
+// 🎛️ CENTINELA OCULTO TÁCTIL MÁSTER: FILTRO DE 3 TOQUES A PRUEBA DE BALAS (v4.40)
+// =========================================================================
 document.addEventListener("DOMContentLoaded", function() {
-    const logoCamion = document.querySelector(".deca-cabecera-marca-fila img");
-    if (logoCamion) {
-        logoCamion.style.cursor = "pointer";
-        logoCamion.addEventListener("click", function(e) {
-            e.stopPropagation();
-            contadorClicksLogoCamion++;
-            clearTimeout(temporizadorClicksLogo);
+    // Localizamos la imagen exacta buscando por su ruta física de archivo
+    const imagenCamionReal = document.querySelector('img[src="camion.jpg"]');
 
-            temporizadorClicksLogo = setTimeout(() => { contadorClicksLogoCamion = 0; }, 1000);
+    if (imagenCamionReal) {
+        // Buscamos su caja contenedora (el div relativo que tiene el globo de notificaciones)
+        const zonaInteractivaLogo = imagenCamionReal.parentElement;
 
-            if (contadorClicksLogoCamion === 3) {
-                contadorClicksLogoCamion = 0;
-                solicitarAccesoPanelAdministradorGlobal();
-            }
-        });
+        if (zonaInteractivaLogo) {
+            zonaInteractivaLogo.style.cursor = "pointer";
+
+            // Registramos el escuchador directamente sobre la zona del avatar
+            zonaInteractivaLogo.addEventListener("click", function(evento) {
+                evento.preventDefault();
+                evento.stopPropagation(); // Evitamos que el flex superior altere el click
+
+                contadorClicksLogoCamion++;
+                console.log("👆 Toque registrado en cabina de control. Contador:", contadorClicksLogoCamion);
+
+                clearTimeout(temporizadorClicksLogo);
+
+                // Ventana elástica de cortesía de 1 segundo para clavar las 3 pulsaciones
+                temporizadorClicksLogo = setTimeout(() => {
+                    contadorClicksLogoCamion = 0;
+                }, 1000);
+
+                if (contadorClicksLogoCamion === 3) {
+                    contadorClicksLogoCamion = 0;
+                    console.log("👑 Llave Maestra activada. Invocando panel administrativo...");
+                    solicitarAccesoPanelAdministradorGlobal();
+                }
+            });
+        }
+    } else {
+        console.warn("⚠️ Alerta de interfaz: No se ha localizado el nodo físico src='camion.jpg' en la cabecera.");
     }
 });
 
-// Comprueba si tu terminal tiene el flag de "ADMIN" autorizado en la nube
-function solicitarAccesoPanelAdministradorGlobal() {
+
+
+// =========================================================================
+// 📡 RADAR SUPREMO: ESCUCHA EN TIEMPO REAL SI HAY LICENCIAS PENDIENTES (v4.31)
+// =========================================================================
+function activarRadarNotificacionesAdminGlobal() {
     if (!database || !miUsuarioUIDActivo) return;
 
-    mostrarAvisoToast("🔍 Verificando credenciales de Administrador...");
+    console.log("📡 Activando Radar satélite de altas en segundo plano...");
 
-    database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil/estado_activacion').once('value')
+    // Ponemos una antena fija en el nodo global 'usuarios'
+    database.ref('usuarios').on('value', (snapshot) => {
+        if (!snapshot.exists()) return;
+
+        const mapaGlobal = snapshot.val();
+        let altasPendientesContador = 0;
+
+        // Recorremos matemáticamente los terminales buscando estados desactivados
+        Object.keys(mapaGlobal).forEach(uidKey => {
+            const u = mapaGlobal[uidKey];
+            if (u && u.datos_perfil && u.datos_perfil.estado_activacion === "DESACTIVADO") {
+                altasPendientesContador++;
+            }
+        });
+
+        // Localizamos los elementos de la cabecera para aplicar la alerta visual
+        const contenedorLogo = document.querySelector(".deca-cabecera-marca-fila > div");
+        const nodoGlobo = document.getElementById("globo_alert_admin");
+
+        if (altasPendientesContador > 0) {
+            console.log("🚨 Radar Admin: ¡Hay " + altasPendientesContador + " terminales retenidos esperando activación!");
+
+            // 1. Encendemos el parpadeo del muelle del camión
+            if (contenedorLogo) contenedorLogo.classList.add("camion-alerta-pendiente");
+
+            // 2. Despertamos el globo flotante inyectando el número de altas
+            if (nodoGlobo) {
+                nodoGlobo.innerText = altasPendientesContador;
+                nodoGlobo.style.display = "inline-flex";
+            }
+        } else {
+            // Caso limpio: Si ya las activaste todas, apagamos los Chivatos visuales
+            if (contenedorLogo) contenedorLogo.classList.remove("camion-alerta-pendiente");
+            if (nodoGlobo) nodoGlobo.style.display = "none";
+        }
+    });
+}
+
+
+// =========================================================================
+// 👑 MÓDULO MAESTRO: CONTROL DE ACCESO SUPREMO AL PANEL DE LICENCIAS (v4.32)
+// =========================================================================
+function solicitarAccesoPanelAdministradorGlobal() {
+    if (!database) return;
+
+    // 🚀 BLINDAJE DE SEGURIDAD: Recuperamos tu UID real del disco duro para evitar
+    // que se cruce con el del chófer inspeccionado en las URLs de Tráfico o PDF
+    const miUIDRealAdmin = localStorage.getItem("cfg_uid_recuperado_deca") || miUsuarioUIDActivo;
+
+    if (!miUIDRealAdmin) {
+        alert("⚠ Terminal no identificado. Registre o vincule su cuenta primero.");
+        return;
+    }
+
+    mostrarAvisoToast("🔍 Verificando credenciales de Administrador Supremo...");
+
+    // Atacamos directamente el nodo en la nube usando tu identificador real de jefe
+    database.ref('usuarios/' + miUIDRealAdmin + '/datos_perfil/estado_activacion').once('value')
     .then((snapshot) => {
         const flagEstado = snapshot.val();
 
         if (flagEstado === "ADMIN") {
             mostrarAvisoToast("👑 Llave Maestra aceptada. Accediendo al clúster...");
-            document.getElementById("modal_administrador_global_deca").style.display = "flex";
-            document.getElementById("bloque_edicion_usuario_admin").style.display = "none";
-            document.getElementById("bus_admin_usuarios").value = "";
+
+            // Levantamos el modal gigante de administración
+            if (document.getElementById("modal_administrador_global_deca")) {
+                document.getElementById("modal_administrador_global_deca").style.display = "flex";
+            }
+
+            // Reseteamos la vista inferior de edición por seguridad
+            if (document.getElementById("bloque_edicion_usuario_admin")) {
+                document.getElementById("bloque_edicion_usuario_admin").style.display = "none";
+            }
+
+            if (document.getElementById("bus_admin_usuarios")) {
+                document.getElementById("bus_admin_usuarios").value = "";
+            }
+
+            // Forzamos la descarga en caliente del catálogo de transportistas
             descargarCatalogoUsuariosAdminCompleto();
         } else {
-            mostrarAlertaCorporativaDeca("Acceso Denegado", "Este dispositivo no cuenta con permisos de Administrador Supremo.", "❌");
+            mostrarAlertaCorporativaDeca("Acceso Denegado", "Este dispositivo no cuenta con permisos de Administrador Supremo en el servidor central.", "❌");
         }
-    }).catch(err => console.error("Error de pasarela admin:", err));
+    }).catch(err => {
+        console.error("Error en puente de validación de pasarela admin:", err);
+        alert("Error de comunicación con Firebase: " + err.message);
+    });
 }
-
 
 
 // =========================================================================
@@ -4282,7 +4454,7 @@ const PROVINCIAS_ESPANA = [
 ];
 
 // =========================================================================
-// 🔍 MOTOR PREDICTIVO DE PROVINCIAS (SELECT DINÁMICO EN ESCRITURA)
+// 🔍 MOTOR PREDICTIVO DE PROVINCIAS PARA EL PERFIL (SELECT EN ESCRITURA)
 // =========================================================================
 function filtrarProvinciasPredictivo(inputElement) {
     const textoBuscar = inputElement.value.toUpperCase().trim();
@@ -4298,21 +4470,38 @@ function filtrarProvinciasPredictivo(inputElement) {
         return;
     }
 
+    const esModoOscuro = document.body.classList.contains("dark-mode");
+
     filtradas.forEach(prov => {
         const item = document.createElement("div");
         item.innerText = prov;
-        item.style.padding = "8px 12px";
+        item.style.padding = "10px 14px";
         item.style.cursor = "pointer";
         item.style.fontSize = "13px";
-        item.style.borderBottom = "1px solid #f0f0f0";
-        item.style.color = "#333";
+        item.style.fontWeight = "bold";
+        item.style.borderBottom = "1px solid " + (esModoOscuro ? "#2c2c2e" : "#f0f0f0");
+        item.style.color = esModoOscuro ? "#ffffff" : "#212529";
+        item.style.textAlign = "left";
 
-        item.onmouseover = function() { this.style.background = "#eef5fc"; };
-        item.onmouseout = function() { this.style.background = "white"; };
+        // Efectos dinámicos táctiles en cabina nocturna y diurna
+        item.onmouseover = function() {
+            this.style.background = esModoOscuro ? "#2c2c2e" : "#eef5fc";
+            if(!esModoOscuro) this.style.color = "#0f4c81";
+        };
+        item.onmouseout = function() {
+            this.style.background = "transparent";
+            this.style.color = esModoOscuro ? "#ffffff" : "#212529";
+        };
 
-        item.onclick = function() {
+        // Al tocar con el dedo con fuerza, auto-rellena la provincia y esconde el muelle
+        item.onclick = function(e) {
+            e.stopPropagation();
             inputElement.value = prov;
             dropdown.style.display = "none";
+            mostrarAvisoToast("⚡ Provincia asignada");
+
+            // Forzamos al validador rosa a limpiarse al instante
+            inputElement.classList.remove("deca-input-error-falta");
         };
 
         dropdown.appendChild(item);
@@ -4320,6 +4509,7 @@ function filtrarProvinciasPredictivo(inputElement) {
 
     dropdown.style.display = "block";
 }
+
 
 
 // =========================================================================
@@ -4435,6 +4625,11 @@ function registrarNuevoCamioneroEcosistema() {
     comprobarCampoPerfilObligatorio("reg_transp_remolque", "Matrícula del Remolque", "modal_perfil_camionero");
     comprobarCampoPerfilObligatorio("reg_transp_telefono", "Teléfono de Contacto", "modal_perfil_camionero");
 
+    // 🔒 CERROJO EXTENDIDO: Forzamos que la clave alias sea obligatoria también en la actualización del perfil
+    comprobarCampoPerfilObligatorio("reg_transp_password", "Clave de Acceso Personalizada (Alias)", "modal_perfil_camionero");
+
+
+
     // 🚚 CASE B: Si el chófer se está registrando por primera vez desde la ventana de Alta Inicial Virgen
     comprobarCampoPerfilObligatorio("reg_inicial_razon", "Razón Social del Transportista", "modal_registro_inicial_obligatorio");
     comprobarCampoPerfilObligatorio("reg_inicial_nif", "NIF / CIF Comercial", "modal_registro_inicial_obligatorio");
@@ -4480,6 +4675,13 @@ function registrarNuevoCamioneroEcosistema() {
         return;
     }
 
+    // 🔒 CONTROL DE SEGURIDAD CONTRACTUAL: Si el conductor borró a mano el alias, cancelamos la operación
+    const elInputPasswordPerfil = document.getElementById("reg_transp_password");
+    if (elInputPasswordPerfil && (passwordAlias === "" || passwordAlias === "(SIN CONTRASEÑA PROPIA)")) {
+        elInputPasswordPerfil.classList.add("deca-input-error-falta");
+        elInputPasswordPerfil.focus();
+        return; // Aborta físicamente antes de pisar el nodo en la nube de Google
+    }
 
     let domicilioFiscalCompleto = domicilio;
     if (cp || poblacion || provincia) {
@@ -5286,15 +5488,40 @@ function ejecutarAltaNuevaRegistroInicial() {
     const razon = document.getElementById("reg_inicial_razon").value.trim().toUpperCase();
     const nif = document.getElementById("reg_inicial_nif").value.trim().toUpperCase();
 
+    // Capturamos el elemento y el valor de la nueva casilla de clave
+    const elementoClaveInicial = document.getElementById("reg_inicial_password");
+    const claveInicial = elementoClaveInicial ? elementoClaveInicial.value.trim() : "";
+
+    // Limpiamos errores de color rosa previos en el formulario inicial
+    const inputsIniciales = document.querySelectorAll("#modal_registro_inicial_obligatorio .deca-input");
+    inputsIniciales.forEach(input => input.classList.remove("deca-input-error-falta"));
+
     // 1. 📋 Escáner de obligatorios inicial en local antes de tocar la nube
     let vaciosIniciales = [];
-    if (!razon) vaciosIniciales.push("Razón Social del Transportista");
-    if (!nif) vaciosIniciales.push("NIF / CIF Comercial");
+    if (!razon) {
+        vaciosIniciales.push("Razón Social del Transportista");
+        document.getElementById("reg_inicial_razon").classList.add("deca-input-error-falta");
+    }
+    if (!nif) {
+        vaciosIniciales.push("NIF / CIF Comercial");
+        document.getElementById("reg_inicial_nif").classList.add("deca-input-error-falta");
+    }
+    // 🔒 OBLIGATORIEDAD MAESTRA: Si no escribe clave, la inyectamos en la lista de faltas y marcamos en rosa
+    if (!claveInicial || claveInicial === "(SIN CONTRASEÑA PROPIA)") {
+        vaciosIniciales.push("Contraseña / Alias de Acceso");
+        if (elementoClaveInicial) elementoClaveInicial.classList.add("deca-input-error-falta");
+    }
 
     if (vaciosIniciales.length > 0) {
+        // Vinculamos dinámicamente un escuchador para limpiar el color rosa al escribir con el dedo
+        inputsIniciales.forEach(input => {
+            input.oninput = function() { if (this.value.trim() !== "") this.classList.remove("deca-input-error-falta"); };
+        });
+
         const mensajeListado = "Para iniciar la solicitud de licencia, debe rellenar las siguientes casillas obligatorias:\n\n• " + vaciosIniciales.join("\n• ");
         return mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", mensajeListado, "⚠️");
     }
+
 
     // 2. 🛡️ CORTAFUEGOS: Forzamos la autenticación en el acto solo si el formulario es válido
     mostrarAvisoToast("⏳ Generando licencia comercial segura en red...");
@@ -5318,7 +5545,8 @@ function ejecutarAltaNuevaRegistroInicial() {
             email: "",
             fecha_registro: new Date().toLocaleString(),
             clave_recuperacion: miUsuarioUIDActivo,
-            clave_personalizada_alias: "",
+            // 💾 Sincronizamos la clave real introducida en el alta de la base de datos
+            clave_personalizada_alias: claveInicial,
             estado_activacion: "DESACTIVADO" // Nace bloqueado por seguridad
         };
 
@@ -5348,14 +5576,50 @@ function ejecutarAltaNuevaRegistroInicial() {
             }
         }).then(() => {
             misDatosPerfilAutonomo = estructuraPerfilNuevo;
+            // 💾 Guardamos el UID en el LocalStorage para que el terminal recuerde quién es al reiniciar
             localStorage.setItem("cfg_uid_recuperado_deca", miUsuarioUIDActivo);
 
-            document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-            const visorClaveDOM = document.getElementById("txt_clave_maestra_pantalla");
-            if (visorClaveDOM) { visorClaveDOM.innerText = miUsuarioUIDActivo; }
-            document.getElementById("modal_clave_seguridad_deca").style.display = "flex";
-            mostrarAvisoToast("✅ Ficha registrada. Esperando activación.");
+            // 1. Apagamos el formulario de registro obligatorio inicial
+            if (document.getElementById("modal_registro_inicial_obligatorio")) {
+                document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+            }
+
+            // 2. 🔒 ENTORNO SEGURO: Enviamos al chófer directo al búnker rojo de bloqueo
+            const campoIDTerminal = document.getElementById("txt_licencia_uid_terminal");
+            if (campoIDTerminal) {
+                campoIDTerminal.innerText = "UID: " + miUsuarioUIDActivo;
+            }
+
+            if (document.getElementById("modal_bloqueo_licencia_deca")) {
+                document.getElementById("modal_bloqueo_licencia_deca").style.display = "flex";
+            }
+
+            mostrarAvisoToast("📋 Registro completado. Terminal en espera de autorización.");
+
+            // 📡 ANTENA REVOLUCIONARIA DE ACTIVACIÓN: El móvil se queda escuchando exclusivamente su estado
+            if (database && miUsuarioUIDActivo) {
+                database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil/estado_activacion').on('value', (snapshot) => {
+                    const nuevoEstadoLicencia = snapshot.val();
+
+                    if (nuevoEstadoLicencia === "ACTIVADO" || nuevoEstadoLicencia === "ADMIN") {
+                        console.log("🔓 ¡Licencia Autorizada remotamente! Liberando terminal...");
+
+                        // 1. Apagamos de inmediato el muelle de bloqueo de la pantalla roja
+                        if (document.getElementById("modal_bloqueo_licencia_deca")) {
+                            document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
+                        }
+
+                        // 2. Matamos esta antena temporal para que no consuma recursos
+                        database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil/estado_activacion').off();
+
+                        // 3. Despertamos el sensor central para que cargue los portes y abra la cabina
+                        verificarExistenciaPerfilCamionero();
+                    }
+                });
+            }
         });
+
+
     })
     .catch(err => {
         console.error("Fallo en pasarela de alta:", err);
@@ -5465,20 +5729,21 @@ function conmutarVistasRegistroInicial(mostrarRecuperacion) {
 
 
 // =========================================================================
-// 🔠 ESCUDO GLOBAL DIGITAL: CONVERSOR AUTOMÁTICO DE MAYÚSCULAS EN ESCRITURA
+// 🔤 ESCUDO GLOBAL DIGITAL: CONVERSOR AUTOMÁTICO DE MAYÚSCULAS EN ESCRITURA
 // =========================================================================
 document.addEventListener("input", function(evento) {
     if (evento.target && (evento.target.tagName === "INPUT" || evento.target.tagName === "TEXTAREA")) {
 
-        // 🚀 FILTRO PROTECTOR ACTUALIZADO (v3.85): Añadida la casilla alias de la administración
+        // 🚀 FILTRO PROTECTOR ACTUALIZADO: Liberamos de forma estricta los campos de contraseñas alias
         if (
             evento.target.type !== "date" &&
             evento.target.type !== "number" &&
             evento.target.type !== "email" &&
-            evento.target.id !== "reg_inicial_clave_buscar" && // Campo recuperar entrada
-            evento.target.id !== "reg_clave_recuperar" &&       // Campo recuperar antiguo
-            evento.target.id !== "reg_transp_password" &&       // Campo cambiar alias Mis Datos
-            evento.target.id !== "txt_admin_alias_usuario"      // 🔑 NUEVO: Contraseña alias del Panel Admin
+            evento.target.id !== "reg_inicial_clave_buscar" &&
+            evento.target.id !== "reg_clave_recuperar" &&
+            evento.target.id !== "reg_transp_password" &&
+            evento.target.id !== "txt_admin_alias_usuario" &&
+            evento.target.id !== "reg_inicial_password" // 🔒 CANDADO MAESTRO: Permite minúsculas reales en la primera ventana
         ) {
             const posicionCursorCursor = evento.target.selectionStart;
 
@@ -5490,6 +5755,7 @@ document.addEventListener("input", function(evento) {
         }
     }
 });
+
 
 
 
@@ -5774,7 +6040,7 @@ function restablecerMiniFormularioDatosPorDefecto() {
         txtTitulo.innerText = "Añadir Nueva Mercancía";
         contCampos.style.gridTemplateColumns = "1fr";
         contCampos.innerHTML = `
-            <div class="deca-form-grupo"><label>Naturaleza de la Carga</label><input type="text" id="mini_mercan_nombre" class="deca-input" placeholder="p. ej. CEBADA LIMPIA" style="padding:6px; font-size:13px;"></div>
+            <div class="deca-form-grupo"><label>Naturaleza de la Carga</label><input type="text" id="mini_mercan_nombre" class="deca-input" placeholder="p. ej. PALETS MADERA" style="padding:6px; font-size:13px;"></div>
 
             <!-- 🚀 REPARACIÓN: Botonera elástica integrada para la pestaña de cargas -->
             <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 5px;">
@@ -5822,11 +6088,15 @@ function limpiarCamposMiniFormularioFrecuentes() {
 
 
 // =========================================================================
-// 🗂️ RENDERIZADOR CENTRAL: LISTADOS CON EDICIÓN DESACTIVADA (v4.04 STANDBY)
+// 🗂️ RENDERIZADOR CENTRAL: LISTADOS CON DETECCIÓN DE USO LEGAL (v4.18)
 // =========================================================================
 function renderizarContenidoInternoPestañaDatos() {
     const contenedor = document.getElementById("lista_datos_frecuentes_render");
     if (!contenedor) return;
+
+    const esModoOscuro = document.body.classList.contains("dark-mode");
+    const colorTextoOriginal = esModoOscuro ? "#ffffff" : "#212529";
+    const colorGrisBloqueado = esModoOscuro ? "#718096" : "#a0aec0"; // Gris plomo ergonómico que no deslumbra
 
     // --- CASE A: PESTAÑA CARTERA DE CLIENTES ---
     if (pestañaDatosActivaActualmente === "clientes") {
@@ -5836,12 +6106,20 @@ function renderizarContenidoInternoPestañaDatos() {
 
         contenedor.innerHTML = llaves.map(nif => {
             const c = clientes[nif];
+
+            // 🔍 Comprobamos si este cliente ya tiene algún DeCA emitido
+            const estaEnUso = documentosDeCA.some(doc => doc.cargador_nif === nif);
+            const colorFinalNombre = estaEnUso ? colorGrisBloqueado : colorTextoOriginal;
+            const iconoCandado = estaEnUso ? ' 🔒' : '';
+
             return `
             <div class="deca-fila-dato-purgable">
-                <div style="max-width: 70%;"><strong>🏢 ${c.razon}</strong><br><span>NIF: ${nif} | Domicilio: ${c.calle || '---'}</span></div>
+                <div style="max-width: 70%;">
+                    <strong style="color: ${colorFinalNombre} !important;">🏢 ${c.razon}${iconoCandado}</strong><br>
+                    <span>NIF: ${nif} | Domicilio: ${c.calle || '---'}</span>
+                </div>
                 <div style="display:flex; gap:4px;">
-                    <!-- 🕒 EN RESERVA: Botón desactivado temporalmente para evitar bucles asíncronos -->
-                    <button class="btn-top" disabled style="padding:6px 10px !important; font-size:12px !important; margin:0; opacity:0.3; cursor:not-allowed;" title="Edición deshabilitada temporalmente">✏️</button>
+                    <button class="btn-top" onclick="cargarClienteParaEditarExpress('${nif}')" style="padding:6px 10px !important; font-size:12px !important; margin:0; ${estaEnUso ? 'opacity:0.4;' : ''}">✏️</button>
                     <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('clientes', '${nif}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
                 </div>
             </div>`;
@@ -5856,12 +6134,19 @@ function renderizarContenidoInternoPestañaDatos() {
         contenedor.innerHTML = llaves.map(key => {
             const m = mercancias[key];
             const nombreM = typeof m === 'object' ? (m.nombre || key) : m;
+
+            // 🔍 Comprobamos si esta carga exacta ya existe en el historial de portes
+            const estaEnUso = documentosDeCA.some(doc => doc.mercancia_nombre === nombreM);
+            const colorFinalNombre = estaEnUso ? colorGrisBloqueado : colorTextoOriginal;
+            const iconoCandado = estaEnUso ? ' 🔒' : '';
+
             return `
             <div class="deca-fila-dato-purgable">
-                <div><strong>📦 ${nombreM}</strong></div>
+                <div>
+                    <strong style="color: ${colorFinalNombre} !important;">📦 ${nombreM}${iconoCandado}</strong>
+                </div>
                 <div style="display:flex; gap:4px;">
-                    <!-- 🕒 EN RESERVA: Botón desactivado temporalmente para evitar bucles asíncronos -->
-                    <button class="btn-top" disabled style="padding:6px 10px !important; font-size:12px !important; margin:0; opacity:0.3; cursor:not-allowed;" title="Edición deshabilitada temporalmente">✏️</button>
+                    <button class="btn-top" onclick="cargarMercanciaParaEditarExpress('${key}')" style="padding:6px 10px !important; font-size:12px !important; margin:0; ${estaEnUso ? 'opacity:0.4;' : ''}">✏️</button>
                     <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('mercancias', '${key}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
                 </div>
             </div>`;
@@ -5884,15 +6169,32 @@ function renderizarContenidoInternoPestañaDatos() {
     }
 }
 
-/* =========================================================================
-   ✏️ RECAMARA HISTÓRICA: MAPEO INVERSO COMENTADO PARA FUTURA ACTIVACIÓN
-   =========================================================================
+
+// =========================================================================
+// ✏️ MAPEOS INVERSOS: CARGAR REGISTROS EN EL MINI-FORMULARIO EN MODO EDICIÓN
+// =========================================================================
 function cargarClienteParaEditarExpress(nif) {
-    const c = window.diccionarioCargadoresCloud[nif];
+    const clientes = window.diccionarioCargadoresCloud || {};
+    const c = clientes[nif];
     if (!c) return;
-    idRegistroDatoEnEdicion = nif;
+
+    // 🔍 RADAR HISTÓRICO: Revisamos si el NIF ya está firmado en algún DeCA
+    const estaEnUso = documentosDeCA.some(doc => doc.cargador_nif === nif);
+
+    if (estaEnUso) {
+        mostrarAlertaCorporativaDeca(
+            "Registro Vinculado a Portes",
+            "Este cliente está asociado a documentos de control ya emitidos en tu historial. Por seguridad legal ante Inspección de Transportes, no se permite su modificación para evitar alterar el registro de portes pasados.",
+            "🔒"
+        );
+        return; // Aborta la carga en el formulario para proteger el dato
+    }
+
+    idRegistroDatoEnEdicion = nif; // Guardamos quién era el original
+
     document.getElementById("deca_mini_form_accion_titulo").innerText = `✏️ Modificar Cliente: ${nif}`;
-    document.getElementById("btn_cancelar_edicion_mini_form").style.display = "inline-flex";
+
+    // Rellenamos las casillas del mini-form
     document.getElementById("mini_carg_razon").value = c.razon || "";
     document.getElementById("mini_carg_nif").value = nif;
     document.getElementById("mini_carg_nif").readOnly = true;
@@ -5900,17 +6202,39 @@ function cargarClienteParaEditarExpress(nif) {
     document.getElementById("mini_carg_cp").value = c.cp || "";
     document.getElementById("mini_carg_poblacion").value = c.poblacion || "";
     document.getElementById("mini_carg_provincia").value = c.provincia || "";
+
+    mostrarAvisoToast("✏️ Cliente cargado para modificar");
 }
 
+
 function cargarMercanciaParaEditarExpress(key) {
-    const m = window.diccionarioMercanciasCloud[key];
+    const mercancias = window.diccionarioMercanciasCloud || {};
+    const m = mercancias[key];
     if (!m) return;
-    idRegistroDatoEnEdicion = key;
+
+    const nombreM = typeof m === 'object' ? (m.nombre || key) : m;
+
+    // 🔍 RADAR HISTÓRICO: Revisamos si el nombre exacto de la carga ya existe en el historial
+    const estaEnUso = documentosDeCA.some(doc => doc.mercancia_nombre === nombreM);
+
+    if (estaEnUso) {
+        mostrarAlertaCorporativaDeca(
+            "Mercancía en Uso Legal",
+            "Esta mercancía ya figura en el archivo de portes de la plataforma. Para garantizar la integridad inalterable de los ficheros ante la Inspección de Transporte Terrestre, este registro está congelado y no se puede editar.",
+            "🔒"
+        );
+        return; // Aborta la carga en el formulario
+    }
+
+    idRegistroDatoEnEdicion = key; // Guardamos la llave vieja
+
     document.getElementById("deca_mini_form_accion_titulo").innerText = "✏️ Modificar Naturaleza Mercancía";
-    document.getElementById("btn_cancelar_edicion_mini_form").style.display = "inline-flex";
-    document.getElementById("mini_mercan_nombre").value = typeof m === 'object' ? (m.nombre || key) : m;
+    document.getElementById("mini_mercan_nombre").value = nombreM;
+
+    mostrarAvisoToast("✏️ Carga cargada para modificar");
 }
-*/
+
+
 
 
 // =========================================================================
@@ -5992,18 +6316,30 @@ function ejecutarGuardadoDatoFrecuenteExpress() {
         const domicilioCpl = `${calle} (CP: ${cp} - ${pob} - ${prov})`;
         const paqueteCliente = { razon: razon, nif: nif, calle: calle, cp: cp, población: pob, provincia: prov, domicilio: domicilioCpl };
 
-        mostrarAvisoToast("⏳ Añadiendo nueva empresa al servidor...");
+        mostrarAvisoToast("⏳ Sincronizando empresa en el servidor...");
 
+        // Almacenamos en una variable local el ID original que capturó el lápiz de edición
+        const registroViejoCargador = idRegistroDatoEnEdicion;
 
         database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + nif).set(paqueteCliente)
         .then(function() {
-            mostrarAvisoToast("✅ Empresa guardada en tu catálogo.");
+            // ✂️ Si estábamos editando y el NIF original era distinto al guardado, trituramos el viejo
+            if (registroViejoCargador !== null && registroViejoCargador !== nif) {
+                return database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes/' + registroViejoCargador).remove();
+            }
+            return Promise.resolve();
+        })
+        .then(function() {
+            mostrarAvisoToast("✅ Empresa actualizada correctamente.");
             restablecerMiniFormularioDatosPorDefecto();
             renderizarContenidoInternoPestañaDatos();
-        }).catch(function(err) {
+        })
+        .catch(function(err) {
+            // Conservamos tu paracaídas de errores intacto por si falla la red
             alert("Error de red: " + err.message);
         });
     }
+
     // --- SECCIÓN B: ALTA PURA DE NUEVAS NATURALEZAS (MERCANCÍAS) ---
     else if (pestañaDatosActivaActualmente === "mercancias") {
         const elementoMercan = document.getElementById("mini_mercan_nombre");
@@ -6056,19 +6392,32 @@ function ejecutarGuardadoDatoFrecuenteExpress() {
            })
            ========================================================================= */
 
-        // Ejecución de inserción de alta limpia directa
+        mostrarAvisoToast("⏳ Actualizando catálogo de cargas...");
+
+        // Almacenamos en una variable local la llave vieja que cargó el lápiz de edición
+        const registroViejoMercancia = idRegistroDatoEnEdicion;
+
         database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + nuevaLlaveFB).set({ nombre: nombreM })
         .then(function() {
-            mostrarAvisoToast("✅ Mercancía añadida de forma limpia.");
+            // ✂️ Si estábamos editando y la descripción varió, eliminamos la ruta vieja para evitar clones
+            if (registroViejoMercancia !== null && registroViejoMercancia !== nuevaLlaveFB) {
+                return database.ref('usuarios/' + miUsuarioUIDActivo + '/mercancias_frecuentes/' + registroViejoMercancia).remove();
+            }
+            return Promise.resolve();
+        })
+        .then(function() {
+            mostrarAvisoToast("✅ Mercancía actualizada correctamente.");
             restablecerMiniFormularioDatosPorDefecto();
             renderizarContenidoInternoPestañaDatos(); // Dibuja la rejilla refrescada al instante
         })
         .catch(function(err) {
+            // Mantenemos tu captura de errores y logs originales para auditoría de red
             console.error("Fallo en sincronización express de mercancías:", err);
             alert("Error de comunicación: " + err.message);
         });
     }
 }
+
 
 
 
@@ -6522,11 +6871,17 @@ function validarFormatoEmail(email) {
                     <label>Población / Localidad <span>*</span></label>
                     <input type="text" id="reg_transp_poblacion" class="deca-input" placeholder="p. ej. LAS MESAS">
                 </div>
-                <div class="deca-form-grupo" style="position: relative;">
+
+
+                <!-- 🚀 REPARACIÓN: Caja de provincia blindada con ancho relativo fijo para el despliegue del menú -->
+                <div class="deca-form-grupo" style="position: relative !important; min-width: 180px;">
                     <label>Provincia (España) <span>*</span></label>
                     <input type="text" id="reg_transp_provincia" class="deca-input" placeholder="Escribe para buscar..." oninput="filtrarProvinciasPredictivo(this)" onfocus="filtrarProvinciasPredictivo(this)">
-                    <div id="lista_provincias_drop" style="display: none; position: absolute; top: 100%; left: 0; width: 100%; max-height: 180px; overflow-y: auto; background: white; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 99999; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
+                    <!-- Contenedor del dropdown con z-index absoluto forzado -->
+                    <div id="lista_provincias_drop" style="display: none; position: absolute !important; top: 100% !important; left: 0 !important; width: 100% !important; max-height: 180px !important; overflow-y: auto !important; background: white !important; border: 1px solid #cbd5e0 !important; border-radius: 0 0 6px 6px !important; z-index: 999999 !important; box-shadow: 0 6px 14px rgba(0,0,0,0.15) !important;"></div>
                 </div>
+
+
                 </div>
             </div>
 
@@ -6567,7 +6922,7 @@ function validarFormatoEmail(email) {
                 </div>
 
                 <!-- Zona de Seguridad Multi-Usuario -->
-                <div style="background: rgba(220, 53, 69, 0.06); padding: 14px; border-radius: 6px; border: 1px dashed #dc3545; box-sizing: border-box; width: 100%; text-align: left;">
+                <div id="deca_zona_seguridad_perfil" style="background: rgba(220, 53, 69, 0.06); padding: 14px; border-radius: 6px; border: 1px dashed #dc3545; box-sizing: border-box; width: 100%; text-align: left;">
                     <label style="color: #dc3545; font-weight: bold; display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase;">⚠️ Zona de Seguridad: Gestión de Cuentas</label>
                     <p style="font-size: 11px; color: #555; margin: 0 0 10px 0; line-height: 1.3;">Pulse este botón si necesita desvincular este smartphone de su empresa para coger otro camión o cambiar de perfil.</p>
                     <button type="button" class="btn-top btn-salir-rojo" onclick="ejecutarCierreDeSesionMultiUsuarioMaster()" style="width: 100%; margin: 0; padding: 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: none;">🚪 Cerrar Sesión y Cambiar de Perfil</button>
@@ -6681,10 +7036,14 @@ function validarFormatoEmail(email) {
         </div>
 
         <div class="deca-modal-cuerpo" style="padding: 15px; background: #f0f4f8;">
-            <!-- Buscador de terminales -->
-            <input type="text" id="bus_admin_usuarios" class="filtro-input" placeholder="🔍 Buscar por empresa, NIF, UID o clave..." oninput="renderizarListaUsuariosAdmin()" style="margin-bottom: 12px; background: white !important;">
+            <!-- Buscador de terminales + Botón Actualizar agrupado -->
+            <div style="display: flex; gap: 6px; width: 100%; margin-bottom: 12px; box-sizing: border-box;">
+                <input type="text" id="bus_admin_usuarios" class="filtro-input" placeholder="🔍 Buscar por empresa, NIF, UID o clave..." oninput="renderizarListaUsuariosAdmin()" style="flex-grow: 1; margin: 0; background: white !important;">
+                <button type="button" class="btn-top" onclick="descargarCatalogoUsuariosAdminCompleto(); mostrarAvisoToast('🔄 Catálogo de terminales actualizado');" style="padding: 0 12px; height: 38px; background: #0f4c81; color: white; border: none; font-weight: bold; flex-shrink: 0; margin: 0;" title="Forzar recarga de terminales desde la nube">🔄</button>
+            </div>
 
             <!-- Lista de chóferes registrados -->
+
             <div id="lista_usuarios_admin_render" style="background: white; border: 1px solid #cbd5e0; border-radius: 8px; max-height: 40vh; overflow-y: auto; padding: 6px; box-sizing: border-box;">
                 <p style="color: #666; text-style: italic; text-align: center; padding: 15px;">Descargando catálogo de terminales...</p>
             </div>
@@ -6756,9 +7115,15 @@ function validarFormatoEmail(email) {
                             <label>NIF / CIF <span>*</span></label>
                             <input type="text" id="reg_inicial_nif" class="deca-input" placeholder="p. ej. 12345678Z">
                         </div>
+                        <!-- 🚀 NUEVA CASILLA: Añadimos la clave obligatoria en el primer registro con placeholder gris estándar -->
+                        <div class="deca-form-grupo" style="margin-top: 6px;">
+                            <label>Contraseña / Alias de Acceso <span>*</span></label>
+                            <input type="text" id="reg_inicial_password" class="deca-input" placeholder="(SIN CONTRASEÑA PROPIA)">
+                        </div>
                     </div>
                 </div>
                 <button type="button" class="btn-top" style="width: 100%; padding: 14px; background: #0f4c81; color: white; border: none; font-size: 14px; font-weight: bold;" onclick="ejecutarAltaNuevaRegistroInicial()">Añadir Transportista</button>
+
                 <div style="text-align: center; margin-top: 15px; border-top: 1px dashed #dee2e6; padding-top: 15px;">
                     <a href="#" style="font-size: 12px; color: #0f4c81; font-weight: bold; text-decoration: none;" onclick="conmutarVistasRegistroInicial(true)">¿Ya tenías cuenta? Recuperar mi perfil</a>
                 </div>
