@@ -1375,33 +1375,28 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     }
 
     /* 📄 EL FOLIO BLANCO: Centrado simétrico horizontal y vertical sin romper los ejes */
+    /* 📄 EL FOLIO BLANCO ESTIRADO: Devora el espacio horizontal sin deformar las letras */
     .folio-deca {
         display: block !important;
-        width: 660px !important;    /* Tu ancho original estable que no descuadra los textos */
-        max-width: 660px !important;
+        width: 100% !important;       /* 🚀 Ocupa todo el ancho de la hoja Carta o A4 disponible */
+        max-width: 100% !important;
         height: auto !important;
-        padding: 20px !important;
-
-        /* 🔒 EL CANDADO ANCHURA DE PÁGINA (A4):
-           Al meter 45px arriba obligamos a la hoja a bajar al centro visual del papel,
-           y el 'margin: 45px auto auto auto' distribuye el pasillo lateral a partes iguales,
-           impidiendo físicamente que Chrome genere una segunda hoja. */
-        margin: 45px auto auto auto !important;
-
+        padding: 20px 30px !important; /* Más aire en los laterales para que respire el texto */
+        margin: 0 !important;          /* Eliminamos pasillos superiores para que no se corte abajo */
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
         box-sizing: border-box !important;
 
-        /* Forzado estricto de página única */
         page-break-inside: avoid !important;
         break-inside: avoid !important;
         page-break-after: avoid !important;
         break-after: avoid !important;
 
-        /* Tu porcentaje de zoom máster de la v3.85 */
-        zoom: 105% !important;
+        /* 🚀 ELIMINADO EL ZOOM ARTIFICIAL: Al quitarlo, el navegador deja de encoger el documento */
+        /* zoom: 105% !important; */
     }
+
 
     .folio-header-azul {
         background: #0f4c81 !important;
