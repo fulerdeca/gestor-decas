@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.33</title>
+    <title>Gestor de DeCAs Transportes v4.35</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -6088,7 +6088,7 @@ function limpiarCamposMiniFormularioFrecuentes() {
 
 
 // =========================================================================
-// 🗂️ RENDERIZADOR CENTRAL: LISTADOS CON DETECCIÓN DE USO LEGAL (v4.18)
+// 🗂️ RENDERIZADOR CENTRAL: LISTADOS CON CONTROL DE USO Y CLICK EN NOMBRE (v4.37)
 // =========================================================================
 function renderizarContenidoInternoPestañaDatos() {
     const contenedor = document.getElementById("lista_datos_frecuentes_render");
@@ -6096,7 +6096,7 @@ function renderizarContenidoInternoPestañaDatos() {
 
     const esModoOscuro = document.body.classList.contains("dark-mode");
     const colorTextoOriginal = esModoOscuro ? "#ffffff" : "#212529";
-    const colorGrisBloqueado = esModoOscuro ? "#718096" : "#a0aec0"; // Gris plomo ergonómico que no deslumbra
+    const colorGrisBloqueado = esModoOscuro ? "#718096" : "#a0aec0"; // Gris plomo ergonómico
 
     // --- CASE A: PESTAÑA CARTERA DE CLIENTES ---
     if (pestañaDatosActivaActualmente === "clientes") {
@@ -6114,13 +6114,14 @@ function renderizarContenidoInternoPestañaDatos() {
 
             return `
             <div class="deca-fila-dato-purgable">
-                <div style="max-width: 70%;">
+                <div onclick="cargarClienteParaEditarExpress('${nif}')" style="max-width: 70%; cursor: pointer; width: 100%;">
                     <strong style="color: ${colorFinalNombre} !important;">🏢 ${c.razon}${iconoCandado}</strong><br>
                     <span>NIF: ${nif} | Domicilio: ${c.calle || '---'}</span>
                 </div>
-                <div style="display:flex; gap:4px;">
+                <div style="display:flex; gap:4px; align-items: center;">
                     <button class="btn-top" onclick="cargarClienteParaEditarExpress('${nif}')" style="padding:6px 10px !important; font-size:12px !important; margin:0; ${estaEnUso ? 'opacity:0.4;' : ''}">✏️</button>
-                    <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('clientes', '${nif}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
+                    <!-- 🚀 MEJORA INFALIBLE: Llamamos a una pasarela limpia pasándole la variable real sin comillas cruzadas -->
+                    <button class="btn-top btn-salir-rojo" onclick="interceptarBotonBorradoExpress('clientes', '${nif}', ${estaEnUso})" style="padding:6px 10px !important; font-size:12px !important; margin:0; ${estaEnUso ? 'opacity:0.3; cursor:not-allowed; background:#718096 !important; border-color:#718096 !important;' : ''}">🗑️</button>
                 </div>
             </div>`;
         }).join("");
@@ -6142,12 +6143,13 @@ function renderizarContenidoInternoPestañaDatos() {
 
             return `
             <div class="deca-fila-dato-purgable">
-                <div>
+                <div onclick="cargarMercanciaParaEditarExpress('${key}')" style="cursor: pointer; width: 100%; max-width: 70%;">
                     <strong style="color: ${colorFinalNombre} !important;">📦 ${nombreM}${iconoCandado}</strong>
                 </div>
-                <div style="display:flex; gap:4px;">
+                <div style="display:flex; gap:4px; align-items: center;">
                     <button class="btn-top" onclick="cargarMercanciaParaEditarExpress('${key}')" style="padding:6px 10px !important; font-size:12px !important; margin:0; ${estaEnUso ? 'opacity:0.4;' : ''}">✏️</button>
-                    <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('mercancias', '${key}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
+                    <!-- 🚀 MEJORA INFALIBLE: Pasamos la llave de forma directa y limpia al interceptor -->
+                    <button class="btn-top btn-salir-rojo" onclick="interceptarBotonBorradoExpress('mercancias', '${key}', ${estaEnUso})" style="padding:6px 10px !important; font-size:12px !important; margin:0; ${estaEnUso ? 'opacity:0.3; cursor:not-allowed; background:#718096 !important; border-color:#718096 !important;' : ''}">🗑️</button>
                 </div>
             </div>`;
         }).join("");
@@ -6162,12 +6164,47 @@ function renderizarContenidoInternoPestañaDatos() {
             const p = plantillas[idFB];
             return `
             <div class="deca-fila-dato-purgable">
-                <div style="max-width: 80%;"><strong>🗺️ ${p.cargador_razon}</strong><br><span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">➔ ${p.origen_plaza} - ${p.destino_plaza}</span></div>
-                <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('plantillas', '${idFB}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
+                <div onclick="cargarPlantillaParaEditarExpress('${idFB}')" style="max-width: 70%; cursor: pointer; width: 100%;">
+                    <strong>🗺️ ${p.cargador_razon}</strong><br>
+                    <span style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">➔ ${p.origen_plaza} - ${p.destino_plaza}</span>
+                </div>
+                <div style="display:flex; gap:4px; align-items: center;">
+                    <button class="btn-top" onclick="cargarPlantillaParaEditarExpress('${idFB}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">✏️</button>
+                    <button class="btn-top btn-salir-rojo" onclick="ejecutarPurgaDatoFrecuenteNube('plantillas', '${idFB}')" style="padding:6px 10px !important; font-size:12px !important; margin:0;">🗑️</button>
+                </div>
             </div>`;
         }).join("");
     }
 }
+
+
+// =========================================================================
+// 🛡️ PASARELA DE SEGURIDAD VISUAL: INTERCEPTOR DE BORRADO DE ARCHIVOS (v4.37)
+// =========================================================================
+function interceptarBotonBorradoExpress(categoria, llaveIdentificadorLimpia, estaBloqueadoPorUso) {
+    // 1. Si el radar detectó que el elemento ya pertenece a un DeCA, disparamos el candado informativo
+    if (estaBloqueadoPorUso === true) {
+        if (categoria === "clientes") {
+            mostrarAlertaCorporativaDeca(
+                "Operación Cancelada",
+                "No se puede eliminar de la lista un cliente contractual que ya figura en portes oficiales firmados dentro de tu historial.",
+                "🔒"
+            );
+        } else {
+            mostrarAlertaCorporativaDeca(
+                "Operación Cancelada",
+                "Esta mercancía está inmovilizada por ley. No se permite su borrado del catálogo al estar vinculada a tu historial de viajes vigentes.",
+                "🔒"
+            );
+        }
+        return; // Congela la ejecución de forma segura
+    }
+
+    // 2. Si el registro está libre, le damos paso directamente a tu función nativa de borrado en Firebase
+    console.log("✂️ Solicitud de purga autorizada para la llave:", llaveIdentificadorLimpia);
+    ejecutarPurgaDatoFrecuenteNube(categoria, llaveIdentificadorLimpia);
+}
+
 
 
 // =========================================================================
@@ -6234,6 +6271,50 @@ function cargarMercanciaParaEditarExpress(key) {
     mostrarAvisoToast("✏️ Carga cargada para modificar");
 }
 
+
+function cargarPlantillaParaEditarExpress(idFB) {
+    let plantillas = window.diccionarioPlantillasCloud;
+    if (!plantillas) {
+        try { plantillas = JSON.parse(localStorage.getItem("bk_admin_plantillas_cloud")) || {}; } catch(e){}
+    }
+
+    const p = plantillas[idFB];
+    if (!p) return;
+
+    idRegistroDatoEnEdicion = idFB; // 🔒 Guardamos el ID original de Firebase que vamos a sobreescribir
+
+    // 📐 Activamos en caliente los campos de entrada de Empresas en la lona del mini-form
+    // para poder editar los 11 campos comerciales de la plantilla de forma cómoda
+    conmutarVistaFormularioParaPlantillas(p);
+
+    document.getElementById("deca_mini_form_accion_titulo").innerText = `✏️ Modificar Estructura de Plantilla`;
+    mostrarAvisoToast("✏️ Estructura de plantilla cargada");
+}
+
+// Auxiliar elástico que expande y rellena el miniformulario con las celdas de la plantilla
+function conmutarVistaFormularioParaPlantillas(p) {
+    const contCampos = document.getElementById("deca_mini_form_campos_dinamicos");
+    if (!contCampos) return;
+
+    contCampos.style.gridTemplateColumns = "repeat(auto-fit, minmax(130px, 1fr))";
+    contCampos.innerHTML = `
+        <div class="deca-form-grupo"><label>Razón Social</label><input type="text" id="mini_carg_razon" class="deca-input" value="${p.cargador_razon || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo"><label>NIF / CIF</label><input type="text" id="mini_carg_nif" class="deca-input" value="${p.cargador_nif || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo"><label>Domicilio</label><input type="text" id="mini_carg_calle" class="deca-input" value="${p.cargador_calle || p.cargador_domicilio || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo"><label>C.P.</label><input type="text" id="mini_carg_cp" class="deca-input" value="${p.cargador_cp || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo"><label>Población</label><input type="text" id="mini_carg_poblacion" class="deca-input" value="${p.cargador_poblacion || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo"><label>Provincia</label><input type="text" id="mini_carg_provincia" class="deca-input" value="${p.cargador_provincia || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo"><label>Lugar Origen</label><input type="text" id="mini_origen_plaza" class="deca-input" value="${p.origen_plaza || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo"><label>Lugar Destino</label><input type="text" id="mini_destino_plaza" class="deca-input" value="${p.destino_plaza || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo" style="grid-column: 1 / -1;"><label>Naturaleza Mercancía</label><input type="text" id="mini_mercan_nombre" class="deca-input" value="${p.mercancia_nombre || ''}" style="padding:6px; font-size:13px;"></div>
+        <div class="deca-form-grupo" style="grid-column: 1 / -1;"><label>Peso / Magnitud Almacenada</label><input type="text" id="mini_mercan_peso" class="deca-input" value="${p.mercancia_peso || ''}" style="padding:6px; font-size:13px;"></div>
+
+        <div style="grid-column: 1 / -1; display: flex; gap: 6px; justify-content: flex-end; margin-top: 5px;">
+            <button type="button" class="btn-top" onclick="restablecerMiniFormularioDatosPorDefecto(); renderizarContenidoInternoPestañaDatos();" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">Cancelar</button>
+            <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoDatoFrecuenteExpress()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">💾 Guardar Plantilla</button>
+        </div>
+    `;
+}
 
 
 
@@ -6414,6 +6495,53 @@ function ejecutarGuardadoDatoFrecuenteExpress() {
             // Mantenemos tu captura de errores y logs originales para auditoría de red
             console.error("Fallo en sincronización express de mercancías:", err);
             alert("Error de comunicación: " + err.message);
+        });
+    }
+
+    // --- SECCIÓN C: ACTUALIZACIÓN EN CALIENTE DE ESTRUCTURA DE PLANTILLAS ---
+    else if (pestañaDatosActivaActualmente === "plantillas") {
+        const razon = document.getElementById("mini_carg_razon").value.trim().toUpperCase();
+        const nif = document.getElementById("mini_carg_nif").value.trim().toUpperCase();
+        const calle = document.getElementById("mini_carg_calle").value.trim().toUpperCase();
+        const cp = document.getElementById("mini_carg_cp").value.trim();
+        const pob = document.getElementById("mini_carg_poblacion").value.trim().toUpperCase();
+        const prov = document.getElementById("mini_carg_provincia").value.trim().toUpperCase();
+        const orig = document.getElementById("mini_origen_plaza").value.trim().toUpperCase();
+        const dest = document.getElementById("mini_destino_plaza").value.trim().toUpperCase();
+        const merc = document.getElementById("mini_mercan_nombre").value.trim().toUpperCase();
+        const peso = document.getElementById("mini_mercan_peso").value.trim().toUpperCase();
+
+        if (!razon || !nif || !orig || !dest || !merc) {
+            return alert("⚠ Razón Social, NIF, Origen, Destino y Mercancía son campos obligatorios.");
+        }
+
+        mostrarAvisoToast("⏳ Re-escribiendo matriz de ruta en la nube...");
+
+        const domicilioCpl = `${calle} (CP: ${cp} - ${pob} - ${prov})`;
+        const paquetePlantillaEditada = {
+            cargador_razon: razon, cargador_nif: nif, cargador_calle: calle, cargador_cp: cp,
+            cargador_poblacion: pob, cargador_provincia: prov, cargador_domicilio: domicilioCpl,
+            origen_plaza: orig, destino_plaza: dest, mercancia_nombre: merc, mercancia_peso: peso
+        };
+
+        const registroViejoPlantilla = idRegistroDatoEnEdicion;
+
+        // Generamos un nuevo nodo limpio en la base de datos de Google Firebase
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes').push(paquetePlantillaEditada)
+        .then(function() {
+            // ✂️ Si el guardado ha tenido éxito, trituramos fulminantemente la ID original vieja
+            if (registroViejoPlantilla !== null) {
+                return database.ref('usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes/' + registroViejoPlantilla).remove();
+            }
+            return Promise.resolve();
+        })
+        .then(function() {
+            mostrarAvisoToast("✅ Estructura de plantilla actualizada correctamente.");
+            restablecerMiniFormularioDatosPorDefecto();
+            renderizarContenidoInternoPestañaDatos();
+        })
+        .catch(function(err) {
+            alert("Error de red al actualizar plantilla: " + err.message);
         });
     }
 }
