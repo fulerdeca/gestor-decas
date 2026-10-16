@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.39</title>
+    <title>Gestor de DeCAs Transportes v4.54</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1990,6 +1990,52 @@ body.dark-mode .camion-alerta-pendiente img {
     100% { box-shadow: 0 0 0 0 rgba(99, 179, 237, 0); }
 }
 
+
+/* ==========================================================================
+   🎨 RELIEVES CROMÁTICOS POR ROL COMERCIAL (v4.53)
+   ========================================================================== */
+/* Variantes para el Perfil de Cargador Contractual */
+body.rol-cargador-activo .cabecera-dashboard {
+    border-bottom: 2px solid #28a745 !important;
+}
+body.rol-cargador-activo .deca-modal-cabecera {
+    background: #1e7e34 !important; /* Verde oscuro logístico para modales */
+}
+body.rol-cargador-activo .deca-num-circulo,
+body.rol-cargador-activo .deca-num-titulo,
+body.rol-cargador-activo .deca-mini-form-titulo {
+    color: #1e7e34 !important;
+}
+body.rol-cargador-activo .deca-num-circulo {
+    background: #1e7e34 !important;
+    color: #ffffff !important;
+}
+body.rol-cargador-activo .deca-btn-guardar,
+body.rol-cargador-activo .btn-nuevo-deca {
+    background: #1e7e34 !important;
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.2) !important;
+}
+
+/* Sincronización nocturna del esquema de Cargador */
+body.dark-mode.rol-cargador-activo .cabecera-dashboard {
+    border-bottom: 2px solid #2cfb69 !important;
+}
+body.dark-mode.rol-cargador-activo .deca-modal-cabecera {
+    background: #1c1c1e !important; /* Gris oscuro integrado */
+    border-bottom: 2px solid #2cfb69 !important;
+}
+body.dark-mode.rol-cargador-activo .deca-num-circulo,
+body.dark-mode.rol-cargador-activo .deca-num-titulo,
+body.dark-mode.rol-cargador-activo .deca-mini-form-titulo {
+    color: #2cfb69 !important;
+}
+body.dark-mode.rol-cargador-activo .deca-num-circulo {
+    background: #2cfb69 !important;
+    color: #121212 !important;
+}
+
+
+
 </style>
 
 </head>
@@ -2421,14 +2467,19 @@ function verificarExistenciaPerfilCamionero() {
             if (copiaPerfilRAM && copiaPerfilRAM.razon_social && copiaPerfilRAM.razon_social.trim() !== "") {
                 if (copiaPerfilRAM.estado_activacion === "ACTIVADO" || copiaPerfilRAM.estado_activacion === "ADMIN") {
 
-                    // 🚀 RADAR DE INTEGRIDAD MÁSTER DE ARRANQUE (v4.40):
-                    const faltaDireccion = (!copiaPerfilRAM.domicilio_calle || copiaPerfilRAM.domicilio_calle.trim() === "");
-                    const faltaCP = (!copiaPerfilRAM.codigo_postal || copiaPerfilRAM.codigo_postal.trim() === "");
-                    const faltaTractor = (!copiaPerfilRAM.matricula_tractor || copiaPerfilRAM.matricula_tractor.trim() === "");
-                    const faltaRemolque = (!copiaPerfilRAM.matricula_remolque || copiaPerfilRAM.matricula_remolque.trim() === "");
-                    const faltaTelefono = (!copiaPerfilRAM.telefono || copiaPerfilRAM.telefono.trim() === "");
+                        // 🚀 RADAR DE INTEGRIDAD MÁSTER DE ARRANQUE (v4.52):
+                        const esCargador = (copiaPerfilRAM && copiaPerfilRAM.tipo_rol_deca === "CARGADOR");
 
-                    if (faltaDireccion || faltaCP || faltaTractor || faltaRemolque || faltaTelefono) {
+                        const faltaDireccion = (!copiaPerfilRAM.domicilio_calle || copiaPerfilRAM.domicilio_calle.trim() === "");
+                        const faltaCP = (!copiaPerfilRAM.codigo_postal || copiaPerfilRAM.codigo_postal.trim() === "");
+                        const faltaTelefono = (!copiaPerfilRAM.telefono || copiaPerfilRAM.telefono.trim() === "");
+
+                        // 🔒 CANDADO CONDICIONAL: Las matrículas solo son obligatorias para el perfil de TRANSPORTISTA
+                        const faltaTractor = !esCargador && (!copiaPerfilRAM.matricula_tractor || copiaPerfilRAM.matricula_tractor.trim() === "");
+                        const faltaRemolque = !esCargador && (!copiaPerfilRAM.matricula_remolque || copiaPerfilRAM.matricula_remolque.trim() === "");
+
+                        if (faltaDireccion || faltaCP || faltaTelefono || faltaTractor || faltaRemolque) {
+
                         console.warn("⚠️ Perfil incompleto detectado en el arranque. Forzando configuración...");
                         misDatosPerfilAutonomo = copiaPerfilRAM;
 
@@ -2451,7 +2502,15 @@ function verificarExistenciaPerfilCamionero() {
                     console.log("🔓 Licencia validada y perfil íntegro: Liberando interfaz...");
                     misDatosPerfilAutonomo = copiaPerfilRAM;
 
+                    // 🚀 ARIETE VISUAL DE ROLES: Sella la clase en el body para activar el CSS personalizado
+                    if (copiaPerfilRAM.tipo_rol_deca === "CARGADOR") {
+                        document.body.classList.add("rol-cargador-activo");
+                    } else {
+                        document.body.classList.remove("rol-cargador-activo");
+                    }
+
                     actualizarAvatarInicialesPerfilTecho(copiaPerfilRAM.razon_social); // 🚀 Inyección Máster en Caliente
+
 
 
                     // Apagamos todas las pantallas de control si todo está al 100% relleno
@@ -2531,7 +2590,27 @@ function desplegarMuroRegistroInicialObligatorioNativo() {
 // 👤 CONFIGURACIÓN DEL PANEL DE REVISIÓN DE DATOS COMERCIALES EXISTENTES (v4.50)
 // =========================================================================
 function abrirPanelMisDatosCamionero(forzarBloqueoSalida = false) {
-    // 🧼 CORTAFUEGOS VISUAL: Borra cualquier color rosa previo de la ficha del transportista
+
+    // 🚀 IDENTIFICADOR DE ROL EN TÍTULO: Estampa el tipo de operador en el modal
+    const rolTexto = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR") ? "CARGADOR" : "TRANSPORTISTA";
+    const nodoTituloPerfil = document.getElementById("titulo_perfil_dinamico");
+    if (nodoTituloPerfil) {
+        nodoTituloPerfil.innerText = `Mis Datos Comerciales (${rolTexto})`;
+    }
+
+    // 🚀 RADAR TRANSPORTE/CARGADOR: Ocultación de bloque 3 de vehículos para Cargadores
+    const bloqueVehiculosFicha = document.querySelector("#modal_perfil_camionero .bloque-formulario-deca:nth-of-type(3)");
+    const esPerfilCargador = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR");
+
+    if (bloqueVehiculosFicha) {
+        if (esPerfilCargador) {
+            bloqueVehiculosFicha.style.setProperty("display", "none", "important"); // Se evapora de la pantalla
+        } else {
+            bloqueVehiculosFicha.style.setProperty("display", "block", "important");
+        }
+    }
+
+    // 🧼 CORTAFUEGOS VISUAL: Borra cualquier color rosa previo
     const todosLosInputsPerfil = document.querySelectorAll("#modal_perfil_camionero .deca-input, #modal_registro_inicial_obligatorio .deca-input");
     todosLosInputsPerfil.forEach(input => input.classList.remove("deca-input-error-falta"));
 
@@ -3210,6 +3289,21 @@ function activarEscuchaRealtimeDeCAs() {
         });
     }
 
+    // 📡 NUEVA ANTENA: Sincronización en vivo de la cartera de clientes desde Firebase (v4.54)
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/cargadores_frecuentes').on('value', (snapshot) => {
+        window.diccionarioCargadoresCloud = snapshot.val() || {};
+        console.log("📦 Cartera de operadores sincronizada desde la nube:", Object.keys(window.diccionarioCargadoresCloud).length);
+
+        try {
+            localStorage.setItem("bk_admin_cargadores_cloud", JSON.stringify(window.diccionarioCargadoresCloud));
+        } catch(e) {}
+
+        // Si el mini-formulario de datos está abierto, repinta la lista inferior al instante
+        if (document.getElementById("modal_central_datos_deca").style.display === "flex" && pestañaDatosActivaActualmente === "clientes") {
+            renderizarContenidoInternoPestañaDatos();
+        }
+    });
+
 
 }
 
@@ -3464,50 +3558,102 @@ function restablecerTodosLosFiltrosDashboard() {
 
 
 
-
-
 // =========================================================================
-// 🔥 APERTURA DE FORMULARIO EN MODO CREAR (RESET COMPLETO Y AUTO-RELLENO)
+// 🔥 APERTURA DE FORMULARIO EN MODO CREAR (ORDEN FISCAL RESTAURADO v4.53)
 // =========================================================================
 function abrirFormularioNuevoDeCA() {
     idDocumentoEnEdicion = null;
 
-    // 1. 🚀 PRIMERO LIMPIAMOS: Vaciamos cualquier resto de un viaje anterior de las casillas
+    // 1. Limpiamos restos de viajes anteriores
     limpiarCamposFormularioGigante();
-
-    // 2. Cargamos el listado de plantillas frecuentes en el selector
     actualizarDesplegablePlantillasFormulario();
 
     document.querySelector("#modal_nuevo_deca h3").innerText = "Nuevo DeCA";
     document.querySelector(".deca-btn-guardar").innerText = "Generar DeCA";
 
-    // Obtiene la fecha de hoy de forma dinámica en formato YYYY-MM-DD
     const hoy = new Date();
     const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
     document.getElementById("deca_fecha_transporte").value = hoyString;
 
-    // 3. ✍️ DESPUÉS INYECTAMOS: Colocamos de forma segura la información del transportista activo
-    if (misDatosPerfilAutonomo) {
+    // 🕵️ DETECTOR DE ROL COMERCIAL
+    const esEmisorCargador = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR");
+
+    // Restauramos de forma rígida los títulos originales del BOE
+    const labelBloque1 = document.querySelector("#modal_nuevo_deca .bloque-formulario-deca:nth-of-type(2) .deca-num-titulo"); // Bloque 1
+    const labelBloque2 = document.querySelector("#modal_nuevo_deca .bloque-formulario-deca:nth-of-type(3) .deca-num-titulo div"); // Bloque 2
+
+    if (labelBloque1) labelBloque1.innerHTML = `<span class="deca-num-circulo">1</span> Cargador Contractual`;
+    if (labelBloque2) labelBloque2.innerHTML = `<span class="deca-num-circulo">2</span> Transportista Efectivo`;
+
+    // 🚀 LÓGICA DE REPARACIÓN DE CASILLAS CRUZADAS
+    if (esEmisorCargador) {
+        // CASO CARGADOR: El bloque 1 (Cargador) es TU EMPRESA (Fijo) y el bloque 2 lo buscas
+        if (labelBloque1) labelBloque1.innerHTML += ` <span style="background:#fff3cd; color:#856404; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:5px;">TU EMPRESA</span>`;
+
+        // Inyectamos tus datos fijos en las casillas del Bloque 1
+        document.getElementById("deca_carg_razon").value = misDatosPerfilAutonomo.razon_social || "";
+        document.getElementById("deca_carg_nif").value = misDatosPerfilAutonomo.nif_cif || "";
+        document.getElementById("deca_carg_domicilio").value = misDatosPerfilAutonomo.domicilio_calle || "";
+        document.getElementById("deca_carg_cp").value = misDatosPerfilAutonomo.codigo_postal || "";
+        document.getElementById("deca_carg_poblacion").value = misDatosPerfilAutonomo.poblacion || "";
+        document.getElementById("deca_carg_provincia").value = misDatosPerfilAutonomo.provincia || "";
+
+        // Bloqueamos las casillas del bloque 1 para que no se alteren
+        document.getElementById("deca_carg_razon").readOnly = true;
+        document.getElementById("deca_carg_nif").readOnly = true;
+        document.getElementById("deca_carg_domicilio").readOnly = true;
+        document.getElementById("deca_carg_cp").readOnly = true;
+        document.getElementById("deca_carg_poblacion").readOnly = true;
+        document.getElementById("deca_carg_provincia").readOnly = true;
+
+        // Liberamos las casillas del bloque 2 (Transportista) para que actúe el buscador predictivo ahí
+        document.getElementById("deca_transp_razon").readOnly = false;
+        document.getElementById("deca_transp_razon").placeholder = "Escribe para buscar transportista habitual...";
+        document.getElementById("deca_transp_nif").readOnly = false;
+        document.getElementById("deca_transp_nif").placeholder = "NIF del Transportista";
+
+        // Conectamos las antenas predictivas al campo del transportista
+        document.getElementById("deca_transp_razon").oninput = function() { filtrarCargadoresFrecuentesPredictivo(this); };
+        document.getElementById("deca_transp_razon").onfocus = function() { filtrarCargadoresFrecuentesPredictivo(this); };
+
+        // Desconectamos el buscador del campo viejo del cargador
+        document.getElementById("deca_carg_razon").oninput = null;
+        document.getElementById("deca_carg_razon").onfocus = null;
+    } else {
+        // CASO TRANSPORTISTA: El bloque 1 lo buscas y el bloque 2 (Transportista) es TU EMPRESA (Fijo)
+        if (labelBloque2) labelBloque2.innerHTML += ` <span style="background:#fff3cd; color:#856404; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:5px;">TU EMPRESA</span>`;
+
+        // Bloque 1 libre para buscar clientes
+        document.getElementById("deca_carg_razon").readOnly = false;
+        document.getElementById("deca_carg_razon").placeholder = "Empresa que contrata el transporte";
+        document.getElementById("deca_carg_nif").readOnly = false;
+        document.getElementById("deca_carg_nif").placeholder = "B-00000000";
+        document.getElementById("deca_carg_domicilio").readOnly = false;
+        document.getElementById("deca_carg_cp").readOnly = false;
+        document.getElementById("deca_carg_poblacion").readOnly = false;
+        document.getElementById("deca_carg_provincia").readOnly = false;
+
+        document.getElementById("deca_carg_razon").oninput = function() { filtrarCargadoresFrecuentesPredictivo(this); };
+        document.getElementById("deca_carg_razon").onfocus = function() { filtrarCargadoresFrecuentesPredictivo(this); };
+
+        // Bloque 2 fijo con tus datos
         document.getElementById("deca_transp_razon").value = misDatosPerfilAutonomo.razon_social || "";
         document.getElementById("deca_transp_nif").value = misDatosPerfilAutonomo.nif_cif || "";
+        document.getElementById("deca_transp_razon").readOnly = true;
+        document.getElementById("deca_transp_nif").readOnly = true;
 
-        // Claves nativas exactas de Firebase asignadas después de la limpieza general
+        document.getElementById("deca_transp_razon").oninput = null;
+        document.getElementById("deca_transp_razon").onfocus = null;
+
+        // Auto-relleno de tus camiones habituales en el Bloque 3
         document.getElementById("deca_vehiculo").value = misDatosPerfilAutonomo.matricula_tractor || "";
         document.getElementById("deca_remolque").value = misDatosPerfilAutonomo.matricula_remolque || "";
-    } else {
-        document.getElementById("deca_transp_razon").value = "SIN CONFIGURAR";
-        document.getElementById("deca_transp_nif").value = "---";
-        document.getElementById("deca_vehiculo").value = "";
-        document.getElementById("deca_remolque").value = "";
     }
 
     document.getElementById("modal_nuevo_deca").style.display = "flex";
-    // 🔥 LA SOLUCIÓN: Fuerza al cuerpo del formulario a subir al píxel cero en el acto
     const cuerpoNuevoDeca = document.querySelector("#modal_nuevo_deca .deca-modal-cuerpo");
     if (cuerpoNuevoDeca) cuerpoNuevoDeca.scrollTop = 0;
 }
-
-
 
 
 
@@ -3991,22 +4137,26 @@ function procesarGuardadoDeCAOnline() {
     }
 
 
-// === BUSCA ESTE PAQUETE DENTRO DE PROCESARGARDADODECAONLINE Y REPLÁZALO COMPLETO ===
+    // 🕵️ DETECTOR DE PERSPECTIVA: Determinamos quién actúa como Cargador y quién como Transportista en el PDF
+    const esCreadorCargador = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR");
+
+    // === RESTAURACIÓN FISCAL COMPLETA DEL PAQUETE DE DATOS DECA (v4.54 LIMPIA) ===
     const paqueteDeCADatos = {
-        cargador_razon: cargRazon,
-        cargador_nif: cargNif,
-        cargador_calle: cargDomicilio,
-        cargador_cp: cargCp,
-        cargador_poblacion: cargPoblacion,
-        cargador_provincia: cargProvincia,
+        // Bloque 1: Lee siempre de las casillas de cargador de la pantalla
+        cargador_razon: document.getElementById("deca_carg_razon").value.trim().toUpperCase(),
+        cargador_nif: document.getElementById("deca_carg_nif").value.trim().toUpperCase(),
+        cargador_calle: document.getElementById("deca_carg_domicilio").value.trim().toUpperCase(),
+        cargador_cp: document.getElementById("deca_carg_cp").value.trim(),
+        cargador_poblacion: document.getElementById("deca_carg_poblacion").value.trim().toUpperCase(),
+        cargador_provincia: document.getElementById("deca_carg_provincia").value.trim().toUpperCase(),
         cargador_domicilio: domicilioCargadorCompleto,
 
-        // 🚀 REPARACIÓN DE PASARELA v3.97: Sellado físico indestructible de vuestra identidad fiscal
-        // Al guardarlo así en la lona del viaje, viaja impreso de forma fija a la página de verificación y al PDF
-        transportista_razon: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : "TRANSPORTISTA EFECTIVO",
-        transportista_nif: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : "---",
+        // Bloque 2: Lee siempre de las casillas de transportista de la pantalla
+        transportista_razon: document.getElementById("deca_transp_razon").value.trim().toUpperCase(),
+        transportista_nif: document.getElementById("deca_transp_nif").value.trim().toUpperCase(),
 
-        matricula_tractor: vehiculo,
+        // Bloque 3: Datos de la Flota y Ruta Comercial
+        matricula_tractor: vehiculo, // 🚀 LIMPIADO: Eliminada la interferencia fantasma de sintaxis
         matricula_remolque: remolque,
         fecha_transporte: fechaTransp,
         fecha_fin_servicio: fechaFin ? fechaFin : "",
@@ -4020,6 +4170,7 @@ function procesarGuardadoDeCAOnline() {
         estado: estadoCalculado,
         fecha_creacion_sistema: new Date().toLocaleString()
     };
+
 
 
     // 🚀 CONTROL ELÁSTICO DE GUARDADO (EDICIÓN Y ALTA OFFLINE)
@@ -4133,42 +4284,57 @@ function ejecutarInyeccionCorrelativaDeCA(paqueteDatos) {
 
 
 
+// =========================================================================
+// 🧼 LIMPIEZA ABSOLUTA DE FORMULARIO: RE-RESET DE DATOS Y PERMISOS (v4.54)
+// =========================================================================
 function limpiarCamposFormularioGigante() {
-    // 🧼 CORTAFUEGOS VISUAL: Tritura cualquier color rojo de error residual del formulario DeCA
+    // 🔓 LIBERTAD DE CABINA: Eliminamos cualquier candado de solo lectura residual
     const todosLosInputsForm = document.querySelectorAll("#modal_nuevo_deca .deca-input");
-    todosLosInputsForm.forEach(input => input.classList.remove("deca-input-error-falta"));
+    todosLosInputsForm.forEach(input => {
+        input.classList.remove("deca-input-error-falta"); // Quita el fondo rosa de error
+        input.readOnly = false; // Asegura que todos los campos sean editables
+    });
 
+    // 🏢 Vaciar Sección 1: Cargador Contractual
     document.getElementById("deca_carg_razon").value = "";
     document.getElementById("deca_carg_nif").value = "";
     document.getElementById("deca_carg_domicilio").value = "";
+    if (document.getElementById("deca_carg_cp")) document.getElementById("deca_carg_cp").value = "";
+    if (document.getElementById("deca_carg_poblacion")) document.getElementById("deca_carg_poblacion").value = "";
+    if (document.getElementById("deca_carg_provincia")) document.getElementById("deca_carg_provincia").value = "";
 
-    if(document.getElementById("deca_carg_cp")) document.getElementById("deca_carg_cp").value = "";
-    if(document.getElementById("deca_carg_poblacion")) document.getElementById("deca_carg_poblacion").value = "";
-    if(document.getElementById("deca_carg_provincia")) document.getElementById("deca_carg_provincia").value = "";
+    // 🚚 Vaciar Sección 2: Transportista Efectivo
+    document.getElementById("deca_transp_razon").value = "";
+    document.getElementById("deca_transp_nif").value = "";
 
-    document.getElementById("deca_fecha_fin").value = "";
+    // 🗺️ Vaciar Sección 3: Datos del Transporte y Flota Habitual
     document.getElementById("deca_vehiculo").value = "";
     document.getElementById("deca_remolque").value = "";
     document.getElementById("deca_origen").value = "";
     document.getElementById("deca_destino").value = "";
+
+    // 📦 Vaciar Sección 4: Mercancía
     document.getElementById("deca_mercan_nombre").value = "";
     document.getElementById("deca_mercan_peso").value = "";
     document.getElementById("deca_mercan_bultos").value = "";
+
+    // 📝 Vaciar Sección 5: Observaciones e Indicaciones
     document.getElementById("deca_observaciones").value = "";
 
-    // 🔥 LA NUEVA LÍNEA: Resetea el desplegable de plantillas al formato original al cerrar o guardar
+    // ⭐ Resetear el selector predictivo de plantillas online
     const selectorPlantillas = document.getElementById("selector_plantillas_frecuentes");
     if (selectorPlantillas) selectorPlantillas.value = "";
 
-    // 🔥 LA NUEVA LÍNEA: Asegura que el botón nazca invisible si se abre un formulario limpio
-    if(document.getElementById("btn_eliminar_plantilla_trigger")) {
+    // Ocultar la papelera de borrado de plantillas por seguridad
+    if (document.getElementById("btn_eliminar_plantilla_trigger")) {
         document.getElementById("btn_eliminar_plantilla_trigger").style.display = "none";
     }
 
-    // 🚀 ESTÉTICA: Asegura que el botón recupere su texto nativo de alta al limpiar
+    // Restaurar el texto original del botón de acción principal
     const btnGuardar = document.querySelector(".deca-btn-guardar");
     if (btnGuardar) btnGuardar.innerText = "Generar DeCA";
 }
+
 
 
 
@@ -4626,7 +4792,6 @@ function registrarNuevoCamioneroEcosistema() {
     // Auxiliar máster inteligente: SOLO evalúa el campo si la ventana donde vive está visible en pantalla
     function comprobarCampoPerfilObligatorio(idCampo, nombreLegible, idModalPadre) {
         const modalPadre = document.getElementById(idModalPadre);
-        // Si el modal padre no está abierto en pantalla (display != flex/block), ignoramos el campo por completo
         if (modalPadre && (modalPadre.style.display === "none" || window.getComputedStyle(modalPadre).display === "none")) {
             return;
         }
@@ -4649,14 +4814,16 @@ function registrarNuevoCamioneroEcosistema() {
     comprobarCampoPerfilObligatorio("reg_transp_cp", "Código Postal (CP)", "modal_perfil_camionero");
     comprobarCampoPerfilObligatorio("reg_transp_poblacion", "Población / Localidad", "modal_perfil_camionero");
     comprobarCampoPerfilObligatorio("reg_transp_provincia", "Provincia (España)", "modal_perfil_camionero");
-    comprobarCampoPerfilObligatorio("reg_transp_tractor", "Matrícula de la Tractora", "modal_perfil_camionero");
-    comprobarCampoPerfilObligatorio("reg_transp_remolque", "Matrícula del Remolque", "modal_perfil_camionero");
     comprobarCampoPerfilObligatorio("reg_transp_telefono", "Teléfono de Contacto", "modal_perfil_camionero");
+
+    // 🔒 EVALUACIÓN ADAPTATIVA: Solo exigimos Matrículas de camión si el usuario NO es un Cargador Contractual
+    if (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca !== "CARGADOR") {
+        comprobarCampoPerfilObligatorio("reg_transp_tractor", "Matrícula de la Tractora", "modal_perfil_camionero");
+        comprobarCampoPerfilObligatorio("reg_transp_remolque", "Matrícula del Remolque", "modal_perfil_camionero");
+    }
 
     // 🔒 CERROJO EXTENDIDO: Forzamos que la clave alias sea obligatoria también en la actualización del perfil
     comprobarCampoPerfilObligatorio("reg_transp_password", "Clave de Acceso Personalizada (Alias)", "modal_perfil_camionero");
-
-
 
     // 🚚 CASE B: Si el chófer se está registrando por primera vez desde la ventana de Alta Inicial Virgen
     comprobarCampoPerfilObligatorio("reg_inicial_razon", "Razón Social del Transportista", "modal_registro_inicial_obligatorio");
@@ -4666,7 +4833,6 @@ function registrarNuevoCamioneroEcosistema() {
         const listadoFormateado = "Para poder validar tu licencia comercial y firmar los portes, es obligatorio cumplimentar las casillas resaltadas en rojo claro:\n\n• " + camposVaciosFaltantes.join("\n• ");
         mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", listadoFormateado, "⚠️");
 
-        // Enfoca el primer error visible dependiendo de qué ventana esté en pantalla
         const primerErrorPerfil = document.querySelector("#modal_perfil_camionero .deca-input-error-falta, #modal_registro_inicial_obligatorio .deca-input-error-falta");
         if (primerErrorPerfil) primerErrorPerfil.focus();
         return; // Aborta el guardado
@@ -4702,13 +4868,11 @@ function registrarNuevoCamioneroEcosistema() {
         elEmailPerfil.focus();
         return;
     }
-
-    // 🔒 CONTROL DE SEGURIDAD CONTRACTUAL: Si el conductor borró a mano el alias, cancelamos la operación
     const elInputPasswordPerfil = document.getElementById("reg_transp_password");
     if (elInputPasswordPerfil && (passwordAlias === "" || passwordAlias === "(SIN CONTRASEÑA PROPIA)")) {
         elInputPasswordPerfil.classList.add("deca-input-error-falta");
         elInputPasswordPerfil.focus();
-        return; // Aborta físicamente antes de pisar el nodo en la nube de Google
+        return;
     }
 
     let domicilioFiscalCompleto = domicilio;
@@ -4716,9 +4880,11 @@ function registrarNuevoCamioneroEcosistema() {
         domicilioFiscalCompleto += ` (CP: ${cp} - ${poblacion} - ${provincia})`;
     }
 
+    // 🚀 UNIFICACIÓN INDESTRUCTIBLE DE NOMBRE: Sincronizamos la variable al nombre nativo 'estructuraPerfil'
     const estructuraPerfil = {
         razon_social: razon,
         nif_cif: nif,
+        tipo_rol_deca: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.tipo_rol_deca || "TRANSPORTISTA") : "TRANSPORTISTA",
         domicilio_calle: domicilio || "",
         codigo_postal: cp || "",
         poblacion: poblacion || "",
@@ -4736,9 +4902,6 @@ function registrarNuevoCamioneroEcosistema() {
 
     mostrarAvisoToast("⏳ Sincronizando ficha comercial en la nube...");
 
-    // Variable centinela para saber si vamos a inyectar el viaje de muestra por primera vez
-    let esCuentaNuevaSinViajes = false;
-
     database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').set(estructuraPerfil)
         .then(() => {
             if (passwordAlias !== "") {
@@ -4749,13 +4912,11 @@ function registrarNuevoCamioneroEcosistema() {
         })
         .then(() => {
             misDatosPerfilAutonomo = estructuraPerfil;
-            // Consultamos si el transportista ya tiene algún DeCA emitido
             return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').once('value');
         })
         .then((snapshotDecas) => {
             if (!snapshotDecas.exists()) {
-                esCuentaNuevaSinViajes = true; // Marcamos que el usuario acaba de nacer en el sistema
-                console.log("🔳 Inyectando DeCA-2026-000000 personalizado con vuestras matrículas reales...");
+                console.log("🔳 Inyectando DeCA-2026-000000 personalizado con vuestras marcas reales...");
 
                 const deCADemostracionPrivado = {
                     numero_documento: "DeCA-2026-000000",
@@ -4772,7 +4933,6 @@ function registrarNuevoCamioneroEcosistema() {
                     cargador_razon: "CARGADOR EJEMPLO, S.L.",
                     cargador_nif: "A00000000",
                     cargador_domicilio: "CALLE CENTRAL, 10 (CP: 16650 - LAS MESAS - CUENCA)",
-                    // 🚀 SELLADO DE DIRECCIÓN SEGMENTADA: Rellenamos las tres casillas para el visor del chofer
                     cargador_cp: "16650",
                     cargador_poblacion: "LAS MESAS",
                     cargador_provincia: "CUENCA",
@@ -4787,16 +4947,14 @@ function registrarNuevoCamioneroEcosistema() {
         .then(() => {
             document.getElementById("modal_perfil_camionero").style.display = "none";
             localStorage.setItem("cfg_uid_recuperado_deca", miUsuarioUIDActivo);
-
-            // Activamos las antenas en tiempo real de forma limpia
             activarEscuchaRealtimeDeCAs();
             mostrarAvisoToast("✅ Datos comerciales actualizados.");
-
-            // 🔒 REPARACIÓN: Hemos retirado el bloque de bienvenida de aquí para que no colisione en el arranque
         })
-        .catch(err => alert("Error de red al guardar: " + err.message));
+        .catch(err => {
+            // 🚀 REPARACIÓN: Sustituimos el alert nativo por tu modal premium de alta lectura corporativa
+            mostrarAlertaCorporativaDeca("Fallo de Comunicación", "Error crítico de red al registrar terminal: " + err.message, "❌");
+        });
 }
-
 
 
 
@@ -4896,7 +5054,7 @@ function registrarCargadorEnHistorialFrecuente(razon, nif, calle, cp, poblacion,
 
 
 // =========================================================================
-// 🔍 MOTOR PREDICTIVO DE CARGADORES: LECTURA EN TIEMPO REAL DESDE FIREBASE
+// 🔍 MOTOR PREDICTIVO ADAPTATIVO: UBICACIÓN DINÁMICA DE SUGERENCIAS (v4.54)
 // =========================================================================
 function filtrarCargadoresFrecuentesPredictivo(inputElement) {
     const textoInyectado = inputElement.value.toUpperCase().trim();
@@ -4905,7 +5063,19 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
     if (!dropdownCargadores) return;
     dropdownCargadores.innerHTML = "";
 
-    // 🚀 LECTURA HÍBRIDA NUBE/LOCAL: Extraemos la cartera sincronizada de Firebase (o el respaldo offline si no hay señal)
+    // 🚀 REPARACIÓN DE PASARELA FLOTANTE: Mueve el drop físicamente dentro del div del input activo
+    if (inputElement.parentElement) {
+        inputElement.parentElement.appendChild(dropdownCargadores);
+
+        // 🔒 BLINDAJE GEOMÉTRICO: Fuerza al desplegable a posicionarse de forma idéntica en cualquier bloque
+        dropdownCargadores.style.position = "absolute";
+        dropdownCargadores.style.top = "100%";
+        dropdownCargadores.style.left = "0";
+        dropdownCargadores.style.width = "100%";
+        dropdownCargadores.style.zIndex = "999999";
+    }
+
+
     let diccionarioClientes = window.diccionarioCargadoresCloud;
 
     if (!diccionarioClientes || Object.keys(diccionarioClientes).length === 0) {
@@ -4921,7 +5091,6 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
         return;
     }
 
-    // Filtramos coincidencias por Razón Social o por NIF
     const sugerenciasFiltradas = catalogoEmpresas.filter(c =>
         (c.razon && c.razon.includes(textoInyectado)) || (c.nif && c.nif.includes(textoInyectado))
     );
@@ -4931,33 +5100,52 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
         return;
     }
 
+    const esUsuarioCargador = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR");
+    const esModoOscuro = document.body.classList.contains("dark-mode");
+
     sugerenciasFiltradas.forEach(c => {
         const celdaSugerencia = document.createElement("div");
-        celdaSugerencia.innerHTML = `<strong style="color:#0f4c81;">🏢 ${c.razon}</strong> <span style="font-size:11px; color:#666; margin-left:6px;">(${c.nif})</span>`;
+
+        const iconoCelda = esUsuarioCargador ? "🚚" : "🏢";
+        celdaSugerencia.innerHTML = `<strong style="color:#0f4c81;">${iconoCelda} ${c.razon}</strong> <span style="font-size:11px; color:#666; margin-left:6px;">(${c.nif})</span>`;
         celdaSugerencia.style.padding = "10px 14px";
         celdaSugerencia.style.cursor = "pointer";
         celdaSugerencia.style.fontSize = "13px";
         celdaSugerencia.style.borderBottom = "1px solid #f0f0f0";
         celdaSugerencia.style.textAlign = "left";
-
-        const esModoOscuro = document.body.classList.contains("dark-mode");
         celdaSugerencia.style.color = esModoOscuro ? "#e0e0e0" : "#212529";
 
         celdaSugerencia.onmouseover = function() { this.style.background = esModoOscuro ? "#2c2c2e" : "#eef5fc"; };
         celdaSugerencia.onmouseout = function() { this.style.background = "transparent"; };
 
-        // 🚀 AUTO-RELLENO EN CASCADA DIGITAL: Rellena los 6 campos del bloque 1 de golpe al tocar con el dedo
         celdaSugerencia.onclick = function() {
-            document.getElementById("deca_carg_razon").value = c.razon || "";
-            document.getElementById("deca_carg_nif").value = c.nif || "";
-            document.getElementById("deca_carg_domicilio").value = c.calle || "";
-            document.getElementById("deca_carg_cp").value = c.cp || "";
-            document.getElementById("deca_carg_poblacion").value = c.poblacion || "";
-            document.getElementById("deca_carg_provincia").value = c.provincia || "";
+            // 👮 AUDITORÍA DE RED: Te muestra en la consola del móvil qué datos trae el transportista elegido
+            console.log("🎯 Ficha recuperada del transportista:", c);
+
+            if (esUsuarioCargador) {
+                // MODO CARGADOR: Vuelca los datos en la Sección 2 (Transportista)
+                document.getElementById("deca_transp_razon").value = c.razon || "";
+                document.getElementById("deca_transp_nif").value = c.nif || "";
+
+                // 🚀 EL BLINDAJE DE ENLACE (v4.54):
+                // Busca la matrícula en 'matricula_tractor' (nuevo), en 'tractor' (alternativo)
+                // o en 'vehiculo' (antiguo). Si viene en cualquiera de ellos, ¡lo caza!
+                document.getElementById("deca_vehiculo").value = c.matricula_tractor || c.tractor || c.vehiculo || "";
+                document.getElementById("deca_remolque").value = c.matricula_remolque || c.remolque || "";
+            } else {
+                // MODO TRANSPORTISTA: Vuelca los datos en la Sección 1 (Cargador)
+                document.getElementById("deca_carg_razon").value = c.razon || "";
+                document.getElementById("deca_carg_nif").value = c.nif || "";
+                document.getElementById("deca_carg_domicilio").value = c.calle || "";
+                document.getElementById("deca_carg_cp").value = c.cp || "";
+                document.getElementById("deca_carg_poblacion").value = c.poblacion || "";
+                document.getElementById("deca_carg_provincia").value = c.provincia || "";
+            }
 
             dropdownCargadores.style.display = "none";
-            mostrarAvisoToast("⚡ Cargador frecuente auto-rellenado desde la nube");
+            mostrarAvisoToast(esUsuarioCargador ? "⚡ Transportista y Flota auto-rellenados" : "⚡ Cargador frecuente auto-rellenado");
         };
+
 
         dropdownCargadores.appendChild(celdaSugerencia);
     });
@@ -4967,13 +5155,32 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
 
 
 
-// Escudo perimetral táctil para cerrar el desplegable si se pincha fuera del campo
-document.addEventListener("click", function(evento) {
-    if (evento.target.id !== "deca_carg_razon") {
+
+// === ESCUDO PERIMETRAL ÚNICO: CIERRE DE TODOS LOS DROPDOWNS AL PINCHAR FUERA (v4.54) ===
+document.addEventListener("click", function(e) {
+    // Cerrar provincias del cargador contractual
+    if (e.target.id !== "deca_carg_provincia") {
+        const dropCargProv = document.getElementById("lista_provincias_carg_drop");
+        if (dropCargProv) dropCargProv.style.display = "none";
+    }
+    // Cerrar provincias del Perfil comercial
+    if (e.target.id !== "reg_transp_provincia") {
+        const dropTranspProv = document.getElementById("lista_provincias_drop");
+        if (dropTranspProv) dropTranspProv.style.display = "none";
+    }
+    // 🚀 NUEVO CANDADO DATOS: Cerrar provincias de la pestaña de Empresas habituales
+    if (e.target.id !== "mini_carg_provincia") {
+        const dropMiniProv = document.getElementById("mini_lista_provincias_drop");
+        if (dropMiniProv) dropMiniProv.style.display = "none";
+    }
+    // 🚚 REPARACIÓN MAESTRA DE CABINA: Cierra cargadores/transportistas habituales solo si pincha fuera de AMBOS campos
+    if (e.target.id !== "deca_carg_razon" && e.target.id !== "deca_transp_razon") {
         const dropCarg = document.getElementById("lista_cargadores_habituales_drop");
         if (dropCarg) dropCarg.style.display = "none";
     }
 });
+
+
 
 
 // =========================================================================
@@ -5457,6 +5664,14 @@ function ejecutarCargaDeEmergenciaDesdeDiscoDuro() {
         // 🟢 LA SOLUCIÓN: Mantiene las iniciales calculadas incluso si el terminal está sin señal
         if (copiaPerfilGuardada) {
             misDatosPerfilAutonomo = JSON.parse(copiaPerfilGuardada);
+
+            // 🚀 ARIETE VISUAL OFFLINE: Mantiene el color del rol incluso sin señal
+            if (misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR") {
+                document.body.classList.add("rol-cargador-activo");
+            } else {
+                document.body.classList.remove("rol-cargador-activo");
+            }
+
             actualizarAvatarInicialesPerfilTecho(misDatosPerfilAutonomo.razon_social); // 🚀 Inyección Máster Offline
         }
 
@@ -5515,13 +5730,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 // =========================================================================
-// 🏢 PROCESADOR DE ALTA NUEVA: REGISTRO INTEGRAL BLINDADO ANTI-FANTASMAS (v3.97)
+// 🏢 PROCESADOR DE ALTA NUEVA: REGISTRO INTEGRAL BLINDADO ANTI-FANTASMAS (v4.51 CORREGIDA)
 // =========================================================================
 function ejecutarAltaNuevaRegistroInicial() {
     const razon = document.getElementById("reg_inicial_razon").value.trim().toUpperCase();
     const nif = document.getElementById("reg_inicial_nif").value.trim().toUpperCase();
+    // 🚀 CAPTURA DEL FLAG: Leemos el tipo de operador seleccionado
+    const tipoRol = document.getElementById("reg_inicial_rol") ? document.getElementById("reg_inicial_rol").value : "TRANSPORTISTA";
 
-    // Capturamos el elemento y el valor de la nueva casilla de clave
     const elementoClaveInicial = document.getElementById("reg_inicial_password");
     const claveInicial = elementoClaveInicial ? elementoClaveInicial.value.trim() : "";
 
@@ -5567,6 +5783,7 @@ function ejecutarAltaNuevaRegistroInicial() {
         const estructuraPerfilNuevo = {
             razon_social: razon,
             nif_cif: nif,
+            tipo_rol_deca: tipoRol, // 💾 FIJADO DE PERFIL: Almacenado de forma fija en la nube (CARGADOR o TRANSPORTISTA)
             domicilio_calle: "",
             codigo_postal: "",
             poblacion: "",
@@ -5583,27 +5800,30 @@ function ejecutarAltaNuevaRegistroInicial() {
             estado_activacion: "DESACTIVADO" // Nace bloqueado por seguridad
         };
 
-                const deCADemostracionPrivado = {
-                    numero_documento: "DeCA-2026-000000",
-                    fecha_transporte: "2026-10-06",
-                    matricula_tractor: estructuraPerfil.matricula_tractor || "1111 AAA",
-                    matricula_remolque: estructuraPerfil.matricula_remolque || "R-2222 BBB",
-                    origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
-                    destino_plaza: "CALLE DESTINO, 28 - 16660 LAS PEDROÑERAS (CUENCA) - ESPAÑA",
-                    mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM. (MUESTRA PRIVADA)",
-                    mercancia_peso: "23.000 kg",
-                    mercancia_bultos: "23",
-                    qr_caducidad: "2026-10-13",
-                    estado: "EN_CURSO",
-                    cargador_razon: "CARGADOR EJEMPLO, S.L.",
-                    cargador_nif: "A00000000",
-                    cargador_domicilio: "CALLE CENTRAL, 10 (CP: 16650 - LAS MESAS - CUENCA)",
-                    // 🚀 SELLADO DE DIRECCIÓN SEGMENTADA: Rellenamos las tres casillas para el visor del chofer
-                    cargador_cp: "16650",
-                    cargador_poblacion: "LAS MESAS",
-                    cargador_provincia: "CUENCA",
-                    transportista_razon: estructuraPerfil.razon_social
-                };
+        // 🔥 PUENTE DE SEGURIDAD REQUERIDO: Enlazamos estructuraPerfilNuevo a estructuraPerfil para evitar el error de indefinición
+        var estructuraPerfil = estructuraPerfilNuevo;
+
+        const deCADemostracionPrivado = {
+            numero_documento: "DeCA-2026-000000",
+            fecha_transporte: "2026-10-06",
+            matricula_tractor: estructuraPerfil.matricula_tractor || "1111 AAA",
+            matricula_remolque: estructuraPerfil.matricula_remolque || "R-2222 BBB",
+            origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
+            destino_plaza: "CALLE DESTINO, 28 - 16660 LAS PEDROÑERAS (CUENCA) - ESPAÑA",
+            mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM. (MUESTRA PRIVADA)",
+            mercancia_peso: "23.000 kg",
+            mercancia_bultos: "23",
+            qr_caducidad: "2026-10-13",
+            estado: "EN_CURSO",
+            cargador_razon: "CARGADOR EJEMPLO, S.L.",
+            cargador_nif: "A00000000",
+            cargador_domicilio: "CALLE CENTRAL, 10 (CP: 16650 - LAS MESAS - CUENCA)",
+            // 🚀 SELLADO DE DIRECCIÓN SEGMENTADA: Rellenamos las tres casillas para el visor del chofer
+            cargador_cp: "16650",
+            cargador_poblacion: "LAS MESAS",
+            cargador_provincia: "CUENCA",
+            transportista_razon: estructuraPerfil.razon_social
+        };
 
 
         // Escribimos toda la estructura junta en un solo bloque atómico para que no sufra cortes
@@ -5661,9 +5881,11 @@ function ejecutarAltaNuevaRegistroInicial() {
     })
     .catch(err => {
         console.error("Fallo en pasarela de alta:", err);
-        alert("Error crítico de red al registrar terminal: " + err.message);
+        // 🚀 REPARACIÓN: Pasamos el error al modal corporativo elegante con el emoji de aspa roja
+        mostrarAlertaCorporativaDeca("Fallo de Licencia", "Error crítico de red al registrar terminal: " + err.message, "❌");
     });
 }
+
 
 
 
@@ -6014,7 +6236,18 @@ function conmutarPestañaDatosAdmin(destinoPestaña) {
     pestañaDatosActivaActualmente = destinoPestaña;
     idRegistroDatoEnEdicion = null; // Reseteamos el control de edición de forma rígida
 
+    // 🚀 INTERCAMBIADOR DE ETIQUETAS: Renombrado normativo dinámico de pestañas según vuestra cuenta
+    const botonPrimeraPestaña = document.getElementById("tab_btn_clientes");
+    if (botonPrimeraPestaña) {
+        if (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR") {
+            botonPrimeraPestaña.innerText = "🚚 Transportistas"; // Si eres Cargador, guardas tus transportistas habituales
+        } else {
+            botonPrimeraPestaña.innerText = "🏢 Cargadores";      // Si eres Transportista, guardas tus clientes cargadores
+        }
+    }
+
     // 1. Gestionamos el resalte visual elástico de los botones de arriba
+
     document.getElementById("tab_btn_clientes").classList.remove("activa");
     document.getElementById("tab_btn_mercancias").classList.remove("activa");
     document.getElementById("tab_btn_plantillas").classList.remove("activa");
@@ -6034,7 +6267,7 @@ function conmutarPestañaDatosAdmin(destinoPestaña) {
 
 
 // =========================================================================
-// 📐 INYECTOR: MINI-FORMULARIOS CON COMANDO CANCELAR INTEGRADO (v4.05)
+// 📐 INYECTOR: MINI-FORMULARIOS CON COMANDO CANCELAR INTEGRADO (v4.52 DETECTOR DE MATRÍCULAS)
 // =========================================================================
 function restablecerMiniFormularioDatosPorDefecto() {
     idRegistroDatoEnEdicion = null;
@@ -6044,40 +6277,54 @@ function restablecerMiniFormularioDatosPorDefecto() {
 
     if (!contCampos || !txtTitulo || !btnCancel) return;
 
-    // 🛡️ CONTROL VISUAL: Ocultamos el botón cancelar maestro del pie del mini-form
-    // porque ahora cada pestaña gestiona su pasillo de escape de forma elástica
     btnCancel.style.display = "none";
 
-    // Liberamos la casilla del NIF por si se había quedado bloqueada en lectura
     const inputNif = document.getElementById("mini_carg_nif");
     if (inputNif) inputNif.readOnly = false;
 
-    // --- SECCIÓN A: MAQUETACIÓN PESTAÑA EMPRESAS (CLIENTES) ---
+    // --- SECCIÓN A: MAQUETACIÓN PESTAÑA EMPRESAS (DETERMINA CARGADOR O TRANSPORTISTA) ---
     if (pestañaDatosActivaActualmente === "clientes") {
-        txtTitulo.innerText = "Añadir Nuevo Cliente";
+        const esUsuarioCargador = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR");
+
+        if (esUsuarioCargador) {
+            txtTitulo.innerText = "Añadir Nuevo Transportista Habitual";
+        } else {
+            txtTitulo.innerText = "Añadir Nuevo Cliente Cargador";
+        }
+
         contCampos.style.gridTemplateColumns = "repeat(auto-fit, minmax(130px, 1fr))";
-        contCampos.innerHTML = `
+
+        // Base común del formulario
+        let htmlCampos = `
             <div class="deca-form-grupo"><label>Razón Social</label><input type="text" id="mini_carg_razon" class="deca-input" placeholder="Nombre Empresa" style="padding:6px; font-size:13px;"></div>
             <div class="deca-form-grupo"><label>NIF / CIF</label><input type="text" id="mini_carg_nif" class="deca-input" placeholder="A00000000" style="padding:6px; font-size:13px;"></div>
             <div class="deca-form-grupo"><label>Domicilio</label><input type="text" id="mini_carg_calle" class="deca-input" placeholder="Calle, nº" style="padding:6px; font-size:13px;"></div>
             <div class="deca-form-grupo"><label>C.P.</label><input type="text" id="mini_carg_cp" class="deca-input" placeholder="16630" style="padding:6px; font-size:13px;"></div>
             <div class="deca-form-grupo"><label>Población</label><input type="text" id="mini_carg_poblacion" class="deca-input" placeholder="Localidad" style="padding:6px; font-size:13px;"></div>
-
-            <!-- 🚀 REPARACIÓN: Agregamos el muelle de búsqueda predictiva de provincias al catálogo de Empresas -->
             <div class="deca-form-grupo" style="position: relative !important;">
                 <label>Provincia</label>
-                <input type="text" id="mini_carg_provincia" class="deca-input" placeholder="Escribe para buscar..." oninput="filtrarProvinciasPredictivo(this)" onfocus="filtrarProvinciasPredictivo(this)" style="padding:6px; font-size:13px;">
-                <!-- 🚀 REPARACIÓN: ID Exclusivo para el catálogo de Datos Frecuentes -->
+                <input type="text" id="mini_carg_provincia" class="deca-input" placeholder="Buscar..." oninput="filtrarProvinciasPredictivo(this)" onfocus="filtrarProvinciasPredictivo(this)" style="padding:6px; font-size:13px;">
                 <div id="mini_lista_provincias_drop" style="display: none; position: absolute !important; top: 100% !important; left: 0 !important; width: 100% !important; max-height: 180px !important; overflow-y: auto !important; background: white !important; border: 1px solid #cbd5e0 !important; border-radius: 0 0 6px 6px !important; z-index: 999999 !important; box-shadow: 0 6px 14px rgba(0,0,0,0.15) !important;"></div>
             </div>
+        `;
 
-            <!-- 🚀 REPARACIÓN: Fila impermeable que clava los botones de acción abajo a la derecha del miniform -->
+        // 🚀 INYECCIÓN DINÁMICA: Si es un cargador gestionando su flota, añadimos los campos de vehículos
+        if (esUsuarioCargador) {
+            htmlCampos += `
+                <div class="deca-form-grupo"><label>Matrícula Tractor</label><input type="text" id="mini_carg_tractor" class="deca-input" placeholder="0000 XXX" style="padding:6px; font-size:13px;"></div>
+                <div class="deca-form-grupo"><label>Matrícula Remolque</label><input type="text" id="mini_carg_remolque" class="deca-input" placeholder="R-0000 XXX" style="padding:6px; font-size:13px;"></div>
+            `;
+        }
+
+        // Cierre de la botonera
+        htmlCampos += `
             <div style="grid-column: 1 / -1; display: flex; gap: 6px; justify-content: flex-end; margin-top: 5px;">
                 <button type="button" class="btn-top" onclick="limpiarCamposMiniFormularioFrecuentes()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">Cancelar</button>
                 <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoDatoFrecuenteExpress()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">💾 Guardar</button>
             </div>
         `;
-        // Escondemos los botones nativos del HTML fijo para que no salgan duplicados abajo
+
+        contCampos.innerHTML = htmlCampos;
         document.getElementById("btn_guardar_mini_form").style.setProperty("display", "none", "important");
     }
     // --- SECCIÓN B: MAQUETACIÓN PESTAÑA MERCANCÍAS ---
@@ -6086,8 +6333,6 @@ function restablecerMiniFormularioDatosPorDefecto() {
         contCampos.style.gridTemplateColumns = "1fr";
         contCampos.innerHTML = `
             <div class="deca-form-grupo"><label>Naturaleza de la Carga</label><input type="text" id="mini_mercan_nombre" class="deca-input" placeholder="p. ej. PALETS MADERA" style="padding:6px; font-size:13px;"></div>
-
-            <!-- 🚀 REPARACIÓN: Botonera elástica integrada para la pestaña de cargas -->
             <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 5px;">
                 <button type="button" class="btn-top" onclick="limpiarCamposMiniFormularioFrecuentes()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">Cancelar</button>
                 <button type="button" class="btn-top btn-nuevo-deca" onclick="ejecutarGuardadoDatoFrecuenteExpress()" style="padding: 6px 14px; font-size: 12px; margin: 0; height: 32px !important;">💾 Guardar</button>
@@ -6104,6 +6349,12 @@ function restablecerMiniFormularioDatosPorDefecto() {
     }
 }
 
+
+
+
+
+
+
 // 🧹 FUNCIÓN AUXILIAR ESCAPE: Vacía las casillas de texto si el chófer se arrepiente y da a Cancelar
 function limpiarCamposMiniFormularioFrecuentes() {
     // 🧼 CORTAFUEGOS VISUAL: Tritura cualquier color rojo de error residual del mini formulario
@@ -6117,6 +6368,8 @@ function limpiarCamposMiniFormularioFrecuentes() {
     const inputPob = document.getElementById("mini_carg_poblacion");
     const inputProv = document.getElementById("mini_carg_provincia");
     const inputMercan = document.getElementById("mini_mercan_nombre");
+    const inputMiniTractor = document.getElementById("mini_carg_tractor");
+    const inputMiniRemolque = document.getElementById("mini_carg_remolque");
 
     if (inputRazon) inputRazon.value = "";
     if (inputNif) { inputNif.value = ""; inputNif.readOnly = false; }
@@ -6125,6 +6378,8 @@ function limpiarCamposMiniFormularioFrecuentes() {
     if (inputPob) inputPob.value = "";
     if (inputProv) inputProv.value = "";
     if (inputMercan) inputMercan.value = "";
+    if (inputMiniTractor) inputMiniTractor.value = "";
+    if (inputMiniRemolque) inputMiniRemolque.value = "";
 
     idRegistroDatoEnEdicion = null;
     mostrarAvisoToast("🧹 Formulario reseteado");
@@ -6253,40 +6508,56 @@ function interceptarBotonBorradoExpress(categoria, llaveIdentificadorLimpia, est
 
 
 // =========================================================================
-// ✏️ MAPEOS INVERSOS: CARGAR REGISTROS EN EL MINI-FORMULARIO EN MODO EDICIÓN
+// ✏️ MAPEO INVERSO: CARGAR EMPRESA FRECUENTE EN EL MINI-FORMULARIO (v4.54)
 // =========================================================================
 function cargarClienteParaEditarExpress(nif) {
     const clientes = window.diccionarioCargadoresCloud || {};
     const c = clientes[nif];
     if (!c) return;
 
-    // 🔍 RADAR HISTÓRICO: Revisamos si el NIF ya está firmado en algún DeCA
+    // 🔍 RADAR HISTÓRICO: Revisamos si el NIF ya está firmado en algún DeCA emitido
     const estaEnUso = documentosDeCA.some(doc => doc.cargador_nif === nif);
 
     if (estaEnUso) {
         mostrarAlertaCorporativaDeca(
             "Registro Vinculado a Portes",
-            "Este cliente está asociado a documentos de control ya emitidos en tu historial. Por seguridad legal ante Inspección de Transportes, no se permite su modificación para evitar alterar el registro de portes pasados.",
+            "Este operador está asociado a documentos de control ya emitidos en tu historial. Por seguridad legal ante Inspección de Transportes, no se permite su modificación para evitar alterar el registro de portes pasados.",
             "🔒"
         );
-        return; // Aborta la carga en el formulario para proteger el dato
+        return; // Aborta la carga en el formulario para proteger la integridad del dato
     }
 
-    idRegistroDatoEnEdicion = nif; // Guardamos quién era el original
+    idRegistroDatoEnEdicion = nif; // Guardamos el identificador original para el update posterior
 
-    document.getElementById("deca_mini_form_accion_titulo").innerText = `✏️ Modificar Cliente: ${nif}`;
+    const esUsuarioCargador = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR");
 
-    // Rellenamos las casillas del mini-form
+    if (esUsuarioCargador) {
+        document.getElementById("deca_mini_form_accion_titulo").innerText = `✏️ Modificar Transportista: ${nif}`;
+    } else {
+        document.getElementById("deca_mini_form_accion_titulo").innerText = `✏️ Modificar Cliente: ${nif}`;
+    }
+
+    // 1. Rellenamos en cascada las casillas comunes de dirección fiscal
     document.getElementById("mini_carg_razon").value = c.razon || "";
     document.getElementById("mini_carg_nif").value = nif;
-    document.getElementById("mini_carg_nif").readOnly = true;
+    document.getElementById("mini_carg_nif").readOnly = true; // Candado para bloquear el NIF clave
     document.getElementById("mini_carg_calle").value = c.calle || "";
     document.getElementById("mini_carg_cp").value = c.cp || "";
     document.getElementById("mini_carg_poblacion").value = c.poblacion || "";
     document.getElementById("mini_carg_provincia").value = c.provincia || "";
 
-    mostrarAvisoToast("✏️ Cliente cargado para modificar");
+    // 2. 🚀 INYECCIÓN DINÁMICA DE VEHÍCULOS: Si es un cargador, recuperamos y pintamos las matrículas guardadas
+    if (esUsuarioCargador) {
+        const inputMiniTractor = document.getElementById("mini_carg_tractor");
+        const inputMiniRemolque = document.getElementById("mini_carg_remolque");
+
+        if (inputMiniTractor) inputMiniTractor.value = c.matricula_tractor || "";
+        if (inputMiniRemolque) inputMiniRemolque.value = c.matricula_remolque || "";
+    }
+
+    mostrarAvisoToast("✏️ Datos del operador cargados para modificar");
 }
+
 
 
 function cargarMercanciaParaEditarExpress(key) {
@@ -6440,7 +6711,16 @@ function ejecutarGuardadoDatoFrecuenteExpress() {
         }
 
         const domicilioCpl = `${calle} (CP: ${cp} - ${pob} - ${prov})`;
-        const paqueteCliente = { razon: razon, nif: nif, calle: calle, cp: cp, población: pob, provincia: prov, domicilio: domicilioCpl };
+
+        // Recolección base
+        let paqueteCliente = { razon: razon, nif: nif, calle: calle, cp: cp, poblacion: pob, provincia: prov, domicilio: domicilioCpl };
+
+        // 🚀 MEJORA: Si existen los campos de matrícula en el mini-form, los guardamos en la ficha del transportista
+        const inputTractor = document.getElementById("mini_carg_tractor");
+        const inputRemolque = document.getElementById("mini_carg_remolque");
+        if (inputTractor) paqueteCliente.matricula_tractor = inputTractor.value.trim().toUpperCase();
+        if (inputRemolque) paqueteCliente.matricula_remolque = inputRemolque.value.trim().toUpperCase();
+
 
         mostrarAvisoToast("⏳ Sincronizando empresa en el servidor...");
 
@@ -6736,11 +7016,12 @@ function validarFormatoEmail(email) {
             <!-- BLOQUE 2: TRANSPORTISTA EFECTIVO -->
             <div class="bloque-formulario-deca">
                 <div class="deca-num-titulo" style="justify-content: space-between; width: 100%;">
-                    <div><span class="deca-num-circulo">2</span> Transportista Efectivo <span style="background:#fff3cd; color:#856404; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:5px;">TU EMPRESA</span></div>
+                    <div><span class="deca-num-circulo">2</span> Transportista Efectivo</div>
                     <button type="button" onclick="invertirCargadorTransportista()" style="background:none; border:none; color:#0f4c81; font-size:11px; font-weight:bold; cursor:pointer;">⇄ Invertir Transportista por Cargador</button>
                 </div>
                 <div class="deca-form-grid">
-                    <div class="deca-form-grupo">
+                    <!-- 🚀 REPARACIÓN MAESTRA DE CABINA: Contenedor relativo idéntico al del bloque 1 para que el drop no se rompa -->
+                    <div class="deca-form-grupo" style="position: relative !important;">
                         <label>Razón Social del Transportista <span>*</span></label>
                         <input type="text" id="deca_transp_razon" class="deca-input" readonly>
                     </div>
@@ -6750,6 +7031,7 @@ function validarFormatoEmail(email) {
                     </div>
                 </div>
             </div>
+
 
             <!-- BLOQUE 3: DATOS DEL TRANSPORTE -->
             <div class="bloque-formulario-deca">
@@ -7269,7 +7551,7 @@ function validarFormatoEmail(email) {
     <div class="deca-modal-contenido" style="max-width: 500px; height: auto; margin: auto;">
 
         <div class="deca-modal-cabecera" style="background: #0f4c81; color: white;">
-            <h3 style="color: white !important;">🚚 Registro Obligatorio de Transportista</h3>
+            <h3 style="color: white !important;">🚚 Registro Obligatorio de Usuario</h3>
             <!-- 🔒 SIN ASPA DE CIERRE: Es físicamente imposible saltarse esta ventana -->
         </div>
 
@@ -7278,12 +7560,21 @@ function validarFormatoEmail(email) {
             <!-- VISTA A: ALTA NUEVA DESDE CERO -->
             <div id="reg_inicial_vista_alta">
                 <div class="bloque-formulario-deca" style="margin-bottom: 12px;">
-                    <div class="deca-num-titulo"><span class="deca-num-circulo">1</span> Identificación Fiscal</div>
+                    <div class="deca-num-titulo"><span class="deca-num-circulo">1</span> Identificación y Tipo de Operador</div>
                     <div class="deca-form-grid" style="grid-template-columns: 1fr; gap: 10px;">
+                        <!-- 🚀 INTERRUPTOR DE ENTORNO: Selector de Rol Contractual Inicial -->
+                        <div class="deca-form-grupo">
+                            <label>Tipo de Operador Comercial <span>*</span></label>
+                            <select id="reg_inicial_rol" class="deca-input" style="height:38px; width:100%; font-weight:bold;">
+                                <option value="TRANSPORTISTA">🚚 EMPRESA / AUTÓNOMO TRANSPORTISTA</option>
+                                <option value="CARGADOR">🏢 EMPRESA / AUTÓNOMO CARGADOR (CONTRATANTE)</option>
+                            </select>
+                        </div>
                         <div class="deca-form-grupo">
                             <label>Razón Social / Nombre Autónomo <span>*</span></label>
                             <input type="text" id="reg_inicial_razon" class="deca-input" placeholder="p. ej. JUAN PÉREZ GÓMEZ">
                         </div>
+
                         <div class="deca-form-grupo">
                             <label>NIF / CIF <span>*</span></label>
                             <input type="text" id="reg_inicial_nif" class="deca-input" placeholder="p. ej. 12345678Z">
@@ -7295,7 +7586,7 @@ function validarFormatoEmail(email) {
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn-top" style="width: 100%; padding: 14px; background: #0f4c81; color: white; border: none; font-size: 14px; font-weight: bold;" onclick="ejecutarAltaNuevaRegistroInicial()">Añadir Transportista</button>
+                <button type="button" class="btn-top" style="width: 100%; padding: 14px; background: #0f4c81; color: white; border: none; font-size: 14px; font-weight: bold;" onclick="ejecutarAltaNuevaRegistroInicial()">Añadir Usuario</button>
 
                 <div style="text-align: center; margin-top: 15px; border-top: 1px dashed #dee2e6; padding-top: 15px;">
                     <a href="#" style="font-size: 12px; color: #0f4c81; font-weight: bold; text-decoration: none;" onclick="conmutarVistasRegistroInicial(true)">¿Ya tenías cuenta? Recuperar mi perfil</a>
