@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.54</title>
+    <title>Gestor de DeCAs Transportes v4.56</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2246,7 +2246,7 @@ let idDocumentoEnEdicion = null;
 function iniciarEcosistemaDeCAs() {
     console.log("🛠️ Conectando terminal con la pasarela remota DeCA...");
 
-    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/c8a9c150434e391b231173786d3b636a/raw/Firebase-DeCa.json";
+    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/4f8ca5ca545b1b16f1230c733b91fca1/raw/Firebase-DeCAFuler.json";
 
     let urlDestinoFinal = localStorage.getItem("cfg_gateway_url_deca") || urlPorDefectoGateway;
     localStorage.setItem("cfg_gateway_url_deca", urlDestinoFinal);
@@ -3652,6 +3652,10 @@ function abrirFormularioNuevoDeCA() {
 
     document.getElementById("modal_nuevo_deca").style.display = "flex";
     const cuerpoNuevoDeca = document.querySelector("#modal_nuevo_deca .deca-modal-cuerpo");
+
+    // 🚀 INICIALIZACIÓN MÚLTI-ENVÍO: Forza a que nazca siempre con el primer bloque abierto de serie
+    agregarNuevoBloqueEnvioFormulario();
+
     if (cuerpoNuevoDeca) cuerpoNuevoDeca.scrollTop = 0;
 }
 
@@ -3989,23 +3993,21 @@ function abrirPaginaVerificacion() {
 
 
 // =========================================================================
-// ✍️ MOTOR DE FACTURACIÓN: PROCESAR GUARDADO ONLINE Y COMPATIBILIDAD OFFLINE
+// ✍️ MOTOR DE FACTURACIÓN: PROCESAR GUARDADO MULTI-ENVÍO (v4.55 - PARTE 1)
 // =========================================================================
 function procesarGuardadoDeCAOnline() {
-    // 🚀 PASARELA DE EMERGENCIAS OFFLINE: Si la app arrancó en modo avión, rescatamos tu UID del disco local para poder firmar
     if (!miUsuarioUIDActivo) {
         miUsuarioUIDActivo = localStorage.getItem("cfg_uid_recuperado_deca");
     }
-    // Si la app está totalmente virgen y nunca se ha registrado online, entonces sí bloqueamos por seguridad
     if (!miUsuarioUIDActivo) {
         return mostrarAlertaCorporativaDeca("Terminal No Registrado", "Conecte el terminal a internet por primera vez para activar su licencia de emisión.", "❌");
     }
 
-    // Si el motor de Firebase no se ha inicializado por la falta de cobertura, lo despertamos en local
     if (!database && typeof firebase !== 'undefined' && firebase.apps.length > 0) {
         database = firebase.database();
     }
 
+    // 🏢 RECOLECCIÓN BLOQUE 1 (Cargador Contractual)
     const cargRazon = document.getElementById("deca_carg_razon").value.trim().toUpperCase();
     const cargNif = document.getElementById("deca_carg_nif").value.trim().toUpperCase();
     const cargDomicilio = document.getElementById("deca_carg_domicilio").value.trim().toUpperCase();
@@ -4013,36 +4015,25 @@ function procesarGuardadoDeCAOnline() {
     const cargPoblacion = document.getElementById("deca_carg_poblacion").value.trim().toUpperCase();
     const cargProvincia = document.getElementById("deca_carg_provincia").value.trim().toUpperCase();
 
+    // 🗺️ RECOLECCIÓN BLOQUE 3 (Datos fijos del Transporte)
     const fechaTransp = document.getElementById("deca_fecha_transporte").value;
     const fechaFin = document.getElementById("deca_fecha_fin").value;
     const vehiculo = document.getElementById("deca_vehiculo").value.trim().toUpperCase();
     const remolque = document.getElementById("deca_remolque").value.trim().toUpperCase();
-    const origen = document.getElementById("deca_origen").value.trim().toUpperCase();
-    const destino = document.getElementById("deca_destino").value.trim().toUpperCase();
-    const mercanNombre = document.getElementById("deca_mercan_nombre").value.trim().toUpperCase();
-    const mercanPeso = document.getElementById("deca_mercan_peso").value.trim();
-    const mercanUnidad = document.getElementById("deca_mercan_unidad").value;
-    const mercanBultos = document.getElementById("deca_mercan_bultos").value.trim();
     const observaciones = document.getElementById("deca_observaciones").value.trim();
 
-
-
-
-    // Primero limpiamos cualquier rastro de error de un intento de guardado anterior
+    // Limpiamos rastros de errores anteriores en todo el formulario
     const todosLosInputsForm = document.querySelectorAll("#modal_nuevo_deca .deca-input");
     todosLosInputsForm.forEach(input => input.classList.remove("deca-input-error-falta"));
 
     let camposFaltantes = [];
 
-    // Auxiliar máster para chequear e inyectar el color rojo claro al instante
     function comprobarCampoObligatorio(idCampo, nombreLegible) {
         const elemento = document.getElementById(idCampo);
         if (!elemento || elemento.value.trim() === "") {
             camposFaltantes.push(nombreLegible);
             if (elemento) {
-                elemento.classList.add("deca-input-error-falta"); // Inyecta el fondo rosa
-
-                // Centinela ergonómico: En cuanto el chófer empiece a escribir, le quita el rojo
+                elemento.classList.add("deca-input-error-falta");
                 elemento.oninput = function() {
                     if (this.value.trim() !== "") this.classList.remove("deca-input-error-falta");
                 };
@@ -4050,7 +4041,7 @@ function procesarGuardadoDeCAOnline() {
         }
     }
 
-    // Controlador radar de campos obligatorios interactivo
+    // Validamos Bloque 1 y Bloque 3
     comprobarCampoObligatorio("deca_carg_razon", "Razón Social del Cargador");
     comprobarCampoObligatorio("deca_carg_nif", "NIF del Cargador");
     comprobarCampoObligatorio("deca_carg_domicilio", "Domicilio del Cargador");
@@ -4059,159 +4050,154 @@ function procesarGuardadoDeCAOnline() {
     comprobarCampoObligatorio("deca_carg_provincia", "Provincia del Cargador");
     comprobarCampoObligatorio("deca_fecha_transporte", "Fecha del Transporte");
     comprobarCampoObligatorio("deca_vehiculo", "Matrícula del Vehículo (Tractor)");
-    comprobarCampoObligatorio("deca_origen", "Lugar de Origen / Carga");
-    comprobarCampoObligatorio("deca_destino", "Lugar de Destino / Descarga");
-    comprobarCampoObligatorio("deca_mercan_nombre", "Naturaleza de la Mercancía");
-    comprobarCampoObligatorio("deca_mercan_peso", "Peso / Magnitud de la Carga");
+
+    // 🚨 CONTROL DE FORMATOS LEGALES INICIALES
+    if (cargNif && !validarFormatoNifCif(cargNif)) {
+        document.getElementById("deca_carg_nif").classList.add("deca-input-error-falta");
+        mostrarAlertaCorporativaDeca("NIF de Cargador Erróneo", "El NIF o CIF contractual proporcionado no es válido.", "⚠️");
+        return;
+    }
+    if (cargCp && !validarFormatoCodigoPostal(cargCp)) {
+        document.getElementById("deca_carg_cp").classList.add("deca-input-error-falta");
+        mostrarAlertaCorporativaDeca("Código Postal Incorrecto", "El Código Postal debe tener 5 números exactos.", "⚠️");
+        return;
+    }
+
+    // Continúa directamente abajo en la parte 2...
+    // =========================================================================
+    // 🚀 EXTRACTOR DINÁMICO: RECOPILACIÓN DE LA MATRIZ DE ENVÍOS (PARTE 2)
+    // =========================================================================
+    const tarjetasEnviosVisibles = document.querySelectorAll("#contenedor_capas_envios_elasticas .bloque-envio-tarjeta-clon");
+    let matrizEnviosRecopilados = [];
+
+    tarjetasEnviosVisibles.forEach((tarjeta, indice) => {
+        const numEnvio = indice + 1;
+
+        const inputOrigen = tarjeta.querySelector(".ev-origen");
+        const inputDestino = tarjeta.querySelector(".ev-destino");
+        const inputMercancia = tarjeta.querySelector(".ev-mercancia");
+        const inputPeso = tarjeta.querySelector(".ev-peso");
+        const inputUnidad = tarjeta.querySelector(".ev-unidad");
+        const inputBultos = tarjeta.querySelector(".ev-bultos");
+        const inputFecha = tarjeta.querySelector(".ev-fecha");
+
+        const oVal = inputOrigen ? inputOrigen.value.trim().toUpperCase() : "";
+        const dVal = inputDestino ? inputDestino.value.trim().toUpperCase() : "";
+        const mVal = inputMercancia ? inputMercancia.value.trim().toUpperCase() : "";
+        const pVal = inputPeso ? inputPeso.value.trim() : "";
+        const uVal = inputUnidad ? inputUnidad.value : "kg";
+        const bVal = inputBultos ? inputBultos.value.trim() : "---";
+        const fVal = inputFecha ? inputFecha.value : fechaTransp;
+
+        // Comprobación estricta de obligatorios en tarjeta clonada
+        if (!oVal) { inputOrigen.classList.add("deca-input-error-falta"); }
+        if (!dVal) { inputDestino.classList.add("deca-input-error-falta"); }
+        if (!mVal) { inputMercancia.classList.add("deca-input-error-falta"); }
+        if (!pVal) { inputPeso.classList.add("deca-input-error-falta"); }
+
+        if (!oVal || !dVal || !mVal || !pVal) {
+            camposFaltantes.push(`Campos obligatorios en Envío N.º ${numEnvio}`);
+        }
+
+        matrizEnviosRecopilados.push({
+            numero_secuencial: numEnvio,
+            fecha: fVal,
+            origen: oVal,
+            destino: dVal,
+            mercancia: mVal,
+            cantidad: `${pVal} ${uVal}`,
+            bultos: bVal || "---"
+        });
+
+        if (mVal) registrarMercanciaEnHistorialFrecuente(mVal);
+    });
 
     if (camposFaltantes.length > 0) {
-        const mensajeError = "Para poder generar el documento electrónico legal (DeCA), es obligatorio cumplimentar las casillas resaltadas en rojo claro:\n\n• " + camposFaltantes.join("\n• ");
-        mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", mensajeError, "⚠️");
-
-        // Enfoca automáticamente el primer campo vacío de la lista para agilizar el tecleo
-        const primerError = document.querySelector("#modal_nuevo_deca .deca-input-error-falta");
-        if (primerError) primerError.focus();
+        mostrarAlertaCorporativaDeca("Campos Obligatorios Incompletos", "Para generar el documento es obligatorio cumplimentar las casillas resaltadas en rojo claro.", "⚠️");
         return;
     }
 
+    mostrarAvisoToast("⏳ Sincronizando grupaje en el servidor...");
 
-    // 🚨 CONTROL DE FORMATOS LEGALES (Emisión Nuevo DeCA)
-    const elNifDeca = document.getElementById("deca_carg_nif");
-    const elCpDeca = document.getElementById("deca_carg_cp");
-
-    if (elNifDeca && !validarFormatoNifCif(cargNif)) {
-        elNifDeca.classList.add("deca-input-error-falta");
-        mostrarAlertaCorporativaDeca("NIF de Cargador Erróneo", "El NIF o CIF contractual proporcionado no es válido en el territorio nacional.", "⚠️");
-        elNifDeca.focus();
-        return;
-    }
-    if (elCpDeca && !validarFormatoCodigoPostal(cargCp)) {
-        elCpDeca.classList.add("deca-input-error-falta");
-        mostrarAlertaCorporativaDeca("Código Postal Incorrecto", "El Código Postal de la dirección del cargador debe tener 5 números exactos.", "⚠️");
-        elCpDeca.focus();
-        return;
-    }
-
-
-
-
-    mostrarAvisoToast("⏳ Calculando marcas temporales del porte...");
-
-    // 🚀 DISPARADOR INTEGRADO DE LA CARTERA DE CLIENTES (Firebase + Respaldo Local)
     registrarCargadorEnHistorialFrecuente(cargRazon, cargNif, cargDomicilio, cargCp, cargPoblacion, cargProvincia);
-
-    // 🔥 REGISTRO DE MERCANCÍAS FRECUENTES (Conserva tu historial local de cabina)
-    registrarMercanciaEnHistorialFrecuente(mercanNombre);
-
     const domicilioCargadorCompleto = `${cargDomicilio} (CP: ${cargCp} - ${cargPoblacion} - ${cargProvincia})`;
 
-    // Cálculo automático de caducidad (Sumar 7 días naturales)
     let fechaBaseParaQR = new Date(fechaFin ? fechaFin : fechaTransp);
     fechaBaseParaQR.setDate(fechaBaseParaQR.getDate() + 7);
+    const stringQRCaducidadFinal = `${fechaBaseParaQR.getFullYear()}-${String(fechaBaseParaQR.getMonth() + 1).padStart(2, '0')}-${String(fechaBaseParaQR.getDate()).padStart(2, '0')}`;
 
-    const yyyy = fechaBaseParaQR.getFullYear();
-    const mm = String(fechaBaseParaQR.getMonth() + 1).padStart(2, '0');
-    const dd = String(fechaBaseParaQR.getDate()).padStart(2, '0');
-    const stringQRCaducidadFinal = `${yyyy}-${mm}-${dd}`;
-
-    // 🚀 ASIGNACIÓN AUTOMÁTICA Y RECÁLCULO DINÁMICO DE ESTADO ELECTRÓNICO (v3.52)
     const hoy = new Date();
     const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
+    let estadoCalculado = (fechaTransp > hoyString) ? "PROGRAMADO" : "EN_CURSO";
 
-    let estadoCalculado = "EN_CURSO";
-
-    // Si la fecha seleccionada por el chófer es posterior al día de hoy, el porte pasa a estar agendado
-    if (fechaTransp > hoyString) {
-        estadoCalculado = "PROGRAMADO";
-    }
-
-    // 🛡️ ESCUDO DE CUSTODIA LEGAL: Si estamos en modo Edición, protegemos los estados irreversibles
     if (idDocumentoEnEdicion !== null) {
         const viajeEncontrado = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
-        if (viajeEncontrado) {
-            // Si el porte ya fue CERRADO oficialmente o ANULADO, congelamos su estado por ley
-            if (viajeEncontrado.estado === "CERRADO" || viajeEncontrado.estado === "ANULADO") {
-                estadoCalculado = viajeEncontrado.estado;
-            }
+        if (viajeEncontrado && (viajeEncontrado.estado === "CERRADO" || viajeEncontrado.estado === "ANULADO")) {
+            estadoCalculado = viajeEncontrado.estado;
         }
     }
 
+    // Primer envío para evitar que la tabla del Dashboard o filtros queden vacíos
+    const primerEnvio = matrizEnviosRecopilados[0] || {};
 
-    // 🕵️ DETECTOR DE PERSPECTIVA: Determinamos quién actúa como Cargador y quién como Transportista en el PDF
-    const esCreadorCargador = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR");
-
-    // === RESTAURACIÓN FISCAL COMPLETA DEL PAQUETE DE DATOS DECA (v4.54 LIMPIA) ===
     const paqueteDeCADatos = {
-        // Bloque 1: Lee siempre de las casillas de cargador de la pantalla
-        cargador_razon: document.getElementById("deca_carg_razon").value.trim().toUpperCase(),
-        cargador_nif: document.getElementById("deca_carg_nif").value.trim().toUpperCase(),
-        cargador_calle: document.getElementById("deca_carg_domicilio").value.trim().toUpperCase(),
-        cargador_cp: document.getElementById("deca_carg_cp").value.trim(),
-        cargador_poblacion: document.getElementById("deca_carg_poblacion").value.trim().toUpperCase(),
-        cargador_provincia: document.getElementById("deca_carg_provincia").value.trim().toUpperCase(),
+        cargador_razon: cargRazon,
+        cargador_nif: cargNif,
+        cargador_calle: cargDomicilio,
+        cargador_cp: cargCp,
+        cargador_poblacion: cargPoblacion,
+        cargador_provincia: cargProvincia,
         cargador_domicilio: domicilioCargadorCompleto,
 
-        // Bloque 2: Lee siempre de las casillas de transportista de la pantalla
         transportista_razon: document.getElementById("deca_transp_razon").value.trim().toUpperCase(),
         transportista_nif: document.getElementById("deca_transp_nif").value.trim().toUpperCase(),
 
-        // Bloque 3: Datos de la Flota y Ruta Comercial
-        matricula_tractor: vehiculo, // 🚀 LIMPIADO: Eliminada la interferencia fantasma de sintaxis
+        matricula_tractor: vehiculo,
         matricula_remolque: remolque,
         fecha_transporte: fechaTransp,
         fecha_fin_servicio: fechaFin ? fechaFin : "",
-        origen_plaza: origen,
-        destino_plaza: destino,
-        mercancia_nombre: mercanNombre,
-        mercancia_peso: `${mercanPeso} ${mercanUnidad}`,
-        mercancia_bultos: mercanBultos ? mercanBultos : "---",
         observaciones_indicaciones: observaciones,
         qr_caducidad: stringQRCaducidadFinal,
         estado: estadoCalculado,
-        fecha_creacion_sistema: new Date().toLocaleString()
+        fecha_creacion_sistema: new Date().toLocaleString(),
+
+        // 🚀 LA SUBCOLECCIÓN COMPLETA DE GRUPAJES
+        envios_grupaje: matrizEnviosRecopilados,
+
+        // Compatibilidad retrógrada para el dashboard de control principal
+        origen_plaza: primerEnvio.origen || "---",
+        destino_plaza: primerEnvio.destino || "---",
+        mercancia_nombre: primerEnvio.mercancia || "---",
+        mercancia_peso: primerEnvio.cantidad || "---"
     };
 
-
-
-    // 🚀 CONTROL ELÁSTICO DE GUARDADO (EDICIÓN Y ALTA OFFLINE)
     if (idDocumentoEnEdicion !== null) {
-        // MODO EDICIÓN: Buscamos el número de documento que ya tenía para que no mute
         const viajeOriginalEdicion = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
-        if (viajeOriginalEdicion) {
-            paqueteDeCADatos.numero_documento = viajeOriginalEdicion.numero_documento;
-        }
+        if (viajeOriginalEdicion) paqueteDeCADatos.numero_documento = viajeOriginalEdicion.numero_documento;
 
-        // Si hay conexión, lo subimos directamente a la base de datos central de Firebase
         if (database && navigator.onLine) {
             database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idDocumentoEnEdicion).update(paqueteDeCADatos)
                 .then(() => {
-                    mostrarAvisoToast("✅ ¡Documento DeCA actualizado correctamente!");
+                    mostrarAvisoToast("✅ ¡Documento DeCA actualizado!");
                     cerrarModalNuevoDeCA();
                     limpiarCamposFormularioGigante();
                     idDocumentoEnEdicion = null;
-                })
-                .catch(error => console.warn("Aviso al actualizar en Firebase:", error));
+                });
         }
-
-        // ⏳ CONTROLADOR OFF-LINE EN EDICIÓN: Si estamos sin cobertura, actualizamos la memoria RAM al instante
         if (!navigator.onLine) {
             const idxRAM = documentosDeCA.findIndex(item => item.id_firebase === idDocumentoEnEdicion);
-            if (idxRAM !== -1) {
-                documentosDeCA[idxRAM] = { id_firebase: idDocumentoEnEdicion, ...paqueteDeCADatos };
-            }
+            if (idxRAM !== -1) documentosDeCA[idxRAM] = { id_firebase: idDocumentoEnEdicion, ...paqueteDeCADatos };
             actualizarContadoresSuperiores();
             renderizarTablaResultados(documentosDeCA);
-
-            mostrarAvisoToast("⏳ Cambios guardados en local (Esperando cobertura...)");
             cerrarModalNuevoDeCA();
             limpiarCamposFormularioGigante();
             idDocumentoEnEdicion = null;
         }
     } else {
-        // MODO ALTA NUEVA: Llama al inyector de correlativos automático máster (preparado para red e internet caído)
         ejecutarInyeccionCorrelativaDeCA(paqueteDeCADatos);
     }
 }
+
 
 
 
@@ -4310,13 +4296,11 @@ function limpiarCamposFormularioGigante() {
     // 🗺️ Vaciar Sección 3: Datos del Transporte y Flota Habitual
     document.getElementById("deca_vehiculo").value = "";
     document.getElementById("deca_remolque").value = "";
-    document.getElementById("deca_origen").value = "";
-    document.getElementById("deca_destino").value = "";
 
-    // 📦 Vaciar Sección 4: Mercancía
-    document.getElementById("deca_mercan_nombre").value = "";
-    document.getElementById("deca_mercan_peso").value = "";
-    document.getElementById("deca_mercan_bultos").value = "";
+    // 📦 Vaciar Sección 4: Destrucción completa de capas de Envíos múltiples
+    document.getElementById("contenedor_capas_envios_elasticas").innerHTML = "";
+    contadorEnviosFormularioVigentes = 0;
+
 
     // 📝 Vaciar Sección 5: Observaciones e Indicaciones
     document.getElementById("deca_observaciones").value = "";
@@ -6939,6 +6923,97 @@ function validarFormatoEmail(email) {
 }
 
 
+// =========================================================================
+// 🚚 MOTOR DE GRUPAJES: CONTROLADOR DINÁMICO DE ENVÍOS MÚLTIPLES (v4.55 REPARADA)
+// =========================================================================
+let contadorEnviosFormularioVigentes = 0;
+
+function agregarNuevoBloqueEnvioFormulario(datosPreRellenados = null) {
+    contadorEnviosFormularioVigentes++;
+    const contenedor = document.getElementById("contenedor_capas_envios_elasticas");
+    if (!contenedor) return;
+
+    const divCapa = document.createElement("div");
+    divCapa.className = "bloque-envio-tarjeta-clon";
+    divCapa.id = `bloque_envio_card_id_${contadorEnviosFormularioVigentes}`;
+
+    // Estilos de lona blanca con contorno sutil idénticos a tu captura de pantalla
+    divCapa.style.background = "#ffffff";
+    divCapa.style.border = "1px solid #cbd5e0";
+    divCapa.style.borderRadius = "8px";
+    divCapa.style.padding = "14px";
+    divCapa.style.position = "relative";
+    divCapa.style.boxSizing = "border-box";
+    divCapa.style.width = "100%";
+
+    const hoy = new Date();
+    const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
+
+    // Mapeo elástico libre de errores tipográficos
+    const origenVal = datosPreRellenados ? (datosPreRellenados.origen || "") : "";
+    const destinoVal = datosPreRellenados ? (datosPreRellenados.destino || "") : "";
+    const mercanVal = datosPreRellenados ? (datosPreRellenados.mercancia || "") : "";
+    const pesoVal = datosPreRellenados ? (datosPreRellenados.peso || "") : "";
+    const unidadVal = datosPreRellenados ? (datosPreRellenados.unidad || "kg") : "kg";
+    const bultosVal = datosPreRellenados ? (datosPreRellenados.bultos || "") : "";
+    const fechaVal = datosPreRellenados ? (datosPreRellenados.fecha || hoyString) : hoyString;
+
+    divCapa.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px dashed #e2e8f0; padding-bottom:6px;">
+            <strong style="color:#2d3748; font-size:13px; text-transform:uppercase;" class="label-numero-envio-dinamico">Envío</strong>
+            <button type="button" class="deca-modal-cerrar btn-quitar-envio-dinamico" onclick="eliminarBloqueEnvioFormulario('${divCapa.id}')" style="width:22px !important; height:22px !important; font-size:11px !important;">✕</button>
+        </div>
+        <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
+            <div class="deca-form-grupo"><label>Lugar de Origen <span>*</span></label><input type="text" class="deca-input ev-origen" value="${origenVal}" placeholder="Localidad (provincia)"></div>
+            <div class="deca-form-grupo"><label>Lugar de Destino <span>*</span></label><input type="text" class="deca-input ev-destino" value="${destinoVal}" placeholder="Localidad (provincia)"></div>
+            <div class="deca-form-grupo" style="position:relative;"><label>Mercancía <span>*</span></label><input type="text" class="deca-input ev-mercancia" value="${mercanVal}" placeholder="p. ej. Perfil de aluminio..." oninput="filtrarMercanciasFrecuentesPredictivo(this)" onfocus="filtrarMercanciasFrecuentesPredictivo(this)"></div>
+            <div class="deca-form-grupo"><label>Cantidad <span>*</span></label><input type="number" class="deca-input ev-peso" value="${pesoVal}" placeholder="14500"></div>
+            <div class="deca-form-grupo">
+                <label>Unidad <span>*</span></label>
+                <select class="deca-input ev-unidad" style="height:38px;">
+                    <option value="kg" ${unidadVal === 'kg' ? 'selected' : ''}>kg</option>
+                    <option value="unidades" ${unidadVal === 'unidades' ? 'selected' : ''}>unidades</option>
+                    <option value="litros" ${unidadVal === 'litros' ? 'selected' : ''}>litros</option>
+                </select>
+            </div>
+            <div class="deca-form-grupo"><label>Bultos</label><input type="number" class="deca-input ev-bultos" value="${bultosVal}" placeholder="22"></div>
+            <div class="deca-form-grupo" style="display:none;"><input type="date" class="deca-input ev-fecha" value="${fechaVal}"></div>
+        </div>
+    `;
+
+    contenedor.appendChild(divCapa);
+    enumerarYEstilizarBloquesEnviosVisibles();
+}
+
+function eliminarBloqueEnvioFormulario(idComponente) {
+    const tarjeta = document.getElementById(idComponente);
+    if (tarjeta) {
+        tarjeta.remove();
+        enumerarYEstilizarBloquesEnviosVisibles();
+        mostrarAvisoToast("🗑️ Envío eliminado");
+    }
+}
+
+function enumerarYEstilizarBloquesEnviosVisibles() {
+    const listadoTarjetas = document.querySelectorAll("#contenedor_capas_envios_elasticas .bloque-envio-tarjeta-clon");
+
+    listadoTarjetas.forEach((tarjeta, index) => {
+        const numeroReal = index + 1;
+
+        // 1. Corregimos el título secuencial (Envío 1, Envío 2, etc.)
+        const titulo = tarjeta.querySelector(".label-numero-envio-dinamico");
+        if (titulo) titulo.innerText = `Envío ${numeroReal}`;
+
+        // 2. Control del botón aspa: Si solo queda una lona abierta, prohibimos borrarla escondiendo el aspa
+        const botónAspa = tarjeta.querySelector(".btn-quitar-envio-dinamico");
+        if (botónAspa) {
+            botónAspa.style.display = (listadoTarjetas.length === 1) ? "none" : "inline-flex";
+        }
+    });
+}
+
+
+
 </script>
 
 
@@ -7036,7 +7111,7 @@ function validarFormatoEmail(email) {
             <!-- BLOQUE 3: DATOS DEL TRANSPORTE -->
             <div class="bloque-formulario-deca">
                 <div class="deca-num-titulo"><span class="deca-num-circulo">3</span> Datos del Transporte</div>
-                <div class="deca-form-grid">
+                <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
                     <div class="deca-form-grupo">
                         <label>Fecha del Transporte <span>*</span></label>
                         <input type="date" id="deca_fecha_transporte" class="deca-input">
@@ -7053,52 +7128,24 @@ function validarFormatoEmail(email) {
                         <label>Remolque</label>
                         <input type="text" id="deca_remolque" class="deca-input" placeholder="R-0000 XXX">
                     </div>
-                    <div class="deca-form-grupo">
-                        <label>Lugar de Origen <span>*</span></label>
-                        <input type="text" id="deca_origen" class="deca-input" placeholder="Localidad (provincia)">
-                    </div>
-                    <div class="deca-form-grupo">
-                        <label>Lugar de Destino <span>*</span></label>
-                        <input type="text" id="deca_destino" class="deca-input" placeholder="Localidad (provincia)">
-                    </div>
                 </div>
             </div>
 
-            <!-- BLOQUE 4: MERCANCÍA -->
-            <div class="bloque-formulario-deca">
-                <div class="deca-num-titulo"><span class="deca-num-circulo">4</span> Mercancía</div>
-                <div class="deca-form-grid">
 
-                    <!-- Reemplazo del grupo de Naturaleza con Buscador Predictivo Local -->
-<!-- BUSCA ESTA LÍNEA EN TU HTML Y DÉJALA ASÍ (SIN ONCHANGE) -->
-<div class="deca-form-grupo" style="flex: 2; position: relative;">
-    <label>Naturaleza de la Mercancía <span>*</span></label>
-    <input type="text" id="deca_mercan_nombre" class="deca-input" placeholder="p. ej. AJO SPRING" oninput="filtrarMercanciasFrecuentesPredictivo(this)" onfocus="filtrarMercanciasFrecuentesPredictivo(this)">
-    <!-- Contenedor dinámico donde nacerán las sugerencias del histórico -->
-    <div id="lista_mercancias_frecuentes_drop" class="dropdown-mercancias-pred"></div>
-</div>
+            <!-- ==========================================================================
+               🚚 BLOQUE 4 RESTRUCTURADO: MOTOR DINÁMICO DE ENVÍOS MÚLTIPLES (v4.55)
+               ========================================================================== -->
+            <div class="bloque-formulario-deca" id="seccion_envios_dinamicos_bloque">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">4</span> Envíos: Origen, Destino y Mercancía</div>
+                <p style="font-size:11px; color:#718096; margin: 0 0 12px 0; text-align:left;">Cada envío lleva su propio origen, destino, mercancía y cantidad. Si todo sale del mismo sitio y va al mismo sitio, basta con uno.</p>
 
+                <!-- 🚀 EL CONTENEDOR ELÁSTICO: Aquí el script inyectará las capas Envío 1, Envío 2, etc. -->
+                <div id="contenedor_capas_envios_elasticas" style="display: flex; flex-direction: column; gap: 15px; width: 100%;"></div>
 
-
-
-                    <div class="deca-form-grupo">
-                        <label>Peso / Magnitud <span>*</span></label>
-                        <input type="number" id="deca_mercan_peso" class="deca-input" placeholder="14500">
-                    </div>
-                    <div class="deca-form-grupo">
-                        <label>Unidad <span>*</span></label>
-                        <select id="deca_mercan_unidad" class="deca-input">
-                            <option value="kg">kg</option>
-                            <option value="unidades">unidades</option>
-                            <option value="litros">litros</option>
-                        </select>
-                    </div>
-                    <div class="deca-form-grupo">
-                        <label>Bultos</label>
-                        <input type="number" id="deca_mercan_bultos" class="deca-input" placeholder="22">
-                    </div>
-                </div>
+                <!-- Botón Centrado de Adición con estilos TPV -->
+                <button type="button" class="btn-top" onclick="agregarNuevoBloqueEnvioFormulario()" style="width: 100%; margin-top: 15px; padding: 10px; background: #eef5fc; border: 1px dashed #0f4c81; color: #0f4c81; font-weight: bold; font-size: 13.5px; height: 40px !important; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">➕ Añadir otro envío</button>
             </div>
+
 
             <!-- BLOQUE 5: OBSERVACIONES -->
             <div class="bloque-formulario-deca">
