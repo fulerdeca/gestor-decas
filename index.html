@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.60</title>
+    <title>Gestor de DeCAs Transportes v4.61</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -7067,7 +7067,7 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
             if (typeof documentosDeCA !== "undefined" && Array.isArray(documentosDeCA)) {
                 var viajeActivo = documentosDeCA.find(function(item) { return item.numero_documento === numeroDocumentoVisor; });
 
-                if (viajeActivo && viajeActivo.envios_grupaje && Array.isArray(viajeActivo.envios_grupaje) && viajeActivo.envios_grupaje.length > 0) {
+                if (viajeActivo) {
 
                     var listadoEnviosHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Detalle de Envíos y Cargas (Grupaje Art. 6.D)</div>' +
                                             '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
@@ -7345,8 +7345,9 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
                                     <div style="width:33.33%; border:1px solid #111; border-top:none; border-left:none; padding:6px; box-sizing:border-box;"><span class="folio-subetiqueta">Tractor</span><span id="prev_matricula_tractor" style="font-weight:bold;">---</span></div>
                                     <div style="width:34%; border:1px solid #111; border-top:none; border-left:none; padding:6px; box-sizing:border-box;"><span class="folio-subetiqueta">Remolque</span><span id="prev_matricula_remolque" style="font-weight:bold;">---</span></div>
                             </div>
-                            <div style="width:100%; border:1px solid #111; border-top:none; padding:6px; box-sizing:border-box;"><span class="folio-subetiqueta">Origen</span><span id="prev_origen_plaza">---</span></div>
-                            <div style="width:100%; border:1px solid #111; border-top:none; padding:6px; box-sizing:border-box;"><span class="folio-subetiqueta">Destino</span><span id="prev_destino_plaza">---</span></div>
+                            <!-- 🚷 ZONA DE INMUNIDAD: Mantiene los elementos para que el script no rompa, pero ocultos al ojo del agente -->
+                            <div style="display: none !important;"><span id="prev_origen_plaza">---</span></div>
+                            <div style="display: none !important;"><span id="prev_destino_plaza">---</span></div>
                     </div>
 
                     <!-- TABLA 4: MERCANCÍA -->
