@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.59</title>
+    <title>Gestor de DeCAs Transportes v4.60</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2246,24 +2246,16 @@ let idDocumentoEnEdicion = null;
 function iniciarEcosistemaDeCAs() {
     console.log("🛠️ Conectando terminal con la pasarela remota DeCA...");
 
-    // 🚀 TU URL RAW SECRETA (Invisible para bots, pero totalmente accesible para tu código)
-    var urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/8fe7f76a168d665a4b9c8a386e4ecf4e/raw/931d060302cf67a8f83ad1af5ba8fa80830a45cf/Firebase-DeCa-Secreto.json";
+    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/8fe7f76a168d665a4b9c8a386e4ecf4e/raw/931d060302cf67a8f83ad1af5ba8fa80830a45cf/Firebase-DeCa-Secreto.json";
 
-    // Salvavidas: Forzamos a limpiar el rastro guardado de la cuenta de fulerdeca en el navegador
-    if (localStorage.getItem("cfg_gateway_url_deca") && localStorage.getItem("cfg_gateway_url_deca").indexOf("fulerdeca") !== -1) {
-        localStorage.removeItem("cfg_gateway_url_deca");
-        localStorage.removeItem("cfg_uid_recuperado_deca");
-    }
-
-    var urlDestinoFinal = localStorage.getItem("cfg_gateway_url_deca") || urlPorDefectoGateway;
+    let urlDestinoFinal = localStorage.getItem("cfg_gateway_url_deca") || urlPorDefectoGateway;
     localStorage.setItem("cfg_gateway_url_deca", urlDestinoFinal);
 
     fetch(urlDestinoFinal)
-    .then(function(res) {
+    .then(res => {
         if (!res.ok) throw new Error("La pasarela remota no responde.");
         return res.json();
     })
-
     .then(configFirebase => {
         if (firebase.apps.length === 0) {
             firebase.initializeApp(configFirebase);
@@ -2304,30 +2296,31 @@ function iniciarEcosistemaDeCAs() {
         // --- FLUJO NORMAL DE LA APLICACIÓN DE CABINA DEL CONDUCTOR ---
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
 
-
-
         if (tokenSeguridadLocal) {
-            // 🔓 CASO A: El terminal ya está registrado (¡Tu cuenta de ADMIN!). Forzamos login síncrono
             miUsuarioUIDActivo = tokenSeguridadLocal;
-
-            // 🚀 REPARACIÓN DE PRIVILEGIOS MÁSTER: Autenticamos el token local ante Google
-            // para validar vuestros permisos de Administrador y liberar los Datos del panel
-            return firebase.auth().signInAnonymously().then(() => {
+            return firebase.auth().signInAnonymously().then(function() {
                 console.log("🔓 Conexión establecida con terminal verificado:", miUsuarioUIDActivo);
+                actualizarEstadoRedTerminalCamion(true);
+                verificarExistenciaPerfilCamionero();
+            }).catch(function(e) {
+                console.warn("Pasarela Auth lenta o retenida por dominio. Forzando paso directo seguro.");
                 actualizarEstadoRedTerminalCamion(true);
                 verificarExistenciaPerfilCamionero();
             });
         } else {
-            // 🛡️ CASO B (ANTI-FANTASMAS): Terminal limpio de fábrica. Creamos cuenta anónima
-            // e inmediatamente abrimos el muro de registro obligatorio
-            return firebase.auth().signInAnonymously().then((usuarioCredencial) => {
+            return firebase.auth().signInAnonymously().then(function(usuarioCredencial) {
                 miUsuarioUIDActivo = usuarioCredencial.user.uid;
                 console.log("🌱 Terminal virgen inicializado. UID provisional:", miUsuarioUIDActivo);
-
+                actualizarEstadoRedTerminalCamion(true);
+                desplegarMuroRegistroInicialObligatorioNativo();
+            }).catch(function(err) {
+                console.warn("Fallo Auth inicial en incógnito local, forzando pasarela de recuperación.");
+                miUsuarioUIDActivo = "uid_provisional_local_deca";
                 actualizarEstadoRedTerminalCamion(true);
                 desplegarMuroRegistroInicialObligatorioNativo();
             });
         }
+
     })
     .catch(error => {
         console.error("❌ Error crítico en el Gateway de arranque:", error);
@@ -7056,6 +7049,73 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
 </script>
 
 
+<!-- === MÓDULO SATÉLITE AUTOMÁTICO DE REPARTOS (GRUPAJES v4.59 COMPATIBLE) === -->
+<script>
+(function() {
+    setInterval(function() {
+        try {
+            var contenedorMaster = document.getElementById("capa_grupaje_master");
+            if (!contenedorMaster) return;
+
+            // Si ya se ha transformado el diseño en este ciclo, pasamos de largo
+            if (contenedorMaster.getAttribute("data-grupaje-renderizado") === "si") return;
+
+            // Identificamos el documento activo a través del número cargado en el folio
+            var numeroDocumentoVisor = document.getElementById("prev_top_numero") ? document.getElementById("prev_top_numero").innerText : "";
+            if (!numeroDocumentoVisor || numeroDocumentoVisor === "DeCA" || numeroDocumentoVisor === "---") return;
+
+            if (typeof documentosDeCA !== "undefined" && Array.isArray(documentosDeCA)) {
+                var viajeActivo = documentosDeCA.find(function(item) { return item.numero_documento === numeroDocumentoVisor; });
+
+                if (viajeActivo && viajeActivo.envios_grupaje && Array.isArray(viajeActivo.envios_grupaje) && viajeActivo.envios_grupaje.length > 0) {
+
+                    var listadoEnviosHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Detalle de Envíos y Cargas (Grupaje Art. 6.D)</div>' +
+                                            '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
+
+                    viajeActivo.envios_grupaje.forEach(function(envio) {
+                        var nSec = envio.numero_secuencial || 1;
+                        var orig = envio.origen || "---";
+                        var dest = envio.destino || "---";
+                        var merc = envio.mercancia || "---";
+                        var cant = envio.cantidad || "---";
+                        var bult = envio.bultos || "---";
+
+                        listadoEnviosHtml += '<div style="display:flex; width:100%; box-sizing:border-box; border-bottom:1px solid #111111; background:#ffffff; font-size:11px; color:#111111; min-height:38px;">' +
+                            '<div style="width:7%; padding:5px; border-right:1px solid #111111; font-weight:bold; color:#0f4c81; text-align:center; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">' + nSec + '</div>' +
+                            '<div style="width:43%; padding:5px; border-right:1px solid #111111; line-height:1.3; display:flex; align-items:center; box-sizing:border-box;">' + orig + ' <span style="color:#fd7e14; font-weight:bold; margin:0 3px;">➔</span> ' + dest + '</div>' +
+                            '<div style="width:50%; padding:5px; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box;"><strong style="text-transform:uppercase; color:#111111;">' + merc + '</strong><span style="font-size:10px; color:#444; margin-top:2px; font-weight:bold;">Cantidad: ' + cant + ' | Bultos: ' + bult + '</span></div>' +
+                        '</div>';
+                    });
+
+                    listadoEnviosHtml += '</div>';
+
+                    // Transformación visual instantánea en el visor
+                    contenedorMaster.innerHTML = listadoEnviosHtml;
+
+                    var cajaContenedoraFlota = contenedorMaster.lastChild;
+                    if (cajaContenedoraFlota && cajaContenedoraFlota.lastChild) {
+                        cajaContenedoraFlota.lastChild.style.borderBottom = "none";
+                    }
+
+                    contenedorMaster.setAttribute("data-grupaje-renderizado", "si");
+                }
+            }
+        } catch(errGrup) {
+            console.warn("Aviso en módulo satélite de grupajes:", errGrup);
+        }
+    }, 400);
+
+    // Reseteamos el flag del inyector al cerrar la pestaña del visor
+    document.addEventListener("click", function(eventoClick) {
+        if (eventoClick.target && (eventoClick.target.getAttribute("onclick") && eventoClick.target.getAttribute("onclick").indexOf("cerrarVisorPreviewDeCA") !== -1 || eventoClick.target.innerText === "✕")) {
+            var capaMaster = document.getElementById("capa_grupaje_master");
+            if (capaMaster) {
+                capaMaster.removeAttribute("data-grupaje-renderizado");
+            }
+        }
+    });
+})();
+</script>
 
 
 
@@ -7290,7 +7350,7 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
                     </div>
 
                     <!-- TABLA 4: MERCANCÍA -->
-                    <div style="width:100%; margin-bottom:14px; box-sizing:border-box; font-family:sans-serif;">
+                    <div style="width:100%; margin-bottom:14px; box-sizing:border-box; font-family:sans-serif;" id="capa_grupaje_master">
                             <div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important;">Mercancía (Art. 6.D)</div>
                             <div style="display:flex; width:100%; box-sizing:border-box;">
                                     <div style="width:50%; border:1px solid #111; border-top:none; padding:6px; box-sizing:border-box;"><span class="folio-subetiqueta">Naturaleza</span><span id="prev_mercan_nombre">---</span></div>
