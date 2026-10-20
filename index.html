@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.56</title>
+    <title>Gestor de DeCAs Transportes v4.58</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2246,7 +2246,7 @@ let idDocumentoEnEdicion = null;
 function iniciarEcosistemaDeCAs() {
     console.log("🛠️ Conectando terminal con la pasarela remota DeCA...");
 
-    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/4f8ca5ca545b1b16f1230c733b91fca1/raw/Firebase-DeCAFuler.json";
+    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/c8a9c150434e391b231173786d3b636a/raw/de72f7986d066000a5bd38dbe0fe1aba84f8d640/Firebase-DeCa.json";
 
     let urlDestinoFinal = localStorage.getItem("cfg_gateway_url_deca") || urlPorDefectoGateway;
     localStorage.setItem("cfg_gateway_url_deca", urlDestinoFinal);
@@ -3993,7 +3993,7 @@ function abrirPaginaVerificacion() {
 
 
 // =========================================================================
-// ✍️ MOTOR DE FACTURACIÓN: PROCESAR GUARDADO MULTI-ENVÍO (v4.55 - PARTE 1)
+// ✍️ MOTOR DE FACTURACIÓN: PROCESAR GUARDADO MULTI-ENVÍO (v4.55 CORREGIDA - PARTE 1)
 // =========================================================================
 function procesarGuardadoDeCAOnline() {
     if (!miUsuarioUIDActivo) {
@@ -4062,10 +4062,8 @@ function procesarGuardadoDeCAOnline() {
         mostrarAlertaCorporativaDeca("Código Postal Incorrecto", "El Código Postal debe tener 5 números exactos.", "⚠️");
         return;
     }
-
-    // Continúa directamente abajo en la parte 2...
     // =========================================================================
-    // 🚀 EXTRACTOR DINÁMICO: RECOPILACIÓN DE LA MATRIZ DE ENVÍOS (PARTE 2)
+    // 🚀 EXTRACTOR DINÁMICO: RECOLECCIÓN CON BLINDAJE DE ARRAYS (PARTE 2)
     // =========================================================================
     const tarjetasEnviosVisibles = document.querySelectorAll("#contenedor_capas_envios_elasticas .bloque-envio-tarjeta-clon");
     let matrizEnviosRecopilados = [];
@@ -4089,7 +4087,6 @@ function procesarGuardadoDeCAOnline() {
         const bVal = inputBultos ? inputBultos.value.trim() : "---";
         const fVal = inputFecha ? inputFecha.value : fechaTransp;
 
-        // Comprobación estricta de obligatorios en tarjeta clonada
         if (!oVal) { inputOrigen.classList.add("deca-input-error-falta"); }
         if (!dVal) { inputDestino.classList.add("deca-input-error-falta"); }
         if (!mVal) { inputMercancia.classList.add("deca-input-error-falta"); }
@@ -4117,9 +4114,14 @@ function procesarGuardadoDeCAOnline() {
         return;
     }
 
-    mostrarAvisoToast("⏳ Sincronizando grupaje en el servidor...");
+    const esRolCargadorActivo = (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR");
 
-    registrarCargadorEnHistorialFrecuente(cargRazon, cargNif, cargDomicilio, cargCp, cargPoblacion, cargProvincia);
+    // 🔒 REPARACIÓN 1: Solo guarda al cliente frecuente en la agenda si el que emite es un Transportista
+    if (!esRolCargadorActivo) {
+        registrarCargadorEnHistorialFrecuente(cargRazon, cargNif, cargDomicilio, cargCp, cargPoblacion, cargProvincia);
+    }
+
+    mostrarAvisoToast("⏳ Sincronizando grupaje en el servidor...");
     const domicilioCargadorCompleto = `${cargDomicilio} (CP: ${cargCp} - ${cargPoblacion} - ${cargProvincia})`;
 
     let fechaBaseParaQR = new Date(fechaFin ? fechaFin : fechaTransp);
@@ -4137,8 +4139,8 @@ function procesarGuardadoDeCAOnline() {
         }
     }
 
-    // Primer envío para evitar que la tabla del Dashboard o filtros queden vacíos
-    const primerEnvio = matrizEnviosRecopilados[0] || {};
+    // 🚀 REPARACIÓN 2: Extraemos el primer envío apuntando de forma rígida al índice [0] del Array
+    const primerEnvioMuestra = matrizEnviosRecopilados[0] || {};
 
     const paqueteDeCADatos = {
         cargador_razon: cargRazon,
@@ -4161,14 +4163,14 @@ function procesarGuardadoDeCAOnline() {
         estado: estadoCalculado,
         fecha_creacion_sistema: new Date().toLocaleString(),
 
-        // 🚀 LA SUBCOLECCIÓN COMPLETA DE GRUPAJES
+        // 🚀 NUEVA MATRIZ CONSOLIDADA: Aquí viajan TODOS los envíos juntos estructurados (1, 2, 3...)
         envios_grupaje: matrizEnviosRecopilados,
 
-        // Compatibilidad retrógrada para el dashboard de control principal
-        origen_plaza: primerEnvio.origen || "---",
-        destino_plaza: primerEnvio.destino || "---",
-        mercancia_nombre: primerEnvio.mercancia || "---",
-        mercancia_peso: primerEnvio.cantidad || "---"
+        // Espejo retrocompatible para la rejilla del salpicadero principal (Usa los datos del Envío 1)
+        origen_plaza: primerEnvioMuestra.origen || "---",
+        destino_plaza: primerEnvioMuestra.destino || "---",
+        mercancia_nombre: primerEnvioMuestra.mercancia || "---",
+        mercancia_peso: primerEnvioMuestra.cantidad || "---"
     };
 
     if (idDocumentoEnEdicion !== null) {
@@ -4197,6 +4199,7 @@ function procesarGuardadoDeCAOnline() {
         ejecutarInyeccionCorrelativaDeCA(paqueteDeCADatos);
     }
 }
+
 
 
 
@@ -5140,27 +5143,28 @@ function filtrarCargadoresFrecuentesPredictivo(inputElement) {
 
 
 
-// === ESCUDO PERIMETRAL ÚNICO: CIERRE DE TODOS LOS DROPDOWNS AL PINCHAR FUERA (v4.54) ===
+// === ESCUDO PERIMETRAL ÚNICO: CIERRE DE TODOS LOS DROPDOWNS AL PINCHAR FUERA (v4.55) ===
 document.addEventListener("click", function(e) {
-    // Cerrar provincias del cargador contractual
     if (e.target.id !== "deca_carg_provincia") {
         const dropCargProv = document.getElementById("lista_provincias_carg_drop");
         if (dropCargProv) dropCargProv.style.display = "none";
     }
-    // Cerrar provincias del Perfil comercial
     if (e.target.id !== "reg_transp_provincia") {
         const dropTranspProv = document.getElementById("lista_provincias_drop");
         if (dropTranspProv) dropTranspProv.style.display = "none";
     }
-    // 🚀 NUEVO CANDADO DATOS: Cerrar provincias de la pestaña de Empresas habituales
     if (e.target.id !== "mini_carg_provincia") {
         const dropMiniProv = document.getElementById("mini_lista_provincias_drop");
         if (dropMiniProv) dropMiniProv.style.display = "none";
     }
-    // 🚚 REPARACIÓN MAESTRA DE CABINA: Cierra cargadores/transportistas habituales solo si pincha fuera de AMBOS campos
     if (e.target.id !== "deca_carg_razon" && e.target.id !== "deca_transp_razon") {
         const dropCarg = document.getElementById("lista_cargadores_habituales_drop");
         if (dropCarg) dropCarg.style.display = "none";
+    }
+    // 🚀 CANDADO ELÁSTICO DE MERCANCÍAS: Cierra el drop de grupajes si pincha fuera del input activo
+    if (!e.target.classList.contains("ev-mercancia")) {
+        const dropMercan = document.getElementById("lista_mercancias_frecuentes_drop");
+        if (dropMercan) dropMercan.style.display = "none";
     }
 });
 
@@ -5417,7 +5421,9 @@ function registrarMercanciaEnHistorialFrecuente(nombreMercancia) {
     window.diccionarioMercanciasCloud = mercanciasLocalesActuales; // Actualiza la RAM
 }
 
-// 2. Filtra y despliega las sugerencias mientras el conductor teclea con su dedo
+// =========================================================================
+// 📦 MOTOR PREDICTIVO EN RUTA: HISTORIAL DE MERCANCÍAS FRECUENTES (v4.55)
+// =========================================================================
 function filtrarMercanciasFrecuentesPredictivo(inputElement) {
     const textoBuscar = inputElement.value.toUpperCase().trim();
     const dropdown = document.getElementById("lista_mercancias_frecuentes_drop");
@@ -5425,7 +5431,18 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
     if (!dropdown) return;
     dropdown.innerHTML = "";
 
-    // Recuperación del almacén híbrido (RAM o disco duro local si está frío)
+    // 🚀 REPARACIÓN FLOTANTE MÚLTI-ENVÍO: Mueve el drop físicamente dentro de la lona del input activo
+    if (inputElement.parentElement) {
+        inputElement.parentElement.appendChild(dropdown);
+
+        // Blindaje geométrico para que flote perfectamente abajo del Envío 1, Envío 2, etc.
+        dropdown.style.position = "absolute";
+        dropdown.style.top = "100%";
+        dropdown.style.left = "0";
+        dropdown.style.width = "100%";
+        dropdown.style.zIndex = "999999";
+    }
+
     let diccionarioMercancias = window.diccionarioMercanciasCloud;
 
     if (!diccionarioMercancias || Object.keys(diccionarioMercancias).length === 0) {
@@ -5440,7 +5457,6 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
         return;
     }
 
-    // Mapeo tolerante a fallos: extrae el campo texto tanto si viene de la nube como del viejo local
     const catalogoMercancias = Object.keys(diccionarioMercancias).map(key => {
         const item = diccionarioMercancias[key];
         if (item && typeof item === 'object' && item.nombre) return item.nombre;
@@ -5448,7 +5464,6 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
         return "";
     }).filter(m => m !== "");
 
-    // Extraemos las coincidencias exactas
     const sugerenciasFiltradas = catalogoMercancias.filter(m => m.includes(textoBuscar));
 
     if (sugerenciasFiltradas.length === 0) {
@@ -5471,7 +5486,9 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
         item.onmouseover = function() { this.style.background = esModoOscuro ? "#1c1c1e" : "#eef5fc"; };
         item.onmouseout = function() { this.style.background = "transparent"; };
 
-        item.onclick = function() {
+        // 🚀 AUTO-RELLENO PRECISIÓN: Inyecta el texto estrictamente en el campo que se está editando
+        item.onclick = function(e) {
+            e.stopPropagation();
             inputElement.value = mercancia;
             dropdown.style.display = "none";
             mostrarAvisoToast("⚡ Mercancía habitual seleccionada");
@@ -5482,6 +5499,7 @@ function filtrarMercanciasFrecuentesPredictivo(inputElement) {
 
     dropdown.style.display = "block";
 }
+
 
 
 // 4. ESCUDO TÁCTIL AUTOMÁTICO: Cierra el desplegable si se pincha en cualquier otra casilla
@@ -6937,7 +6955,6 @@ function agregarNuevoBloqueEnvioFormulario(datosPreRellenados = null) {
     divCapa.className = "bloque-envio-tarjeta-clon";
     divCapa.id = `bloque_envio_card_id_${contadorEnviosFormularioVigentes}`;
 
-    // Estilos de lona blanca con contorno sutil idénticos a tu captura de pantalla
     divCapa.style.background = "#ffffff";
     divCapa.style.border = "1px solid #cbd5e0";
     divCapa.style.borderRadius = "8px";
@@ -6949,7 +6966,6 @@ function agregarNuevoBloqueEnvioFormulario(datosPreRellenados = null) {
     const hoy = new Date();
     const hoyString = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
 
-    // Mapeo elástico libre de errores tipográficos
     const origenVal = datosPreRellenados ? (datosPreRellenados.origen || "") : "";
     const destinoVal = datosPreRellenados ? (datosPreRellenados.destino || "") : "";
     const mercanVal = datosPreRellenados ? (datosPreRellenados.mercancia || "") : "";
@@ -6966,7 +6982,13 @@ function agregarNuevoBloqueEnvioFormulario(datosPreRellenados = null) {
         <div class="deca-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
             <div class="deca-form-grupo"><label>Lugar de Origen <span>*</span></label><input type="text" class="deca-input ev-origen" value="${origenVal}" placeholder="Localidad (provincia)"></div>
             <div class="deca-form-grupo"><label>Lugar de Destino <span>*</span></label><input type="text" class="deca-input ev-destino" value="${destinoVal}" placeholder="Localidad (provincia)"></div>
-            <div class="deca-form-grupo" style="position:relative;"><label>Mercancía <span>*</span></label><input type="text" class="deca-input ev-mercancia" value="${mercanVal}" placeholder="p. ej. Perfil de aluminio..." oninput="filtrarMercanciasFrecuentesPredictivo(this)" onfocus="filtrarMercanciasFrecuentesPredictivo(this)"></div>
+
+            <!-- 🚀 CONTENEDOR RELATIVO FORZADO: Indispensable para que las sugerencias floten alineadas abajo -->
+            <div class="deca-form-grupo" style="position: relative !important;">
+                <label>Mercancía <span>*</span></label>
+                <input type="text" class="deca-input ev-mercancia" value="${mercanVal}" placeholder="p. ej. Perfil de aluminio...">
+            </div>
+
             <div class="deca-form-grupo"><label>Cantidad <span>*</span></label><input type="number" class="deca-input ev-peso" value="${pesoVal}" placeholder="14500"></div>
             <div class="deca-form-grupo">
                 <label>Unidad <span>*</span></label>
@@ -6982,8 +7004,17 @@ function agregarNuevoBloqueEnvioFormulario(datosPreRellenados = null) {
     `;
 
     contenedor.appendChild(divCapa);
+
+    // ⚡ CONEXIÓN EN CALIENTE: Vinculamos las antenas predictivas directamente sobre el nuevo input inyectado
+    const inputMercanciaDinamico = divCapa.querySelector(".ev-mercancia");
+    if (inputMercanciaDinamico) {
+        inputMercanciaDinamico.addEventListener("input", function() { filtrarMercanciasFrecuentesPredictivo(this); });
+        inputMercanciaDinamico.addEventListener("focus", function() { filtrarMercanciasFrecuentesPredictivo(this); });
+    }
+
     enumerarYEstilizarBloquesEnviosVisibles();
 }
+
 
 function eliminarBloqueEnvioFormulario(idComponente) {
     const tarjeta = document.getElementById(idComponente);
@@ -7527,6 +7558,10 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
         </div>
     </div>
 </div>
+
+<!-- === 📦 DROPDOWN MÁSTER FLOTANTE PARA EL PREDICTIVO DE MERCANCÍAS DINÁMICO === -->
+<div id="lista_mercancias_frecuentes_drop" style="display: none; position: absolute; background: #ffffff; border: 1px solid #cbd5e0; border-radius: 0 0 6px 6px; z-index: 999999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); box-sizing: border-box; max-height: 180px; overflow-y: auto;"></div>
+
 
 <!-- === 🚫 MODAL MAESTRO: PANEL DE CONTROL DE ADMINISTRACIÓN GLOBAL DE FLOTAS === -->
 <div id="modal_administrador_global_deca" class="modal-deca-gigante" style="z-index: 800000; background: rgba(11, 14, 23, 0.9);">
