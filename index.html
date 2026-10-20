@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.58</title>
+    <title>Gestor de DeCAs Transportes v4.59</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2246,16 +2246,24 @@ let idDocumentoEnEdicion = null;
 function iniciarEcosistemaDeCAs() {
     console.log("🛠️ Conectando terminal con la pasarela remota DeCA...");
 
-    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/8fe7f76a168d665a4b9c8a386e4ecf4e/raw/931d060302cf67a8f83ad1af5ba8fa80830a45cf/Firebase-DeCa-Secreto.json";
+    // 🚀 TU URL RAW SECRETA (Invisible para bots, pero totalmente accesible para tu código)
+    var urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/8fe7f76a168d665a4b9c8a386e4ecf4e/raw/931d060302cf67a8f83ad1af5ba8fa80830a45cf/Firebase-DeCa-Secreto.json";
 
-    let urlDestinoFinal = localStorage.getItem("cfg_gateway_url_deca") || urlPorDefectoGateway;
+    // Salvavidas: Forzamos a limpiar el rastro guardado de la cuenta de fulerdeca en el navegador
+    if (localStorage.getItem("cfg_gateway_url_deca") && localStorage.getItem("cfg_gateway_url_deca").indexOf("fulerdeca") !== -1) {
+        localStorage.removeItem("cfg_gateway_url_deca");
+        localStorage.removeItem("cfg_uid_recuperado_deca");
+    }
+
+    var urlDestinoFinal = localStorage.getItem("cfg_gateway_url_deca") || urlPorDefectoGateway;
     localStorage.setItem("cfg_gateway_url_deca", urlDestinoFinal);
 
     fetch(urlDestinoFinal)
-    .then(res => {
+    .then(function(res) {
         if (!res.ok) throw new Error("La pasarela remota no responde.");
         return res.json();
     })
+
     .then(configFirebase => {
         if (firebase.apps.length === 0) {
             firebase.initializeApp(configFirebase);
