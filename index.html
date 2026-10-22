@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.67</title>
+    <title>Gestor de DeCAs Transportes v4.68</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -7424,6 +7424,50 @@ function ejecutarGuardadoConAuditoriaNube(paqueteDatosNuevos, motivoEscrito, mat
 
                     contenedorMaster.setAttribute("data-grupaje-renderizado", "si");
                 }
+
+                // 🚀 ANTENA SATÉLITE DE AUDITORÍAS LEGALES (Inyección síncrona v4.67)
+                var bannerAlertaModif = document.getElementById("banner_deca_modificado_alerta");
+                var contenedorHistorialHTML = document.getElementById("capa_historial_modificaciones_legal");
+
+                if (bannerAlertaModif && contenedorHistorialHTML) {
+                    if (viajeActivo && parseInt(viajeActivo.modificaciones_contador || 0, 10) > 0) {
+                        // 1. Encendemos el letrero óxido superior (Imagen 7)
+                        bannerAlertaModif.style.display = "block";
+
+                        // 2. Construimos la tabla reglamentaria del desglose histórico (Imagen 4)
+                        var tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026, apdo. quinto)</div>' +
+                                                 '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none; background:#ffffff; font-size:11px; padding:8px; color:#111111; text-align:left;">';
+
+                        var registrosCambios = viajeActivo.historial_cambios || [];
+                        if (!Array.isArray(registrosCambios)) { registrosCambios = Object.values(registrosCambios); }
+
+                        registrosCambios.forEach(function(itemCambio) {
+                            var descValores = itemCambio.desglose_valores || [];
+                            if (!Array.isArray(descValores)) { descValores = Object.values(descValores); }
+
+                            tablaAuditoriaHtml += '<div style="margin-bottom:10px; border-bottom:1px dashed #cbd5e0; padding-bottom:8px; text-align:left;">' +
+                                '<strong style="color:#0f4c81; text-transform:uppercase;">Modificación ' + itemCambio.numero_modificacion + '</strong> · <span style="color:#555; font-weight:bold;">' + itemCambio.fecha_hora_modificacion + '</span> · Motivo: <span style="font-weight:bold; color:#212529;">' + itemCambio.motivo_cambio + '</span>' +
+                                '<div style="margin-top:6px; padding-left:10px; border-left:3px solid #fd7e14; display:flex; flex-direction:column; gap:4px;">';
+
+                            descValores.forEach(function(diff) {
+                                tablaAuditoriaHtml += '<div style="line-height:1.4;">' +
+                                    '<span style="color:#718096; font-weight:bold; font-size:10px; display:inline-block; width:120px;">' + diff.etiqueta + ':</span>' +
+                                    '<span style="text-decoration:line-through; color:#a0aec0; margin-right:6px;">' + diff.antes + '</span>' +
+                                    '<span style="font-weight:bold; color:#111111;">➔ ' + diff.ahora + '</span>' +
+                                '</div>';
+                            });
+
+                            tablaAuditoriaHtml += '</div></div>';
+                        });
+
+                        tablaAuditoriaHtml += '</div>';
+                        contenedorHistorialHTML.innerHTML = tablaAuditoriaHtml;
+                    } else {
+                        // Caso limpio: Si el documento no está editado, apagamos los chivatos
+                        if (bannerAlertaModif) bannerAlertaModif.style.display = "none";
+                        if (contenedorHistorialHTML) contenedorHistorialHTML.innerHTML = "";
+                    }
+                }
             }
         } catch(errGrup) {
             console.warn("Aviso en módulo satélite de grupajes:", errGrup);
@@ -7441,6 +7485,7 @@ function ejecutarGuardadoConAuditoriaNube(paqueteDatosNuevos, motivoEscrito, mat
     });
 })();
 </script>
+
 
 
 
@@ -7646,6 +7691,11 @@ function ejecutarGuardadoConAuditoriaNube(paqueteDatosNuevos, motivoEscrito, mat
                     <!-- Sello de Anulación Oficial -->
                     <div id="sello_anulado_alerta" class="sello-anulado-deca">⚠️ ATENCIÓN: ESTE DOCUMENTO ELECTRÓNICO HA SIDO ANULADO OFICIALMENTE POR EL TRANSPORTISTA ⚠️</div>
 
+                    <!-- ⚠️ BANNER DE TRAZABILIDAD DE MODIFICACIONES LEGALES (Imagen 7) -->
+                    <div id="banner_deca_modificado_alerta" style="display: none; width: 100% !important; background: #fff3cd !important; color: #fd7e14 !important; border: 2px dashed #ffeeba !important; padding: 12px !important; text-align: center !important; font-weight: bold !important; font-size: 13.5px !important; text-transform: uppercase !important; margin-bottom: 15px !important; border-radius: 6px !important; box-sizing: border-box !important;">
+                        ⚠️ ATENCIÓN: ESTE DOCUMENTO ELECTRÓNICO HA SIDO MODIFICADO DURANTE EL SERVICIO ⚠️
+                    </div>
+
                     <!-- Cabecera Línea 1: Identificación y Marca de Tiempo de Firma -->
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; width:100%; box-sizing:border-box; font-family:sans-serif;">
                             <div style="font-size:24px; font-weight:900; color:#0f4c81; letter-spacing:-0.5px;">DeCA <span style="font-size:10px; color:#718096; font-weight:normal; letter-spacing:normal;"></span></div>
@@ -7718,6 +7768,11 @@ function ejecutarGuardadoConAuditoriaNube(paqueteDatosNuevos, motivoEscrito, mat
                     </div>
             </div>
 
+                    <!-- 📜 CONTENEDOR HISTÓRICO DE AUDITORÍAS DE CARRETERA (Imagen 4) -->
+                    <div id="capa_historial_modificaciones_legal" style="width: 100%; margin-top: 15px; margin-bottom: 15px; box-sizing: border-box; font-family: sans-serif;"></div>
+
+                    <!-- SELLO LEGAL DE CIERRE DE FICHERO (LETRA PEQUEÑA BOE) -->
+                    <div style="width:100% !important; max-width:100% !important; ...">Documento electrónico de control administrativo generado...</div>
 
                     <!-- SELLO LEGAL DE CIERRE DE FICHERO (LETRA PEQUEÑA BOE) -->
                     <div style="width:100% !important; max-width:100% !important; border-top:1px solid #dee2e6; margin-top:25px; padding-top:12px; padding-bottom:5px; font-family:sans-serif; font-size:8.5px; color:#718096; line-height:1.4; text-align:justify; box-sizing:border-box !important; display:block !important; clear:both !important; overflow:visible !important;">Documento electrónico de control administrativo generado de forma nativa digital a través de DeCA, conforme al artículo 6 de la Orden FOM/2861/2012 y a la Resolución de 5 de junio de 2026, de la Dirección General de Transporte por Carretera y Ferrocarril. Fecha y hora de creación registradas como metadatos del fichero. La descarga mediante QR permanece activa durante el servicio y hasta 7 días naturales tras su finalización. El documento se conserva durante 1 año a disposición de la Inspección de Transporte Terrestre. Emisor: <strong id="prev_sello_legal_emisor" style="color:#2d3748;">---</strong></div>
