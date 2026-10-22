@@ -2278,38 +2278,7 @@ function iniciarEcosistemaDeCAs() {
             database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
-                    var viajePorte = snapshot.val();
-
-                    // 🕒 CORTAFUEGOS BOE INTERNACIONAL DE 7 DÍAS NATURALES v4.64
-                    if (viajePorte && viajePorte.qr_caducidad) {
-                        var hoyPasarela = new Date();
-                        var hoyMili = new Date(hoyPasarela.getFullYear(), hoyPasarela.getMonth(), hoyPasarela.getDate()).getTime();
-
-                        var pCad = viajePorte.qr_caducidad.split("-");
-                        var limiteMili = new Date(parseInt(pCad[0]), parseInt(pCad[1]) - 1, parseInt(pCad[2])).getTime();
-
-                        if (hoyMili > limiteMili) {
-                            // 🚫 BLOQUEO LEGAL: El QR ha expirado. Destruimos la interfaz e inyectamos el aviso oficial del BOE
-                            document.body.innerHTML = `
-                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #f4f6f9; font-family: 'Segoe UI', sans-serif; padding: 20px; box-sizing: border-box; text-align: center; color: #212529;">
-                                    <div style="background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 440px; width: 100%; border-top: 5px solid #fd7e14; box-sizing: border-box;">
-                                        <span style="font-size: 55px; display: block; margin-bottom: 15px;">🔳</span>
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: bold; color: #0f4c81; text-transform: uppercase;">Descarga no disponible</h3>
-                                        <p style="color: #4a5568; font-size: 13px; line-height: 1.5; margin-bottom: 20px; text-align: justify;">
-                                            Han transcurrido más de 7 días naturales desde la finalización del servicio y la descarga pública de este DeCA ha sido desactivada conforme a la Resolución de 5 de junio de 2026.
-                                            <br><br>
-                                            El emisor conserva el documento electrónico original durante el plazo de 1 año a disposición de la Inspección de Transporte Terrestre del Ministerio de Transportes.
-                                        </p>
-                                        <p style="font-size: 10px; color: #a0aec0; font-style: italic; margin: 0;">Fuler® DeCA Platform · Sede Central de Verificación</p>
-                                    </div>
-                                </div>
-                            `;
-                            return; // Frena en seco cualquier renderizado posterior
-                        }
-                    }
-
-                    // Si está dentro del plazo legal de los 7 días, el inspector ve el Folio Blanco con normalidad
-                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...viajePorte }];
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                     verFichaDocumento(idDecaInspeccionar);
 
                     // Purgamos la botonera del dashboard para que el inspector solo vea el folio blanco
@@ -2323,7 +2292,6 @@ function iniciarEcosistemaDeCAs() {
             }).catch(err => console.error("Error en lectura pasiva del inspector:", err));
             return; // Aborta por completo el inicio de sesión y el bucle comercial para esta pestaña
         }
-
 
         // --- FLUJO NORMAL DE LA APLICACIÓN DE CABINA DEL CONDUCTOR ---
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
@@ -2372,7 +2340,6 @@ function iniciarEcosistemaDeCAs() {
         botonOscuroDOM.innerText = "☀️";
     }
 
-
     // =========================================================================
     // 👮 RADAR INTERNACIONAL: PASARELA AUTOMÁTICA REGLAMENTARIA BOE PARA EL AGENTE
     // =========================================================================
@@ -2401,6 +2368,8 @@ function iniciarEcosistemaDeCAs() {
         `;
         document.head.appendChild(estiloPDFVirtual);
 
+        // 🚀 REPARACIÓN MÓVIL: Eliminamos el setTimeout ciego de 300ms.
+        // Forzamos la autenticación y la lectura en frío directamente garantizando la sincronía.
         miUsuarioUIDActivo = idUsuarioInspeccionar;
 
         firebase.auth().signInAnonymously().then(() => {
@@ -2409,38 +2378,8 @@ function iniciarEcosistemaDeCAs() {
             database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
-                    var viajePorte = snapshot.val();
-
-                    // 🕒 CORTAFUEGOS BOE INTERNACIONAL DE 7 DÍAS NATURALES v4.64
-                    if (viajePorte && viajePorte.qr_caducidad) {
-                        var hoyPasarela = new Date();
-                        var hoyMili = new Date(hoyPasarela.getFullYear(), hoyPasarela.getMonth(), hoyPasarela.getDate()).getTime();
-
-                        var pCad = viajePorte.qr_caducidad.split("-");
-                        var limiteMili = new Date(parseInt(pCad[0]), parseInt(pCad[1]) - 1, parseInt(pCad[2])).getTime();
-
-                        if (hoyMili > limiteMili) {
-                            // 🚫 BLOQUEO LEGAL: El QR ha expirado. Destruimos la interfaz e inyectamos el aviso oficial del BOE
-                            document.body.innerHTML = `
-                                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #f4f6f9; font-family: 'Segoe UI', sans-serif; padding: 20px; box-sizing: border-box; text-align: center; color: #212529;">
-                                    <div style="background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 440px; width: 100%; border-top: 5px solid #fd7e14; box-sizing: border-box;">
-                                        <span style="font-size: 55px; display: block; margin-bottom: 15px;">🔳</span>
-                                        <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: bold; color: #0f4c81; text-transform: uppercase;">Descarga no disponible</h3>
-                                        <p style="color: #4a5568; font-size: 13px; line-height: 1.5; margin-bottom: 20px; text-align: justify;">
-                                            Han transcurrido más de 7 días naturales desde la finalización del servicio y la descarga pública de este DeCA ha sido desactivada conforme a la Resolución de 5 de junio de 2026.
-                                            <br><br>
-                                            El emisor conserva el documento electrónico original durante el plazo de 1 año a disposición de la Inspección de Transporte Terrestre del Ministerio de Transportes.
-                                        </p>
-                                        <p style="font-size: 10px; color: #a0aec0; font-style: italic; margin: 0;">Fuler® DeCA Platform · Sede Central de Verificación</p>
-                                    </div>
-                                </div>
-                            `;
-                            return; // Frena en seco cualquier renderizado del folio
-                        }
-                    }
-
                     console.log("✅ Datos del DeCA recibidos de la nube. Procediendo a renderizar Folio.");
-                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...viajePorte }];
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
 
                     // 1. Pintamos los datos en el Folio Blanco oficial
                     verFichaDocumento(idDecaInspeccionar);
@@ -2460,6 +2399,23 @@ function iniciarEcosistemaDeCAs() {
         return;
     }
 
+    // =========================================================================
+    // 🏷️ EXTRACTOR DIGITAL: SELLA LA VERSIÓN DEL TITLE EN EL TECHO FIXED
+    // =========================================================================
+    try {
+        const textoTituloPestaña = document.title;
+        const coincidenciaVersion = textoTituloPestaña.match(/v\s*\d+\.\d+/i);
+
+        if (coincidenciaVersion) {
+            const nodoBadgeTecho = document.getElementById("deca_version_dinamica_techo");
+            if (nodoBadgeTecho) {
+                nodoBadgeTecho.innerText = coincidenciaVersion[0];
+                console.log("🏷️ Versión del software indexada en cabina:", coincidenciaVersion[0]);
+            }
+        }
+    } catch (err) {
+        console.warn("Aviso residual en el radar del extractor de versión:", err);
+    }
 }
 
 
@@ -3463,14 +3419,21 @@ function renderizarTablaResultados(listaFiltrada) {
             estiloFondoFilaEdicion = 'style="background-color: #fdf2f2 !important;"';
         }
 
-        // INYECCIÓN DE LA FILA EN LA TABLA MÁSTER
-        // === BUSCA LA CELDA DEL NÚMERO DOCUMENTO EN EL HTMLFINAL Y REPLÁZALA POR ÉSTA ===
+                // 🚀 CÁLCULO DE BADGES DE AUDITORÍA EN SALPICADERO (BOE v4.67)
+        let badgeModificacionesHTML = "";
+        const cuentaModif = parseInt(doc.modificaciones_contador || 0, 10);
+        if (cuentaModif > 0) {
+            badgeModificacionesHTML = '<br><span style="display: inline-block; background: #fff3cd; color: #fd7e14; border: 1px solid #ffeeba; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 4px; margin-top: 4px; font-family: sans-serif; white-space: nowrap;">Modificado ×' + cuentaModif + '</span>';
+        }
+
         htmlFinal += `
-        <tr ${estiloFondoFilaEdicion}>
-            <td>
-            <span class="doc-numero" onclick="verFichaDocumento('${doc.id_firebase}')" style="color: ${colorNumeroEstado} !important;">${doc.numero_documento}</span>
-            ${!navigator.onLine ? '<span style="font-size:11px; margin-left:4px;" title="Retenido localmente esperando cobertura">⏳</span>' : ''}
+        <tr>
+            <td style="vertical-align: middle;">
+            <span class="doc-numero" onclick="verFichaDocumento('` + doc.id_firebase + `')" style="color: ` + colorNumeroEstado + ` !important; display: inline-block;">` + doc.numero_documento + `</span>
+            ` + badgeModificacionesHTML + ` ` + (!navigator.onLine ? '<span style="font-size:11px; margin-left:4px;" title="Retenido localmente esperando cobertura">⏳</span>' : '') + `
             </td>
+
+
             <td>${fTxt}</td>
 
             <td class="celda-matriculas-flex">
@@ -3879,34 +3842,6 @@ function verFichaDocumento(idFirebase) {
 
             // Mostramos el modal primero para que el contenedor adquiera dimensiones físicas
             document.getElementById("modal_preview_deca").style.display = "flex";
-
-            // 🕒 CALCULADOR DE EXPIRACIÓN DE QR REGISTRO CENTRAL v4.64
-            var nodoAvisoBoe = document.getElementById("prev_aviso_caducidad_boe");
-            if (nodoAvisoBoe) {
-                if (doc.qr_caducidad) {
-                    var hoyCalculo = new Date();
-                    // Limpiamos horas para comparar solo días naturales exactos
-                    var fechaHoyMili = new Date(hoyCalculo.getFullYear(), hoyCalculo.getMonth(), hoyCalculo.getDate()).getTime();
-
-                    var trozosCaducidad = doc.qr_caducidad.split("-"); // [YYYY, MM, DD]
-                    var fechaLimiteMili = new Date(parseInt(trozosCaducidad[0]), parseInt(trozosCaducidad[1]) - 1, parseInt(trozosCaducidad[2])).getTime();
-
-                    // Formateamos la fecha a formato español para el letrero (DD/MM/YYYY)
-                    var fechaCaducidadEspañola = trozosCaducidad[2] + "/" + trozosCaducidad[1] + "/" + trozosCaducidad[0];
-
-                    if (fechaHoyMili > fechaLimiteMili) {
-                        // El QR exterior ya ha caducado
-                        nodoAvisoBoe.innerText = "⚠️ La descarga por QR terminó el " + fechaCaducidadEspañola + ": quien reciba el enlace o la hoja no podrá abrir el documento.";
-                        nodoAvisoBoe.style.setProperty("display", "block", "important");
-                    } else {
-                        // El QR exterior sigue activo en carretera
-                        nodoAvisoBoe.style.setProperty("display", "none", "important");
-                    }
-                } else {
-                    nodoAvisoBoe.style.setProperty("display", "none", "important");
-                }
-            }
-
 
             // 🚀 INTERRUPTOR DE SEGURIDAD ANTI-DUPLICADOS MÁSTER v3.86
             // Evita de forma rígida que Google Chrome re-ejecute la cola de impresión al refrescar el DOM
@@ -4326,32 +4261,13 @@ function procesarGuardadoDeCAOnline() {
     };
 
     if (idDocumentoEnEdicion !== null) {
-        const viajeOriginalEdicion = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
-        if (viajeOriginalEdicion) paqueteDeCADatos.numero_documento = viajeOriginalEdicion.numero_documento;
-
-        if (database && navigator.onLine) {
-            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idDocumentoEnEdicion).update(paqueteDeCADatos)
-                .then(() => {
-                    mostrarAvisoToast("✅ ¡Documento DeCA actualizado!");
-                    cerrarModalNuevoDeCA();
-                    limpiarCamposFormularioGigante();
-                    idDocumentoEnEdicion = null;
-                });
-        }
-        if (!navigator.onLine) {
-            const idxRAM = documentosDeCA.findIndex(item => item.id_firebase === idDocumentoEnEdicion);
-            if (idxRAM !== -1) documentosDeCA[idxRAM] = { id_firebase: idDocumentoEnEdicion, ...paqueteDeCADatos };
-            actualizarContadoresSuperiores();
-            renderizarTablaResultados(documentosDeCA);
-            cerrarModalNuevoDeCA();
-            limpiarCamposFormularioGigante();
-            idDocumentoEnEdicion = null;
-        }
+        // 🚀 MODO EDICIÓN DETECTADO: Desviamos el flujo hacia el motor de comparación de auditoría
+        ejecutarPasarelaComparativaAuditoria(paqueteDeCADatos);
     } else {
+        // MODO ALTA NUEVA: Guardado directo sin pedir justificación
         ejecutarInyeccionCorrelativaDeCA(paqueteDeCADatos);
     }
 }
-
 
 
 
@@ -4477,7 +4393,12 @@ function limpiarCamposFormularioGigante() {
     // Restaurar el texto original del botón de acción principal
     const btnGuardar = document.querySelector(".deca-btn-guardar");
     if (btnGuardar) btnGuardar.innerText = "Generar DeCA";
+
+    // Ocultamos el aviso de edición legal para altas limpias
+    const panelAviso = document.getElementById("deca_aviso_edicion_legal");
+    if (panelAviso) panelAviso.style.display = "none";
 }
+
 
 
 
@@ -4489,12 +4410,24 @@ function abrirFormularioEditarDeCA(idFirebase) {
     const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
     if (!doc) return;
 
-    // Asignación de control para indicarle al motor que estamos editando
     idDocumentoEnEdicion = idFirebase;
 
-    // Modificamos el título y el texto del botón azul para avisar al conductor en cabina
-    document.querySelector("#modal_nuevo_deca h3").innerText = `✏️ Modificar Documento: ${doc.numero_documento}`;
-    document.querySelector(".deca-btn-guardar").innerText = "Guardar DeCA";
+    // Modificamos el título del modal y mostramos la alerta amarilla legal
+    document.querySelector("#modal_nuevo_deca h3").innerText = `Modificar ${doc.numero_documento}`;
+
+    const panelAviso = document.getElementById("deca_aviso_edicion_legal");
+    const textoNumero = document.getElementById("deca_numero_edicion_texto");
+    if (panelAviso && textoNumero) {
+        textoNumero.innerText = doc.numero_documento || "---";
+        panelAviso.style.display = "block"; // Emerge el letrero informativo
+    }
+
+    // Transformamos el botón del pie en el disparador de la pasarela de control
+    const btnAccion = document.querySelector(".deca-btn-guardar");
+    if (btnAccion) {
+        btnAccion.innerText = "Revisar cambios";
+    }
+
 
     // Volcado de datos identificativos del cargador
     document.getElementById("deca_carg_razon").value = doc.cargador_razon || "";
@@ -4515,22 +4448,35 @@ function abrirFormularioEditarDeCA(idFirebase) {
     document.getElementById("deca_fecha_fin").value = doc.fecha_fin_servicio || "";
     document.getElementById("deca_vehiculo").value = doc.matricula_tractor || "";
     document.getElementById("deca_remolque").value = doc.matricula_remolque || "";
-    document.getElementById("deca_origen").value = doc.origen_plaza || "";
-    document.getElementById("deca_destino").value = doc.destino_plaza || "";
 
-    // Desglose elástico seguro de la magnitud del peso sin romper el script
-    if (doc.mercancia_peso && doc.mercancia_peso.includes(" ")) {
-        const partesPeso = doc.mercancia_peso.split(" ");
-    // 🔥 REPARACIÓN: Indicamos los trozos exactos del array (0 para el número y 1 para kg/litros)
-        document.getElementById("deca_mercan_peso").value = partesPeso[0] || "";
-        document.getElementById("deca_mercan_unidad").value = partesPeso[1] || "kg";
-    } else {
-        document.getElementById("deca_mercan_peso").value = doc.mercancia_peso || "";
-        document.getElementById("deca_mercan_unidad").value = "kg";
+    // 🚀 INTEGRACIÓN GRUPAJES: Purgamos restos anteriores e inyectamos la lona elástica limpia
+    const contenedorElasticos = document.getElementById("contenedor_capas_envios_elasticas");
+    if (contenedorElasticos) {
+        contenedorElasticos.innerHTML = "";
+        contadorEnviosFormularioVigentes = 0;
     }
 
-    document.getElementById("deca_mercan_nombre").value = doc.mercancia_nombre || "";
-    document.getElementById("deca_mercan_bultos").value = doc.mercancia_bultos !== "---" ? doc.mercancia_bultos : "";
+    // Desglosamos el peso en número y magnitud
+    let pesoLimpioNum = "";
+    let unidadLimpiaStr = "kg";
+    if (doc.mercancia_peso && doc.mercancia_peso.includes(" ")) {
+        const trozosP = doc.mercancia_peso.split(" ");
+        pesoLimpioNum = trozosP[0] || "";
+        unidadLimpiaStr = trozosP[1] || "kg";
+    } else {
+        pesoLimpioNum = doc.mercancia_peso || "";
+    }
+
+    // Inyectamos el Bloque del Envío 1 con sus datos pre-rellenados de forma segura
+    agregarNuevoBloqueEnvioFormulario({
+        origen: doc.origen_plaza || "",
+        destino: doc.destino_plaza || "",
+        mercancia: doc.mercancia_nombre || "",
+        peso: pesoLimpioNum,
+        unidad: unidadLimpiaStr,
+        bultos: (doc.mercancia_bultos !== "---" && doc.mercancia_bultos !== "---") ? doc.mercancia_bultos : ""
+    });
+
     document.getElementById("deca_observaciones").value = doc.observaciones_indicaciones || "";
 
     // Levantamos el modal gigante en modo Edición
@@ -7241,6 +7187,188 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
     });
 }
 
+// =========================================================================
+// 👮 VALIDACIÓN DE AUDITORÍA: CENTINELA DE MOTIVO OBLIGATORIO (Res. 5/6/2026)
+// =========================================================================
+function validarCampoJustificacionMotivoCambio() {
+    const campoTexto = document.getElementById("txt_auditoria_motivo_cambio");
+    const capaAlertaRosa = document.getElementById("alerta_error_motivo_vacio");
+    if (!campoTexto || !capaAlertaRosa) return false;
+
+    const valorMotivo = campoTexto.value.trim();
+
+    if (valorMotivo === "") {
+        // Enciende el contorno de advertencia carmín y levanta la alerta rosa
+        campoTexto.classList.add("deca-input-error-falta");
+        campoTexto.style.setProperty("border", "2px solid #dc3545", "important");
+        capaAlertaRosa.style.display = "block";
+        campoTexto.focus();
+
+        // Escuchador dinámico: En cuanto el chófer escriba, repara los colores en caliente
+        campoTexto.oninput = function() {
+            if (this.value.trim() !== "") {
+                this.classList.remove("deca-input-error-falta");
+                this.style.border = "1px solid #cbd5e0";
+                capaAlertaRosa.style.display = "none";
+            }
+        };
+        return false; // Bloquea el envío
+    }
+
+    return true; // Acceso autorizado
+}
+
+// =========================================================================
+// 🧠 MOTOR DE AUDITORÍA: COMPARADOR DE DIFERENCIAS "ANTES -> AHORA" (v4.67)
+// =========================================================================
+function ejecutarPasarelaComparativaAuditoria(paqueteNuevosDatos) {
+    const viajeOriginal = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
+    if (!viajeOriginal) return;
+
+    const contenedorDiferencias = document.getElementById("contenedor_comparativo_cambios_auditoria");
+    const modalAuditoria = document.getElementById("modal_revision_auditoria_deca");
+    const tituloModal = document.getElementById("auditoria_titulo_deca");
+    const spanNumero = document.getElementById("auditoria_numero_deca_span");
+    const campoMotivo = document.getElementById("txt_auditoria_motivo_cambio");
+    const capaAlertaRosa = document.getElementById("alerta_error_motivo_vacio");
+
+    if (!contenedorDiferencias || !modalAuditoria) return;
+
+    // Limpiamos los restos y estados de alertas de aperturas anteriores
+    contenedorDiferencias.innerHTML = "";
+    if (campoMotivo) campoMotivo.value = "";
+    if (campoMotivo) campoMotivo.style.border = "1px solid #cbd5e0";
+    if (capaAlertaRosa) capaAlertaRosa.style.display = "none";
+
+    // Estampamos las etiquetas identificativas en las cabeceras
+    if (tituloModal) tituloModal.innerText = `Modificar ${viajeOriginal.numero_documento}`;
+    if (spanNumero) spanNumero.innerText = viajeOriginal.numero_documento || "---";
+
+    let matrizDiferenciasDetectadas = [];
+
+    // Matriz de mapeo: [Propiedad del objeto, Nombre legible para el chófer]
+    const camposAComparar = [
+        ["origen_plaza", "ENVÍO · ORIGEN"],
+        ["destino_plaza", "ENVÍO · DESTINO"],
+        ["mercancia_nombre", "ENVÍO · MERCANCÍA"],
+        ["mercancia_peso", "ENVÍO · CANTIDAD"]
+    ];
+
+    // Recorremos y comparamos matemáticamente las propiedades
+    camposAComparar.forEach(([propiedad, etiquetaLegible]) => {
+        const valorViejo = (viajeOriginal[propiedad] || "").trim().toUpperCase();
+        const valorNuevo = (paqueteNuevosDatos[propiedad] || "").trim().toUpperCase();
+
+        if (valorViejo !== valorNuevo && valorNuevo !== "") {
+            matrizDiferenciasDetectadas.push({
+                etiqueta: etiquetaLegible,
+                antes: viajeOriginal[propiedad] || "---",
+                ahora: paqueteNuevosDatos[propiedad]
+            });
+        }
+    });
+
+    // 🛡️ CORTAFUEGOS DE SEGURIDAD LEGAL: Si el conductor le dio a editar pero no alteró ningún dato,
+    // el sistema no tiene nada que auditar ni justificar. Avisamos corporativamente.
+    if (matrizDiferenciasDetectadas.length === 0) {
+        mostrarAlertaCorporativaDeca(
+            "Sin Cambios Detectados",
+            "No se ha modificado ninguna de las magnitudes reguladas (Origen, Destino, Mercancía o Cantidad). Si desea añadir observaciones, hágalo en el campo de texto del formulario.",
+            "📋"
+        );
+        return;
+    }
+
+    // Dibujamos las filas comparativas usando la maquetación tachada oficial (Imagen 2)
+    contenedorDiferencias.innerHTML = matrizDiferenciasDetectadas.map(cambio => {
+        return `
+        <div style="font-size: 13px; color: #212529; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; line-height: 1.4;">
+            <span style="font-size: 10px; font-weight: bold; color: #718096; display: block; margin-bottom: 2px;">${cambio.etiqueta}</span>
+            <span style="text-decoration: line-through; color: #a0aec0; margin-right: 6px;">${cambio.antes}</span>
+            <span style="font-weight: bold; color: #212529;">➔ ${cambio.ahora}</span>
+        </div>`;
+    }).join("");
+
+    // Conectamos el botón de confirmación final pasándole los datos empaquetados por hardware
+    document.getElementById("btn_confirmar_modificacion_final").onclick = function() {
+        if (validarCampoJustificacionMotivoCambio()) {
+            const motivoTexto = campoMotivo.value.trim().toUpperCase();
+            ejecutarGuardadoConAuditoriaNube(paqueteNuevosDatos, motivoTexto, matrizDiferenciasDetectadas);
+        }
+    };
+
+    // Levantamos el sub-modal en mitad de la pantalla
+    modalAuditoria.style.display = "flex";
+}
+
+// =========================================================================
+// 🚀 EMISOR CON AUDITORÍA: SUBIDA DE GRUPAJE Y HISTORIAL A FIREBASE (v4.67)
+// =========================================================================
+function ejecutarGuardadoConAuditoriaNube(paqueteDatosNuevos, motivoEscrito, matrizCambios) {
+    const viajeOriginal = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
+    if (!viajeOriginal) return;
+
+    mostrarAvisoToast("⏳ Sindicando auditoría legal en el servidor...");
+
+    // 1. Calculamos el siguiente índice del contador de modificaciones
+    const contadorActual = parseInt(viajeOriginal.modificaciones_contador || 0, 10);
+    const siguienteContador = contadorActual + 1;
+
+    // 2. Extraemos el desglose del array histórico de auditorías previas o creamos uno virgen
+    let historialExistente = [];
+    if (viajeOriginal.historial_cambios) {
+        historialExistente = Array.isArray(viajeOriginal.historial_cambios) ? viajeOriginal.historial_cambios : Object.values(viajeOriginal.historial_cambios);
+    }
+
+    // 3. Formateamos la marca de tiempo de la firma actual
+    const hoy = new Date();
+    const cadenaFechaHoraFirma = hoy.toLocaleDateString('es-ES') + " " + hoy.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+    // 4. Creamos el registro del cambio actual estructurado para el Folio Blanco
+    const nuevoRegistroHistorial = {
+        numero_modificacion: siguienteContador,
+        fecha_hora_modificacion: cadenaFechaHoraFirma,
+        motivo_cambio: motivoEscrito,
+        desglose_valores: matrizCambios // Almacena las diferencias "Antes -> Ahora"
+    };
+
+    historialExistente.push(nuevoRegistroHistorial);
+
+    // 5. Consolidamos el paquete final fusionando los datos nuevos con la auditoría
+    const paqueteConsolidadoFinal = {
+        ...paqueteDatosNuevos,
+        modificaciones_contador: siguienteContador,
+        historial_cambios: historialExistente
+    };
+
+    // 6. Lanzamos la actualización atómica en red hacia Firebase
+    if (database && navigator.onLine) {
+        database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + idDocumentoEnEdicion).update(paqueteConsolidadoFinal)
+        .then(() => {
+            mostrarAvisoToast(`✅ DeCA modificado con éxito (Modificado ×${siguienteContador})`);
+
+            // Apagamos las persianas de ambos modales en pantalla
+            document.getElementById("modal_revision_auditoria_deca").style.display = "none";
+            cerrarModalNuevoDeCA();
+            limpiarCamposFormularioGigante();
+            idDocumentoEnEdicion = null;
+        })
+        .catch(err => alert("Error de red al registrar auditoría: " + err.message));
+    } else {
+        // Soporte de respaldo elástico offline preventivo
+        const idxRAM = documentosDeCA.findIndex(item => item.id_firebase === idDocumentoEnEdicion);
+        if (idxRAM !== -1) documentosDeCA[idxRAM] = { id_firebase: idDocumentoEnEdicion, ...paqueteConsolidadoFinal };
+
+        actualizarContadoresSuperiores();
+        renderizarTablaResultados(documentosDeCA);
+
+        document.getElementById("modal_revision_auditoria_deca").style.display = "none";
+        cerrarModalNuevoDeCA();
+        limpiarCamposFormularioGigante();
+        idDocumentoEnEdicion = null;
+        mostrarAvisoToast("⏳ Modificación guardada localmente a la espera de cobertura.");
+    }
+}
 
 
 </script>
@@ -7330,7 +7458,13 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
         <!-- Cuerpo Desplazable -->
         <div class="deca-modal-cuerpo">
 
+            <!-- ⚠️ AVISO REGISTRO DE MODIFICACIONES LEGALES (BOE v4.67) -->
+            <div id="deca_aviso_edicion_legal" style="display: none; width: 100%; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; font-size: 12.5px; font-weight: bold; margin-bottom: 15px; box-sizing: border-box; text-align: justify; line-height: 1.4;">
+                Estás modificando el DeCA <span id="deca_numero_edicion_texto" style="color: #fd7e14; font-weight: 800;">---</span>, ya emitido. Se mantienen el mismo número y el mismo QR: el documento mostrará los datos nuevos y, al final, los anteriores marcados como <span style="color: #dc3545; font-weight: 800;">no válidos</span> junto con el motivo del cambio.
+            </div>
+
     <!-- ⭐ MOTOR DE CARGA Y BORRADO DE PLANTILLAS FRECUENTES -->
+
     <div class="contenedor-plantillas-form">
         <label style="font-size: 11px; font-weight: bold; color: #0f4c81; text-transform: uppercase;">⭐ Reutilizar Estructura desde Plantillas Guardadas</label>
         <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
@@ -7595,16 +7729,11 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
     </div>
 
         <!-- === BOTONERA INFERIOR DEL VISOR CORREGIDA EN UNA FILA === -->
-        <div class="preview-pie-botones" style="flex-direction: column !important; gap: 8px !important;">
-            <!-- 📢 CHIVATO TEMPORAL BOE DE CADUCIDAD v4.64 -->
-            <div id="prev_aviso_caducidad_boe" style="display: none; width: 100%; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 6px 10px; border-radius: 4px; font-size: 11.5px; font-weight: bold; text-align: center; box-sizing: border-box;"></div>
-
-            <div style="display: flex; width: 100%; gap: 6px; flex-wrap: nowrap;">
-                <!-- Botón 1: PDF -->
-                <button class="btn-preview-accion pdf-azul" onclick="forzarDescargaPDFDesdeVisorInterno()">
-                    📥 PDF
-                </button>
-
+        <div class="preview-pie-botones">
+            <!-- Botón 1: PDF -->
+            <button class="btn-preview-accion pdf-azul" onclick="forzarDescargaPDFDesdeVisorInterno()">
+                📥 PDF
+            </button>
             <!-- Botón 2: QR Grande -->
             <button class="btn-preview-accion" onclick="abrirModalQRGiganteNativo()">
                 🔳 QR Grande
@@ -8026,6 +8155,51 @@ function enumerarYEstilizarBloquesEnviosVisibles() {
         <div class="deca-modal-pie">
             <button class="deca-btn-pie deca-btn-cancelar" onclick="document.getElementById('modal_central_datos_deca').style.display='none'">Cerrar Panel</button>
         </div>
+    </div>
+</div>
+
+
+<!-- ===  Pasarela de Auditoría: Modal Intermedio de Justificación (BOE v4.67) === -->
+<div id="modal_revision_auditoria_deca" class="modal-deca-gigante" style="z-index: 600000; background: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;">
+    <div class="deca-modal-contenido" style="max-width: 650px; height: auto; margin: auto;">
+
+        <div class="deca-modal-cabecera" style="background: #ffffff; color: #212529; border-bottom: 1px solid #dee2e6;">
+            <h3 id="auditoria_titulo_deca" style="color: #212529 !important; font-weight: bold;">Modificar DeCA</h3>
+            <button class="deca-modal-cerrar" onclick="document.getElementById('modal_revision_auditoria_deca').style.display='none'">✕</button>
+        </div>
+
+        <div class="deca-modal-cuerpo" style="padding: 20px; background: #f0f4f8;">
+            <!-- Lona informativa amarilla idéntica -->
+            <div style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 12px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 15px; text-align: justify; line-height: 1.4;">
+                Estás modificando el DeCA <span id="auditoria_numero_deca_span" style="color: #fd7e14; font-weight: 800;">---</span>, ya emitido. Se mantienen el mismo número y el mismo QR: el documento mostrará los datos nuevos y, al final, los anteriores marcados como <span style="color: #dc3545; font-weight: 800;">no válidos</span> junto con el motivo del cambio.
+            </div>
+
+            <!-- Bloque de diferencias comparativas (Se rellenará en el Paso C) -->
+            <div class="bloque-formulario-deca" style="text-align: left;">
+                <div class="deca-num-titulo" style="font-weight: 800;"><span class="deca-num-circulo" style="background:#0f4c81;">📋</span> Vas a cambiar</div>
+                <div id="contenedor_comparativo_cambios_auditoria" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <!-- Aquí el JS inyectará el texto tachado "Antes -> Ahora" -->
+                </div>
+            </div>
+
+            <!-- Bloque del Motivo Obligatorio -->
+            <div class="bloque-formulario-deca" style="text-align: left; margin-bottom: 5px;">
+                <div class="deca-num-titulo" style="color: #212529;"><span class="deca-num-circulo" style="background:#212529;">✍️</span> Motivo del cambio <span>*</span></div>
+                <textarea id="txt_auditoria_motivo_cambio" class="deca-input" rows="3" placeholder="p. ej. Avería del remolque, se cambia en Albacete / Error en la pesada comercial" style="width: 100%; resize: none; font-family: inherit; font-size: 13.5px; text-transform: none !important; color: #212529 !important; font-weight: normal !important;"></textarea>
+                <span style="font-size: 10.5px; color: #718096; display: block; margin-top: 6px; line-height: 1.3;">Sale en el documento junto a cada cambio. Después, hazle llegar el documento actualizado al conductor.</span>
+            </div>
+
+            <!-- Alerta Rosa por falta de justificación -->
+            <div id="alerta_error_motivo_vacio" style="display: none; width: 100%; background: #fdf2f2; color: #b81d24; border: 1px solid #f5c6cb; padding: 10px; border-radius: 6px; font-size: 12px; font-weight: bold; text-align: left; margin-top: 10px; box-sizing: border-box;">
+                Escribe el motivo del cambio.
+            </div>
+        </div>
+
+        <div class="deca-modal-pie" style="background: #ffffff;">
+            <button class="deca-btn-pie deca-btn-cancelar" onclick="document.getElementById('modal_revision_auditoria_deca').style.display='none'" style="font-size: 13px;">← Volver a editar</button>
+            <button class="deca-btn-pie deca-btn-guardar" id="btn_confirmar_modificacion_final" style="font-size: 13px;">Confirmar modificación</button>
+        </div>
+
     </div>
 </div>
 
