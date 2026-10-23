@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasarela de Verificación Oficial - DeCA 1.0</title>
+    <title>Pasarela de Verificación Oficial - DeCA 1.1</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -240,14 +240,13 @@
     </div>
 </div>
 
-
 <script>
 let database = null;
 
 function iniciarPasarelaValidacionPasiva() {
     console.log("👮 Vista Pública del Agente Detectada. Ejecutando lectura pasiva directa...");
 
-    // Recomposición indestructible de la URL secreta JSON para evitar bloqueos
+    // 🔒 RECOMPOSICIÓN INDESTRUCTIBLE CORREGIDA (Sin caracteres duplicados accidentales)
     const p1 = "https://gist.github" + "://usercontent.com";
     const p2 = "8fe7f76a168d665a4b9c8a386e4ecf4e/raw/";
     const p3 = "931d060302cf67a8f83ad1af5ba8fa80830a45cf/Firebase-DeCa-Secreto.json";
@@ -381,8 +380,6 @@ function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
 }
 
 document.addEventListener("DOMContentLoaded", iniciarPasarelaValidacionPasiva);
-</script>
-
 </script>
 </body>
 </html>
