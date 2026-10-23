@@ -2265,47 +2265,37 @@ function iniciarEcosistemaDeCAs() {
         // 🔒 RETORNO A PERSISTENCIA LOCAL: Mantiene las credenciales vivas en el móvil para que carguen los datos
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        // 👮 CORTAFUEGOS PRIORITARIO CARRETERA: Detectamos si es una consulta externa del inspector en frío
-        const parametrosRadar = new URLSearchParams(window.location.search);
-        const idDecaInspeccionar = parametrosRadar.get("verificar");
+
+        // --- FLUJO NORMAL DE LA APLICACIÓN DE CABINA DEL CONDUCTOR ---
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
 
-        // Si entran por un QR de carretera y este terminal NO tiene tu cuenta privada iniciada (es la Guardia Civil)
-        if (idDecaInspeccionar && !tokenSeguridadLocal) {
-            console.log("👮 Guardia Civil detectada en el arranque: Derivando a módulo público seguro.");
-            actualizarEstadoRedTerminalCamion(true);
-            verificarExistenciaPerfilCamionero(); // Lanza el visor público con sus propios filtros
+        if (tokenSeguridadLocal) {
+            miUsuarioUIDActivo = tokenSeguridadLocal;
+            return firebase.auth().signInAnonymously().then(function() {
+                console.log("🔓 Conexión establecida con terminal verificado:", miUsuarioUIDActivo);
+                actualizarEstadoRedTerminalCamion(true);
+                verificarExistenciaPerfilCamionero();
+            }).catch(function(e) {
+                console.warn("Pasarela Auth lenta o retenida por dominio. Forzando paso directo seguro.");
+                actualizarEstadoRedTerminalCamion(true);
+                verificarExistenciaPerfilCamionero();
+            });
         } else {
-            // Flujo normal para el conductor logueado o terminal virgen sin parámetros de URL
-            const tokenSeguridadLocalControl = localStorage.getItem("cfg_uid_recuperado_deca");
-            if (tokenSeguridadLocalControl) {
-                miUsuarioUIDActivo = tokenSeguridadLocalControl;
-                return firebase.auth().signInAnonymously().then(function() {
-                    console.log("🔓 Conexión establecida con terminal verificado:", miUsuarioUIDActivo);
-                    actualizarEstadoRedTerminalCamion(true);
-                    verificarExistenciaPerfilCamionero();
-                }).catch(function(e) {
-                    console.warn("Pasarela Auth lenta o retenida por dominio. Forzando paso directo seguro.");
-                    actualizarEstadoRedTerminalCamion(true);
-                    verificarExistenciaPerfilCamionero();
-                });
-            } else {
-                return firebase.auth().signInAnonymously().then(function(usuarioCredencial) {
-                    miUsuarioUIDActivo = usuarioCredencial.user.uid;
-                    console.log("🌱 Terminal virgen inicializado. UID provisional:", miUsuarioUIDActivo);
-                    actualizarEstadoRedTerminalCamion(true);
-                    desplegarMuroRegistroInicialObligatorioNativo();
-                }).catch(function(err) {
-                    console.warn("Fallo Auth inicial en incógnito local, forzando pasarela de recuperación.");
-                    miUsuarioUIDActivo = "uid_provisional_local_deca";
-                    actualizarEstadoRedTerminalCamion(true);
-                    desplegarMuroRegistroInicialObligatorioNativo();
-                });
-            }
+            return firebase.auth().signInAnonymously().then(function(usuarioCredencial) {
+                miUsuarioUIDActivo = usuarioCredencial.user.uid;
+                console.log("🌱 Terminal virgen inicializado. UID provisional:", miUsuarioUIDActivo);
+                actualizarEstadoRedTerminalCamion(true);
+                desplegarMuroRegistroInicialObligatorioNativo();
+            }).catch(function(err) {
+                console.warn("Fallo Auth inicial en incógnito local, forzando pasarela de recuperación.");
+                miUsuarioUIDActivo = "uid_provisional_local_deca";
+                actualizarEstadoRedTerminalCamion(true);
+                desplegarMuroRegistroInicialObligatorioNativo();
+            });
         }
+
     })
     .catch(error => {
-
         console.error("❌ Error crítico en el Gateway de arranque:", error);
         // Si el camión entra en un túnel en frío, salta el búnker local de emergencia
         if (!navigator.onLine) {
@@ -2396,68 +2386,37 @@ function verificarExistenciaPerfilCamionero() {
     const parametrosRadar = new URLSearchParams(window.location.search);
     const idDecaInspeccionar = parametrosRadar.get("verificar");
     const idUsuarioInspeccionar = parametrosRadar.get("user");
-    const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
 
     // 👮 MODO INSPECTOR GLOBAL: Pasillo libre para la Guardia Civil (QR)
-    if (idDecaInspeccionar && idUsuarioInspeccionar && !tokenSeguridadLocal) {
+    if (idDecaInspeccionar && idUsuarioInspeccionar) {
         console.log("👮 Radar activado: Saltando control de acceso para visualización pública...");
         database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
-                    const viaje = snapshot.val();
-
-                    // ⏳ CORTAFUEGOS DE CUSTODIA EN CARRETERA (7 DÍAS RÍGIDOS)
-                    if (viaje && viaje.qr_caducidad) {
-                        const objHoy = new Date();
-                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
-
-                        if (cadenaHoyRígida > viaje.qr_caducidad) {
-                            // 🔒 BLINDAJE TOTAL: Apagamos el visor y cualquier modal azul en el acto
-                            if(document.getElementById("modal_preview_deca")) document.getElementById("modal_preview_deca").style.display = "none";
-                            if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-                            if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
-
-                            // Forzamos el bloqueo de seguridad naranja en mitad de la carretera
-                            document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
-                            return; // Congelación absoluta de la interfaz del inspector
-                        }
-                    }
-
-                    // Si el documento NO está caducado, se inicializa el visor oficial
                     idDocumentoEnEdicion = idDecaInspeccionar;
                     miUsuarioUIDActivo = idUsuarioInspeccionar;
-                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...viaje }];
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                     verFichaDocumento(idDecaInspeccionar);
 
-                    // Ocultamos el salpicadero privado para el agente de control
                     if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                     if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                     if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
                     if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.display = "none";
                     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.display = "none";
 
-                    // Forzamos la ocultación del aspa de cierre del visor para que no pueda escapar al dashboard
                     const btnCerrarVisor = document.querySelector(".preview-container .deca-modal-cerrar");
-                    if(btnCerrarVisor) btnCerrarVisor.style.setProperty("display", "none", "important");
+                    if(btnCerrarVisor) btnCerrarVisor.style.display = "none";
 
-                    // Capamos los botones de manipulación del PDF en el pie del visor
                     const botonesPiePreview = document.querySelectorAll(".preview-pie-botones .btn-preview-accion");
                     botonesPiePreview.forEach((btn, index) => {
-                        if (index === 1 || index === 2) btn.style.setProperty("display", "none", "important");
+                        if (index === 1 || index === 2) btn.style.display = "none";
                     });
-
-                    // Aseguramos que el visor se abra de forma limpia
-                    if(document.getElementById("modal_preview_deca")) document.getElementById("modal_preview_deca").style.display = "flex";
-
                 } else {
                     alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                 }
             }).catch(err => console.error("Error en lectura pública:", err));
         return;
     }
-
-    // 🚚 MODO DASHBOARD PRIVADO: SENSOR DE IDENTIDAD EN TIEMPO REAL
-
 
     // 🚚 MODO DASHBOARD PRIVADO: SENSOR DE IDENTIDAD EN TIEMPO REAL
     database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').on('value', (snapshot) => {
