@@ -241,37 +241,53 @@
 let database = null;
 
 function iniciarPasarelaValidacionPasiva() {
-    console.log("📡 Conectando con la pasarela de control pasivo...");
-    const urlGateway = "https://githubusercontent.com";
+    console.log("👮 Vista Pública del Agente Detectada. Ejecutando lectura pasiva directa...");
 
-    fetch(urlGateway)
-    .then(res => res.json())
+    const urlPorDefectoGateway = "https://githubusercontent.com";
+
+    fetch(urlPorDefectoGateway)
+    .then(res => {
+        if (!res.ok) throw new Error("La pasarela remota no responde.");
+        return res.json();
+    })
     .then(configFirebase => {
-        if (firebase.apps.length === 0) { firebase.initializeApp(configFirebase); }
+        if (firebase.apps.length === 0) {
+            firebase.initializeApp(configFirebase);
+        }
         database = firebase.database();
 
-        // Extraer credenciales exactas del radar URL
-        const parametros = new URLSearchParams(window.location.search);
-        const idDeca = parametros.get("verificar");
-        const idUser = parametros.get("user");
+        // 👮 RADAR DE INTERCEPCIÓN COPIADO DE TU MODELO ORIGINAL V4.71
+        const parametrosRadar = new URLSearchParams(window.location.search);
+        const idDecaInspeccionar = parametrosRadar.get("verificar");
+        const idUsuarioInspeccionar = parametrosRadar.get("user");
 
-        if (!idDeca || !idUser) {
-            alert("❌ Enlace incompleto: No se han localizado los identificadores fiscales del porte.");
-            return;
+        if (idDecaInspeccionar && idUsuarioInspeccionar) {
+            // Forzamos el login anónimo reglamentario en Pages para saltar el cortafuegos de Google
+            firebase.auth().signInAnonymously().then(() => {
+                console.log("📡 Conexión establecida en pestaña de inspección. Solicitando datos del porte...");
+
+                database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        console.log("✅ Datos del DeCA recibidos de la nube. Procediendo a evaluar vigencia.");
+                        const datosPorteInspector = snapshot.val();
+
+                        // Enviamos los datos al renderizador y al Cortafuegos de 7 días
+                        evaluarYRenderizarDocumentoInspector(datosPorteInspector, idDecaInspeccionar);
+                    } else {
+                        alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
+                    }
+                }).catch(err => console.error("Error al leer el documento remoto:", err));
+            }).catch(err => console.error("Error en autenticación de pasarela:", err));
+        } else {
+            alert("❌ Error: Falta el código de verificación o el identificador de usuario.");
         }
-
-        firebase.auth().signInAnonymously().then(() => {
-            database.ref('usuarios/' + idUser + '/documentos_deca/' + idDeca).once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    evaluarYRenderizarDocumentoInspector(snapshot.val(), idDeca);
-                } else {
-                    alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
-                }
-            });
-        });
-    }).catch(err => console.error("Fallo crítico en el Gateway de Verificación:", err));
+    })
+    .catch(error => {
+        console.error("❌ Error crítico en el Gateway de arranque del Inspector:", error);
+    });
 }
+
 
 function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
     // 1. Activar Cortafuegos de Expiración de 7 días
