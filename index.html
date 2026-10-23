@@ -2398,16 +2398,35 @@ function verificarExistenciaPerfilCamionero() {
     const parametrosRadar = new URLSearchParams(window.location.search);
     const idDecaInspeccionar = parametrosRadar.get("verificar");
     const idUsuarioInspeccionar = parametrosRadar.get("user");
+    const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
 
     // 👮 MODO INSPECTOR GLOBAL: Pasillo libre para la Guardia Civil (QR)
-    if (idDecaInspeccionar && idUsuarioInspeccionar) {
+    if (idDecaInspeccionar && idUsuarioInspeccionar && !tokenSeguridadLocal) {
         console.log("👮 Radar activado: Saltando control de acceso para visualización pública...");
         database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
+                    const viaje = snapshot.val();
+
+                    // ⏳ CORTAFUEGOS DE CUSTODIA EN CARRETERA (7 DÍAS RÍGIDOS)
+                    if (viaje && viaje.qr_caducidad) {
+                        const objHoy = new Date();
+                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
+
+                        if (cadenaHoyRígida > viaje.qr_caducidad) {
+                            // Limpiamos la pantalla de modales residuales azules
+                            if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
+                            if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
+
+                            // Forzamos el bloqueo de seguridad naranja en mitad de la carretera
+                            document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
+                            return; // Congelación absoluta de la interfaz
+                        }
+                    }
+
                     idDocumentoEnEdicion = idDecaInspeccionar;
                     miUsuarioUIDActivo = idUsuarioInspeccionar;
-                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...viaje }];
                     verFichaDocumento(idDecaInspeccionar);
 
                     if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
@@ -2429,6 +2448,7 @@ function verificarExistenciaPerfilCamionero() {
             }).catch(err => console.error("Error en lectura pública:", err));
         return;
     }
+
 
     // 🚚 MODO DASHBOARD PRIVADO: SENSOR DE IDENTIDAD EN TIEMPO REAL
     database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').on('value', (snapshot) => {
