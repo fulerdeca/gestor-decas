@@ -5,11 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pasarela de Verificación Oficial - DeCA</title>
 
-    <!-- MOTORES OFICIALES MÍNIMOS REQUERIDOS (Firebase Compat + Renderizador QR) -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
-    <script src="https://cloudflare.com"></script>
+    <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
+<!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+<!-- 🔥 LA LÍNEA QUE TE FALTABA: Descarga el motor de seguridad/autenticación de Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<!-- Motor oficial de renderizado de códigos QR rápidos y ligeros -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
         /* === HOJA DE ESTILOS LIMPIA Y EXCLUSIVA PARA EL INSPECTOR === */
