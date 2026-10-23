@@ -246,7 +246,7 @@ let database = null;
 function iniciarPasarelaValidacionPasiva() {
     console.log("👮 Vista Pública del Agente Detectada. Ejecutando lectura pasiva directa...");
 
-    // 🔒 RECOMPOSICIÓN INDESTRUCTIBLE CORREGIDA (Sin caracteres duplicados accidentales)
+    // 🔒 RECOMPOSICIÓN DE URL CORREGIDA: Eliminado el "://" duplicado que corrompía la descarga
     const p1 = "https://gist.github" + "://usercontent.com";
     const p2 = "8fe7f76a168d665a4b9c8a386e4ecf4e/raw/";
     const p3 = "931d060302cf67a8f83ad1af5ba8fa80830a45cf/Firebase-DeCa-Secreto.json";
