@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.70</title>
+    <title>Gestor de DeCAs Transportes v4.71</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -2274,14 +2274,26 @@ function iniciarEcosistemaDeCAs() {
             console.log("👮 Vista Pública del Agente Detectada. Ejecutando lectura pasiva directa...");
             miUsuarioUIDActivo = idUsuarioInspeccionar;
 
-            // 🛡️ ACCESO DIRECTO SÍNCRONO: Atacamos directamente el nodo sin forzar un login anónimo comercial
             database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
-                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
+                    const datosPortePasivo = snapshot.val();
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...datosPortePasivo }];
                     verFichaDocumento(idDecaInspeccionar);
 
-                    // Purgamos la botonera del dashboard para que el inspector solo vea el folio blanco
+                    if (datosPortePasivo && datosPortePasivo.qr_caducidad) {
+                        const objHoy = new Date();
+                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
+
+                        if (cadenaHoyRígida > datosPortePasivo.qr_caducidad) {
+                            document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
+                            const btnEntendidoModal = document.querySelector("#modal_cortafuegos_expirado_deca button");
+                            if (btnEntendidoModal) btnEntendidoModal.style.setProperty("display", "none", "important");
+                            window.decaImpresionAutomaticaEjecutada = true;
+                            return;
+                        }
+                    }
+
                     if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.setProperty("display", "none", "important");
                     if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.setProperty("display", "none", "important");
                     if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.setProperty("display", "none", "important");
@@ -2290,8 +2302,9 @@ function iniciarEcosistemaDeCAs() {
                     alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                 }
             }).catch(err => console.error("Error en lectura pasiva del inspector:", err));
-            return; // Aborta por completo el inicio de sesión y el bucle comercial para esta pestaña
+            return;
         }
+
 
         // --- FLUJO NORMAL DE LA APLICACIÓN DE CABINA DEL CONDUCTOR ---
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
@@ -2380,28 +2393,10 @@ function iniciarEcosistemaDeCAs() {
                 if (snapshot.exists()) {
                     console.log("✅ Datos del DeCA recibidos de la nube. Procediendo a evaluar vigencia.");
                     const datosPorteInspector = snapshot.val();
-
-                    if (datosPorteInspector && datosPorteInspector.qr_caducidad) {
-                        const objHoy = new Date();
-                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
-
-                        // Si el inspector accede a un QR que ya ha caducado
-                        if (cadenaHoyRígida > datosPorteInspector.qr_caducidad) {
-                            // Levantamos el modal directamente en su pantalla bloqueando el folio
-                            documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...datosPorteInspector }];
-                            verFichaDocumento(idDecaInspeccionar);
-                            document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
-
-                            // Escondemos el botón de cierre para que quede retenido en la advertencia legal
-                            const btnCerrarExpirado = document.querySelector("#modal_cortafuegos_expirado_deca button");
-                            if (btnCerrarExpirado) btnCerrarExpirado.style.display = "none";
-                            return;
-                        }
-                    }
-
                     documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...datosPorteInspector }];
-                    verFichaDocumento(idDecaInspeccionar);
 
+                    // 1. Pintamos los datos en el Folio Blanco oficial
+                    verFichaDocumento(idDecaInspeccionar);
 
                     // 2. Apagamos de forma segura los elementos sobrantes de la pantalla principal
                     if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.setProperty("display", "none", "important");
@@ -2409,6 +2404,34 @@ function iniciarEcosistemaDeCAs() {
                     if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.setProperty("display", "none", "important");
                     if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.setProperty("display", "none", "important");
                     if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.setProperty("display", "none", "important");
+
+                    // 3. EVALUACIÓN DEL CORTAFUEGOS PARA EL AGENTE
+                    if (datosPorteInspector && datosPorteInspector.qr_caducidad) {
+                        const objHoy = new Date();
+                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
+
+                        if (cadenaHoyRígida > datosPorteInspector.qr_caducidad) {
+                            console.log("🛑 Cortafuegos activo: Documento expirado para el inspector.");
+
+                            // Forzamos el renderizado del banner superior rojo antes de bloquear
+                            verFichaDocumento(idDecaInspeccionar);
+
+                            // Desplegamos el modal de retención
+                            document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
+
+                            // Purgamos el botón del modal para que no se pueda cerrar e inspeccionar el fondo
+                            const btnEntendidoModal = document.querySelector("#modal_cortafuegos_expirado_deca button");
+                            if (btnEntendidoModal) {
+                                btnEntendidoModal.style.setProperty("display", "none", "important");
+                            }
+
+                            // Desactivamos el flag de impresión para que no salte el cuadro de PDF de Chrome
+                            window.decaImpresionAutomaticaEjecutada = true;
+                            return; // Congela el hilo, impidiendo la impresión de un documento caducado
+                        }
+                    }
+
+                    // Si el documento es válido y está en plazo, dejamos que continúe el flujo normal de impresión automática de vuestra v4.68
                 } else {
                     alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                 }
@@ -2416,6 +2439,7 @@ function iniciarEcosistemaDeCAs() {
         }).catch(err => console.error("Error en autenticación de pasarela:", err));
 
         return;
+
     }
 
     // =========================================================================
@@ -4125,13 +4149,8 @@ function abrirPaginaVerificacion() {
     setTimeout(() => { window.open(urlConstructor.toString(), '_blank'); }, 300);
 }
 
-// Interceptor de Apertura de Pantalla para QR Gigante Táctil
+// Apertura de Pantalla para QR Grande Táctil (Libre de bloqueos)
 function abrirModalQRGiganteNativo() {
-    if (comprobarSiDocumentoActivoEstaExpirado()) {
-        document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
-        return; // Detiene el despliegue del modal del QR
-    }
-
     const contenedorEspejo = document.getElementById("canvas_render_qr_gigante");
     const numeroDeCA = document.getElementById("prev_top_numero").innerText || "DeCA";
 
@@ -4156,13 +4175,8 @@ function abrirModalQRGiganteNativo() {
     }, 120);
 }
 
-// Interceptor de descarga PDF para Dispositivos y APK Móvil
+// Descarga PDF para Dispositivos y APK Móvil (Libre de bloqueos)
 function forzarDescargaPDFDesdeVisorInterno() {
-    if (comprobarSiDocumentoActivoEstaExpirado()) {
-        document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
-        return; // Capa la generación de la hoja de impresión
-    }
-
     const capaToast = document.getElementById("toast_deca");
     if (capaToast) {
         capaToast.style.display = "none";
@@ -4191,6 +4205,7 @@ function forzarDescargaPDFDesdeVisorInterno() {
         }, 150);
     }
 }
+
 
 
 
