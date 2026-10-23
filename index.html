@@ -2265,11 +2265,23 @@ function iniciarEcosistemaDeCAs() {
         // 🔒 RETORNO A PERSISTENCIA LOCAL: Mantiene las credenciales vivas en el móvil para que carguen los datos
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-
-        // --- FLUJO NORMAL DE LA APLICACIÓN DE CABINA DEL CONDUCTOR ---
+        // 👮 CORTAFUEGOS PRIORITARIO CARRETERA: Si venimos de un QR externo pero el móvil ya está logueado en su salpicadero
+        const parametrosRadar = new URLSearchParams(window.location.search);
+        const idDecaInspeccionar = parametrosRadar.get("verificar");
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
 
+        // Si entran por QR de inspección exterior y el teléfono NO tiene tu cuenta iniciada (es la Guardia Civil)
+        if (idDecaInspeccionar && !tokenSeguridadLocal) {
+            console.log("👮 Guardia Civil detectada en frío: Forzando pasarela pública...");
+            actualizarEstadoRedTerminalCamion(true);
+            verificarExistenciaPerfilCamionero();
+            return; // Aborta e impide que salte el sistema privado de licencias
+        }
+
+        // --- FLUJO NORMAL DE LA APLICACIÓN DE CABINA DEL CONDUCTOR ---
         if (tokenSeguridadLocal) {
+            miUsuarioUIDActivo = tokenSeguridadLocal;
+
             miUsuarioUIDActivo = tokenSeguridadLocal;
             return firebase.auth().signInAnonymously().then(function() {
                 console.log("🔓 Conexión establecida con terminal verificado:", miUsuarioUIDActivo);
@@ -2387,40 +2399,17 @@ function verificarExistenciaPerfilCamionero() {
     const idDecaInspeccionar = parametrosRadar.get("verificar");
     const idUsuarioInspeccionar = parametrosRadar.get("user");
 
-    // 👮 MODO INSPECTOR GLOBAL: Pasillo libre para la Guardia Civil (QR) con Cortafuegos de Caducidad
+    // 👮 MODO INSPECTOR GLOBAL: Pasillo libre para la Guardia Civil (QR)
     if (idDecaInspeccionar && idUsuarioInspeccionar) {
-        console.log("👮 Radar activado: Verificando acceso público de Inspección...");
-
-        // Atacamos la base de datos directamente para leer el viaje antes de evaluar licencias del terminal
+        console.log("👮 Radar activado: Saltando control de acceso para visualización pública...");
         database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
-                    const viaje = snapshot.val();
-
-                    // ⏳ CORTAFUEGOS INMEDIATO: Si está caducado, levantamos el modal naranja y congelamos la interfaz
-                    if (viaje && viaje.qr_caducidad) {
-                        const objHoy = new Date();
-                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
-
-                        if (cadenaHoyRígida > viaje.qr_caducidad) {
-                            // Apagamos cualquier amago de modal de registro o bloqueo de pantalla
-                            if(document.getElementById("modal_registro_inicial_obligatorio")) document.getElementById("modal_registro_inicial_obligatorio").style.display = "none";
-                            if(document.getElementById("modal_bloqueo_licencia_deca")) document.getElementById("modal_bloqueo_licencia_deca").style.display = "none";
-
-                            // Forzamos el encendido del modal naranja cortafuegos
-                            const modExpirado = document.getElementById("modal_cortafuegos_expirado_deca");
-                            if (modExpirado) modExpirado.style.display = "flex";
-                            return; // Bloqueo rígido absoluto, no se ejecuta nada más
-                        }
-                    }
-
-                    // Si pasa el cortafuegos, abrimos el folio del visor normalmente como antes
                     idDocumentoEnEdicion = idDecaInspeccionar;
                     miUsuarioUIDActivo = idUsuarioInspeccionar;
-                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...viaje }];
+                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
                     verFichaDocumento(idDecaInspeccionar);
 
-                    // Limpieza visual de paneles del dashboard para el agente
                     if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.display = "none";
                     if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.display = "none";
                     if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.display = "none";
@@ -2437,12 +2426,9 @@ function verificarExistenciaPerfilCamionero() {
                 } else {
                     alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                 }
-            }).catch(err => console.error("Error en lectura pública de carretera:", err));
-        return; // Detiene el flujo privado
+            }).catch(err => console.error("Error en lectura pública:", err));
+        return;
     }
-
-    // 🚚 MODO DASHBOARD PRIVADO: SENSOR DE IDENTIDAD EN TIEMPO REAL (El resto de la función se queda exactamente igual)
-
 
     // 🚚 MODO DASHBOARD PRIVADO: SENSOR DE IDENTIDAD EN TIEMPO REAL
     database.ref('usuarios/' + miUsuarioUIDActivo + '/datos_perfil').on('value', (snapshot) => {
