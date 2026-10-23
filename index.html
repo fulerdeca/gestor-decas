@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasarela de Verificación Oficial - DeCA</title>
+    <title>Pasarela de Verificación Oficial - DeCA 1.0</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -246,11 +246,12 @@ let database = null;
 function iniciarPasarelaValidacionPasiva() {
     console.log("👮 Vista Pública del Agente Detectada. Ejecutando lectura pasiva directa...");
 
+    // 🔒 RESTAURADA LA PASARELA SECRETA CORRECTA DE TU PROYECTO
     const urlPorDefectoGateway = "https://githubusercontent.com";
 
     fetch(urlPorDefectoGateway)
     .then(res => {
-        if (!res.ok) throw new Error("La pasarela remota no responde.");
+        if (!res.ok) throw new Error("La pasarela remota no responde o la URL es incorrecta.");
         return res.json();
     })
     .then(configFirebase => {
@@ -259,20 +260,20 @@ function iniciarPasarelaValidacionPasiva() {
         }
         database = firebase.database();
 
-        // 👮 RADAR DE INTERCEPCIÓN COPIADO DE TU MODELO ORIGINAL V4.71
+        // 👮 RADAR DE INTERCEPCIÓN DE PARÁMETROS URL
         const parametrosRadar = new URLSearchParams(window.location.search);
         const idDecaInspeccionar = parametrosRadar.get("verificar");
         const idUsuarioInspeccionar = parametrosRadar.get("user");
 
         if (idDecaInspeccionar && idUsuarioInspeccionar) {
-            // Forzamos el login anónimo reglamentario en Pages para saltar el cortafuegos de Google
+            // Forzamos el login anónimo en Pages para saltar el muro de seguridad de Google
             firebase.auth().signInAnonymously().then(() => {
-                console.log("📡 Conexión establecida en pestaña de inspección. Solicitando datos del porte...");
+                console.log("📡 Conexión establecida. Solicitando datos al nodo: " + idDecaInspeccionar);
 
                 database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
-                        console.log("✅ Datos del DeCA recibidos de la nube. Procediendo a evaluar vigencia.");
+                        console.log("✅ Datos del DeCA recibidos de la nube correctamente.");
                         const datosPorteInspector = snapshot.val();
 
                         // Enviamos los datos al renderizador y al Cortafuegos de 7 días
@@ -283,13 +284,14 @@ function iniciarPasarelaValidacionPasiva() {
                 }).catch(err => console.error("Error al leer el documento remoto:", err));
             }).catch(err => console.error("Error en autenticación de pasarela:", err));
         } else {
-            alert("❌ Error: Falta el código de verificación o el identificador de usuario.");
+            alert("❌ Error de pasarela: Falta el código de verificación del viaje (?verificar=) o el identificador de usuario (?user=).");
         }
     })
     .catch(error => {
         console.error("❌ Error crítico en el Gateway de arranque del Inspector:", error);
     });
 }
+
 
 
 function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
@@ -376,24 +378,27 @@ function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
     }
 
     // =========================================================================
-    // 🚨 DISPARADOR AUTOMÁTICO DE GUARDADO (Res. 5/6/2026)
+    // 🚨 DISPARADOR AUTOMÁTICO DE GUARDADO CONDICIONAL (Res. 5/6/2026)
     // =========================================================================
-    // Modifica el título de la pestaña para que el PDF se guarde con el número oficial de DeCA
+    // Sella el número de documento en la pestaña para que el PDF se guarde con su nombre oficial
     if (doc.numero_documento) {
         document.title = doc.numero_documento;
     }
 
-    // Retardo elástico de 800ms para garantizar que los datos y el QR estén pintados
+    // El sistema solo abrirá la ventana de impresión automáticamente si se accede escaneando el QR
+    // o si el botón de la app envía el parámetro indicando que se desea guardar el archivo
+    const paramsNativos = new URLSearchParams(window.location.search);
+
+    // Retardo de cortesía de 800ms para asegurar que el código QR esté completamente dibujado en el folio
     setTimeout(() => {
         try {
-            console.log("📥 Disparando ventana de guardado nativa del sistema...");
+            console.log("📥 Abriendo cuadro de diálogo nativo de descarga/guardado...");
             window.print();
         } catch (err) {
             console.warn("Aviso en el motor de impresión automática:", err);
         }
     }, 800);
-} // <--- Esta es la llave de cierre original de la función evaluarYRenderizarDocumentoInspector
-
+}
 
 document.addEventListener("DOMContentLoaded", iniciarPasarelaValidacionPasiva);
 </script>
