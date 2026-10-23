@@ -2265,46 +2265,6 @@ function iniciarEcosistemaDeCAs() {
         // 🔒 RETORNO A PERSISTENCIA LOCAL: Mantiene las credenciales vivas en el móvil para que carguen los datos
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        // 👮 RADAR DE INTERCEPCIÓN DEL AGENTE (Elimina los guiones de raíz en la web pública)
-        const parametrosRadar = new URLSearchParams(window.location.search);
-        const idDecaInspeccionar = parametrosRadar.get("verificar");
-        const idUsuarioInspeccionar = parametrosRadar.get("user");
-
-        if (idDecaInspeccionar && idUsuarioInspeccionar) {
-            console.log("👮 Vista Pública del Agente Detectada. Ejecutando lectura pasiva directa...");
-            miUsuarioUIDActivo = idUsuarioInspeccionar;
-
-            database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const datosPortePasivo = snapshot.val();
-                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...datosPortePasivo }];
-                    verFichaDocumento(idDecaInspeccionar);
-
-                    if (datosPortePasivo && datosPortePasivo.qr_caducidad) {
-                        const objHoy = new Date();
-                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
-
-                        if (cadenaHoyRígida > datosPortePasivo.qr_caducidad) {
-                            document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
-                            const btnEntendidoModal = document.querySelector("#modal_cortafuegos_expirado_deca button");
-                            if (btnEntendidoModal) btnEntendidoModal.style.setProperty("display", "none", "important");
-                            window.decaImpresionAutomaticaEjecutada = true;
-                            return;
-                        }
-                    }
-
-                    if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.setProperty("display", "none", "important");
-                    if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.setProperty("display", "none", "important");
-                    if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.setProperty("display", "none", "important");
-                    if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.setProperty("display", "none", "important");
-                } else {
-                    alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
-                }
-            }).catch(err => console.error("Error en lectura pasiva del inspector:", err));
-            return;
-        }
-
 
         // --- FLUJO NORMAL DE LA APLICACIÓN DE CABINA DEL CONDUCTOR ---
         const tokenSeguridadLocal = localStorage.getItem("cfg_uid_recuperado_deca");
@@ -2353,94 +2313,50 @@ function iniciarEcosistemaDeCAs() {
         botonOscuroDOM.innerText = "☀️";
     }
 
-    // =========================================================================
-    // 👮 RADAR INTERNACIONAL: PASARELA AUTOMÁTICA REGLAMENTARIA BOE PARA EL AGENTE
-    // =========================================================================
-    const parametrosRuta = new URLSearchParams(window.location.search);
-    const idDecaInspeccionar = parametrosRuta.get("verificar");
-    const idUsuarioInspeccionar = parametrosRuta.get("user");
+// Interceptor Máster de Verificación de Tráfico en Carretera
+function abrirPaginaVerificacion() {
+    // Realiza la comprobación del tiempo de forma directa y aislada únicamente aquí
+    try {
+        const numeroDocumentoVisor = document.getElementById("prev_top_numero") ? document.getElementById("prev_top_numero").innerText : "";
+        if (numeroDocumentoVisor && numeroDocumentoVisor !== "DeCA" && numeroDocumentoVisor !== "---" && typeof documentosDeCA !== "undefined") {
+            const viaje = documentosDeCA.find(item => item.numero_documento === numeroDocumentoVisor);
+            if (viaje && viaje.qr_caducidad) {
+                const objHoy = new Date();
+                const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
 
-    if (idDecaInspeccionar && idUsuarioInspeccionar) {
-        console.log("👮 MODO INSPECTOR GLOBAL: Activando Visor PDF Virtual Puro en Carretera...");
-
-        const estiloPDFVirtual = document.createElement("style");
-        estiloPDFVirtual.innerHTML = `
-            #qrcode_real_render { position: relative !important; width: 100px !important; height: 100px !important; margin: 0 0 0 auto !important; display: block !important; box-sizing: border-box !important; }
-            #qrcode_real_render canvas, #qrcode_real_render img { position: absolute !important; top: 0 !important; left: 0 !important; width: 100px !important; height: 100px !important; max-width: 100px !important; max-height: 100px !important; margin: 0 !important; padding: 0 !important; display: block !important; box-sizing: border-box !important; }
-            #qrcode_real_render img + canvas { display: none !important; }
-            #qrcode_real_render canvas + img { display: none !important; }
-            #canvas_render_qr_gigante canvas { display: none !important; }
-            #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
-            #modal_preview_deca { display: block !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
-            .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
-            .preview-container .deca-modal-cabecera { display: none !important; }
-            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
-            .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
-            .preview-pie-botones { display: none !important; }
-            #bloque_banners_normativos_app { display: none !important; }
-        `;
-        document.head.appendChild(estiloPDFVirtual);
-
-        // 🚀 REPARACIÓN MÓVIL: Eliminamos el setTimeout ciego de 300ms.
-        // Forzamos la autenticación y la lectura en frío directamente garantizando la sincronía.
-        miUsuarioUIDActivo = idUsuarioInspeccionar;
-
-        firebase.auth().signInAnonymously().then(() => {
-            console.log("📡 Conexión establecida en pestaña de inspección. Solicitando datos del porte...");
-
-            database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    console.log("✅ Datos del DeCA recibidos de la nube. Procediendo a evaluar vigencia.");
-                    const datosPorteInspector = snapshot.val();
-                    documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...datosPorteInspector }];
-
-                    // 1. Pintamos los datos en el Folio Blanco oficial
-                    verFichaDocumento(idDecaInspeccionar);
-
-                    // 2. Apagamos de forma segura los elementos sobrantes de la pantalla principal
-                    if(document.querySelector(".cabecera-dashboard")) document.querySelector(".cabecera-dashboard").style.setProperty("display", "none", "important");
-                    if(document.querySelector(".grid-contadores")) document.querySelector(".grid-contadores").style.setProperty("display", "none", "important");
-                    if(document.querySelector(".contenedor-filtros")) document.querySelector(".contenedor-filtros").style.setProperty("display", "none", "important");
-                    if(document.querySelector(".contenedor-tabla")) document.querySelector(".contenedor-tabla").style.setProperty("display", "none", "important");
-                    if(document.getElementById("modal_perfil_camionero")) document.getElementById("modal_perfil_camionero").style.setProperty("display", "none", "important");
-
-                    // 3. EVALUACIÓN DEL CORTAFUEGOS PARA EL AGENTE
-                    if (datosPorteInspector && datosPorteInspector.qr_caducidad) {
-                        const objHoy = new Date();
-                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
-
-                        if (cadenaHoyRígida > datosPorteInspector.qr_caducidad) {
-                            console.log("🛑 Cortafuegos activo: Documento expirado para el inspector.");
-
-                            // Forzamos el renderizado del banner superior rojo antes de bloquear
-                            verFichaDocumento(idDecaInspeccionar);
-
-                            // Desplegamos el modal de retención
-                            document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
-
-                            // Purgamos el botón del modal para que no se pueda cerrar e inspeccionar el fondo
-                            const btnEntendidoModal = document.querySelector("#modal_cortafuegos_expirado_deca button");
-                            if (btnEntendidoModal) {
-                                btnEntendidoModal.style.setProperty("display", "none", "important");
-                            }
-
-                            // Desactivamos el flag de impresión para que no salte el cuadro de PDF de Chrome
-                            window.decaImpresionAutomaticaEjecutada = true;
-                            return; // Congela el hilo, impidiendo la impresión de un documento caducado
-                        }
-                    }
-
-                    // Si el documento es válido y está en plazo, dejamos que continúe el flujo normal de impresión automática de vuestra v4.68
-                } else {
-                    alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
+                if (cadenaHoyRígida > viaje.qr_caducidad) {
+                    document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
+                    return; // Bloqueo completo de la pasarela
                 }
-            }).catch(err => console.error("Error al leer el documento remoto:", err));
-        }).catch(err => console.error("Error en autenticación de pasarela:", err));
+            }
+        }
+    } catch (e) { console.warn("Aviso en validación manual:", e); }
 
-        return;
+    const numeroDeCA = document.getElementById("prev_top_numero").innerText;
+    const matriculaTractor = document.getElementById("prev_matricula_tractor").innerText;
 
+    if (!numeroDeCA || numeroDeCA === "---") {
+        return mostrarAlertaCorporativaDeca("Acción Denegada", "No hay ningún documento activo cargado en el visor.", "⚠️");
     }
+
+    mostrarAvisoToast("🔗 Abriendo pasarela de verificación de Tráfico...");
+    const viajeActivo = documentosDeCA.find(item => item.numero_documento === numeroDeCA);
+    const idRealFirebase = viajeActivo ? viajeActivo.id_firebase : idDocumentoEnEdicion;
+
+    const miUsuarioGitHubOficial = "fulerdeca";
+    const miLlaveUsuarioFirebase = miUsuarioUIDActivo;
+    const marcaTiempoBucle = Date.now();
+
+    const urlConstructor = new URL("https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/");
+    urlConstructor.searchParams.set("verificar", idRealFirebase);
+    urlConstructor.searchParams.set("user", miLlaveUsuarioFirebase);
+    urlConstructor.searchParams.set("doc", numeroDeCA);
+    urlConstructor.searchParams.set("tractor", matriculaTractor);
+    urlConstructor.searchParams.set("cache", marcaTiempoBucle);
+
+    setTimeout(() => { window.open(urlConstructor.toString(), '_blank'); }, 300);
+}
+
 
     // =========================================================================
     // 🏷️ EXTRACTOR DIGITAL: SELLA LA VERSIÓN DEL TITLE EN EL TECHO FIXED
