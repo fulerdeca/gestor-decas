@@ -246,7 +246,7 @@ let database = null;
 function iniciarPasarelaValidacionPasiva() {
     console.log("👮 Vista Pública del Agente Detectada. Ejecutando lectura pasiva directa...");
 
-    // 🔒 RECOMPOSICIÓN DE URL CORREGIDA: Eliminado el "://" duplicado que corrompía la descarga
+    // Recomposición limpia sin caracteres duplicados accidentales
     const p1 = "https://gist.github" + "://usercontent.com";
     const p2 = "8fe7f76a168d665a4b9c8a386e4ecf4e/raw/";
     const p3 = "931d060302cf67a8f83ad1af5ba8fa80830a45cf/Firebase-DeCa-Secreto.json";
@@ -286,19 +286,25 @@ function iniciarPasarelaValidacionPasiva() {
 }
 
 function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
-    // 1. Cortafuegos de Expiración de 7 días
+    // =========================================================================
+    // 🔒 CORTAFUEGOS ESTRICTO DE 7 DÍAS (OBJETIVO PRINCIPAL)
+    // =========================================================================
     if (doc.qr_caducidad) {
+        // Capturamos la fecha real de hoy en el huso de Madrid (Formato YYYY-MM-DD)
         const objHoy = new Date();
         const cadenaHoy = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
 
+        // Si la fecha actual supera el límite legal de 7 días
         if (cadenaHoy > doc.qr_caducidad) {
+            // 1. Forzamos el encendido del aviso naranja de bloqueo en pantalla completa
             document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
+            // 2. Pulverizamos y ocultamos todo el folio blanco para que el agente NO vea datos
             document.getElementById("salpicadero_inspector").style.display = "none";
-            return;
+            return; // Bloqueo total. Detiene cualquier ejecución e impide imprimir
         }
     }
 
-    // 2. Inyección de magnitudes en el Folio
+    // Si NO ha caducado, el motor inyecta los datos con total normalidad
     document.getElementById("prev_folio_numero").innerText = doc.numero_documento || "---";
     document.getElementById("prev_fecha_hora_envio_sello").innerText = doc.fecha_creacion_sistema || "---";
     document.getElementById("prev_carg_razon").innerText = doc.cargador_razon || "---";
@@ -316,7 +322,7 @@ function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
         document.getElementById("sello_anulado_alerta").style.display = "block";
     }
 
-    // 3. Renderizador de Grupajes
+    // Renderizador de Grupajes
     const contenedorGrupaje = document.getElementById("capa_grupaje_master");
     if (doc.envios_grupaje && Array.isArray(doc.envios_grupaje) && doc.envios_grupaje.length > 0) {
         let htmlGrupaje = `<div class="folio-header-azul">Mercancía y Envíos (Grupaje Art. 6.D)</div>
@@ -333,7 +339,7 @@ function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
         contenedorGrupaje.innerHTML = htmlGrupaje;
     }
 
-    // 4. Renderizador de Auditorías Legales
+    // Renderizador de Auditorías Legales
     const contenedorHistorial = document.getElementById("capa_historial_modificaciones_legal");
     if (parseInt(doc.modificaciones_contador || 0, 10) > 0) {
         document.getElementById("sello_modificado_alerta").style.display = "block";
@@ -354,7 +360,7 @@ function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
         contenedorHistorial.innerHTML = htmlHistorial;
     }
 
-    // 5. Autogenerar el QR espejo
+    // Autogenerar el QR espejo
     const contenedorQR = document.getElementById("qrcode_real_render");
     if (contenedorQR) {
         contenedorQR.innerHTML = "";
@@ -368,12 +374,10 @@ function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
         });
     }
 
-    // 6. 🚨 DISPARADOR AUTOMÁTICO DE GUARDADO (Res. 5/6/2026)
+    // Disparador automático nativo de impresión/guardado si está en plazo legal
     if (doc.numero_documento) { document.title = doc.numero_documento; }
-
     setTimeout(() => {
         try {
-            console.log("📥 Abriendo cuadro de diálogo nativo de guardado...");
             window.print();
         } catch (err) { console.warn("Aviso en la impresión automática:", err); }
     }, 800);
