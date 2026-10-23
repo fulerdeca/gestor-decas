@@ -3,70 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificación DECA</title>
+    <title>Pasarela de Verificación Oficial - DeCA</title>
+
+    <!-- MOTORES OFICIALES MÍNIMOS REQUERIDOS (Firebase Compat + Renderizador QR) -->
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
+    <script src="https://gstatic.com"></script>
+    <script src="https://cloudflare.com"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9; }
-        .pantalla { display: none; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; box-sizing: border-box; }
-        
-        /* Cortafuegos Naranja */
-        #pantalla-caducado { background: #FF9800; color: white; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
-        #pantalla-caducado h1 { font-size: 2.5rem; margin-bottom: 10px; }
-        #pantalla-caducado p { font-size: 1.2rem; max-width: 500px; }
-        
-        /* Contenedor del Folio Válido */
-        #pantalla-valido { background: white; padding: 20px; overflow-y: auto; display: block; }
-        .btn-cerrar { margin-top: 20px; padding: 12px 25px; border: none; background: white; color: #FF9800; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 1rem; }
+        /* === HOJA DE ESTILOS LIMPIA Y EXCLUSIVA PARA EL INSPECTOR === */
+        :root {
+            --blue-primary: #0f4c81;
+            --gray-bg: #525659;
+            --text-main: #111111;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--gray-bg) !important;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .inspector-container {
+            width: 100% !important;
+            max-width: 740px !important;
+            margin: 0 auto !important;
+            box-sizing: border-box !important;
+            padding: 20px 12px !important;
+        }
+
+        /* El Folio Blanco Oficial */
+        .folio-deca {
+            background: #ffffff !important;
+            width: 100% !important;
+            padding: 30px !important;
+            margin: 0 auto 60px auto !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-sizing: border-box !important;
+        }
+
+        .folio-header-azul {
+            background: var(--blue-primary) !important;
+            color: #ffffff !important;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 6px 8px !important;
+            text-transform: uppercase;
+        }
+
+        .folio-subetiqueta {
+            font-size: 10px;
+            color: #555555;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+
+        /* Sello de Alerta Carmín/Óxido */
+        .sello-alerta-deca {
+            display: none;
+            width: 100% !important;
+            padding: 12px !important;
+            text-align: center !important;
+            font-weight: bold !important;
+            font-size: 13.5px !important;
+            text-transform: uppercase !important;
+            margin-bottom: 15px !important;
+            border-radius: 6px !important;
+            box-sizing: border-box !important;
+        }
+
+        .sello-anulado {
+            background: #f8d7da !important;
+            color: #721c24 !important;
+            border: 2px dashed #f5c6cb !important;
+        }
+
+        .sello-modificado {
+            background: #fff3cd !important;
+            color: #fd7e14 !important;
+            border: 2px dashed #ffeeba !important;
+        }
+
+        /* Cortafuegos de Expiración */
+        .pantalla-bloqueo-expirado {
+            display: none;
+            position: fixed;
+            z-index: 999999 !important;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(11, 14, 23, 0.98);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .bloqueo-contenido {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            border-top: 5px solid #dc3545;
+        }
+
+        /* Botonera Flotante Inferior */
+        .botonera-flotante-print {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+        }
+
+        .btn-print-pdf {
+            padding: 12px 28px;
+            background: var(--blue-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+            transition: background 0.15s;
+        }
+        .btn-print-pdf:active { background: #0b3459; }
+
+        @media print {
+            .botonera-flotante-print { display: none !important; }
+            body { background: #ffffff !important; }
+            .folio-deca { box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 1. CORTAFUEGOS NARANJA (Se activa si pasaron 7 días) -->
-    <div id="pantalla-caducado" class="pantalla">
-        <h1>⚠️ CÓDIGO CADUCADO</h1>
-        <p>Este documento DECA ha superado el periodo de validez de 7 días ante inspección.</p>
-        <button class="btn-cerrar" onclick="window.close()">Cerrar Verificación</button>
-    </div>
+<!-- CONTENEDOR CENTRAL DE LA PASARELA -->
+<div class="inspector-container" id="salpicadero_inspector">
 
-    <!-- 2. VISOR DEL FOLIO (Solo se activa si es válido) -->
-    <div id="pantalla-valido">
-        <div style="max-width: 800px; margin: 0 auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-            <!-- Aquí pintas el botón de cerrar que mencionabas -->
-            <button onclick="window.close()" style="float: right; padding: 8px 15px; background: #cc0000; color: white; border: none; border-radius: 4px; cursor: pointer;">Cerrar</button>
-            
-            <h2>FOLIO DE CONTROL DECA</h2>
-            <hr>
-            <div id="contenido-deca">
-                <!-- Los datos del DECA se inyectarán aquí por JavaScript -->
-                Cargando datos del documento...
+    <div class="folio-deca">
+        <!-- Sellos de control de Carretera -->
+        <div id="sello_anulado_alerta" class="sello-alerta-deca sello-anulado">⚠️ ATENCIÓN: DOCUMENTO ELECTRÓNICO ANULADO OFICIALMENTE ⚠️</div>
+        <div id="sello_modificado_alerta" class="sello-alerta-deca sello-modificado">⚠️ ATENCIÓN: ESTE DOCUMENTO HA SIDO MODIFICADO EN RUTA ⚠️</div>
+
+        <!-- Fila ID Documento -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+            <div style="font-size:24px; font-weight:900; color:var(--blue-primary);">DeCA</div>
+            <div style="text-align:right; font-family:monospace;">
+                <div style="font-size:16px; font-weight:900;" id="prev_folio_numero">---</div>
+                <div style="font-size:9px; color:#4a5568;">Emitido el <span id="prev_fecha_hora_envio_sello">---</span></div>
             </div>
         </div>
+
+        <h2 style="margin:0; font-size:14px; color:var(--blue-primary); font-weight:bold;">DOCUMENTO ELECTRÓNICO DE CONTROL ADMINISTRATIVO (DeCA)</h2>
+        <p style="margin:4px 0 10px 0; font-size:9px; color:#718096; line-height:1.3;">Transporte público de mercancías por carretera · Orden FOM/2861/2012 · Resolución de 5 de junio de 2026</p>
+        <div style="width:100%; height:2px; background:var(--blue-primary); margin-bottom:18px;"></div>
+
+        <!-- Bloque 1: Cargador Contractual -->
+        <div style="width:100%; margin-bottom:12px;">
+            <div class="folio-header-azul">Cargador Contractual (Art. 6.A)</div>
+            <div style="display:flex; width:100%;">
+                <div style="width:50%; border:1px solid #111; border-top:none; padding:6px;"><span class="folio-subetiqueta">Razón Social</span><span id="prev_carg_razon">---</span></div>
+                <div style="width:50%; border:1px solid #111; border-top:none; border-left:none; padding:6px;"><span class="folio-subetiqueta">CIF/NIF</span><span id="prev_carg_nif">---</span></div>
+            </div>
+            <div style="width:100%; border:1px solid #111; border-top:none; padding:6px;"><span class="folio-subetiqueta">Domicilio Fiscal</span><span id="prev_carg_domicilio">---</span></div>
+        </div>
+
+        <!-- Bloque 2: Transportista Efectivo -->
+        <div style="width:100%; margin-bottom:12px;">
+            <div class="folio-header-azul">Transportista Efectivo (Art. 6.B)</div>
+            <div style="display:flex; width:100%;">
+                <div style="width:50%; border:1px solid #111; border-top:none; padding:6px;"><span class="folio-subetiqueta">Razón Social</span><span id="prev_transp_razon">---</span></div>
+                <div style="width:50%; border:1px solid #111; border-top:none; border-left:none; padding:6px;"><span class="folio-subetiqueta">CIF/NIF</span><span id="prev_transp_nif">---</span></div>
+            </div>
+        </div>
+
+        <!-- Bloque 3: Flota Terrestre -->
+        <div style="width:100%; margin-bottom:12px;">
+            <div class="folio-header-azul">Datos del Transporte (Art. 6)</div>
+            <div style="display:flex; width:100%;">
+                <div style="width:33.33%; border:1px solid #111; border-top:none; padding:6px;"><span class="folio-subetiqueta">Fecha Servicio</span><span id="prev_fecha_transporte">---</span></div>
+                <div style="width:33.33%; border:1px solid #111; border-top:none; border-left:none; padding:6px;"><span class="folio-subetiqueta">Tractor</span><span id="prev_matricula_tractor" style="font-weight:bold;">---</span></div>
+                <div style="width:34%; border:1px solid #111; border-top:none; border-left:none; padding:6px;"><span class="folio-subetiqueta">Remolque</span><span id="prev_matricula_remolque" style="font-weight:bold;">---</span></div>
+            </div>
+        </div>
+
+        <!-- Bloque 4: Matriz de Grupajes Dinámica -->
+        <div style="width:100%; margin-bottom:14px;" id="capa_grupaje_master">
+            <div class="folio-header-azul">Mercancía y Envíos (Grupaje Art. 6.D)</div>
+            <div style="text-align:center; padding:15px; border:1px solid #111; border-top:none; color:#666; font-style:italic;">Sincronizando magnitudes...</div>
+        </div>
+
+        <!-- Bloque de Expiración y Sello Inverso QR -->
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:15px;">
+            <div>
+                <span style="font-size:9px; font-weight:bold; color:var(--blue-primary); display:block; margin-bottom:2px;">DISPONIBILIDAD (Res. 5/6/2026)</span>
+                <div style="border:1px solid #111; padding:4px; text-align:center; width:140px; background:#fafafa;">
+                    <span class="folio-subetiqueta" style="margin-bottom:1px; font-size:8px;">QR Activo Hasta</span>
+                    <strong style="font-size:11px;" id="prev_qr_caducidad">---</strong>
+                </div>
+            </div>
+            <div style="text-align:center; width:35%; max-width:100px; display:flex; justify-content:center;">
+                <div id="qrcode_real_render"></div>
+            </div>
+        </div>
+
+        <div style="border-top:1px solid #dee2e6; margin-top:25px; padding-top:12px; font-size:8.5px; color:#718096; text-align:justify; line-height:1.4;">
+            Documento electrónico de control administrativo generado de forma nativa digital conforme al artículo 6 de la Orden FOM/2861/2012 y a la Resolución de 5 de junio de 2026 de la Dirección General de Transporte por Carretera. Custodia de 1 año a disposición de la Inspección de Transporte Terrestre. Emisor: <strong id="prev_sello_legal_emisor" style="color:#2d3748;">---</strong>
+        </div>
     </div>
+</div>
 
-    <script>
-        // 1. Leer los datos que vienen en el QR (ejemplo: github.io/?fecha=2026-10-20&id=123)
-        const params = new URLSearchParams(window.location.search);
-        const fechaParam = params.get('fecha'); // Cambia 'fecha' por tu parámetro real
+<!-- CORTAFUEGOS: MODAL RÍGIDO DE ADVERTENCIA POR EXPIRACIÓN -->
+<div id="modal_cortafuegos_expirado_deca" class="pantalla-bloqueo-expirado">
+    <div class="bloqueo-contenido">
+        <span style="font-size: 50px; display: block; margin-bottom: 12px;">⏳</span>
+        <h4 style="margin: 0 0 10px 0; color: #212529; font-size: 15px; font-weight: bold; text-transform: uppercase;">Descarga por QR Expirada</h4>
+        <p style="font-size: 13px; color: #4a5568; line-height: 1.5; text-align: justify; margin-bottom: 0;">
+            El plazo reglamentario de disponibilidad directa para este documento ha vencido (7 días naturales posteriores a la finalización del servicio según la Resolución de 5 de junio de 2026). Quien reciba el enlace o la hoja impresa no podrá descargar el archivo PDF original.
+        </p>
+    </div>
+</div>
 
-        if (fechaParam) {
-            const fechaDeca = new Date(fechaParam);
-            const hoy = new Date();
-            const diferenciaDias = Math.floor((hoy - fechaDeca) / (1000 * 60 * 60 * 24));
+<!-- BOTONERA DE CONTROL COMPLEMENTARIA PARA EL AGENTE -->
+<div class="botonera-flotante-print">
+    <button class="btn-print-pdf" onclick="window.print()">📥 Guardar PDF / Imprimir</button>
+</div>
+<script>
+let database = null;
 
-            // 2. EL CORTAFUEGOS: Si tiene 7 o más días de antigüedad
-            if (diferenciaDias >= 7) {
-                document.getElementById('pantalla-valido').style.display = 'none';
-                document.getElementById('pantalla-caducado').style.display = 'flex';
-            } else {
-                // 3. SI ES VÁLIDO: Renderizar el Folio Deca con tus datos
-                document.getElementById('contenido-deca').innerHTML = `
-                    <p><strong>ID Documento:</strong> ${params.get('id') || 'N/A'}</p>
-                    <p><strong>Fecha de Emisión:</strong> ${fechaParam}</p>
-                    <p><strong>Estado:</strong> VÁLIDO / ACTIVO</p>
-                `;
-            }
-        } else {
-            document.getElementById('contenido-deca').innerHTML = "<p style='color:red;'>Error: Código QR no válido o sin datos de fecha.</p>";
+function iniciarPasarelaValidacionPasiva() {
+    console.log("📡 Conectando con la pasarela de control pasivo...");
+    const urlGateway = "https://githubusercontent.com";
+
+    fetch(urlGateway)
+    .then(res => res.json())
+    .then(configFirebase => {
+        if (firebase.apps.length === 0) { firebase.initializeApp(configFirebase); }
+        database = firebase.database();
+
+        // Extraer credenciales exactas del radar URL
+        const parametros = new URLSearchParams(window.location.search);
+        const idDeca = parametros.get("verificar");
+        const idUser = parametros.get("user");
+
+        if (!idDeca || !idUser) {
+            alert("❌ Enlace incompleto: No se han localizado los identificadores fiscales del porte.");
+            return;
         }
-    </script>
+
+        firebase.auth().signInAnonymously().then(() => {
+            database.ref('usuarios/' + idUser + '/documentos_deca/' + idDeca).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    evaluarYRenderizarDocumentoInspector(snapshot.val(), idDeca);
+                } else {
+                    alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
+                }
+            });
+        });
+    }).catch(err => console.error("Fallo crítico en el Gateway de Verificación:", err));
+}
+
+function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
+    // 1. Activar Cortafuegos de Expiración de 7 días
+    if (doc.qr_caducidad) {
+        const objHoy = new Date();
+        const cadenaHoy = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
+
+        if (cadenaHoy > doc.qr_caducidad) {
+            document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
+            document.getElementById("salpicadero_inspector").style.display = "none";
+            return; // Bloqueo total completado
+        }
+    }
+
+    // 2. Mapeo e inyección de magnitudes en el Folio
+    document.getElementById("prev_folio_numero").innerText = doc.numero_documento || "---";
+    document.getElementById("prev_fecha_hora_envio_sello").innerText = doc.fecha_creacion_sistema || "---";
+    document.getElementById("prev_carg_razon").innerText = doc.cargador_razon || "---";
+    document.getElementById("prev_carg_nif").innerText = doc.cargador_nif || "---";
+    document.getElementById("prev_carg_domicilio").innerText = doc.cargador_domicilio || "---";
+    document.getElementById("prev_transp_razon").innerText = doc.transportista_razon || "---";
+    document.getElementById("prev_transp_nif").innerText = doc.transportista_nif || "---";
+    document.getElementById("prev_fecha_transporte").innerText = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "---";
+    document.getElementById("prev_matricula_tractor").innerText = doc.matricula_tractor || "---";
+    document.getElementById("prev_matricula_remolque").innerText = doc.matricula_remolque || "---";
+    document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "---";
+    document.getElementById("prev_sello_legal_emisor").innerText = doc.transportista_razon || "---";
+
+    if (doc.estado === "ANULADO") {
+        document.getElementById("sello_anulado_alerta").style.display = "block";
+    }
+
+    // 3. Renderizador Atómico de Grupajes
+    const contenedorGrupaje = document.getElementById("capa_grupaje_master");
+    if (doc.envios_grupaje && Array.isArray(doc.envios_grupaje) && doc.envios_grupaje.length > 0) {
+        let htmlGrupaje = `<div class="folio-header-azul">Mercancía y Envíos (Grupaje Art. 6.D)</div>
+                           <div style="width:100%; border:1px solid #111111; border-top:none;">`;
+        doc.envios_grupaje.forEach(envio => {
+            htmlGrupaje += `
+            <div style="display:flex; width:100%; border-bottom:1px solid #111111; background:#ffffff; font-size:11px; min-height:38px;">
+                <div style="width:7%; padding:5px; border-right:1px solid #111111; font-weight:bold; color:#0f4c81; text-align:center; display:flex; align-items:center; justify-content:center;">${envio.numero_secuencial || 1}</div>
+                <div style="width:43%; padding:5px; border-right:1px solid #111111; display:flex; align-items:center; line-height:1.3;">${envio.origen} <span style="color:#fd7e14; font-weight:bold; margin:0 3px;">➔</span> ${envio.destino}</div>
+                <div style="width:50%; padding:5px; display:flex; flex-direction:column; justify-content:center;"><strong>${envio.mercancia}</strong><span style="font-size:10px; color:#444; margin-top:2px;">Cantidad: ${envio.cantidad} | Bultos: ${envio.bultos || '---'}</span></div>
+            </div>`;
+        });
+        htmlGrupaje += `</div>`;
+        contenedorGrupaje.innerHTML = htmlGrupaje;
+    }
+
+    // 4. Renderizador Atómico de Auditorías Legales
+    const contenedorHistorial = document.getElementById("capa_historial_modificaciones_legal");
+    if (parseInt(doc.modificaciones_contador || 0, 10) > 0) {
+        document.getElementById("sello_modificado_alerta").style.display = "block";
+        let htmlHistorial = `<div class="folio-header-azul">Modificaciones durante el Servicio (Res. 5/6/2026)</div>
+                             <div style="width:100%; border:1px solid #111111; border-top:none; background:#ffffff; font-size:11px; padding:8px;">`;
+        const registros = doc.historial_cambios || [];
+        Object.values(registros).forEach(item => {
+            htmlHistorial += `
+            <div style="margin-bottom:10px; border-bottom:1px dashed #cbd5e0; padding-bottom:8px;">
+                <strong style="color:#0f4c81; text-transform:uppercase;">Modificación ${item.numero_modificacion}</strong> · <span style="color:#555; font-weight:bold;">${item.fecha_hora_modificacion}</span> · Motivo: <span style="font-weight:bold;">${item.motivo_cambio}</span>
+                <div style="margin-top:6px; padding-left:10px; border-left:3px solid #fd7e14; display:flex; flex-direction:column; gap:4px;">`;
+                Object.values(item.desglose_valores || {}).forEach(diff => {
+                    htmlHistorial += `<div style="line-height:1.4;"><span style="color:#718096; font-weight:bold; font-size:10px; display:inline-block; width:120px;">${diff.etiqueta}:</span><span style="text-decoration:line-through; color:#a0aec0; margin-right:6px;">${diff.antes}</span><span style="font-weight:bold;">➔ ${diff.ahora}</span></div>`;
+                });
+            htmlHistorial += `</div></div>`;
+        });
+        htmlHistorial += `</div>`;
+        contenedorHistorial.innerHTML = htmlHistorial;
+    }
+
+    // 5. Autogenerar el QR espejo de la misma URL
+    const contenedorQR = document.getElementById("qrcode_real_render");
+    if (contenedorQR) {
+        contenedorQR.innerHTML = "";
+        new QRCode(contenedorQR, {
+            text: window.location.href,
+            width: 100,
+            height: 100,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.M
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", iniciarPasarelaValidacionPasiva);
+</script>
 </body>
 </html>
