@@ -236,10 +236,7 @@
     </div>
 </div>
 
-<!-- BOTONERA DE CONTROL COMPLEMENTARIA PARA EL AGENTE -->
-<div class="botonera-flotante-print">
-    <button class="btn-print-pdf" onclick="window.print()">📥 Guardar PDF / Imprimir</button>
-</div>
+
 <script>
 let database = null;
 
@@ -358,7 +355,26 @@ function evaluarYRenderizarDocumentoInspector(doc, idFirebase) {
             correctLevel : QRCode.CorrectLevel.M
         });
     }
-}
+
+    // =========================================================================
+    // 🚨 DISPARADOR AUTOMÁTICO DE GUARDADO (Res. 5/6/2026)
+    // =========================================================================
+    // Modifica el título de la pestaña para que el PDF se guarde con el número oficial de DeCA
+    if (doc.numero_documento) {
+        document.title = doc.numero_documento;
+    }
+
+    // Retardo elástico de 800ms para garantizar que los datos y el QR estén pintados
+    setTimeout(() => {
+        try {
+            console.log("📥 Disparando ventana de guardado nativa del sistema...");
+            window.print();
+        } catch (err) {
+            console.warn("Aviso en el motor de impresión automática:", err);
+        }
+    }, 800);
+} // <--- Esta es la llave de cierre original de la función evaluarYRenderizarDocumentoInspector
+
 
 document.addEventListener("DOMContentLoaded", iniciarPasarelaValidacionPasiva);
 </script>
