@@ -2381,50 +2381,51 @@ function iniciarEcosistemaDeCAs() {
                     console.log("✅ Datos del DeCA recibidos de la nube. Procediendo a evaluar vigencia.");
                     const datosPorteInspector = snapshot.val();
 
-                    if (datosPorteInspector && datosPorteInspector.qr_caducidad) {
-                        const objHoy = new Date();
-                        const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
+if (datosPorteInspector && datosPorteInspector.qr_caducidad) {
+    // 1. Normalizamos las fechas convirtiéndolas en números absolutos (Timestamps)
+    const [anoC, mesC, diaC] = datosPorteInspector.qr_caducidad.split("-").map(Number);
+    const limiteCaducidadTimestamp = new Date(anoC, mesC - 1, diaC, 23, 59, 59, 999).getTime();
+    const timestampHoyActual = Date.now();
 
-                        // Si el inspector accede a un QR que ya ha caducado
-// Si el inspector accede a un QR que ya ha caducado (CORTAFUEGOS TOTAL v4.72)
-if (cadenaHoyRígida > datosPorteInspector.qr_caducidad) {
-    console.error("🚫 Cortafuegos: El documento ha expirado. Bloqueando acceso al folio.");
+    // 2. Si la hora actual del sistema es mayor que el límite de 7 días...
+    if (timestampHoyActual > limiteCaducidadTimestamp) {
+        console.error("🚫 Cortafuegos Web: Documento expirado matemáticamente. Bloqueando folio.");
 
-    // 1. Candado maestro: Activamos el flag para que bajo ningún concepto se ejecute window.print()
-    window.decaImpresionAutomaticaEjecutada = true;
+        // Evitamos que se dispare la cola de impresión automática en GitHub
+        window.decaImpresionAutomaticaEjecutada = true;
 
-    // 2. Inyección CSS relámpago: Pulverizamos el folio blanco y limpiamos el fondo para el agente
-    const estiloMuroExpirado = document.createElement("style");
-    estiloMuroExpirado.innerHTML = `
-        .folio-deca, #bloque_banners_normativos_app, .preview-pie-botones { display: none !important; }
-        #modal_preview_deca { background: #0b101a !important; display: flex !important; align-items: center; justify-content: center; }
-        #modal_cortafuegos_expirado_deca { background: transparent !important; box-shadow: none !important; position: relative !important; width: 100% !important; height: auto !important; display: flex !important; }
-        #modal_cortafuegos_expirado_deca .deca-modal-contenido { margin: auto !important; box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important; }
-    `;
-    document.head.appendChild(estiloMuroExpirado);
+        // Pulverizamos el folio y los botones en la pantalla del agente
+        const estiloMuroExpirado = document.createElement("style");
+        estiloMuroExpirado.innerHTML = `
+            .folio-deca, #bloque_banners_normativos_app, .preview-pie-botones, .cabecera-dashboard, .grid-contadores, .contenedor-filtros, .contenedor-tabla { display: none !important; }
+            body { background: #0b101a !important; display: flex !important; align-items: center; justify-content: center; height: 100vh !important; margin: 0 !important; padding: 0 !important; }
+            #modal_preview_deca { position: relative !important; background: transparent !important; display: flex !important; align-items: center; justify-content: center; width: 100% !important; height: auto !important; z-index: 999999 !important; opacity: 1 !important; visibility: visible !important; }
+            #modal_cortafuegos_expirado_deca { display: flex !important; position: relative !important; width: 100% !important; height: auto !important; background: transparent !important; box-shadow: none !important; }
+            #modal_cortafuegos_expirado_deca .deca-modal-contenido { margin: auto !important; box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important; display: block !important; }
+        `;
+        document.head.appendChild(estiloMuroExpirado);
 
-    // 3. Levantamos el modal de control inyectando la fecha real de vencimiento
-    document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
-    const campoFechaVencimiento = document.getElementById("txt_fecha_expiracion_cabecera");
-    if (campoFechaVencimiento && datosPorteInspector.qr_caducidad.includes("-")) {
-        const partesQ = datosPorteInspector.qr_caducidad.split("-");
-        campoFechaVencimiento.innerText = partesQ[2] + "/" + partesQ[1] + "/" + partesQ[0];
+        // Forzamos la aparición del modal de expiración formateando la fecha de la etiqueta
+        document.getElementById("modal_cortafuegos_expirado_deca").style.setProperty("display", "flex", "important");
+        const campoFechaVencimiento = document.getElementById("txt_fecha_expiracion_cabecera");
+        if (campoFechaVencimiento) {
+            campoFechaVencimiento.innerText = diaC.toString().padStart(2, '0') + "/" + mesC.toString().padStart(2, '0') + "/" + anoC;
+        }
+
+        // Retenemos al agente bloqueando el botón
+        const btnEntendidoMuro = document.querySelector("#modal_cortafuegos_expirado_deca button");
+        if (btnEntendidoMuro) {
+            btnEntendidoMuro.innerText = "ACCESO RECHAZADO (EXPIRADO)";
+            btnEntendidoMuro.style.setProperty("background", "#dc3545", "important");
+            btnEntendidoMuro.onclick = function(e) {
+                e.preventDefault();
+                mostrarAvisoToast("🚫 Enlace fuera de plazo legal.");
+            };
+        }
+        return; // Detiene el hilo para que no cargue el folio blanco ni la impresión
     }
-
-    // 4. Retención del inspector: Modificamos el botón "ENTENDIDO" para que no revele nada si lo pulsa
-    const btnEntendidoMuro = document.querySelector("#modal_cortafuegos_expirado_deca button");
-    if (btnEntendidoMuro) {
-        btnEntendidoMuro.innerText = "ACCESO RECHAZADO";
-        btnEntendidoMuro.style.setProperty("background", "#dc3545", "important");
-        btnEntendidoMuro.onclick = function(e) {
-            e.preventDefault();
-            mostrarAvisoToast("🚫 Documento fuera de plazo legal.");
-        };
-    }
-    return; // Aborta por completo la carga de datos de la ficha y la impresión
 }
 
-                    }
 
                     documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...datosPorteInspector }];
                     verFichaDocumento(idDecaInspeccionar);
