@@ -827,7 +827,7 @@
                                 document.body.className = "modo-escaneo-agente deca-expirado-bloqueado";
 
                                 const lblFecha = document.getElementById("txt_fecha_expiracion_cabecera");
-                                if (lblFecha) lblFecha.innerText = dia.toString().padStart(2, '0') + "/" + mes.toString().padStart(2, '0') + "/" + ano;
+                                if (lblFecha) lblFecha.innerText = partesQ[2].toString().padStart(2, '0') + "/" + partesQ[1].toString().padStart(2, '0') + "/" + partesQ[0];
 
                                 document.getElementById("modal_preview_deca").style.setProperty("display", "flex", "important");
                                 document.getElementById("modal_cortafuegos_expirado_deca").style.setProperty("display", "flex", "important");
@@ -4048,7 +4048,8 @@ function verFichaDocumento(idFirebase) {
         contenedorQR.innerHTML = "";
 
         const miUsuarioGitHubOficial = "fulerdeca";
-        const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo;
+        // Enlace dinámico con bypass de caché forzado por hardware para el Agente (v4.75)
+        const enlaceInspeccionReal = "https://" + miUsuarioGitHubOficial + ".github.io/gestor-decas/?verificar=" + idFirebase + "&user=" + miUsuarioUIDActivo + "&nocache=" + Date.now();
 
         urlControlQRGiganteActivo = enlaceInspeccionReal;
 
