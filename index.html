@@ -745,31 +745,29 @@
 
 
 <!-- ==========================================================================
-   🛡️ CONFIGURACIÓN ESTÉTICA INMUNE PARA CORTAFUEGOS WEB ONLINE (BOE v4.76)
+   🛡️ CONFIGURACIÓN ESTÉTICA INMUNE PARA CORTAFUEGOS WEB ONLINE (BOE v4.77)
    ========================================================================== -->
 <style>
-    /* 1. BLINDAJE ABSOLUTO: Cuando el agente escanea, se evapora de raíz toda la interfaz interna */
-    body.modo-escaneo-agente,
+    /* 1. APAGADO QUIRÚRGICO: Ocultamos la interfaz del salpicadero sin tocar los modales */
     body.modo-escaneo-agente .cabecera-dashboard,
     body.modo-escaneo-agente .grid-contadores,
     body.modo-escaneo-agente .contenedor-filtros,
     body.modo-escaneo-agente .contenedor-tabla,
     body.modo-escaneo-agente .pie-tabla,
-    body.modo-escaneo-agente .folio-deca,
-    body.modo-escaneo-agente #bloque_banners_normativos_app,
-    body.modo-escaneo-agente .preview-pie-botones,
-    body.modo-escaneo-agente .deca-modal-cabecera,
     body.modo-escaneo-agente .deca-bloque-operaciones-libre,
-    body.modo-escaneo-agente .grupo-botones-top {
+    body.modo-escaneo-agente .grupo-botones-top,
+    body.modo-escaneo-agente .preview-pie-botones,
+    body.modo-escaneo-agente #bloque_banners_normativos_app,
+    body.modo-escaneo-agente .folio-deca {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
         height: 0 !important;
-        padding: 0 !important;
         margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* 2. REESTRUCTURACIÓN DEL BÚNKER OSCURO: Forzamos centrado vertical matemático en Firefox y Chrome */
+    /* 2. REESTRUCTURACIÓN DEL BÚNKER OSCURO DE ADVERTENCIA */
     body.modo-escaneo-agente.deca-expirado-bloqueado {
         background: #0b101a !important;
         display: flex !important;
@@ -783,7 +781,7 @@
         box-sizing: border-box !important;
     }
 
-    /* Eliminamos cualquier propiedad flex flotante antigua que descuadraba el contenedor */
+    /* Forzamos a que el visor actúe como un pasillo limpio 100% transparente */
     body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca {
         position: fixed !important;
         display: flex !important;
@@ -791,14 +789,14 @@
         justify-content: center !important;
         top: 0 !important;
         left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
+        width: 100vw !important;
+        height: 100vh !important;
         background: transparent !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        z-index: 999999 !important;
     }
 
-    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca {
+    /* Forzamos al búnker de la alerta a liberarse de bloqueos y emerger en el centro */
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca #modal_cortafuegos_expirado_deca {
         display: flex !important;
         position: relative !important;
         width: 100% !important;
@@ -809,18 +807,36 @@
         margin: auto !important;
     }
 
-    /* Forzamos a la tarjeta blanca a ocupar el 100% de su espacio centrado sin deformarse */
-    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca .deca-modal-contenido {
+    /* 🚨 LA CLAVE: Blindamos la tarjeta blanca forzando sus propiedades nativas de forma visible */
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca #modal_cortafuegos_expirado_deca .deca-modal-contenido {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         width: 100% !important;
         max-width: 400px !important;
         height: auto !important;
-        margin: auto !important;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.6) !important;
+        background-color: #ffffff !important;
         border-radius: 12px !important;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.7) !important;
         overflow: hidden !important;
+    }
+
+    /* Aseguramos la lectura nítida de los elementos internos de la tarjeta */
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca #modal_cortafuegos_expirado_deca .deca-modal-cuerpo {
         display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background-color: #ffffff !important;
+        padding: 30px 25px !important;
+    }
+
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca #modal_cortafuegos_expirado_deca h4,
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca #modal_cortafuegos_expirado_deca p,
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca #modal_cortafuegos_expirado_deca span {
+        color: #212529 !important; /* Fuerza el color carbón legible sobre fondo blanco */
     }
 </style>
+
 
 
 <script>
