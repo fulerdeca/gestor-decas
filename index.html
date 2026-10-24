@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.72</title>
+    <title>Gestor de DeCAs Transportes v4.90</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1557,6 +1557,13 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+    /* 🚀 REPARACIÓN DE IMPRESIÓN CON PATRÓN DE COLOR PARA CARGADORES */
+    body.rol-cargador-activo .folio-header-azul {
+        background: #1e7e34 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
 
     #qrcode_real_render img,
     #qrcode_real_render canvas {
@@ -1915,6 +1922,44 @@ body.dark-mode .deca-modal-pie .deca-btn-cancelar:hover {
     color: #121212 !important;
 }
 
+
+/* ==========================================================================
+   🎨 INYECCIÓN CROMÁTICA DE ADAPTACIÓN EN MODO CARGADOR (ROLES DIURNOS)
+   ========================================================================== */
+/* Transformación de la banda divisoria superior del techo */
+body.rol-cargador-activo .deca-banda-divisoria-superior {
+    background: #1e7e34 !important;
+}
+
+/* Transformación de los badges de matrícula del salpicadero principal (Tractor) */
+body.rol-cargador-activo .badge-matricula {
+    border-color: #1e7e34 !important;
+    color: #1b5e20 !important;
+}
+
+/* Enlaces de los números de documento DeCA en la cuadrícula */
+body.rol-cargador-activo .doc-numero {
+    color: #1e7e34 !important;
+}
+body.rol-cargador-activo .doc-numero:hover {
+    color: #115725 !important;
+}
+
+/* Borde dashed del botón elástico de Invertir Cargador/Transportista */
+body.rol-cargador-activo button[onclick*="invertirCargadorTransportista"] {
+    border-color: #1e7e34 !important;
+    color: #1e7e34 !important;
+    background: #e8f5e9 !important;
+}
+
+/* Títulos de sección dentro del sub-modal de Datos Frecuentes */
+body.rol-cargador-activo #modal_central_datos_deca .deca-modal-cabecera {
+    background: #1e7e34 !important;
+}
+
+
+
+
 /* === REGLA EXCLUSIVA PARA EL BOTÓN MIS DATOS DE LA PÁGINA PRINCIPAL (MODO DÍA) === */
 .deca-bloque-operaciones-libre .btn-recomendar {
     background: #ffffff !important;
@@ -2186,8 +2231,285 @@ body.dark-mode.rol-cargador-activo .deca-num-circulo {
     background: #2cfb69 !important;
     color: #121212 !important;
 }
+/* 🌙 Sincronización de pasillos y enlaces nocturnos para el cargador */
+body.dark-mode.rol-cargador-activo .deca-banda-divisoria-superior {
+    background: #2cfb69 !important;
+}
+body.dark-mode.rol-cargador-activo .doc-numero {
+    color: #2cfb69 !important;
+}
+
+/* ==========================================================================
+   📄 ADAPTACIÓN CROMÁTICA DEL VISOR OFICIAL (MODO CARGADOR DIURNO)
+   ========================================================================== */
+/* Transforma las franjas de títulos de las tablas del Folio Blanco (Art. 6) */
+    body.rol-cargador-activo .folio-header-azul,
+    body.rol-cargador-activo #capa_grupaje_master .folio-header-azul {
+        background: #1e7e34 !important;
+        border-color: #1e7e34 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 
 
+/* Transforma el texto de los números secuenciales en el desglose de grupajes */
+body.rol-cargador-activo .folio-deca div[style*="color:#0f4c81"] {
+    color: #1e7e34 !important;
+}
+
+/* Transforma las subetiquetas de disponibilidad del QR (Res. 5/6/2026) */
+body.rol-cargador-activo .folio-deca span[style*="color:#0f4c81"] {
+    color: #1e7e34 !important;
+}
+
+/* ==========================================================================
+   🧩 REPARACIÓN DE DETALLES RESTANTES EN EL VISOR (MODO CARGADOR DIURNO)
+   ========================================================================== */
+/* 1. Teñido de los títulos h2 y h1 de la cabecera del Folio Blanco */
+body.rol-cargador-activo .folio-deca h2[style*="color:#0f4c81"],
+body.rol-cargador-activo .folio-deca h2,
+body.rol-cargador-activo .folio-deca div[style*="color:#0f4c81"] {
+    color: #1e7e34 !important;
+}
+
+/* 2. Teñido de la cabecera dinámica de grupajes (inyectada por el módulo satélite) */
+body.rol-cargador-activo #capa_grupaje_master .folio-header-azul {
+    background: #1e7e34 !important;
+    border-color: #1e7e34 !important;
+    color: #ffffff !important;
+}
+body.rol-cargador-activo #capa_grupaje_master div[style*="color:#0f4c81"] {
+    color: #1e7e34 !important;
+}
+
+/* 3. Teñido del botón principal de descarga PDF del visor inferior */
+body.rol-cargador-activo .preview-pie-botones .btn-preview-accion.pdf-azul {
+    background: #1e7e34 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+body.rol-cargador-activo .preview-pie-botones .btn-preview-accion.pdf-azul:active {
+    background: #115725 !important;
+}
+
+
+/* ==========================================================================
+   🎨 AMPLIACIÓN DE RELIEVES CROMÁTICOS EN MODO CARGADOR (v4.85)
+   ========================================================================== */
+
+/* 1. Cambio de color en las tarjetas de contadores interactivos (Restaurado a Azul Original) */
+body.rol-cargador-activo .tarjeta-contador.total {
+    border-left-color: #0f4c81 !important;
+    background-color: rgba(15, 76, 129, 0.05) !important; /* Azul cian finalizados diurno estándar */
+}
+
+body.rol-cargador-activo .btn-top-principal,
+body.rol-cargador-activo .btn-paginacion {
+    background: #1e7e34 !important;
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.15) !important;
+}
+
+/* 2. Sincronización del Panel de Gestión de Archivos Guardados (Datos) */
+body.rol-cargador-activo .deca-tab-boton.activa {
+    color: #1e7e34 !important;
+    box-shadow: 0 -2px 0 #1e7e34 inset !important;
+}
+body.rol-cargador-activo .deca-mini-form-datos {
+    border-color: #1e7e34 !important;
+}
+
+/* 3. Sincronización del Avatar de Iniciales del Techo en Modo Claro */
+body.rol-cargador-activo .deca-avatar-iniciales-btn {
+    background: #1e7e34 !important;
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   🌙 SINCRO NOCTURNA: ESQUEMA DE CARGADOR EN CABINA OSCURA
+   ========================================================================== */
+body.dark-mode.rol-cargador-activo .tarjeta-contador.total {
+    border-left-color: #63b3ed !important;
+    background-color: rgba(99, 179, 237, 0.15) !important; /* Fondo azul noche ultratransparente estándar */
+}
+
+/* ==========================================================================
+   🏢 RELIEVE CROMÁTICO EN TÍTULOS DE TECHO DASHBOARD (SINCRO DE ROLES)
+   ========================================================================== */
+/* MODO TRANSPORTISTA DIURNO: Fuerza el título DeCA de la cabecera a Azul Oscuro */
+.cabecera-dashboard h1.deca-titulo-texto-nocturno,
+.cabecera-dashboard h1 {
+    color: #0f4c81 !important; /* Azul corporativo máster */
+}
+
+/* MODO CARGADOR CONTRACTUAL DIURNO: Cambia el título DeCA a Verde Bosque Profundo */
+body.rol-cargador-activo .cabecera-dashboard h1.deca-titulo-texto-nocturno,
+body.rol-cargador-activo .cabecera-dashboard h1 {
+    color: #1e7e34 !important; /* Verde oscuro nítido */
+}
+/* 🌙 SINCRO NOCTURNA: Forza a que el h1 vuelva a blanco puro en la oscuridad para ambos roles */
+body.dark-mode .cabecera-dashboard h1.deca-titulo-texto-nocturno,
+body.dark-mode.rol-cargador-activo .cabecera-dashboard h1.deca-titulo-texto-nocturno {
+    color: #ffffff !important;
+}
+/* ==========================================================================
+   🚚 CAMBIO DE ICONO NATIVO POR ARCHIVO FISCO (MODO CARGADOR DIURNO)
+   ========================================================================== */
+/* Cuando el cargador está activo, reemplaza el archivo por el camión verde */
+body.rol-cargador-activo .logo-app {
+    content: url("camion_verde.jpg") !important;
+    border: none !important; /* Purgado total del contorno artificial */
+    box-shadow: none !important;
+}
+
+/* Sincronización nocturna: mantiene el camión verde físico sin bordes extraños */
+body.dark-mode.rol-cargador-activo .logo-app {
+    content: url("camion_verde.jpg") !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+
+body.dark-mode.rol-cargador-activo .deca-tab-boton.activa {
+    color: #2cfb69 !important;
+    box-shadow: 0 -2px 0 #2cfb69 inset !important;
+}
+body.dark-mode.rol-cargador-activo .deca-avatar-iniciales-btn {
+    background: #2cfb69 !important;
+    color: #121212 !important;
+}
+
+/* Fuerza el cambio a verde del botón PDF exclusivamente para Cargadores */
+body.rol-cargador-activo .preview-pie-botones .btn-preview-accion.pdf-azul {
+    background: #1e7e34 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+body.rol-cargador-activo .preview-pie-botones .btn-preview-accion.pdf-azul:active {
+    background: #115725 !important;
+}
+/* ==========================================================================
+   🔒 REMATE VISUAL DEL VISOR DE CONTROL (MODO CARGADOR DIURNO)
+   ========================================================================= */
+/* 1. Transforma el vivo izquierdo del banner de nota normativa de azul a verde */
+body.rol-cargador-activo .banner-inspeccion-nota {
+    border-left-color: #1e7e34 !important;
+}
+
+/* 2. Transforma la barra divisoria horizontal debajo del título principal */
+body.rol-cargador-activo .folio-deca div[style*="background:#0f4c81"],
+body.rol-cargador-activo .folio-deca div[style*="background: #0f4c81"] {
+    background: #1e7e34 !important;
+}
+
+/* ==========================================================================
+   ➕ ADAPTACIÓN CROMÁTICA DEL FORMULARIO DE ALTAS (MODO CARGADOR DIURNO)
+   ========================================================================== */
+/* 1. Transforma el contenedor superior dashed de plantillas (Aviso de arriba) */
+body.rol-cargador-activo .contenedor-plantillas-form {
+    background: #e8f5e9 !important; /* Fondo verde clarito elástico */
+    border: 1px dashed #1e7e34 !important; /* Contorno discontinuo en verde logístico */
+}
+
+body.rol-cargador-activo .contenedor-plantillas-form label,
+body.rol-cargador-activo .select-plantilla-input {
+    color: #1e7e34 !important; /* Texto y desplegable sincronizados */
+}
+
+/* 2. Transforma el botón inferior de Añadir otro envío para que sea idéntico al de Invertir */
+body.rol-cargador-activo #seccion_envios_dinamicos_bloque button[onclick*="agregarNuevoBloqueEnvioFormulario"] {
+    background: #e8f5e9 !important;
+    border: 1px dashed #1e7e34 !important;
+    color: #1e7e34 !important;
+}
+
+body.rol-cargador-activo #seccion_envios_dinamicos_bloque button[onclick*="agregarNuevoBloqueEnvioFormulario"]:active {
+    background: #c8e6c9 !important; /* Efecto de hundimiento táctil en cabina */
+}
+/* Ajuste de las etiquetas y números de los bloques de envío dinámicos */
+body.rol-cargador-activo .label-numero-envio-dinamico {
+    color: #1e7e34 !important;
+}
+
+/* ==========================================================================
+   🔤 COLOR DE ESCRITURA PREMIUM EN CABINA (MODO CARGADOR DIURNO)
+   ========================================================================== */
+/* Cambia el color del texto tecleado por el usuario en inputs y desplegables */
+body.rol-cargador-activo .deca-input,
+body.rol-cargador-activo .filtro-input,
+body.rol-cargador-activo select.deca-input {
+    color: #0b411b !important; /* 🟢 VERDE BOSQUE PROFUNDO: Máximo contraste y nitidez fiscal */
+    font-weight: 800 !important; /* Mantiene la consistencia de grosor de tu app */
+}
+
+/* Sincroniza los buscadores predictivos que flotan en el formulario */
+body.rol-cargador-activo #lista_cargadores_habituales_drop strong,
+body.rol-cargador-activo #lista_mercancias_frecuentes_drop strong,
+body.rol-cargador-activo #lista_provincias_carg_drop strong,
+body.rol-cargador-activo #mini_lista_provincias_drop strong {
+    color: #0b411b !important;
+}
+/* 🌙 Enfriamiento nocturno de letras para que no pierdan contraste en la oscuridad */
+body.dark-mode.rol-cargador-activo .deca-input,
+body.dark-mode.rol-cargador-activo .filtro-input,
+body.dark-mode.rol-cargador-activo #lista_cargadores_habituales_drop strong {
+    color: #63e2b7 !important; /* Verde menta eléctrico brillante de alta lectura nocturna */
+}
+
+/* ==========================================================================
+   🔧 ADAPTACIÓN DE TABLAS DE AUDITORÍA Y EFECTOS TÁCTILES (MODO CARGADOR)
+   ========================================================================== */
+/* 1. Tiñe la franja de títulos del Historial de Modificaciones Legales */
+body.rol-cargador-activo #capa_historial_modificaciones_legal .folio-header-azul {
+    background: #1e7e34 !important;
+    border-color: #1e7e34 !important;
+    color: #ffffff !important;
+}
+
+/* Tiñe los números de modificación destacados en el texto interior del historial */
+body.rol-cargador-activo #capa_historial_modificaciones_legal strong[style*="color:#0f4c81"] {
+    color: #1e7e34 !important;
+}
+
+/* Tiñe el vivo izquierdo vertical (borde óxido/azul) en el desglose de diferencias */
+body.rol-cargador-activo #capa_historial_modificaciones_legal div[style*="border-left:3px solid"] {
+    border-left-color: #1e7e34 !important;
+}
+/* 2. Corrige el efecto Hover reactivo de las hileras en la rejilla del salpicadero */
+body.rol-cargador-activo .deca-tabla-sincro-master tbody tr:hover {
+    background-color: #e8f5e9 !important; /* Resalte en verde clarito elástico diurno */
+}
+
+/* Corrige el efecto Hover reactivo en el entorno nocturno de cabina */
+body.dark-mode.rol-cargador-activo .deca-tabla-sincro-master tbody tr:hover {
+    background-color: #1b3e20 !important; /* Resalte mitigado oscuro para no deslumbrar */
+}
+
+/* Corrige el efecto Hover de los botones de acciones de iconos de la tabla */
+body.rol-cargador-activo .btn-accion-icono:hover {
+    background: #e8f5e9 !important;
+    border-color: #1e7e34 !important;
+    color: #1e7e34 !important;
+}
+/* 3. Transforma la lona de la barra de filtros de búsqueda global */
+body.rol-cargador-activo .contenedor-filtros {
+    background: #e8f5e9 !important; /* Cambia el azul clarito por el pasillo verde suave */
+    border-color: #c8e6c9 !important;
+}
+
+/* Transforma la cabecera del modal intermedio de confirmación de auditoría antes de guardar */
+body.rol-cargador-activo #modal_revision_auditoria_deca .deca-modal-cabecera {
+    background: #1e7e34 !important;
+    border-bottom: 1px solid #115725;
+}
+body.rol-cargador-activo #modal_revision_auditoria_deca h3 {
+    color: #ffffff !important;
+}
+
+/* Transforma el círculo numérico del modal intermedio de auditoría */
+body.rol-cargador-activo #modal_revision_auditoria_deca .deca-num-circulo {
+    background: #1e7e34 !important;
+    color: #ffffff !important;
+}
 
 </style>
 
@@ -2307,14 +2629,16 @@ body.dark-mode.rol-cargador-activo .deca-num-circulo {
         <!-- Fila 1: Buscador Global -->
         <input type="text" id="buscador_global_deca" class="filtro-input buscar-texto" placeholder="Buscar por nº, matrícula, lugar, mercancía o cargador..." oninput="filtrarCatalogoDeCAs()">
 
-        <!-- Fila 2: Selector de Estados -->
+        <!-- Fila 2: Selector de Estados (v4.82) -->
         <select id="filtro_estado_deca" class="filtro-input select-estado" onchange="filtrarCatalogoDeCAs()">
             <option value="TODOS">Todos los estados</option>
             <option value="EN_CURSO">🟢 En Curso</option>
             <option value="PROGRAMADO">🟡 Programados</option>
             <option value="ANULADO">🚫 Anulados</option>
+            <option value="ARCHIVADO">📦 Archivados</option> <!-- 🚀 NUEVA OPCIÓN AÑADIDA -->
             <option value="CERRADO">⚪ Cerrados</option>
         </select>
+
 
         <!-- Fila 3: El búnker elástico de las fechas y el botón Limpiar -->
         <div class="deca-fechas-fila-mobi">
@@ -3046,8 +3370,10 @@ function descargarCatalogoUsuariosAdminCompleto() {
                 razon_social: perfil.razon_social || "⚠️ TERMINAL CORRUPTO / INCOMPLETO",
                 nif_cif: perfil.nif_cif || "---",
                 estado_activacion: perfil.estado_activacion || "DESACTIVADO",
-                clave_alias: perfil.clave_personalizada_alias || "" // 🔒 Salvavidas: Si es null, pasa a ser ""
+                clave_alias: perfil.clave_personalizada_alias || "",
+                tipo_rol_deca: perfil.tipo_rol_deca || "TRANSPORTISTA" // 🚀 EXTRAE EL ROL COMERCIAL REAL DE LA NUBE (Por defecto Transportista si está vacío)
             });
+
         });
 
 
@@ -3109,19 +3435,26 @@ function renderizarListaUsuariosAdmin() {
         // Muestra la etiqueta (Sin Contraseña) de forma visual limpia si no tiene alias
         const textoAliasOpcional = u.clave_alias ? ` | 🔑 ${u.clave_alias}` : ' | ❌ SIN ALIAS';
 
+        // 🎨 RELIEVE CROMÁTICO EN RED: Definimos el badge según el rol comercial indexado
+        const esCargador = u.tipo_rol_deca === "CARGADOR";
+        const colorBadgeRol = esCargador ? "#28a745" : "#0f4c81";
+        const textoBadgeRol = esCargador ? "🏢 CARGADOR" : "🚚 TRANSP.";
+        const badgeRolHTML = `<span style="background: ${colorBadgeRol}; color: white; font-size: 8.5px; padding: 2px 5px; border-radius: 4px; margin-left: 6px; font-weight: 800; font-family: sans-serif; vertical-align: middle;">${textoBadgeRol}</span>`;
+
         return `
         <div style="padding: 10px 8px; border-bottom: 1px solid ${colorBordeFila}; cursor: pointer; text-align: left;"
              onclick="seleccionarUsuarioParaEditarAdmin('${u.uid_firebase}')"
              onmouseover="this.style.background='${esModoOscuro ? '#2c2c2e' : '#eef5fc'}'"
              onmouseout="this.style.background='transparent'">
             <div style="display:flex; justify-content:space-between; font-weight:bold;">
-                <span>${bolaColor} ${u.razon_social}</span>
+                <span>${bolaColor} ${u.razon_social} ${badgeRolHTML}</span>
                 <span style="font-size:11px; color:${colorTextoSecundario}; font-family:monospace;">${u.nif_cif}</span>
             </div>
             <div style="font-size:10px; color:${colorTextoSecundario}; margin-top:2px; word-break:break-all;">
                 UID: ${u.uid_firebase} ${textoAliasOpcional}
             </div>
         </div>`;
+
     }).join("");
 }
 
@@ -3136,8 +3469,10 @@ function seleccionarUsuarioParaEditarAdmin(uid) {
 
 // === BUSCA EL FINAL DE SELECCIONARUSUARIOPARAEDITARADMIN Y DÉJALO ASÍ ===
     document.getElementById("lbl_admin_uid_seleccionado").innerText = "UID: " + uid;
+    document.getElementById("sel_admin_tipo_rol_deca").value = u.tipo_rol_deca || "TRANSPORTISTA"; // 🚀 MAPEA EL ROL ACTUAL EN EL DROPDOWN
     document.getElementById("sel_admin_estado_activacion").value = u.estado_activacion;
     document.getElementById("txt_admin_alias_usuario").value = u.clave_alias || "(Sin Contraseña Propia)";
+
 
     // 🔒 ESCUDO ANTI-DESASTRES v3.97: Si el usuario es ADMIN, capamos el botón de borrado
     const botonEliminarAdmin = document.getElementById("btn_admin_eliminar_chofer_trigger");
@@ -3176,11 +3511,18 @@ function ejecutarGuardadoCambiosUsuarioAdmin() {
         return alert("⚠ La contraseña alias no puede estar vacía. Si desea borrar al chófer por completo, use el botón rojo.");
     }
 
+    const nuevoRolComercial = document.getElementById("sel_admin_tipo_rol_deca").value;
+
     mostrarAvisoToast("⏳ Sincronizando credenciales en la nube...");
 
-    let paqueteUpdatePerfil = { estado_activacion: nuevoEstado, clave_personalizada_alias: nuevoAlias };
+    let paqueteUpdatePerfil = {
+        estado_activacion: nuevoEstado,
+        clave_personalizada_alias: nuevoAlias,
+        tipo_rol_deca: nuevoRolComercial // 🚀 SUBE EL NUEVO ROL MUTADO EN CALIENTE AL SERVIDOR CENTRAL
+    };
 
     database.ref('usuarios/' + idUsuarioAdminSeleccionado + '/datos_perfil').update(paqueteUpdatePerfil)
+
     .then(() => {
         if (nuevoAlias !== aliasOriginalUsuarioAdminSeleccionado) {
             let colaOperacionesAlias = [];
@@ -3374,27 +3716,33 @@ function activarEscuchaRealtimeDeCAs() {
         // Obtenemos la fecha de hoy en formato rígido limpio YYYY-MM-DD para comparar
         const objetoHoy = new Date();
         const cadenaHoyRígida = objetoHoy.getFullYear() + '-' + String(objetoHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objetoHoy.getDate()).padStart(2, '0');
+documentosDeCA = Object.keys(datosCloud).map(key => {
+    let viaje = datosCloud[key];
 
-        documentosDeCA = Object.keys(datosCloud).map(key => {
-            let viaje = datosCloud[key];
+    // 🏁 SENSOR TEMPORAL A (Apertura en Curso): Pasa de PROGRAMADO a EN_CURSO si llega la fecha del porte
+    if (viaje && viaje.estado === "PROGRAMADO" && viaje.fecha_transporte && viaje.fecha_transporte <= cadenaHoyRígida) {
+        viaje.estado = "EN_CURSO";
+        if (database && navigator.onLine) {
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + key).update({ estado: "EN_CURSO" }).catch(() => {});
+        }
+    }
 
-            // 🏁 SENSOR DE EXPIRACIÓN: Si el viaje está PROGRAMADO pero su fecha ya es HOY o PASADA...
-            if (viaje && viaje.estado === "PROGRAMADO" && viaje.fecha_transporte && viaje.fecha_transporte <= cadenaHoyRígida) {
-                console.log("⚡ Sensor Temporal: Forzando apertura en curso para DeCA agendado v4.39:", viaje.numero_documento);
+    // 🏁 SENSOR TEMPORAL B (Custodia de Archivo v4.81): Si está EN_CURSO pero ya ha expirado el plazo de descarga QR...
+    if (viaje && viaje.estado === "EN_CURSO" && viaje.qr_caducidad && cadenaHoyRígida > viaje.qr_caducidad) {
+        console.log("📦 Sensor de Custodia: Forzando paso a Archivo para DeCA caducado:", viaje.numero_documento);
 
-                // 1. Modificamos el estado en la memoria RAM del teléfono al instante
-                viaje.estado = "EN_CURSO";
+        // 1. Modificamos el estado en la memoria RAM para limpiar el dashboard de badges verdes
+        viaje.estado = "ARCHIVADO";
 
-                // 2. Sincronizamos el cambio en segundo plano de forma silenciosa en tu servidor de Google Firebase
-                if (database && navigator.onLine) {
-                    database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + key).update({
-                        estado: "EN_CURSO"
-                    }).catch(err => console.warn("Aviso en sync de actualización temporal:", err));
-                }
-            }
+        // 2. Sincronizamos la actualización en segundo plano en el servidor de Firebase
+        if (database && navigator.onLine) {
+            database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca/' + key).update({ estado: "ARCHIVADO" }).catch(() => {});
+        }
+    }
 
-            return { id_firebase: key, ...viaje };
-        }).reverse();
+    return { id_firebase: key, ...viaje };
+}).reverse();
+
 
 
         // 🚀 COPIA DE SEGURIDAD EN CALIENTE (v3.80 MÁSTER)
@@ -3585,6 +3933,12 @@ function renderizarTablaResultados(listaFiltrada) {
             textoEstado = "🚫 Anulado";
             colorNumeroEstado = "#FF7373"; // 🚫 Rojo carmín rígido de alerta
         }
+        if (doc.estado === "ARCHIVADO") {
+        claseEstado = "cerrado"; // Reutiliza el fondo gris suave estilizado de los finalizados
+        textoEstado = "📦 Archivado";
+        colorNumeroEstado = "#718096"; // Color plomo ergonómico para el enlace del número
+        }
+
 
 
         // 🚚 BADGE DE REMOLQUE CONCATENADO LIMPIO
@@ -3603,12 +3957,18 @@ function renderizarTablaResultados(listaFiltrada) {
             opcionBorradorMuestraHTML = '<option value="eliminar_muestra">🗑️ Eliminar Muestra</option>';
         }
 
-        if (doc.estado === "EN_CURSO") {
-            opcionesMenuHTML += '<option value="editar">✏️ Editar</option><option value="cambiar_estado">🏁 Finalizar Viaje</option><option value="anular">🚫 Anular Documento</option>';
-        }
-        else if (doc.estado === "PROGRAMADO") {
-            opcionesMenuHTML += '<option value="editar">✏️ Editar</option><option value="anular">🚫 Anular Documento</option>';
-        }
+// 🧠 MOTOR DE ACCIONES DINÁMICAS SEGÚN EL ESTADO (v4.83 - PASARELA LIBRE PARA ARCHIVADOS)
+if (doc.estado === "EN_CURSO") {
+    opcionesMenuHTML += '<option value="editar">✏️ Editar</option><option value="cambiar_estado">🏁 Finalizar Viaje</option><option value="anular">🚫 Anular Documento</option>';
+}
+else if (doc.estado === "PROGRAMADO") {
+    opcionesMenuHTML += '<option value="editar">✏️ Editar</option><option value="anular">🚫 Anular Documento</option>';
+}
+// 🚀 NUEVO CANDADO DE ACCIÓN: Liberamos los portes archivados para que puedan ser regularizados por el chófer
+else if (doc.estado === "ARCHIVADO") {
+    opcionesMenuHTML += '<option value="cambiar_estado">🏁 Finalizar Viaje</option><option value="editar">✏️ Editar / Reactivar</option>';
+}
+
 
         // 🔒 CORRECCIÓN MÁSTER V3.42: Concatenación limpia única (Eliminada duplicidad residual)
         opcionesMenuHTML += opcionDuplicar + opcionPlantilla + opcionBorradorMuestraHTML;
@@ -4033,21 +4393,27 @@ function verFichaDocumento(idFirebase) {
                 fechaFormateada = partesQ[2] + "/" + partesQ[1] + "/" + partesQ[0];
             }
 
-            // Evaluación del Cortafuegos de Expiración
-            if (cadenaHoyRígida > doc.qr_caducidad) {
-                // CASO EXPIRADO: Apagamos lo verde/estándar y encendemos lo rojo de alerta
-                if (badgeActivo) badgeActivo.style.setProperty("display", "none", "important");
-                if (notaActiva) notaActiva.style.setProperty("display", "none", "important");
+// Evaluación del Cortafuegos de Expiración (v4.80 - CONTROL DE OPACIDAD POR ROL)
+if (cadenaHoyRígida > doc.qr_caducidad) {
+    // CASO EXPIRADO: Apagamos lo verde/estándar y encendemos lo rojo de alerta
+    if (badgeActivo) badgeActivo.style.setProperty("display", "none", "important");
+    if (notaActiva) notaActiva.style.setProperty("display", "none", "important");
 
-                if (badgeExpirado) badgeExpirado.style.setProperty("display", "inline-flex", "important");
-                if (campoFechaCabecera) campoFechaCabecera.innerText = fechaFormateada;
-                if (notaExpirada) notaExpirada.style.setProperty("display", "block", "important");
+    if (badgeExpirado) badgeExpirado.style.setProperty("display", "inline-flex", "important");
+    if (campoFechaCabecera) campoFechaCabecera.innerText = fechaFormateada;
+    if (notaExpirada) notaExpirada.style.setProperty("display", "block", "important");
 
-                // Atenuamos la botonera del pie para advertir del bloqueo
-                botonesBotonera.forEach(btn => {
-                    btn.style.setProperty("opacity", "0.4", "important");
-                });
-            } else {
+    // Filtro de entorno: La atenuación visual solo afecta al agente en la web externa, no al chófer en su terminal
+    const esConsultaExternaAgente = window.location.search.includes("verificar");
+
+    botonesBotonera.forEach(btn => {
+        if (esConsultaExternaAgente) {
+            btn.style.setProperty("opacity", "0.4", "important"); // Aspecto apagado de control para el inspector
+        } else {
+            btn.style.setProperty("opacity", "1", "important");    // Brillo completo comercial para el conductor
+        }
+    });
+} else {
                 // CASO EN PLAZO LEGAL: Mantenemos el comportamiento original de la app
                 if (badgeExpirado) badgeExpirado.style.setProperty("display", "none", "important");
                 if (notaExpirada) notaExpirada.style.setProperty("display", "none", "important");
@@ -4574,7 +4940,9 @@ function procesarGuardadoDeCAOnline() {
         origen_plaza: primerEnvioMuestra.origen || "---",
         destino_plaza: primerEnvioMuestra.destino || "---",
         mercancia_nombre: primerEnvioMuestra.mercancia || "---",
-        mercancia_peso: primerEnvioMuestra.cantidad || "---"
+        mercancia_peso: primerEnvioMuestra.cantidad || "---",
+        mercancia_bultos: primerEnvioMuestra.bultos || "---" // 🚀 CAPTURA LOS BULTOS EN LA RAÍZ PARA EL RADAR DE AUDITORÍA
+
     };
 
     if (idDocumentoEnEdicion !== null) {
@@ -4866,6 +5234,9 @@ function ejecutarAccionFila(selectElement, idFirebase) {
             const ddQr = String(fechaBaseNueva.getDate()).padStart(2, '0');
             const nuevaCaducidadQR = yyyyQr + '-' + mmQr + '-' + ddQr;
 
+            // Extrae los bultos de la raíz o del primer envío del grupaje por seguridad retrocompatible
+            const bultosOriginales = viajeOrigen.mercancia_bultos || (viajeOrigen.envios_grupaje && viajeOrigen.envios_grupaje[0] ? viajeOrigen.envios_grupaje[0].bultos : "---");
+
             const paqueteDuplicado = {
                 ...viajeOrigen,
                 fecha_transporte: cadenaFechaHoyFinal,
@@ -4873,12 +5244,13 @@ function ejecutarAccionFila(selectElement, idFirebase) {
                 qr_caducidad: nuevaCaducidadQR,
                 estado: "EN_CURSO",
                 fecha_creacion_sistema: hoy.toLocaleString(),
+                mercancia_bultos: bultosOriginales, // 🚀 TRANSFERENCIA DE BULTOS GARANTIZADA EN LA CLONACIÓN
 
                 // 🚀 EL BLINDAJE: Sella vuestro NIF y Razón Social en caliente al clonar
-                // Esto repara los datos corruptos de los DeCAs viejos al duplicarlos
                 transportista_razon: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.razon_social || "---") : (viajeOrigen.transportista_razon || "---"),
                 transportista_nif: misDatosPerfilAutonomo ? (misDatosPerfilAutonomo.nif_cif || "---") : (viajeOrigen.transportista_nif || "---")
             };
+
 
             delete paqueteDuplicado.id_firebase;
             delete paqueteDuplicado.numero_documento;
@@ -7525,13 +7897,17 @@ function ejecutarPasarelaComparativaAuditoria(paqueteNuevosDatos) {
 
     let matrizDiferenciasDetectadas = [];
 
-    // Matriz de mapeo: [Propiedad del objeto, Nombre legible para el chófer]
-    const camposAComparar = [
-        ["origen_plaza", "ENVÍO · ORIGEN"],
-        ["destino_plaza", "ENVÍO · DESTINO"],
-        ["mercancia_nombre", "ENVÍO · MERCANCÍA"],
-        ["mercancia_peso", "ENVÍO · CANTIDAD"]
-    ];
+// Matriz de mapeo ampliada: [Propiedad del objeto, Nombre legible para el chófer] (v4.84)
+const camposAComparar = [
+    ["origen_plaza", "ENVÍO · ORIGEN"],
+    ["destino_plaza", "ENVÍO · DESTINO"],
+    ["mercancia_nombre", "ENVÍO · MERCANCÍA"],
+    ["mercancia_peso", "ENVÍO · CANTIDAD"],
+    ["mercancia_bultos", "ENVÍO · BULTOS"],              // 🚀 SENSOR DE BULTOS REGISTRADO (NO OBLIGATORIO DE CONFIGURAR PERO SÍ DE AUDITAR)
+    ["fecha_transporte", "FECHA INICIO SERVICIO"],
+    ["fecha_fin_servicio", "FECHA FIN DE SERVICIO"]
+];
+
 
     // Recorremos y comparamos matemáticamente las propiedades
     camposAComparar.forEach(([propiedad, etiquetaLegible]) => {
@@ -7558,15 +7934,27 @@ function ejecutarPasarelaComparativaAuditoria(paqueteNuevosDatos) {
         return;
     }
 
-    // Dibujamos las filas comparativas usando la maquetación tachada oficial (Imagen 2)
-    contenedorDiferencias.innerHTML = matrizDiferenciasDetectadas.map(cambio => {
-        return `
-        <div style="font-size: 13px; color: #212529; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; line-height: 1.4;">
-            <span style="font-size: 10px; font-weight: bold; color: #718096; display: block; margin-bottom: 2px;">${cambio.etiqueta}</span>
-            <span style="text-decoration: line-through; color: #a0aec0; margin-right: 6px;">${cambio.antes}</span>
-            <span style="font-weight: bold; color: #212529;">➔ ${cambio.ahora}</span>
-        </div>`;
-    }).join("");
+// Dibujamos las filas comparativas adaptando los formatos de fecha al vuelo
+contenedorDiferencias.innerHTML = matrizDiferenciasDetectadas.map(cambio => {
+    // Función rápida para pasar YYYY-MM-DD a DD/MM/YYYY en la lona de cambios
+    const formatearSiEsFecha = (str) => {
+        if (str && str.includes("-") && str.split("-").length === 3) {
+            return str.split("-").reverse().join("/");
+        }
+        return str;
+    };
+
+    const antesFormateado = formatearSiEsFecha(cambio.antes);
+    const ahoraFormateado = formatearSiEsFecha(cambio.ahora);
+
+    return `
+    <div style="font-size: 13px; color: #212529; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; line-height: 1.4;">
+        <span style="font-size: 10px; font-weight: bold; color: #718096; display: block; margin-bottom: 2px;">${cambio.etiqueta}</span>
+        <span style="text-decoration: line-through; color: #a0aec0; margin-right: 6px;">${antesFormateado}</span>
+        <span style="font-weight: bold; color: #212529;">➔ ${ahoraFormateado}</span>
+    </div>`;
+}).join("");
+
 
     // Conectamos el botón de confirmación final pasándole los datos empaquetados por hardware
     document.getElementById("btn_confirmar_modificacion_final").onclick = function() {
@@ -7673,23 +8061,27 @@ function ejecutarGuardadoConAuditoriaNube(paqueteDatosNuevos, motivoEscrito, mat
 
                 if (viajeActivo && viajeActivo.envios_grupaje && Array.isArray(viajeActivo.envios_grupaje) && viajeActivo.envios_grupaje.length > 0) {
 
-                    var listadoEnviosHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Detalle de Envíos y Cargas (Grupaje Art. 6.D)</div>' +
-                                            '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
+var esCargadorActivo = document.body.classList.contains("rol-cargador-activo");
+var colorCabeceraGrupaje = esCargadorActivo ? "#1e7e34" : "#0f4c81";
 
-                    viajeActivo.envios_grupaje.forEach(function(envio) {
-                        var nSec = envio.numero_secuencial || 1;
-                        var orig = envio.origen || "---";
-                        var dest = envio.destino || "---";
-                        var merc = envio.mercancia || "---";
-                        var cant = envio.cantidad || "---";
-                        var bult = envio.bultos || "---";
+var listadoEnviosHtml = '<div class="folio-header-azul" style="border:1px solid ' + colorCabeceraGrupaje + ' !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:' + colorCabeceraGrupaje + ' !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Detalle de Envíos y Cargas (Grupaje Art. 6.D)</div>' +
+                        '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
 
-                        listadoEnviosHtml += '<div style="display:flex; width:100%; box-sizing:border-box; border-bottom:1px solid #111111; background:#ffffff; font-size:11px; color:#111111; min-height:38px;">' +
-                            '<div style="width:7%; padding:5px; border-right:1px solid #111111; font-weight:bold; color:#0f4c81; text-align:center; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">' + nSec + '</div>' +
-                            '<div style="width:43%; padding:5px; border-right:1px solid #111111; line-height:1.3; display:flex; align-items:center; box-sizing:border-box;">' + orig + ' <span style="color:#fd7e14; font-weight:bold; margin:0 3px;">➔</span> ' + dest + '</div>' +
-                            '<div style="width:50%; padding:5px; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box;"><strong style="text-transform:uppercase; color:#111111;">' + merc + '</strong><span style="font-size:10px; color:#444; margin-top:2px; font-weight:bold;">Cantidad: ' + cant + ' | Bultos: ' + bult + '</span></div>' +
-                        '</div>';
-                    });
+viajeActivo.envios_grupaje.forEach(function(envio) {
+    var nSec = envio.numero_secuencial || 1;
+    var orig = envio.origen || "---";
+    var dest = envio.destino || "---";
+    var merc = envio.mercancia || "---";
+    var cant = envio.cantidad || "---";
+    var bult = envio.bultos || "---";
+
+    listadoEnviosHtml += '<div style="display:flex; width:100%; box-sizing:border-box; border-bottom:1px solid #111111; background:#ffffff; font-size:11px; color:#111111; min-height:38px;">' +
+        '<div style="width:7%; padding:5px; border-right:1px solid #111111; font-weight:bold; color:' + colorCabeceraGrupaje + '; text-align:center; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">' + nSec + '</div>' +
+        '<div style="width:43%; padding:5px; border-right:1px solid #111111; line-height:1.3; display:flex; align-items:center; box-sizing:border-box;">' + orig + ' <span style="color:#fd7e14; font-weight:bold; margin:0 3px;">➔</span> ' + dest + '</div>' +
+        '<div style="width:50%; padding:5px; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box;"><strong style="text-transform:uppercase; color:#111111;">' + merc + '</strong><span style="font-size:10px; color:#444; margin-top:2px; font-weight:bold;">Cantidad: ' + cant + ' | Bultos: ' + bult + '</span></div>' +
+    '</div>';
+});
+
 
                     listadoEnviosHtml += '</div>';
 
@@ -7714,8 +8106,8 @@ function ejecutarGuardadoConAuditoriaNube(paqueteDatosNuevos, motivoEscrito, mat
                         bannerAlertaModif.style.display = "block";
 
                         // 2. Construimos la tabla reglamentaria del desglose histórico (Imagen 4)
-                        var tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026, apdo. quinto)</div>' +
-                                                 '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none; background:#ffffff; font-size:11px; padding:8px; color:#111111; text-align:left;">';
+                        var tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid ' + colorCabeceraGrupaje + ' !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:' + colorCabeceraGrupaje + ' !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026, apdo. quinto)</div>' +
+                            '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none; background:#ffffff; font-size:11px; padding:8px; color:#111111; text-align:left;">';
 
                         var registrosCambios = viajeActivo.historial_cambios || [];
                         if (!Array.isArray(registrosCambios)) { registrosCambios = Object.values(registrosCambios); }
@@ -8375,9 +8767,18 @@ function ejecutarGuardadoConAuditoriaNube(paqueteDatosNuevos, motivoEscrito, mat
                 <p style="font-size: 11px; color:#4a5568; margin: 0 0 12px 0; font-family: monospace; word-break: break-all;" id="lbl_admin_uid_seleccionado">UID: ---</p>
 
                 <!-- Campos apilados verticalmente de forma indestructible -->
-                <div class="deca-form-grupo" style="margin-bottom: 12px; width: 100%;">
-                    <label>Estado de Licencia</label>
-                    <select id="sel_admin_estado_activacion" class="deca-input" style="height: 38px; width: 100%;">
+            <div class="deca-form-grupo" style="margin-bottom: 12px; width: 100%;">
+                <label>Rol Comercial del Terminal</label>
+                <select id="sel_admin_tipo_rol_deca" class="deca-input" style="height: 38px; width: 100%; font-weight: bold;">
+                    <option value="TRANSPORTISTA">🚚 TRANSPORTISTA EFECTIVO</option>
+                    <option value="CARGADOR">🏢 CARGADOR CONTRACTUAL</option>
+                </select>
+            </div>
+
+            <div class="deca-form-grupo" style="margin-bottom: 12px; width: 100%;">
+                <label>Estado de Licencia</label>
+                <select id="sel_admin_estado_activacion" class="deca-input" style="height: 38px; width: 100%;">
+
                         <option value="ACTIVADO">🟢 ACTIVADO (Pase libre)</option>
                         <option value="DESACTIVADO">🔴 DESACTIVADO (Bloqueado)</option>
                         <option value="ADMIN">👑 ADMIN (Maestro)</option>
