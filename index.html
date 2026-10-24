@@ -742,6 +742,121 @@
 
 </style>  <!-- === FIN DEL BLOQUE 1 DE ESTILOS === -->
 
+<!-- ==========================================================================
+   🛡️ ESCUDO CORTAFUEGOS DEFINITIVO PARA WEB ONLINE (BOE v4.75)
+   ========================================================================== -->
+<style>
+    /* Si la URL contiene el parámetro de inspección, ocultamos TODO por defecto en frío */
+    body.modo-escaneo-agente .cabecera-dashboard,
+    body.modo-escaneo-agente .grid-contadores,
+    body.modo-escaneo-agente .contenedor-filtros,
+    body.modo-escaneo-agente .contenedor-tabla,
+    body.modo-escaneo-agente .pie-tabla,
+    body.modo-escaneo-agente .folio-deca,
+    body.modo-escaneo-agente #bloque_banners_normativos_app,
+    body.modo-escaneo-agente .preview-pie-botones,
+    body.modo-escaneo-agente .deca-modal-cabecera {
+        display: none !important;
+    }
+    /* Estilo del búnker oscuro si el documento está caducado */
+    body.modo-escaneo-agente.deca-expirado-bloqueado {
+        background: #0b101a !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca {
+        position: relative !important;
+        background: transparent !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: auto !important;
+        z-index: 999999 !important;
+    }
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca {
+        display: flex !important;
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca .deca-modal-contenido {
+        margin: auto !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important;
+    }
+</style>
+
+<script>
+    // SENSOR ULTRA-RÁPIDO EN FRÍO: Actúa en el milisegundo cero, antes de cargar Firebase
+    (function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("verificar") && params.get("user")) {
+            // Marcamos el body inmediatamente para que el CSS borre la interfaz de la pantalla
+            document.documentElement.classList.add("modo-escaneo-agente");
+            document.addEventListener("DOMContentLoaded", function() {
+                document.body.classList.add("modo-escaneo-agente");
+
+                // Conectamos un radar permanente para interceptar los datos de Firebase en cuanto lleguen
+                const urlGateway = localStorage.getItem("cfg_gateway_url_deca") || "https://githubusercontent.com";
+
+                fetch(urlGateway)
+                .then(res => res.json())
+                .then(config => {
+                    if (firebase.apps.length === 0) firebase.initializeApp(config);
+
+                    // Apuntamos al nodo del documento directamente
+                    firebase.database().ref('usuarios/' + params.get("user") + '/documentos_deca/' + params.get("verificar"))
+                    .on('value', function(snapshot) {
+                        if (!snapshot.exists()) return;
+                        const doc = snapshot.val();
+
+                        if (doc && doc.qr_caducidad) {
+                            const [ano, mes, dia] = doc.qr_caducidad.split("-").map(Number);
+                            const tLimite = new Date(ano, mes - 1, dia, 23, 59, 59, 999).getTime();
+
+                            if (Date.now() > tLimite) {
+                                // 🚫 CASO CADUCADO: Bloqueo fulminante
+                                window.decaImpresionAutomaticaEjecutada = true;
+                                document.body.className = "modo-escaneo-agente deca-expirado-bloqueado";
+
+                                const lblFecha = document.getElementById("txt_fecha_expiracion_cabecera");
+                                if (lblFecha) lblFecha.innerText = dia.toString().padStart(2, '0') + "/" + mes.toString().padStart(2, '0') + "/" + ano;
+
+                                document.getElementById("modal_preview_deca").style.setProperty("display", "flex", "important");
+                                document.getElementById("modal_cortafuegos_expirado_deca").style.setProperty("display", "flex", "important");
+
+                                const btnRechazo = document.querySelector("#modal_cortafuegos_expirado_deca button");
+                                if (btnRechazo) {
+                                    btnRechazo.innerText = "ACCESO RECHAZADO (EXPIRADO)";
+                                    btnRechazo.style.setProperty("background", "#dc3545", "important");
+                                    btnRechazo.onclick = function(e) { e.preventDefault(); alert("Documento fuera de plazo legal."); };
+                                }
+                            } else {
+                                // 🟢 CASO VÁLIDO: Liberamos el folio blanco para el agente
+                                document.body.classList.remove("deca-expirado-bloqueado");
+                                const estiloLiberar = document.createElement("style");
+                                estiloLiberar.innerHTML = `
+                                    body.modo-escaneo-agente #modal_preview_deca { display: flex !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; z-index: 999999 !important; overflow-y: auto !important; }
+                                    body.modo-escaneo-agente .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; margin: 0 auto !important; display: block !important; }
+                                    body.modo-escaneo-agente .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; display: block !important; width: 100% !important; height: auto !important; }
+                                    body.modo-escaneo-agente .folio-deca { display: block !important; box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; }
+                                `;
+                                document.head.appendChild(estiloLiberar);
+                            }
+                        }
+                    });
+                });
+            });
+        }
+    })();
+</script>
 
 
 <style>    /* === BLOQUE 2 DE ESTILOS === */
