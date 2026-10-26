@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.94</title>
+    <title>Gestor de DeCAs Transportes v5.00</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1495,14 +1495,14 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 
 
-/* === CORRECCIÓN GEOMÉTRICA HÍBRIDA TOLERANTE A FORMATOS MÓVILES (v4.41) === */
+/* ==========================================================================
+   📄 MOTOR DE IMPRESIÓN REGLAMENTARIA MULTI-PÁGINA DeCA (BOE v4.95 CLEAN)
+   ========================================================================== */
 @media print {
     @page {
-        margin: 0mm !important; /* Tritura las cabeceras, fechas y URLs sueltas del navegador */
-        /* 🚀 EL TRUCO UNIVERSAL: Al cambiar A4 por auto, el CSS deja de pelearse con el sistema operativo.
-           Heredará matemáticamente la hoja que tenga seleccionada el móvil (Carta, A4, etc.)
-           y estirará las tablas al ras del contorno disponible de forma nativa */
-        size: auto !important;
+        /* Margen físico mínimo reglamentario de 12mm para evitar que las impresoras de Tráfico rasuren texto */
+        margin: 12mm 15mm 15mm 15mm !important;
+        size: auto !important; /* Auto-adaptación matemática a Carta / A4 nativa */
     }
 
     body {
@@ -1510,13 +1510,14 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
-        /* 🧼 SOLUCIÓN CHROME MÓVIL: Eliminamos display:flex y min-height del body para prohibir la segunda página */
+        /* 🚀 LIBERACIÓN DE CÁRCELES: Permitimos que el cuerpo elástico fluya verticalmente en múltiples hojas */
         display: block !important;
         height: auto !important;
         min-height: 0 !important;
+        overflow: visible !important;
     }
 
-    /* Ocultación rígida de paneles comerciales y botones del salpicadero */
+    /* Ocultación rígida de paneles comerciales, botones de pasarelas y chivatos */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
@@ -1525,63 +1526,75 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     .deca-modal-cabecera,
     .preview-pie-botones,
     .deca-modal-pie,
-    .deca-bloque-operaciones-libre {
+    .deca-bloque-operaciones-libre,
+    .btn-quitar-envio-dinamico,
+    #modal_cortafuegos_expirado_deca {
         display: none !important;
+        visibility: hidden !important;
     }
 
-    /* Forzamos a las capas contenedoras a ser pasillos transparentes sin empujar el papel */
+    /* Liberamos las capas contenedoras de cualquier restricción flex o altura fija */
     .modal-preview-deca,
     #modal_preview_deca,
     .preview-container,
     .preview-cuerpo-scroll {
-        display: block !important; /* Caja de bloque pura */
+        display: block !important;
         width: 100% !important;
         height: auto !important;
+        max-height: none !important;
         overflow: visible !important;
-        background: #ffffff !important; /* Purgado total de grises en la impresión */
+        background: #ffffff !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
         box-sizing: border-box !important;
+        position: relative !important;
     }
 
-    /* 📄 EL FOLIO BLANCO: Centrado simétrico horizontal y vertical sin romper los ejes */
-    /* 📄 EL FOLIO BLANCO ESTIRADO: Devora el espacio horizontal sin deformar las letras */
+    /* 📄 EL FOLIO BLANCO REGLAMENTARIO ELÁSTICO */
     .folio-deca {
         display: block !important;
-        width: 100% !important;       /* 🚀 Ocupa todo el ancho de la hoja Carta o A4 disponible */
+        width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        padding: 20px 30px !important; /* Más aire en los laterales para que respire el texto */
-        margin: 0 !important;          /* Eliminamos pasillos superiores para que no se corte abajo */
+        padding: 0 !important; /* El margen perimetral ya lo gobierna la directiva @page */
+        margin: 0 !important;
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
         box-sizing: border-box !important;
 
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        page-break-after: avoid !important;
-        break-after: avoid !important;
-
-        /* 🚀 ELIMINADO EL ZOOM ARTIFICIAL: Al quitarlo, el navegador deja de encoger el documento */
-        /* zoom: 105% !important; */
+        /* 🚀 REPARACIÓN DE PASARELA: Autorizamos de forma rígida la paginación elástica vertical */
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
     }
 
+    /* 🛡️ SEGURO ANTI-GUILLOTINAS: Evita de forma estricta que una tabla o un envío se parta a la mitad horizontalmente */
+    .folio-tabla,
+    #capa_grupaje_master > div,
+    #capa_historial_modificaciones_legal > div,
+    .bloque-formulario-deca {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 14px !important;
+    }
 
+    /* Forzado exacto de colores de fondo de títulos BOE para el motor de impresión de Google Chrome */
     .folio-header-azul {
         background: #0f4c81 !important;
         color: #ffffff !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
-    /* 🚀 REPARACIÓN DE IMPRESIÓN CON PATRÓN DE COLOR PARA CARGADORES */
+
     body.rol-cargador-activo .folio-header-azul {
         background: #1e7e34 !important;
+        color: #ffffff !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
-
 
     #qrcode_real_render img,
     #qrcode_real_render canvas {
@@ -1590,6 +1603,7 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         height: 100px !important;
     }
 }
+
 
 
 /* Letrero de Advertencia para el Folio del DeCA Anulado (Estilo Sello de Custodia) */
@@ -1843,6 +1857,7 @@ body.dark-mode .banner-inspeccion-nota {
         body.dark-mode #modal_administrador_global_deca .deca-modal-contenido { background: #121212; border-color: #333336; }
         body.dark-mode #modal_administrador_global_deca .deca-modal-cuerpo { background: #121212; }
 
+
 /* === 🛠️ OPTIMIZACIÓN GEOMÉTRICA: EXPANSIÓN MÁXIMA DEL CONTENEDOR DE TERMINALES === */
 body.dark-mode #lista_usuarios_admin_render,
 #lista_usuarios_admin_render {
@@ -1853,9 +1868,10 @@ body.dark-mode #lista_usuarios_admin_render,
     box-sizing: border-box;
 
     /* 🚀 LA CLAVE: Ampliamos el tope del 40% al 65% del alto de la pantalla de tu móvil */
-    max-height: 63vh !important;
+    max-height: 42vh !important;
     overflow-y: auto !important; /* Mantiene el scroll interno suave si la lista supera el límite */
 }
+
 
 /* Sincronización exacta de fondo para el Modo Noche de la lista expandida */
 body.dark-mode #lista_usuarios_admin_render {
@@ -1975,6 +1991,30 @@ body.rol-cargador-activo #modal_central_datos_deca .deca-modal-cabecera {
     background: #1e7e34 !important;
 }
 
+
+/* 🟢 REMATES ESTÉTICOS: AJUSTE VERDE LOGÍSTICO PARA EL QR GIGANTE EN MODO CARGADOR */
+body.rol-cargador-activo #modal_qr_pantalla_gigante h3#txt_titulo_qr_gigante {
+    color: #1e7e34 !important; /* Cambia el título de la cabecera a verde */
+}
+
+body.rol-cargador-activo #modal_qr_pantalla_gigante button.btn-cerrar-qr-gigante {
+    background: #1e7e34 !important; /* Cambia el botón de cierre a verde diurno */
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.15) !important;
+}
+
+body.rol-cargador-activo #modal_qr_pantalla_gigante button.btn-cerrar-qr-gigante:active {
+    background: #115725 !important; /* Efecto de hundimiento táctil en verde oscuro */
+}
+
+/* Sincronización nocturna del botón del QR gigante en Modo Cargador */
+body.dark-mode.rol-cargador-activo #modal_qr_pantalla_gigante h3#txt_titulo_qr_gigante {
+    color: #2cfb69 !important; /* Título en verde menta brillante nocturno */
+}
+
+body.dark-mode.rol-cargador-activo #modal_qr_pantalla_gigante button.btn-cerrar-qr-gigante {
+    background: #2cfb69 !important; /* Botón en verde menta brillante nocturno */
+    color: #121212 !important;      /* Letras oscuras para máximo contraste */
+}
 
 
 
@@ -2449,14 +2489,14 @@ body.rol-cargador-activo .label-numero-envio-dinamico {
 }
 
 /* ==========================================================================
-   🔤 COLOR DE ESCRITURA PREMIUM EN CABINA (MODO CARGADOR DIURNO)
+   🔤 COLOR DE ESCRITURA PREMIUM EN CABINA (MODO CARGADOR DIURNO CORREGIDO)
    ========================================================================== */
-/* Cambia el color del texto tecleado por el usuario en inputs y desplegables */
+/* Cambia el color del texto tecleado por el usuario en inputs y desplegables conservando la fuente original */
 body.rol-cargador-activo .deca-input,
 body.rol-cargador-activo .filtro-input,
 body.rol-cargador-activo select.deca-input {
-    color: #0b411b !important; /* 🟢 VERDE BOSQUE PROFUNDO: Máximo contraste y nitidez fiscal */
-    font-weight: 800 !important; /* Mantiene la consistencia de grosor de tu app */
+    color: #0b411b !important; /* 🟢 VERDE BOSQUE PROFUNDO: Máximo contraste fiscal */
+    font-weight: normal !important; /* Purgado de negrita: se queda idéntico al transportista */
 }
 
 /* Sincroniza los buscadores predictivos que flotan en el formulario */
@@ -2466,12 +2506,18 @@ body.rol-cargador-activo #lista_provincias_carg_drop strong,
 body.rol-cargador-activo #mini_lista_provincias_drop strong {
     color: #0b411b !important;
 }
+
 /* 🌙 Enfriamiento nocturno de letras para que no pierdan contraste en la oscuridad */
 body.dark-mode.rol-cargador-activo .deca-input,
-body.dark-mode.rol-cargador-activo .filtro-input,
-body.dark-mode.rol-cargador-activo #lista_cargadores_habituales_drop strong {
-    color: #63e2b7 !important; /* Verde menta eléctrico brillante de alta lectura nocturna */
+body.dark-mode.rol-cargador-activo .filtro-input {
+    color: #63e2b7 !important; /* Verde menta eléctrico brillante */
+    font-weight: normal !important; /* Purgado de negrita nocturna */
 }
+
+body.dark-mode.rol-cargador-activo #lista_cargadores_habituales_drop strong {
+    color: #63e2b7 !important;
+}
+
 
 /* ==========================================================================
    🔧 ADAPTACIÓN DE TABLAS DE AUDITORÍA Y EFECTOS TÁCTILES (MODO CARGADOR)
@@ -2508,11 +2554,19 @@ body.rol-cargador-activo .btn-accion-icono:hover {
     border-color: #1e7e34 !important;
     color: #1e7e34 !important;
 }
-/* 3. Transforma la lona de la barra de filtros de búsqueda global */
+
+/* 3. Transforma la lona de la barra de filtros de búsqueda global (Diurno) */
 body.rol-cargador-activo .contenedor-filtros {
     background: #e8f5e9 !important; /* Cambia el azul clarito por el pasillo verde suave */
     border-color: #c8e6c9 !important;
 }
+
+/* 🌙 APAGADO NOCTURNO: Fuerza el fondo gris carbón en el modo oscuro del Cargador */
+body.dark-mode.rol-cargador-activo .contenedor-filtros {
+    background: #1c1c1e !important; /* Gris oscuro integrado que no deslumbra */
+    border-color: #333336 !important; /* Borde sutil integrado nocturno */
+}
+
 
 /* Transforma la cabecera del modal intermedio de confirmación de auditoría antes de guardar */
 body.rol-cargador-activo #modal_revision_auditoria_deca .deca-modal-cabecera {
@@ -2528,6 +2582,24 @@ body.rol-cargador-activo #modal_revision_auditoria_deca .deca-num-circulo {
     background: #1e7e34 !important;
     color: #ffffff !important;
 }
+
+/* 🚨 RESALTE PEDAGÓGICO: Identificación visual para el DeCA de pruebas 000000 */
+.deca-tabla-sincro-master tbody tr:has(span[onclick*="DeCA-2026-000000"]),
+.deca-tabla-sincro-master tbody tr:has(.doc-numero:contains("000000")),
+#tabla_resultados_body tr:first-child:has(.doc-numero[style*="color: rgb(255, 115, 115)"]) {
+    background-color: #fdf2f2 !important; /* Fondo rosa/rojo claro de advertencia */
+}
+
+/* Selector alternativo directo por hardware si el script inyecta estilos en la fila */
+.deca-tabla-sincro-master tbody tr[style*="background-color"] {
+    background-color: #fdf2f2 !important;
+}
+
+/* Sincronización nocturna del resalte para que no deslumbre en cabina */
+body.dark-mode .deca-tabla-sincro-master tbody tr:has(span[onclick*="DeCA-2026-000000"]) {
+    background-color: rgba(220, 53, 69, 0.15) !important; /* Rojo óxido atenuado nocturno */
+}
+
 
 </style>
 
@@ -3460,18 +3532,39 @@ function renderizarListaUsuariosAdmin() {
         const badgeRolHTML = `<span style="background: ${colorBadgeRol}; color: white; font-size: 8.5px; padding: 2px 5px; border-radius: 4px; margin-left: 6px; font-weight: 800; font-family: sans-serif; vertical-align: middle;">${textoBadgeRol}</span>`;
 
         return `
-        <div style="padding: 10px 8px; border-bottom: 1px solid ${colorBordeFila}; cursor: pointer; text-align: left;"
+        <div style="padding: 12px 10px; border-bottom: 1px solid ${colorBordeFila}; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 4px;"
              onclick="seleccionarUsuarioParaEditarAdmin('${u.uid_firebase}')"
              onmouseover="this.style.background='${esModoOscuro ? '#2c2c2e' : '#eef5fc'}'"
              onmouseout="this.style.background='transparent'">
-            <div style="display:flex; justify-content:space-between; font-weight:bold;">
-                <span>${bolaColor} ${u.razon_social} ${badgeRolHTML}</span>
-                <span style="font-size:11px; color:${colorTextoSecundario}; font-family:monospace;">${u.nif_cif}</span>
+
+            <!-- Línea 1: Nombre de la Empresa o Conductor -->
+            <div style="font-size: 14px; font-weight: bold; color: ${esModoOscuro ? '#ffffff' : '#111111'}; line-height: 1.2;">
+                ${bolaColor} ${u.razon_social}
             </div>
-            <div style="font-size:10px; color:${colorTextoSecundario}; margin-top:2px; word-break:break-all;">
-                UID: ${u.uid_firebase} ${textoAliasOpcional}
+
+            <!-- Línea 2: Rol Comercial (Badge Oficial) -->
+            <div style="display: block; margin-top: 1px;">
+                ${badgeRolHTML}
             </div>
+
+            <!-- Línea 3: NIF / CIF Fiscal -->
+            <div style="font-size: 11px; color: ${colorTextoSecundario}; font-weight: bold; font-family: sans-serif;">
+                📋 NIF/CIF: <span style="font-family: monospace;">${u.nif_cif}</span>
+            </div>
+
+            <!-- Línea 4: Identificador UID Único de Firebase -->
+            <div style="font-size: 10px; color: ${colorTextoSecundario}; font-family: monospace; word-break: break-all; line-height: 1.1;">
+                🆔 UID: ${u.uid_firebase}
+            </div>
+
+            <!-- Línea 5: Contraseña de Acceso (Alias) -->
+            <div style="font-size: 11px; color: ${u.clave_alias ? (esModoOscuro ? '#63b3ed' : '#0f4c81') : '#718096'}; font-weight: bold;">
+                🔑 CONTRAS.: <span style="font-family: monospace; font-weight: normal;">${u.clave_alias ? u.clave_alias : '❌ SIN ALIAS ASIGNADO'}</span>
+            </div>
+
         </div>`;
+
+
 
     }).join("");
 }
@@ -4004,9 +4097,20 @@ else if (doc.estado === "ARCHIVADO") {
             badgeModificacionesHTML = '<br><span style="display: inline-block; background: #fff3cd; color: #fd7e14; border: 1px solid #ffeeba; font-size: 10px; font-weight: bold; padding: 2px 5px; border-radius: 4px; margin-top: 4px; font-family: sans-serif; white-space: nowrap;">Modificado ×' + cuentaModif + '</span>';
         }
 
+        // 🚨 FILTRO FISCAL PEDAGÓGICO: Si es el viaje de pruebas 000000, inyectamos el fondo rojo claro
+        let estiloFilaMuestraPruebas = "";
+        if (doc.numero_documento && doc.numero_documento.includes("000000")) {
+            const esModoNocheActivo = document.body.classList.contains("dark-mode");
+            // Diurno: Rosa suave corporativo | Nocturno: Rojo óxido mitigado translúcido
+            estiloFilaMuestraPruebas = esModoNocheActivo
+                ? 'style="background-color: rgba(229, 62, 62, 0.15) !important;"'
+                : 'style="background-color: #fdf2f2 !important;"';
+        }
+
         htmlFinal += `
-        <tr>
+        <tr ${estiloFilaMuestraPruebas}>
             <td style="vertical-align: middle;">
+
             <span class="doc-numero" onclick="verFichaDocumento('` + doc.id_firebase + `')" style="color: ` + colorNumeroEstado + ` !important; display: inline-block;">` + doc.numero_documento + `</span>
             ` + badgeModificacionesHTML + ` ` + (!navigator.onLine ? '<span style="font-size:11px; margin-left:4px;" title="Retenido localmente esperando cobertura">⏳</span>' : '') + `
             </td>
@@ -5030,11 +5134,47 @@ function procesarGuardadoDeCAOnline() {
         // 🚀 MODO EDICIÓN DETECTADO: Desviamos el flujo hacia el motor de comparación de auditoría
         ejecutarPasarelaComparativaAuditoria(paqueteDeCADatos);
     } else {
+        // ⭐ AUTOMATIZACIÓN DE PLANTILLA: Si el transportista marcó la casilla, guardamos la ruta
+        const chkPlantillaAuto = document.getElementById("chk_guardar_plantilla_auto");
+        if (chkPlantillaAuto && chkPlantillaAuto.checked) {
+            console.log("⭐ Checkbox activado: Procesando copia de respaldo como plantilla máster...");
+            ejecutarGuardadoPlantillaGrupajeDirecto(paqueteDeCADatos);
+        }
+
         // MODO ALTA NUEVA: Guardado directo sin pedir justificación
         ejecutarInyeccionCorrelativaDeCA(paqueteDeCADatos);
     }
 }
 
+// ⭐ NUEVO MOTOR ATÓMICO: Registra la plantilla en la nube con soporte integral de grupajes
+function ejecutarGuardadoPlantillaGrupajeDirecto(paqueteViaje) {
+    if (!database || !miUsuarioUIDActivo) return;
+
+    const primerEnvio = paqueteViaje.envios_grupaje && paqueteViaje.envios_grupaje[0] ? paqueteViaje.envios_grupaje[0] : {};
+
+    const paquetePlantillaEvolucionado = {
+        cargador_razon: paqueteViaje.cargador_razon || "",
+        cargador_nif: paqueteViaje.cargador_nif || "",
+        cargador_calle: paqueteViaje.cargador_calle || "",
+        cargador_cp: paqueteViaje.cargador_cp || "",
+        cargador_poblacion: paqueteViaje.cargador_poblacion || "",
+        cargador_provincia: paqueteViaje.cargador_provincia || "",
+        cargador_domicilio: paqueteViaje.cargador_domicilio || "",
+
+        // Espejos retrocompatibles para los títulos del dropdown
+        origen_plaza: paqueteViaje.origen_plaza || primerEnvio.origen || "---",
+        destino_plaza: paqueteViaje.destino_plaza || primerEnvio.destino || "---",
+        mercancia_nombre: paqueteViaje.mercancia_nombre || primerEnvio.mercancia || "---",
+        mercancia_peso: paqueteViaje.mercancia_peso || primerEnvio.cantidad || "0 kg",
+
+        // 🚀 LA CLAVE: Guardamos la estructura multi-envío completa dentro de la plantilla
+        envios_grupaje: paqueteViaje.envios_grupaje || []
+    };
+
+    database.ref('usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes').push(paquetePlantillaEvolucionado)
+    .then(() => console.log("⭐ Copia de seguridad guardada en plantillas cloud de forma silenciosa."))
+    .catch(err => console.warn("Error residual al archivar plantilla automática:", err));
+}
 
 
 
@@ -5163,7 +5303,12 @@ function limpiarCamposFormularioGigante() {
     // Ocultamos el aviso de edición legal para altas limpias
     const panelAviso = document.getElementById("deca_aviso_edicion_legal");
     if (panelAviso) panelAviso.style.display = "none";
+
+    // 🧼 RESETEO DE AUTOMATIZACIÓN: Desmarcar casilla de plantilla automática
+    const chkPlantilla = document.getElementById("chk_guardar_plantilla_auto");
+    if (chkPlantilla) chkPlantilla.checked = false;
 }
+
 
 
 
@@ -5243,7 +5388,18 @@ function abrirFormularioEditarDeCA(idFirebase) {
         bultos: (doc.mercancia_bultos !== "---" && doc.mercancia_bultos !== "---") ? doc.mercancia_bultos : ""
     });
 
+    // 📡 REPARACIÓN MÁSTER: Conectamos la antena predictiva al primer envío inyectado en edición
+    var primerBloqueEmbozado = document.getElementById("bloque_envio_card_id_" + contadorEnviosFormularioVigentes);
+    if (primerBloqueEmbozado) {
+        var inputMercanciaEdicion = primerBloqueEmbozado.querySelector(".ev-mercancia");
+        if (inputMercanciaEdicion) {
+            inputMercanciaEdicion.addEventListener("input", function() { filtrarMercanciasFrecuentesPredictivo(this); });
+            inputMercanciaEdicion.addEventListener("focus", function() { filtrarMercanciasFrecuentesPredictivo(this); });
+        }
+    }
+
     document.getElementById("deca_observaciones").value = doc.observaciones_indicaciones || "";
+
 
     // Levantamos el modal gigante en modo Edición
     document.getElementById("modal_nuevo_deca").style.display = "flex";
@@ -5359,25 +5515,45 @@ function ejecutarAccionFila(selectElement, idFirebase) {
         });
         resetearDesplegableVisual();
 
-    // Camino E: Guardar Plantilla Frecuente Online (Sustituye este tramo de código)
+    // Camino E: Guardar Plantilla Frecuente Online con soporte de Grupaje y Flota
     } else if (accion === "plantilla") {
         mostrarAvisoToast("⏳ Subiendo plantilla a tu cuenta central...");
+
+        // 🚀 CONSOLIDACIÓN TOTAL: Extraemos la matriz de grupajes y los datos de transporte del DeCA original
+        let enviosMatrizClon = viajeOrigen.envios_grupaje || [];
+        if (!Array.isArray(enviosMatrizClon)) { enviosMatrizClon = Object.values(enviosMatrizClon); }
 
         const paquetePlantillaNueva = {
             cargador_razon: viajeOrigen.cargador_razon || "",
             cargador_nif: viajeOrigen.cargador_nif || "",
-            cargador_calle: viajeOrigen.cargador_calle || viajeOrigen.cargador_calle || "",
+            cargador_calle: viajeOrigen.cargador_calle || "", // 🟢 CORREGIDO: Cambiado ';' por ','
             cargador_cp: viajeOrigen.cargador_cp || "",
             cargador_poblacion: viajeOrigen.cargador_poblacion || "",
             cargador_provincia: viajeOrigen.cargador_provincia || "",
             cargador_domicilio: viajeOrigen.cargador_domicilio || "",
+
+            // Datos del Transportista Efectivo
+            transportista_razon: viajeOrigen.transportista_razon || "",
+            transportista_nif: viajeOrigen.transportista_nif || "",
+            transportista_calle: viajeOrigen.transportista_calle || "",
+            transportista_cp: viajeOrigen.transportista_cp || "",
+            transportista_poblacion: viajeOrigen.transportista_poblacion || "",
+            transportista_provincia: viajeOrigen.transportista_provincia || "",
+
+            // Datos de Flota
+            matricula_tractor: viajeOrigen.matricula_tractor || "",
+            matricula_remolque: viajeOrigen.matricula_remolque || "",
+
+            // Espejos retrocompatibles
             origen_plaza: viajeOrigen.origen_plaza || "",
             destino_plaza: viajeOrigen.destino_plaza || "",
             mercancia_nombre: viajeOrigen.mercancia_nombre || "",
-            mercancia_peso: viajeOrigen.mercancia_peso || "0 kg"
+            mercancia_peso: viajeOrigen.mercancia_peso || "0 kg",
+
+            // Matriz completa multi-envío
+            envios_grupaje: enviosMatrizClon
         };
 
-        // Generamos un ID push único en Firebase para esta plantilla específica
         database.ref('usuarios/' + miUsuarioUIDActivo + '/plantillas_frecuentes').push(paquetePlantillaNueva)
         .then(() => {
             mostrarAvisoToast("⭐ Guardado en tus plantillas en la nube.");
@@ -5385,6 +5561,9 @@ function ejecutarAccionFila(selectElement, idFirebase) {
         .catch(err => alert("Error al subir plantilla: " + err.message));
 
         resetearDesplegableVisual();
+
+
+
 
 
     // Camino F: Eliminar Viaje de Muestra 000000
@@ -5778,17 +5957,25 @@ function registrarNuevoCamioneroEcosistema() {
             if (!snapshotDecas.exists()) {
                 console.log("🔳 Inyectando DeCA-2026-000000 personalizado con vuestras marcas reales...");
 
+                // 📅 CÁLCULO DE FECHAS EN VIVO PARA EL VIAJE DE MUESTRA
+                const objFechaMuestra = new Date();
+                const cadenaHoyMuestra = objFechaMuestra.getFullYear() + '-' + String(objFechaMuestra.getMonth() + 1).padStart(2, '0') + '-' + String(objFechaMuestra.getDate()).padStart(2, '0');
+
+                let objCaducidadMuestra = new Date(objFechaMuestra);
+                objCaducidadMuestra.setDate(objCaducidadMuestra.getDate() + 7);
+                const cadenaCaducidadMuestra = objCaducidadMuestra.getFullYear() + '-' + String(objCaducidadMuestra.getMonth() + 1).padStart(2, '0') + '-' + String(objCaducidadMuestra.getDate()).padStart(2, '0');
+
                 const deCADemostracionPrivado = {
                     numero_documento: "DeCA-2026-000000",
-                    fecha_transporte: "2026-10-06",
+                    fecha_transporte: cadenaHoyMuestra, // 🟢 Fecha de hoy en vivo
                     matricula_tractor: estructuraPerfil.matricula_tractor || "1111 AAA",
                     matricula_remolque: estructuraPerfil.matricula_remolque || "R-2222 BBB",
                     origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
-                    destino_plaza: "CALLE DESTINO, 28 - 16660 LAS PEDROÑERAS (CUENCA) - ESPAÑA",
-                    mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM. (MUESTRA PRIVADA)",
-                    mercancia_peso: "23.000 kg",
-                    mercancia_bultos: "23",
-                    qr_caducidad: "2026-10-13",
+                    destino_plaza: "MOTO DEL CUERVO (CUENCA) - ESPAÑA",
+                    mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM.",
+                    mercancia_peso: "12.000 KG",
+                    mercancia_bultos: "12",
+                    qr_caducidad: cadenaCaducidadMuestra, // 🟢 QR Vigente durante 7 días
                     estado: "EN_CURSO",
                     cargador_razon: "CARGADOR EJEMPLO, S.L.",
                     cargador_nif: "A00000000",
@@ -5796,8 +5983,31 @@ function registrarNuevoCamioneroEcosistema() {
                     cargador_cp: "16650",
                     cargador_poblacion: "LAS MESAS",
                     cargador_provincia: "CUENCA",
-                    transportista_razon: estructuraPerfil.razon_social
+                    transportista_razon: estructuraPerfil.razon_social,
+
+                    // 🚀 GRUPAJE MULTI-ENVÍO: Inyección nativa de 2 envíos de prueba
+                    envios_grupaje: [
+                        {
+                            numero_secuencial: 1,
+                            fecha: cadenaHoyMuestra,
+                            origen: "LAS MESAS (CUENCA) - ESPAÑA",
+                            destino: "MOTA DEL CUERVO (CUENCA) - ESPAÑA",
+                            mercancia: "AJO SPRING VIOLETA CAL. 55/60 MM.",
+                            cantidad: "12.000 KG",
+                            bultos: "12"
+                        },
+                        {
+                            numero_secuencial: 2,
+                            fecha: cadenaHoyMuestra,
+                            origen: "LAS MESAS (CUENCA) - ESPAÑA",
+                            destino: "MADRID (CENTRAL) - ESPAÑA",
+                            mercancia: "PALETS PRODUCTO TERMINADO (AJOS)",
+                            cantidad: "11.000 KG",
+                            bultos: "11"
+                        }
+                    ]
                 };
+
 
                 return database.ref('usuarios/' + miUsuarioUIDActivo + '/documentos_deca').push(deCADemostracionPrivado);
             } else {
@@ -6134,6 +6344,7 @@ function actualizarDesplegablePlantillasFormulario() {
 }
 
 // 2. Carga los datos de la plantilla elegida en las casillas del formulario gigante
+// ⭐ FUNCIÓN MÁSTER: Carga los datos de la plantilla elegida en el formulario gigante
 function cargarDatosDesdePlantillaSeleccionada(selectElement) {
     const idPlantilla = selectElement.value;
     const btnPapelera = document.getElementById("btn_eliminar_plantilla_trigger");
@@ -6155,40 +6366,85 @@ function cargarDatosDesdePlantillaSeleccionada(selectElement) {
     const p = diccionarioPlantillas[idPlantilla];
     if (!p) return;
 
-    // Inyección masiva en cascada en los campos del DeCA
+    // 🏢 Inyección masiva en las casillas del Cargador Contractual (Sección 1)
     document.getElementById("deca_carg_razon").value = p.cargador_razon || "";
     document.getElementById("deca_carg_nif").value = p.cargador_nif || "";
     document.getElementById("deca_carg_domicilio").value = p.cargador_calle || "";
     document.getElementById("deca_carg_cp").value = p.cargador_cp || "";
     document.getElementById("deca_carg_poblacion").value = p.cargador_poblacion || "";
     document.getElementById("deca_carg_provincia").value = p.cargador_provincia || "";
-    document.getElementById("deca_origen").value = p.origen_plaza || "";
-    document.getElementById("deca_destino").value = p.destino_plaza || "";
-    document.getElementById("deca_mercan_nombre").value = p.mercancia_nombre || "";
 
-    // 🛡️ Dejamos la recámara oculta del transportista sincronizada con la plantilla v4.63
-    if (document.getElementById("deca_transp_domicilio")) {
+    // 🚀 REPARACIÓN DE GRUPAJES EN PLANTILLAS: Vaciamos el contenedor y repintamos la lona elástica
+    const contenedorElasticosForm = document.getElementById("contenedor_capas_envios_elasticas");
+    if (contenedorElasticosForm) {
+        contenedorElasticosForm.innerHTML = "";
+        contadorEnviosFormularioVigentes = 0;
+    }
+
+    // Si la plantilla se guardó con la matriz multi-envío moderna, reconstruimos todas sus capas
+    if (p.envios_grupaje && Array.isArray(p.envios_grupaje) && p.envios_grupaje.length > 0) {
+        p.envios_grupaje.forEach(function(envioGuardado) {
+            let pesoLimpioNum = "";
+            let unidadLimpiaStr = "kg";
+            if (envioGuardado.cantidad && envioGuardado.cantidad.includes(" ")) {
+                let trozosP = envioGuardado.cantidad.split(" ");
+                pesoLimpioNum = trozosP[0] || "";
+                unidadLimpiaStr = trozosP[1] || "kg";
+            } else {
+                pesoLimpioNum = envioGuardado.cantidad || "";
+            }
+
+            agregarNuevoBloqueEnvioFormulario({
+                origen: envioGuardado.origen || "",
+                destino: envioGuardado.destino || "",
+                mercancia: envioGuardado.mercancia || "",
+                peso: pesoLimpioNum,
+                unidad: unidadLimpiaStr,
+                bultos: envioGuardado.bultos !== "---" ? envioGuardado.bultos : ""
+            });
+        });
+    } else {
+        // Soporte retrocompatible para plantillas antiguas de formato plano
+        let pesoLimpioNum = "";
+        let unidadLimpiaStr = "kg";
+        if (p.mercancia_peso && p.mercancia_peso.includes(" ")) {
+            let trozosP = p.mercancia_peso.split(" ");
+            pesoLimpioNum = trozosP[0] || "";
+            unidadLimpiaStr = trozosP[1] || "kg";
+        } else {
+            pesoLimpioNum = p.mercancia_peso || "";
+        }
+
+        agregarNuevoBloqueEnvioFormulario({
+            origen: p.origen_plaza || "",
+            destino: p.destino_plaza || "",
+            mercancia: p.mercancia_nombre || "",
+            peso: pesoLimpioNum,
+            unit: unidadLimpiaStr,
+            bultos: ""
+        });
+    }
+
+    // 🚀 INYECCIÓN DINÁMICA DE OPERADOR Y EQUIPO EN MODO CARGADOR
+    const esModoCargadorActivo = (document.body.classList.contains("rol-cargador-activo") || (misDatosPerfilAutonomo && misDatosPerfilAutonomo.tipo_rol_deca === "CARGADOR"));
+
+    if (esModoCargadorActivo) {
+        // Al ser cargador, rellenamos de forma rígida el bloque 2 con el transportista guardado en la plantilla
+        document.getElementById("deca_transp_razon").value = p.transportista_razon || "";
+        document.getElementById("deca_transp_nif").value = p.transportista_nif || "";
         document.getElementById("deca_transp_domicilio").value = p.transportista_calle || "";
         document.getElementById("deca_transp_cp").value = p.transportista_cp || "";
         document.getElementById("deca_transp_poblacion").value = p.transportista_poblacion || "";
         document.getElementById("deca_transp_provincia").value = p.transportista_provincia || "";
     }
 
-
-    if (p.mercancia_peso) {
-        const pesoRaw = p.mercancia_peso || "0";
-        if (pesoRaw.includes(" ")) {
-            const trozos = pesoRaw.split(" ");
-            document.getElementById("deca_mercan_peso").value = trozos[0] || "";
-            document.getElementById("deca_mercan_unidad").value = trozos[1] || "kg";
-        } else {
-            document.getElementById("deca_mercan_peso").value = pesoRaw.replace(/[^0-9]/g, "");
-            document.getElementById("deca_mercan_unidad").value = "kg";
-        }
-    }
+    // Auto-relleno de las matrículas del Bloque 3 (Aplica para ambos roles)
+    if (p.matricula_tractor) document.getElementById("deca_vehiculo").value = p.matricula_tractor;
+    if (p.matricula_remolque) document.getElementById("deca_remolque").value = p.matricula_remolque;
 
     mostrarAvisoToast("⭐ Formulario auto-rellenado desde plantilla online");
 }
+
 
 
 
@@ -6662,27 +6918,57 @@ function ejecutarAltaNuevaRegistroInicial() {
         // 🔥 PUENTE DE SEGURIDAD REQUERIDO: Enlazamos estructuraPerfilNuevo a estructuraPerfil para evitar el error de indefinición
         var estructuraPerfil = estructuraPerfilNuevo;
 
-        const deCADemostracionPrivado = {
-            numero_documento: "DeCA-2026-000000",
-            fecha_transporte: "2026-10-06",
-            matricula_tractor: estructuraPerfil.matricula_tractor || "1111 AAA",
-            matricula_remolque: estructuraPerfil.matricula_remolque || "R-2222 BBB",
-            origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
-            destino_plaza: "CALLE DESTINO, 28 - 16660 LAS PEDROÑERAS (CUENCA) - ESPAÑA",
-            mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM. (MUESTRA PRIVADA)",
-            mercancia_peso: "23.000 kg",
-            mercancia_bultos: "23",
-            qr_caducidad: "2026-10-13",
-            estado: "EN_CURSO",
-            cargador_razon: "CARGADOR EJEMPLO, S.L.",
-            cargador_nif: "A00000000",
-            cargador_domicilio: "CALLE CENTRAL, 10 (CP: 16650 - LAS MESAS - CUENCA)",
-            // 🚀 SELLADO DE DIRECCIÓN SEGMENTADA: Rellenamos las tres casillas para el visor del chofer
-            cargador_cp: "16650",
-            cargador_poblacion: "LAS MESAS",
-            cargador_provincia: "CUENCA",
-            transportista_razon: estructuraPerfil.razon_social
-        };
+                // 📅 CÁLCULO DE FECHAS EN VIVO PARA EL VIAJE DE MUESTRA
+                const objFechaMuestra = new Date();
+                const cadenaHoyMuestra = objFechaMuestra.getFullYear() + '-' + String(objFechaMuestra.getMonth() + 1).padStart(2, '0') + '-' + String(objFechaMuestra.getDate()).padStart(2, '0');
+
+                let objCaducidadMuestra = new Date(objFechaMuestra);
+                objCaducidadMuestra.setDate(objCaducidadMuestra.getDate() + 7);
+                const cadenaCaducidadMuestra = objCaducidadMuestra.getFullYear() + '-' + String(objCaducidadMuestra.getMonth() + 1).padStart(2, '0') + '-' + String(objCaducidadMuestra.getDate()).padStart(2, '0');
+
+                const deCADemostracionPrivado = {
+                    numero_documento: "DeCA-2026-000000",
+                    fecha_transporte: cadenaHoyMuestra, // 🟢 Fecha de hoy en vivo
+                    matricula_tractor: estructuraPerfil.matricula_tractor || "1111 AAA",
+                    matricula_remolque: estructuraPerfil.matricula_remolque || "R-2222 BBB",
+                    origen_plaza: "LAS MESAS (CUENCA) - ESPAÑA",
+                    destino_plaza: "MOTO DEL CUERVO (CUENCA) - ESPAÑA",
+                    mercancia_nombre: "AJO SPRING VIOLETA CAL. 55/60 MM.",
+                    mercancia_peso: "12.000 KG",
+                    mercancia_bultos: "12",
+                    qr_caducidad: cadenaCaducidadMuestra, // 🟢 QR Vigente durante 7 días
+                    estado: "EN_CURSO",
+                    cargador_razon: "CARGADOR EJEMPLO, S.L.",
+                    cargador_nif: "A00000000",
+                    cargador_domicilio: "CALLE CENTRAL, 10 (CP: 16650 - LAS MESAS - CUENCA)",
+                    cargador_cp: "16650",
+                    cargador_poblacion: "LAS MESAS",
+                    cargador_provincia: "CUENCA",
+                    transportista_razon: estructuraPerfil.razon_social,
+
+                    // 🚀 GRUPAJE MULTI-ENVÍO: Inyección nativa de 2 envíos de prueba
+                    envios_grupaje: [
+                        {
+                            numero_secuencial: 1,
+                            fecha: cadenaHoyMuestra,
+                            origen: "LAS MESAS (CUENCA) - ESPAÑA",
+                            destino: "MOTO DEL CUERVO (CUENCA) - ESPAÑA",
+                            mercancia: "AJO SPRING VIOLETA CAL. 55/60 MM.",
+                            cantidad: "12.000 KG",
+                            bultos: "12"
+                        },
+                        {
+                            numero_secuencial: 2,
+                            fecha: cadenaHoyMuestra,
+                            origen: "LAS MESAS (CUENCA) - ESPAÑA",
+                            destino: "MADRID (CENTRAL) - ESPAÑA",
+                            mercancia: "PALETS PRODUCTO TERMINADO (AJOS)",
+                            cantidad: "11.000 KG",
+                            bultos: "11"
+                        }
+                    ]
+                };
+
 
 
         // Escribimos toda la estructura junta en un solo bloque atómico para que no sufra cortes
@@ -8198,7 +8484,7 @@ var esCargadorActivo = document.body.classList.contains("rol-cargador-activo");
 var colorCabeceraGrupaje = esCargadorActivo ? "#1e7e34" : "#0f4c81";
 
 var listadoEnviosHtml = '<div class="folio-header-azul" style="border:1px solid ' + colorCabeceraGrupaje + ' !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:' + colorCabeceraGrupaje + ' !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Detalle de Envíos y Cargas (Grupaje Art. 6.D)</div>' +
-                        '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
+                        '<div style="width:100% !important; display:table !important; table-layout:fixed !important; box-sizing:border-box; border:1px solid #111111; border-top:none; border-bottom:none;">'; // 🟢 Forzado comportamiento tabular libre de fallos
 
 viajeActivo.envios_grupaje.forEach(function(envio) {
     var nSec = envio.numero_secuencial || 1;
@@ -8208,12 +8494,20 @@ viajeActivo.envios_grupaje.forEach(function(envio) {
     var cant = envio.cantidad || "---";
     var bult = envio.bultos || "---";
 
-    listadoEnviosHtml += '<div style="display:flex; width:100%; box-sizing:border-box; border-bottom:1px solid #111111; background:#ffffff; font-size:11px; color:#111111; min-height:38px;">' +
-        '<div style="width:7%; padding:5px; border-right:1px solid #111111; font-weight:bold; color:' + colorCabeceraGrupaje + '; text-align:center; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">' + nSec + '</div>' +
-        '<div style="width:43%; padding:5px; border-right:1px solid #111111; line-height:1.3; display:flex; align-items:center; box-sizing:border-box;">' + orig + ' <span style="color:#fd7e14; font-weight:bold; margin:0 3px;">➔</span> ' + dest + '</div>' +
-        '<div style="width:50%; padding:5px; display:flex; flex-direction:column; justify-content:center; box-sizing:border-box;"><strong style="text-transform:uppercase; color:#111111;">' + merc + '</strong><span style="font-size:10px; color:#444; margin-top:2px; font-weight:bold;">Cantidad: ' + cant + ' | Bultos: ' + bult + '</span></div>' +
+    // 🚀 BLINDAJE TABULAR: Cambiamos flexbox por celdas nativas (display: table-row y table-cell)
+    listadoEnviosHtml += '<div style="display:table-row !important; width:100% !important; background:#ffffff; font-size:11px; color:#111111;">' +
+        // Celda 1: Número secuencial
+        '<div style="display:table-cell !important; width:7% !important; padding:8px 5px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; font-weight:bold; color:' + colorCabeceraGrupaje + '; text-align:center; vertical-align:middle; box-sizing:border-box;">' + nSec + '</div>' +
+        // Celda 2: Ruta Comercial (Origen ➔ Destino)
+        '<div style="display:table-cell !important; width:43% !important; padding:8px 6px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; line-height:1.4; vertical-align:middle; box-sizing:border-box; word-break:break-word;">' + orig + ' <span style="color:#fd7e14; font-weight:bold; margin:0 2px;">➔</span> <br>' + dest + '</div>' +
+        // Celda 3: Detalle de Carga y Magnitudes (Crece libremente hacia abajo sin pisar nada)
+        '<div style="display:table-cell !important; width:50% !important; padding:8px 6px !important; border-bottom:1px solid #111111; vertical-align:middle; box-sizing:border-box; word-break:break-word; text-align:left;">' +
+            '<strong style="text-transform:uppercase; color:#111111; display:block; margin-bottom:3px; line-height:1.3;">' + merc + '</strong>' +
+            '<span style="font-size:10px; color:#444444; font-weight:bold; display:block; line-height:1.2;">Cantidad: ' + cant + ' <br> Bultos: ' + bult + '</span>' +
+        '</div>' +
     '</div>';
 });
+
 
 
                     listadoEnviosHtml += '</div>';
@@ -8440,11 +8734,18 @@ viajeActivo.envios_grupaje.forEach(function(envio) {
 
             <!-- BLOQUE 5: OBSERVACIONES -->
             <div class="bloque-formulario-deca">
-                <div class="deca-num-titulo"><span class="deca-num-circulo">5</span> Observaciones</div>
-                <div class="deca-form-grupo ancho-completo">
+                <div class="deca-num-titulo"><span class="deca-num-circulo">5</span> Observaciones y Automatizaciones</div>
+                <div class="deca-form-grupo ancho-completo" style="margin-bottom: 12px;">
                     <textarea id="deca_observaciones" class="deca-input" rows="3" placeholder="Reservas o indicaciones de los intervinientes" style="resize: none; font-family: inherit;"></textarea>
                 </div>
+
+                <!-- ⭐ CASILLA PREMIUM: GUARDAR RUTA COMO PLANTILLA AL GENERAR DECA -->
+                <div style="display: flex; align-items: center; gap: 8px; background: rgba(15, 76, 129, 0.05); padding: 10px; border-radius: 6px; border: 1px dashed var(--blue-primary); box-sizing: border-box; text-align: left; width: 100%; cursor: pointer;" onclick="var chk = document.getElementById('chk_guardar_plantilla_auto'); chk.checked = !chk.checked;" id="contenedor_chk_plantilla_auto">
+                    <input type="checkbox" id="chk_guardar_plantilla_auto" style="width: 18px; height: 18px; cursor: pointer; margin: 0; flex-shrink: 0;" onclick="event.stopPropagation();">
+                    <label style="font-size: 12px; font-weight: bold; color: var(--blue-primary); cursor: pointer; margin: 0; text-transform: none !important;" id="lbl_chk_plantilla_auto">⭐ Guardar esta configuración de viaje como Plantilla Frecuente al generar</label>
+                </div>
             </div>
+
 
             <p style="font-size: 11px; color: #718096; line-height: 1.4; margin: 5px 0 0 0;">
                 <strong>Disponibilidad automática:</strong> el PDF se genera antes del inicio del servicio con fecha y hora de creación registradas. La descarga por QR queda activa durante el servicio y hasta <strong>7 días naturales</strong> después de su finalización. El documento se conserva 1 año.
@@ -8966,8 +9267,8 @@ viajeActivo.envios_grupaje.forEach(function(envio) {
                         <div class="deca-form-grupo">
                             <label>Tipo de Operador Comercial <span>*</span></label>
                             <select id="reg_inicial_rol" class="deca-input" style="height:38px; width:100%; font-weight:bold;">
-                                <option value="TRANSPORTISTA">🚚 EMPRESA / AUTÓNOMO TRANSPORTISTA</option>
-                                <option value="CARGADOR">🏢 EMPRESA / AUTÓNOMO CARGADOR (CONTRATANTE)</option>
+                                <option value="TRANSPORTISTA">🚚 TRANSPORTISTA</option>
+                                <option value="CARGADOR">🏢 CARGADOR (CONTRATANTE)</option>
                             </select>
                         </div>
                         <div class="deca-form-grupo">
