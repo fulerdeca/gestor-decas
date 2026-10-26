@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v5.04</title>
+    <title>Gestor de DeCAs Transportes v5.03</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1221,7 +1221,7 @@ body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #44
    REPARACIÓN GEOMÉTRICA INTEGRAL DEL VISOR DECA (SIN SCROLL HORIZONTAL)
    ========================================================================== */
 .modal-preview-deca {
-    display: none;
+    display: none; /* 🔒 Obliga a nacer cerrado al actualizar */
     position: fixed;
     z-index: 500000;
     left: 0;
@@ -1229,23 +1229,25 @@ body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #44
     width: 100vw;
     height: 100vh;
     background-color: rgba(0,0,0,0.5);
-    display: flex; /* Asegura el motor flexbase */
-    align-items: center !important; /* Clava el centrado vertical */
-    justify-content: center !important; /* Clava el centrado horizontal */
+    align-items: center; /* Centrado vertical nativo */
+    justify-content: center; /* Centrado horizontal nativo */
     box-sizing: border-box;
 }
 
+
+
+
 .preview-container {
     background-color: #f0f4f8;
-    border-radius: 12px !important; /* 🌟 Recupera tus bordes curvos premium */
-    width: 96% !important;
-    max-width: 780px !important; /* Mantiene tu pasillo elástico de aire derecho */
-    height: 92vh !important; /* 🔒 CONGELADOR DE ALTURA: Fijo igual que las altas */
+    border-radius: 12px !important; /* Recupera tus bordes curvos oficiales */
+    width: 94% !important; /* Ancho idéntico al de Nuevo DeCA */
+    max-width: 800px !important; /* Tamaño exacto de tus otros formularios */
+    height: 92vh !important; /* Altura congelada de búnker con scroll interno */
     box-shadow: 0 8px 30px rgba(0,0,0,0.3);
     box-sizing: border-box !important;
     display: flex;
     flex-direction: column;
-    overflow: hidden !important; /* El contenedor no se estira, se queda rígido */
+    overflow: hidden !important; /* Bloquea el estiramiento y fuerza el scroll dentro */
 }
 
 
@@ -2939,8 +2941,8 @@ function iniciarEcosistemaDeCAs() {
             #canvas_render_qr_gigante canvas { display: none !important; }
             #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
 
-            #modal_preview_deca { display: flex !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.5) !important; z-index: 999999 !important; align-items: center !important; justify-content: center !important; box-sizing: border-box !important; }
-            .preview-container { background-color: #f0f4f8 !important; border-radius: 12px !important; width: 96% !important; max-width: 780px !important; height: 92vh !important; box-shadow: 0 8px 30px rgba(0,0,0,0.3) !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; }
+            #modal_preview_deca { display: block !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0,0,0,0.5) !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+            .preview-container { width: 96% !important; max-width: 780px !important; height: auto !important; background: #f0f4f8 !important; border-radius: 12px !important; box-shadow: 0 8px 30px rgba(0,0,0,0.3) !important; margin: 40px auto !important; display: flex !important; flex-direction: column !important; overflow: visible !important; }
 
             .preview-container .deca-modal-cabecera { display: none !important; }
             .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
@@ -4621,19 +4623,18 @@ if (cadenaHoyRígida > doc.qr_caducidad) {
 
         urlControlQRGiganteActivo = enlaceInspeccionReal;
 
-// 🚀 REPARACIÓN DE CENTRADO MÁSTER: Forzamos el display flexible para clavar el modal en el centro de la pantalla
+// 🚀 APERTURA SIMÉTRICA Y CENTRADA: Activamos el visor usando el motor flexbase nativo
 const capaModalPreview = document.getElementById("modal_preview_deca");
 if (capaModalPreview) {
-    capaModalPreview.style.setProperty("display", "flex", "important");
+    capaModalPreview.style.display = "flex";
+    capaModalPreview.scrollTop = 0;
 }
 
-// 🎯 ANCLAJE DE CABECERA: Forzamos de forma estricta a que el contenedor de las tablas empiece arriba del todo
+// 🎯 ANCLAJE DE CABECERA: Forzamos a que el folio empiece estrictamente arriba del todo
 const capaScrollInterna = document.querySelector(".preview-cuerpo-scroll");
 if (capaScrollInterna) {
     capaScrollInterna.scrollTop = 0;
 }
-
-window.scrollTo(0, 0);
 
 
 
