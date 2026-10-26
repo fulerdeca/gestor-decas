@@ -839,115 +839,79 @@
 
 
 <script>
-    // SENSOR ULTRA-RÁPIDO EN FRÍO: Actúa en el milisegundo cero, antes de cargar Firebase
-    (function() {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("verificar") && params.get("user")) {
-            // Marcamos el body inmediatamente para que el CSS borre la interfaz de la pantalla
-            document.documentElement.classList.add("modo-escaneo-agente");
-            document.addEventListener("DOMContentLoaded", function() {
-                document.body.classList.add("modo-escaneo-agente");
+// =========================================================================
+// 👮 SENSOR ULTRA-RÁPIDO EN FRÍO (v4.97 OPTIMIZADO MULTI-NAVEGADOR)
+// =========================================================================
+if (window.location.search.includes("verificar") && !window.decaImpresionAutomaticaEjecutada) {
+    window.decaImpresionAutomaticaEjecutada = true; // Candado anti-bucles
+    console.log("👮 Radar activado: Preparando pasarela elástica para Inspección...");
 
-                // Conectamos un radar permanente para interceptar los datos de Firebase en cuanto lleguen
-                const urlGateway = localStorage.getItem("cfg_gateway_url_deca") || "https://githubusercontent.com";
+    // ⏳ Pasillo de cortesía de 1.5 segundos: Da tiempo a Firefox a cargar fuentes y evita textos justificados
+    setTimeout(function() {
+        try {
+            var elementoFolio = document.querySelector(".folio-deca");
+            var numDoc = (typeof doc !== 'undefined' && doc.numero_documento) ? doc.numero_documento : "DeCA_Inspeccion";
 
-                fetch(urlGateway)
-                .then(res => res.json())
-                .then(config => {
-                    if (firebase.apps.length === 0) firebase.initializeApp(config);
+            if (elementoFolio) {
+                // Inyectamos en caliente reglas de corte limpio para evitar que mutile líneas de texto por la mitad
+                var estiloCorteLimpio = document.createElement("style");
+                estiloCorteLimpio.innerHTML = `
+                    .folio-tabla, tr, td, p, div, .bloque-formulario-deca, [style*="display:table-row"] {
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                    }
+                `;
+                document.head.appendChild(estiloCorteLimpio);
 
-                    // Apuntamos al nodo del documento directamente
-                    firebase.database().ref('usuarios/' + params.get("user") + '/documentos_deca/' + params.get("verificar"))
-                    .on('value', function(snapshot) {
-                        if (!snapshot.exists()) return;
-                        const doc = snapshot.val();
+                // Configuración matemática de alta definición
+                var opcionesAvanzadasPDF = {
+                    margin:, // Márgenes físicos equilibrados
+                    filename:     numDoc + '.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, letterRendering: true, logging: false },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    // 🚀 LA CLAVE: Forzamos al motor a aplicar cortes elásticos evitando separar líneas
+                    pagebreak:    { mode: ['css', 'legacy'] }
+                };
 
-                        if (doc && doc.qr_caducidad) {
-                            const [ano, mes, dia] = doc.qr_caducidad.split("-").map(Number);
-                            const tLimite = new Date(ano, mes - 1, dia, 23, 59, 59, 999).getTime();
-
-                            if (Date.now() > tLimite) {
-                                // 🚫 CASO CADUCADO: Bloqueo fulminante
-                                window.decaImpresionAutomaticaEjecutada = true;
-                                document.body.className = "modo-escaneo-agente deca-expirado-bloqueado";
-
-                                const lblFecha = document.getElementById("txt_fecha_expiracion_cabecera");
-                                if (lblFecha && doc.qr_caducidad && doc.qr_caducidad.includes("-")) {
-                                    const trozosQ = doc.qr_caducidad.split("-");
-                                    lblFecha.innerText = trozosQ[2] + "/" + trozosQ[1] + "/" + trozosQ[0];
-                                }
-
-                                document.getElementById("modal_preview_deca").style.setProperty("display", "flex", "important");
-                                document.getElementById("modal_cortafuegos_expirado_deca").style.setProperty("display", "flex", "important");
-
-                                const btnRechazo = document.querySelector("#modal_cortafuegos_expirado_deca button");
-                                if (btnRechazo) {
-                                    btnRechazo.innerText = "ACCESO RECHAZADO (EXPIRADO)";
-                                    btnRechazo.style.setProperty("background", "#dc3545", "important");
-                                    btnRechazo.onclick = function(e) { e.preventDefault(); alert("Documento fuera de plazo legal."); };
-                                }
-                             } else {
-                                  // 🟢 CASO VÁLIDO REPARADO: Ocultación total de la web y pantalla de carga premium
-                                document.body.classList.remove("deca-expirado-bloqueado");
-
-                                // Creamos un tapiz de carga profesional que pulveriza el folio cortado
-                                const estiloMuroCargaAgente = document.createElement("style");
-                                estiloMuroCargaAgente.innerHTML = `
-                                    body.modo-escaneo-agente {
-                                        background: #0b101a !important;
-                                        display: flex !important;
-                                        align-items: center !important;
-                                        justify-content: center !important;
-                                        height: 100vh !important;
-                                        width: 100vw !important;
-                                        margin: 0 !important;
-                                        overflow: hidden !important;
-                                    }
-                                    /* Pulverizamos el visor defectuoso de fondo */
-                                    #modal_preview_deca {
-                                        display: none !important;
-                                        visibility: hidden !important;
-                                    }
-                                    /* Construcción del contenedor de progreso central */
-                                    .deca-cargador-agente-bunker {
-                                        text-align: center !important;
-                                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                                        color: #ffffff !important;
-                                    }
-                                    .deca-spinner-vectorial {
-                                        width: 44px;
-                                        height: 44px;
-                                        border: 4px solid rgba(255,255,255,0.15);
-                                        border-top-color: #28a745;
-                                        border-radius: 50%;
-                                        margin: 0 auto 15px auto;
-                                        animation: decaGiroSpinner 0.8s infinite linear;
-                                    }
-                                    @keyframes decaGiroSpinner {
-                                        0% { transform: rotate(0deg); }
-                                        100% { transform: rotate(360deg); }
-                                    }
-                                `;
-                                document.head.appendChild(estiloMuroCargaAgente);
-
-                                // Inyectamos el componente visual de carga en mitad de la lona negra
-                                const contenedorProgreso = document.createElement("div");
-                                contenedorProgreso.className = "deca-cargador-agente-bunker";
-                                contenedorProgreso.innerHTML = `
-                                    <div class="deca-spinner-vectorial"></div>
-                                    <h3 style="margin:0 0 5px 0; font-size:16px; font-weight:bold; letter-spacing:0.5px; color:#ffffff !important;">INSPECCIÓN DE TRANSPORTE TERRESTRE</h3>
-                                    <p style="margin:0; font-size:12px; color:#a0aec0 !important;">Descargando documento de control digital original...</p>
-                                `;
-                                document.body.appendChild(contenedorProgreso);
-
-                            }
-
-                        }
-                    });
+                // Ejecutamos el disparo de descarga
+                html2pdf().set(opcionesAvanzadasPDF).from(elementoFolio).save()
+                .then(function() {
+                    if (typeof mostrarAvisoToast === 'function') {
+                        mostrarAvisoToast("✅ Fichero PDF transferido al dispositivo.");
+                    }
+                })
+                .catch(function(errorDescarga) {
+                    console.warn("Firefox o cortafuegos ha retenido la descarga en frío:", errorDescarga);
+                    crearBotonRescateManualAgente(elementoFolio, opcionesAvanzadasPDF);
                 });
-            });
+
+            }
+        } catch (err) {
+            console.error("Error residual en el motor de frío:", err);
         }
-    })();
+    }, 1500);
+}
+
+// 🛡️ COMPONENTE DE RESCATE: Si Firefox bloquea la descarga, muestra un botón gigante inmune a bloqueos
+function crearBotonRescateManualAgente(elemento, opciones) {
+    if (document.getElementById("btn_rescate_pdf_agente")) return;
+
+    var cajaBoton = document.createElement("div");
+    cajaBoton.id = "btn_rescate_pdf_agente";
+    cajaBoton.style = "position:fixed; bottom:25px; left:5%; width:90%; background:#28a745; color:#ffffff; text-align:center; padding:15px; font-weight:bold; font-size:14px; border-radius:8px; z-index:9999999; box-shadow:0 4px 15px rgba(0,0,0,0.5); cursor:pointer; font-family:sans-serif;";
+    cajaBoton.innerHTML = "📥 PULSE AQUÍ PARA GUARDAR PDF (REQUERIDO EN FIREFOX)";
+
+    cajaBoton.onclick = function() {
+        html2pdf().set(opciones).from(elemento).save()
+        .then(function() {
+            cajaBoton.style.display = "none";
+        });
+    };
+
+    document.body.appendChild(cajaBoton);
+}
+
 </script>
 
 
