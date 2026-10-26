@@ -2926,11 +2926,32 @@ function iniciarEcosistemaDeCAs() {
             #canvas_render_qr_gigante canvas { display: none !important; }
             #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
 
-#modal_preview_deca { display: block !important; position: absolute !important; left: 0 !important; top: 0 !important; width: 100vw !important; min-height: 100vh !important; height: auto !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: visible !important; }
+#modal_preview_deca {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    background: #525659 !important;
+    overflow-y: visible !important;
+    z-index: 999999 !important;
+}
+.preview-cuerpo-scroll {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    padding: 40px 10px !important; /* Añade pasillo de aire arriba y abajo */
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    background: #525659 !important;
+}
+
 
             .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
             .preview-container .deca-modal-cabecera { display: none !important; }
-            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
             .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
             .preview-pie-botones { display: none !important; }
             #bloque_banners_normativos_app { display: none !important; }
