@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v5.00</title>
+    <title>Gestor de DeCAs Transportes v5.02</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1229,29 +1229,26 @@ body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #44
     width: 100vw;
     height: 100vh;
     background-color: rgba(0,0,0,0.5);
-    align-items: center;
-    justify-content: center;
     box-sizing: border-box;
+    overflow-y: auto !important; /* Libera el scroll por abajo */
+    -webkit-overflow-scrolling: touch;
 }
 
-/* ==========================================================================
-   ENSANCHAMIENTO DE SEGURIDAD GENERAL DEL VISOR DECA (MÁRGENES CORREGIDOS)
-   ========================================================================== */
 .preview-container {
     background-color: #f0f4f8;
     border-radius: 12px;
     width: 96% !important;
-
-    /* 🚀 LA CLAVE: Ampliamos de 740px a 780px para dar pasillo y aire en el lateral derecho */
     max-width: 780px !important;
-
-    height: 92vh;
+    height: auto !important; /* Elimina la guillotina del 92vh */
+    min-height: min-content;
+    margin: 40px auto !important; /* Centra el modal en horizontal en modo block */
     box-shadow: 0 8px 30px rgba(0,0,0,0.3);
     box-sizing: border-box !important;
     display: flex;
     flex-direction: column;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
+
 
 /* === REPARACIÓN GEOMÉTRICA DE ALTA FIDELIDAD: PASILLO DE RESPIRACIÓN SIMÉTRICO === */
 .preview-cuerpo-scroll {
