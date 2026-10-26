@@ -1533,23 +1533,42 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         visibility: hidden !important;
     }
 
-    /* Liberamos las capas contenedoras de cualquier restricción flex o altura fija */
+    /* 🚀 BLINDAJE DE ALTURA MÁSTER: Forzamos la destrucción de las cajas fijas de la APK para liberar las páginas */
     .modal-preview-deca,
     #modal_preview_deca,
     .preview-container,
-    .preview-cuerpo-scroll {
+    .preview-cuerpo-scroll,
+    .modal-deca-gigante,
+    .deca-modal-contenido,
+    .deca-modal-cuerpo {
         display: block !important;
+        position: relative !important;
         width: 100% !important;
+
+        /* 🔒 EL TRUCO INDESTRUCTIBLE: Rompe el techo de los vh/píxeles fijos y pulveriza la barra de scroll gris */
         height: auto !important;
+        min-height: 0 !important;
         max-height: none !important;
         overflow: visible !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+
+        /* Limpieza absoluta de pasillos comerciales */
         background: #ffffff !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
         box-sizing: border-box !important;
-        position: relative !important;
     }
+
+    /* Forzado complementario de reset sobre el lienzo base de impresión */
+    html, body {
+        height: auto !important;
+        overflow: visible !important;
+    }
+
 
     /* 📄 EL FOLIO BLANCO REGLAMENTARIO ELÁSTICO */
     .folio-deca {
