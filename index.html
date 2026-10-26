@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.92</title>
+    <title>Gestor de DeCAs Transportes v4.94</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -13,6 +13,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <!-- Motor oficial de renderizado de códigos QR rápidos y ligeros -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- Motor oficial de conversión de HTML a PDF físico para compatibilidad con APKs Android -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 
 <style>  /* === BLOQUE 1 DE ESTILOS OPTIMIZADO (PARTE 1 DE 2) === */
@@ -4771,7 +4773,8 @@ function abrirModalQRGiganteNativo() {
     }, 120);
 }
 
-// Descarga PDF para Dispositivos y APK Móvil (v4.76 BYPASS CONDUCTOR)
+
+// Descarga PDF para Dispositivos y APK Móvil (v4.95 ADAPTACIÓN ANDROID)
 function forzarDescargaPDFDesdeVisorInterno() {
     const capaToast = document.getElementById("toast_deca");
     if (capaToast) {
@@ -4779,31 +4782,59 @@ function forzarDescargaPDFDesdeVisorInterno() {
         capaToast.innerHTML = "";
     }
 
-    // Si la URL contiene el parámetro "verificar", es el agente en web; de lo contrario, es el conductor en su app
     const esVistaDelAgenteWeb = window.location.search.includes("verificar");
 
     if (esVistaDelAgenteWeb) {
         console.log("📱 Entorno Agente Web: Redirigiendo a pasarela segura...");
         abrirPDFVirtualDesdeDashboard(idDocumentoEnEdicion);
     } else {
-        // El conductor en su APK/App siempre salta la validación y genera el PDF directo
+        // 🚚 ENTORNO APK / CONDUCTOR: Detectamos si es un smartphone para esquivar el fallo de window.print()
+        const esDispositivoMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
-        const tituloOriginalPestaña = document.title;
-        document.title = numeroDeCA;
 
-        setTimeout(() => {
-            try {
+        if (esDispositivoMovil) {
+            mostrarAvisoToast("⏳ Procesando PDF de alta fidelidad...");
+
+            // Seleccionamos el folio blanco máster
+            const elementoFolio = document.querySelector(".folio-deca");
+
+            // Configuración matemática para clabar el folio en 1 página A4 justa sin romper las tablas
+            const opcionesConfiguracion = {
+                margin:       10, // Margen elástico perimetral en milímetros (10mm)
+                filename:     `${numeroDeCA}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true }, // Duplica la resolución del QR y textos
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' } // Forzado de tamaño estándar de Tráfico
+            };
+
+            // Ejecutamos el motor de renderizado y descarga directa en el almacenamiento del teléfono
+            html2pdf().set(opcionesConfiguracion).from(elementoFolio).save()
+            .then(() => {
+                mostrarAvisoToast("✅ Fichero PDF guardado en Descargas.");
+            })
+            .catch(err => {
+                console.warn("Fallo en motor html2pdf, usando respaldo:", err);
                 window.print();
-                document.title = tituloOriginalPestaña;
-                mostrarAvisoToast("✅ Captura PDF transferida correctamente.");
-            } catch (err) {
-                console.warn("Aviso en el motor de descarga del visor:", err);
-                document.title = tituloOriginalPestaña;
-            }
-        }, 150);
+            });
+
+        } else {
+            // El ordenador en PC sigue manteniendo su comportamiento nativo rápido de escritorio
+            const tituloOriginalPestaña = document.title;
+            document.title = numeroDeCA;
+
+            setTimeout(() => {
+                try {
+                    window.print();
+                    document.title = tituloOriginalPestaña;
+                    mostrarAvisoToast("✅ Captura de impresión transferida.");
+                } catch (err) {
+                    console.warn("Aviso en el motor de descarga del visor:", err);
+                    document.title = tituloOriginalPestaña;
+                }
+            }, 150);
+        }
     }
 }
-
 
 
 
@@ -7919,8 +7950,9 @@ function validarCampoJustificacionMotivoCambio() {
     return true; // Acceso autorizado
 }
 
+
 // =========================================================================
-// 🧠 MOTOR DE AUDITORÍA: COMPARADOR DE DIFERENCIAS "ANTES -> AHORA" (v4.67)
+// 🧠 MOTOR DE AUDITORÍA: COMPARADOR DE DIFERENCIAS "ANTES -> AHORA" (v4.92 BLINDAJE GRUPAJES)
 // =========================================================================
 function ejecutarPasarelaComparativaAuditoria(paqueteNuevosDatos) {
     const viajeOriginal = documentosDeCA.find(item => item.id_firebase === idDocumentoEnEdicion);
@@ -7947,64 +7979,114 @@ function ejecutarPasarelaComparativaAuditoria(paqueteNuevosDatos) {
 
     let matrizDiferenciasDetectadas = [];
 
-// Matriz de mapeo ampliada: [Propiedad del objeto, Nombre legible para el chófer] (v4.84)
-const camposAComparar = [
-    ["origen_plaza", "ENVÍO · ORIGEN"],
-    ["destino_plaza", "ENVÍO · DESTINO"],
-    ["mercancia_nombre", "ENVÍO · MERCANCÍA"],
-    ["mercancia_peso", "ENVÍO · CANTIDAD"],
-    ["mercancia_bultos", "ENVÍO · BULTOS"],              // 🚀 SENSOR DE BULTOS REGISTRADO (NO OBLIGATORIO DE CONFIGURAR PERO SÍ DE AUDITAR)
-    ["fecha_transporte", "FECHA INICIO SERVICIO"],
-    ["fecha_fin_servicio", "FECHA FIN DE SERVICIO"]
-];
+    // 1. COMPARACIÓN DE CAMPOS MAESTROS RAÍZ
+    const camposAComparar = [
+        ["fecha_transporte", "FECHA INICIO SERVICIO"],
+        ["fecha_fin_servicio", "FECHA FIN DE SERVICIO"],
+        ["matricula_tractor", "VEHÍCULO (TRACTOR)"],
+        ["matricula_remolque", "REMOLQUE"],
+        ["observaciones_indicaciones", "OBSERVACIONES"]
+    ];
 
-
-    // Recorremos y comparamos matemáticamente las propiedades
     camposAComparar.forEach(([propiedad, etiquetaLegible]) => {
         const valorViejo = (viajeOriginal[propiedad] || "").trim().toUpperCase();
         const valorNuevo = (paqueteNuevosDatos[propiedad] || "").trim().toUpperCase();
 
-        if (valorViejo !== valorNuevo && valorNuevo !== "") {
+        if (valorViejo !== valorNuevo) {
             matrizDiferenciasDetectadas.push({
                 etiqueta: etiquetaLegible,
                 antes: viajeOriginal[propiedad] || "---",
-                ahora: paqueteNuevosDatos[propiedad]
+                ahora: paqueteNuevosDatos[propiedad] || "---"
             });
         }
     });
 
-    // 🛡️ CORTAFUEGOS DE SEGURIDAD LEGAL: Si el conductor le dio a editar pero no alteró ningún dato,
-    // el sistema no tiene nada que auditar ni justificar. Avisamos corporativamente.
+    // 2. 🚚 ESCÁNER RADAR DE GRUPAJES (COMPARACIÓN DE ENVÍOS MÚLTIPLES)
+    let enviosViejos = [];
+    if (viajeOriginal.envios_grupaje) {
+        enviosViejos = Array.isArray(viajeOriginal.envios_grupaje) ? viajeOriginal.envios_grupaje : Object.values(viajeOriginal.envios_grupaje);
+    }
+    const enviosNuevos = paqueteNuevosDatos.envios_grupaje || [];
+
+    // Caso A: Ha variado el número total de envíos en el grupaje
+    if (enviosViejos.length !== enviosNuevos.length) {
+        matrizDiferenciasDetectadas.push({
+            etiqueta: "ESTRUCTURA DE GRUPAJE",
+            antes: `${enviosViejos.length} ENVÍO(S) EMITIDO(S)`,
+            ahora: `${enviosNuevos.length} ENVÍO(S) ACTUALIZADO(S)`
+        });
+    }
+
+    // Caso B: Escaneo celda por celda de cada envío para detectar mutaciones internas
+    const maxPasadas = Math.max(enviosViejos.length, enviosNuevos.length);
+    for (let i = 0; i < maxPasadas; i++) {
+        const evViejo = enviosViejos[i];
+        const evNuevo = enviosNuevos[i];
+
+        // Si el envío ya existía y sigue existiendo, fiscalizamos sus textos internos
+        if (evViejo && evNuevo) {
+            if ((evViejo.origen || "").trim().toUpperCase() !== (evNuevo.origen || "").trim().toUpperCase() ||
+                (evViejo.destino || "").trim().toUpperCase() !== (evNuevo.destino || "").trim().toUpperCase()) {
+                matrizDiferenciasDetectadas.push({
+                    etiqueta: `ENVÍO N.º ${i + 1} · RUTA COMERCIAL`,
+                    antes: `${evViejo.origen || '---'} ➔ ${evViejo.destino || '---'}`,
+                    ahora: `${evNuevo.origen || '---'} ➔ ${evNuevo.destino || '---'}`
+                });
+            }
+            if ((evViejo.mercancia || "").trim().toUpperCase() !== (evNuevo.mercancia || "").trim().toUpperCase() ||
+                (evViejo.cantidad || "").trim().toUpperCase() !== (evNuevo.cantidad || "").trim().toUpperCase() ||
+                (evViejo.bultos || "").trim().toUpperCase() !== (evNuevo.bultos || "").trim().toUpperCase()) {
+                matrizDiferenciasDetectadas.push({
+                    etiqueta: `ENVÍO N.º ${i + 1} · DETALLE DE CARGA`,
+                    antes: `${evViejo.mercancia || '---'} (${evViejo.cantidad || '---'} / Bultos: ${evViejo.bultos || '---'})`,
+                    ahora: `${evNuevo.mercancia || '---'} (${evNuevo.cantidad || '---'} / Bultos: ${evNuevo.bultos || '---'})`
+                });
+            }
+        }
+        // Si es un envío completamente nuevo añadido en esta edición
+        else if (!evViejo && evNuevo) {
+            matrizDiferenciasDetectadas.push({
+                etiqueta: `NUEVO ENVÍO ANEXADO (N.º ${i + 1})`,
+                antes: "❌ NO EXISTÍA",
+                ahora: `${evNuevo.mercancia || '---'} (${evNuevo.origen || '---'} ➔ ${evNuevo.destino || '---'})`
+            });
+        }
+        // Si el envío ha sido eliminado del grupaje
+        else if (evViejo && !evNuevo) {
+            matrizDiferenciasDetectadas.push({
+                etiqueta: `ENVÍO RETIRADO (N.º ${i + 1})`,
+                antes: `${evViejo.mercancia || '---'} (${evViejo.origen || '---'} ➔ ${evViejo.destino || '---'})`,
+                ahora: "🗑️ ELIMINADO"
+            });
+        }
+    }
+
+    // 🛡️ CORTAFUEGOS DE SEGURIDAD LEGAL: Si no se alteró absolutamente nada
     if (matrizDiferenciasDetectadas.length === 0) {
         mostrarAlertaCorporativaDeca(
             "Sin Cambios Detectados",
-            "No se ha modificado ninguna de las magnitudes reguladas (Origen, Destino, Mercancía o Cantidad). Si desea añadir observaciones, hágalo en el campo de texto del formulario.",
+            "No se ha modificado ninguna magnitud ni se han alterado los bloques de envío. Si solo desea añadir reservas, use el campo de texto del formulario.",
             "📋"
         );
         return;
     }
 
-// Dibujamos las filas comparativas adaptando los formatos de fecha al vuelo
-contenedorDiferencias.innerHTML = matrizDiferenciasDetectadas.map(cambio => {
-    // Función rápida para pasar YYYY-MM-DD a DD/MM/YYYY en la lona de cambios
-    const formatearSiEsFecha = (str) => {
-        if (str && str.includes("-") && str.split("-").length === 3) {
-            return str.split("-").reverse().join("/");
-        }
-        return str;
-    };
+    // Dibujamos las filas comparativas adaptando formatos en la lona de cambios
+    contenedorDiferencias.innerHTML = matrizDiferenciasDetectadas.map(cambio => {
+        const formatearSiEsFecha = (str) => {
+            if (str && str.includes("-") && str.split("-").length === 3) {
+                return str.split("-").reverse().join("/");
+            }
+            return str;
+        };
 
-    const antesFormateado = formatearSiEsFecha(cambio.antes);
-    const ahoraFormateado = formatearSiEsFecha(cambio.ahora);
-
-    return `
-    <div style="font-size: 13px; color: #212529; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; line-height: 1.4;">
-        <span style="font-size: 10px; font-weight: bold; color: #718096; display: block; margin-bottom: 2px;">${cambio.etiqueta}</span>
-        <span style="text-decoration: line-through; color: #a0aec0; margin-right: 6px;">${antesFormateado}</span>
-        <span style="font-weight: bold; color: #212529;">➔ ${ahoraFormateado}</span>
-    </div>`;
-}).join("");
-
+        return `
+        <div style="font-size: 13px; color: #212529; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 4px; line-height: 1.4; text-align: left;">
+            <span style="font-size: 10px; font-weight: bold; color: #718096; display: block; margin-bottom: 2px;">${cambio.etiqueta}</span>
+            <span style="text-decoration: line-through; color: #a0aec0; margin-right: 6px;">${formatearSiEsFecha(cambio.antes)}</span>
+            <span style="font-weight: bold; color: #212529;">➔ ${formatearSiEsFecha(cambio.ahora)}</span>
+        </div>`;
+    }).join("");
 
     // Conectamos el botón de confirmación final pasándole los datos empaquetados por hardware
     document.getElementById("btn_confirmar_modificacion_final").onclick = function() {
@@ -8017,6 +8099,7 @@ contenedorDiferencias.innerHTML = matrizDiferenciasDetectadas.map(cambio => {
     // Levantamos el sub-modal en mitad de la pantalla
     modalAuditoria.style.display = "flex";
 }
+
 
 // =========================================================================
 // 🚀 EMISOR CON AUDITORÍA: SUBIDA DE GRUPAJE Y HISTORIAL A FIREBASE (v4.67)
