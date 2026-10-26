@@ -1498,112 +1498,82 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 /* ==========================================================================
    📄 MOTOR DE IMPRESIÓN REGLAMENTARIA MULTI-PÁGINA DeCA (BOE v4.95 CLEAN)
    ========================================================================== */
+/* ==========================================================================
+   📄 AISLAMIENTO QUIRÚRGICO DE IMPRESIÓN DeCA (BOE v4.96 ANTI-REPETICIONES)
+   ========================================================================== */
 @media print {
+    /* 1. CONFIGURACIÓN DEL LIENZO: Márgenes físicos limpios del folio */
     @page {
-        /* Margen físico mínimo reglamentario de 12mm para evitar que las impresoras de Tráfico rasuren texto */
-        margin: 12mm 15mm 15mm 15mm !important;
-        size: auto !important; /* Auto-adaptación matemática a Carta / A4 nativa */
+        margin: 15mm 15mm 15mm 15mm !important;
+        size: auto !important; /* Adaptación matemática a Carta / A4 nativa */
     }
 
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
-        color: #000000 !important;
-        /* 🚀 LIBERACIÓN DE CÁRCELES: Permitimos que el cuerpo elástico fluya verticalmente en múltiples hojas */
-        display: block !important;
-        height: auto !important;
-        min-height: 0 !important;
-        overflow: visible !important;
-    }
-
-    /* Ocultación rígida de paneles comerciales, botones de pasarelas y chivatos */
-    #bloque_banners_normativos_app,
-    .cabecera-dashboard,
-    .grid-contadores,
-    .contenedor-filtros,
-    .contenedor-tabla,
-    .deca-modal-cabecera,
-    .preview-pie-botones,
-    .deca-modal-pie,
-    .deca-bloque-operaciones-libre,
-    .btn-quitar-envio-dinamico,
-    #modal_cortafuegos_expirado_deca {
+    /* 2. OCULTACIÓN TOTAL: Pulverizamos toda la interfaz de la aplicación,
+          incluyendo modales ocultos, tablas traseras y elementos comerciales */
+    body * {
         display: none !important;
         visibility: hidden !important;
+        height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        opacity: 0 !important;
     }
 
-    /* 🚀 BLINDAJE DE ALTURA MÁSTER: Forzamos la destrucción de las cajas fijas de la APK para liberar las páginas */
+    /* 3. LIBERACIÓN QUIRÚRGICA: Resucitamos únicamente la ruta estructural
+          que contiene el papel blanco para que Chrome solo lo vea a él */
+    html,
+    body,
     .modal-preview-deca,
     #modal_preview_deca,
     .preview-container,
     .preview-cuerpo-scroll,
-    .modal-deca-gigante,
-    .deca-modal-contenido,
-    .deca-modal-cuerpo {
+    .folio-deca,
+    .folio-deca * {
         display: block !important;
-        position: relative !important;
-        width: 100% !important;
-
-        /* 🔒 EL TRUCO INDESTRUCTIBLE: Rompe el techo de los vh/píxeles fijos y pulveriza la barra de scroll gris */
+        visibility: visible !important;
+        opacity: 1 !important;
         height: auto !important;
-        min-height: 0 !important;
         max-height: none !important;
         overflow: visible !important;
-        overflow-y: visible !important;
-        overflow-x: hidden !important;
-
-        /* Limpieza absoluta de pasillos comerciales */
-        background: #ffffff !important;
+        position: relative !important;
+        background: transparent !important;
         box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        top: 0 !important;
-        left: 0 !important;
-        box-sizing: border-box !important;
     }
 
-    /* Forzado complementario de reset sobre el lienzo base de impresión */
-    html, body {
-        height: auto !important;
-        overflow: visible !important;
-    }
-
-
-    /* 📄 EL FOLIO BLANCO REGLAMENTARIO ELÁSTICO */
+    /* 4. EL FOLIO BLANCO OFICIAL: Ocupa el ras de la página sin desplazamientos */
     .folio-deca {
-        display: block !important;
         width: 100% !important;
         max-width: 100% !important;
-        height: auto !important;
-        padding: 0 !important; /* El margen perimetral ya lo gobierna la directiva @page */
+        padding: 0 !important;
         margin: 0 !important;
-        box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
         box-sizing: border-box !important;
 
-        /* 🚀 REPARACIÓN DE PASARELA: Autorizamos de forma rígida la paginación elástica vertical */
+        /* Gestión elástica de saltos si el documento requiere una segunda hoja */
         page-break-inside: auto !important;
         break-inside: auto !important;
         page-break-after: auto !important;
         break-after: auto !important;
     }
 
-    /* 🛡️ SEGURO ANTI-GUILLOTINAS: Evita de forma estricta que una tabla o un envío se parta a la mitad horizontalmente */
+    /* 🛡️ SEGURO ANTI-GUILLOTINAS: Evita cortes horizontales a mitad de fila */
     .folio-tabla,
     #capa_grupaje_master > div,
-    #capa_historial_modificaciones_legal > div,
-    .bloque-formulario-deca {
+    #capa_historial_modificaciones_legal > div {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        margin-bottom: 14px !important;
+        display: table !important;
+        width: 100% !important;
+        margin-bottom: 15px !important;
     }
 
-    /* Forzado exacto de colores de fondo de títulos BOE para el motor de impresión de Google Chrome */
+    /* 🎨 FORZADO CROMÁTICO CENTRAL DE TITULARES */
     .folio-header-azul {
         background: #0f4c81 !important;
         color: #ffffff !important;
+        display: block !important;
+        padding: 6px 8px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -1611,15 +1581,22 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     body.rol-cargador-activo .folio-header-azul {
         background: #1e7e34 !important;
         color: #ffffff !important;
+        display: block !important;
+        padding: 6px 8px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    #qrcode_real_render img,
-    #qrcode_real_render canvas {
+    /* Forzado geométrico del código de barras QR */
+    #qrcode_real_render,
+    #qrcode_real_render canvas,
+    #qrcode_real_render img {
         display: block !important;
         width: 100px !important;
         height: 100px !important;
+        max-width: 100px !important;
+        max-height: 100px !important;
+        margin: 0 0 0 auto !important;
     }
 }
 
