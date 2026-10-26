@@ -887,59 +887,23 @@
                                     btnRechazo.onclick = function(e) { e.preventDefault(); alert("Documento fuera de plazo legal."); };
                                 }
                              } else {
-                                // 🟢 CASO VÁLIDO REPARADO: Ocultación total de la web y pantalla de carga premium
+                                // 🟢 CASO VÁLIDO: Liberamos el folio blanco para el agente
                                 document.body.classList.remove("deca-expirado-bloqueado");
 
-                                // Creamos un tapiz de carga profesional que pulveriza el folio cortado
-                                const estiloMuroCargaAgente = document.createElement("style");
-                                estiloMuroCargaAgente.innerHTML = `
-                                    body.modo-escaneo-agente {
-                                        background: #0b101a !important;
-                                        display: flex !important;
-                                        align-items: center !important;
-                                        justify-content: center !important;
-                                        height: 100vh !important;
-                                        width: 100vw !important;
-                                        margin: 0 !important;
-                                        overflow: hidden !important;
-                                    }
-                                    /* Pulverizamos el visor defectuoso de fondo */
-                                    #modal_preview_deca {
-                                        display: none !important;
-                                        visibility: hidden !important;
-                                    }
-                                    /* Construcción del contenedor de progreso central */
-                                    .deca-cargador-agente-bunker {
-                                        text-align: center !important;
-                                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                                        color: #ffffff !important;
-                                    }
-                                    .deca-spinner-vectorial {
-                                        width: 44px;
-                                        height: 44px;
-                                        border: 4px solid rgba(255,255,255,0.15);
-                                        border-top-color: #28a745;
-                                        border-radius: 50%;
-                                        margin: 0 auto 15px auto;
-                                        animation: decaGiroSpinner 0.8s infinite linear;
-                                    }
-                                    @keyframes decaGiroSpinner {
-                                        0% { transform: rotate(0deg); }
-                                        100% { transform: rotate(360deg); }
-                                    }
-                                `;
-                                document.head.appendChild(estiloMuroCargaAgente);
+                                // Forzamos la apertura física del visor para que el motor dibuje las tablas
+                                const contenedorVisor = document.getElementById("modal_preview_deca");
+                                if (contenedorVisor) {
+                                    contenedorVisor.style.setProperty("display", "flex", "important");
+                                }
 
-                                // Inyectamos el componente visual de carga en mitad de la lona negra
-                                const contenedorProgreso = document.createElement("div");
-                                contenedorProgreso.className = "deca-cargador-agente-bunker";
-                                contenedorProgreso.innerHTML = `
-                                    <div class="deca-spinner-vectorial"></div>
-                                    <h3 style="margin:0 0 5px 0; font-size:16px; font-weight:bold; letter-spacing:0.5px; color:#ffffff !important;">INSPECCIÓN DE TRANSPORTE TERRESTRE</h3>
-                                    <p style="margin:0; font-size:12px; color:#a0aec0 !important;">Descargando documento de control digital original...</p>
+                                const estiloLiberar = document.createElement("style");
+                                estiloLiberar.innerHTML = `
+                                    body.modo-escaneo-agente #modal_preview_deca { display: flex !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; z-index: 999999 !important; overflow-y: auto !important; }
+                                    body.modo-escaneo-agente .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; margin: 0 auto !important; display: block !important; }
+                                    body.modo-escaneo-agente .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; display: block !important; width: 100% !important; height: auto !important; }
+                                    body.modo-escaneo-agente .folio-deca { display: block !important; box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; }
                                 `;
-                                document.body.appendChild(contenedorProgreso);
-
+                                document.head.appendChild(estiloLiberar);
                             }
 
                         }
