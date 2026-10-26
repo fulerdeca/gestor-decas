@@ -4627,7 +4627,7 @@ if (cadenaHoyRígida > doc.qr_caducidad) {
                         correctLevel : QRCode.CorrectLevel.M
                     });
 
-                    // =========================================================================
+/*                    // =========================================================================
                     // 🚨 DISPARADOR MINISTERIO v3.86: CANDADO DE DISPARO ÚNICO EN RED
                     // =========================================================================
                     if (window.location.search.includes("verificar") && !window.decaImpresionAutomaticaEjecutada) {
@@ -4647,7 +4647,51 @@ if (cadenaHoyRígida > doc.qr_caducidad) {
                                 console.warn("Aviso en el hilo de impresión:", err);
                             }
                         }, 1100); // 1.1 segundos de cortesía para clavar las cabeceras
+                    }*/
+
+                    // =========================================================================
+                    // 🚨 DISPARADOR MINISTERIO REPARADO: DESCARGA DIRECTA EN PDF DE ALTA FIDELIDAD
+                    // =========================================================================
+                    if (window.location.search.includes("verificar") && !window.decaImpresionAutomaticaEjecutada) {
+                        window.decaImpresionAutomaticaEjecutada = true; // Cerramos el candado de inmediato
+                        console.log("👮 Ejecutando maquetación digital de alta fidelidad para Inspección...");
+
+                        setTimeout(() => {
+                            try {
+                                const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
+                                const elementoFolioImprimir = document.querySelector(".folio-deca");
+
+                                if (elementoFolioImprimir) {
+                                    mostrarAvisoToast("⏳ Procesando copia digital de control...");
+
+                                    // Configuración matemática idéntica a tu botón privado que clava las páginas
+                                    const opcionesConfiguracionAgente = {
+                                        margin:       12, // Margen elástico perimetral en milímetros
+                                        filename:     `${numeroDocumentoOficial}.pdf`,
+                                        image:        { type: 'jpeg', quality: 0.98 },
+                                        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                                        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                                    };
+
+                                    // Ejecutamos la descarga directa del PDF real de forma limpia
+                                    html2pdf().set(opcionesConfiguracionAgente).from(elementoFolioImprimir).save()
+                                    .then(() => {
+                                        mostrarAvisoToast("✅ Fichero PDF transferido al terminal.");
+                                    })
+                                    .catch(err => {
+                                        console.warn("Fallo en html2pdf de pasarela, usando respaldo:", err);
+                                        window.print();
+                                    });
+                                } else {
+                                    window.print();
+                                }
+                            } catch (err) {
+                                console.warn("Aviso en el hilo de generación PDF:", err);
+                                window.print();
+                            }
+                        }, 1200); // 1.2 segundos de cortesía para asegurar el renderizado completo de las tablas
                     }
+
 
                     // Disparador manual de respaldo por si el agente cancela y quiere volver a pulsar con el dedo
                     contenedorQR.onclick = function() {
