@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.95</title>
+    <title>Gestor de DeCAs Transportes v4.94</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -750,13 +750,13 @@
    🛡️ CONFIGURACIÓN ESTÉTICA INMUNE PARA CORTAFUEGOS WEB ONLINE (BOE v4.79)
    ========================================================================== -->
 <style>
-
     /* 1. APAGADO GENERAL CONTROLADO: Ocultamos el salpicadero principal, manteniendo el visor libre */
     body.modo-escaneo-agente .cabecera-dashboard,
     body.modo-escaneo-agente .grid-contadores,
     body.modo-escaneo-agente .contenedor-filtros,
     body.modo-escaneo-agente .contenedor-tabla,
     body.modo-escaneo-agente .pie-tabla,
+    body.modo-escaneo-agente .deca-bloque-operaciones-libre,
     body.modo-escaneo-agente .grupo-botones-top {
         display: none !important;
         visibility: hidden !important;
@@ -766,39 +766,7 @@
         padding: 0 !important;
     }
 
-    /* 📄 ANULACIÓN RADICAL DE ARRASTRES: Purgamos el margen superior de 75px que empujaba el folio hacia arriba */
-    body.modo-escaneo-agente .deca-bloque-operaciones-libre {
-        display: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 0 !important;
-    }
-
-    /* 🏢 ENTORNO DE CONSULTA DEL AGENTE: Posicionamiento natural de flujo continuo */
-    body.modo-escaneo-agente {
-        background: #525659 !important;
-        display: block !important;
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    body.modo-escaneo-agente #modal_preview_deca {
-        display: block !important;
-        position: relative !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: auto !important;
-        background: #525659 !important;
-        z-index: 999999 !important;
-        overflow: visible !important;
-    }
-
-    /* Ocultación estricta del folio SÓLO si el documento está verdaderamente expirado y bloqueado */
+    /* Ocultación estricta del folio SÓLO si el documento está expirado y bloqueado */
     body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca .preview-pie-botones,
     body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca #bloque_banners_normativos_app,
     body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca .folio-deca {
@@ -807,6 +775,66 @@
     }
 
 
+    /* 2. DISEÑO DEL ENTORNO OSCURO MAESTRO DEL AGENTE */
+    body.modo-escaneo-agente.deca-expirado-bloqueado {
+        background: #0b101a !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 100vh !important;
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 3. LIBERACIÓN INMUNE DEL CARTEL DE ADVERTENCIA (CONEXIÓN DIRECTA POR ID) */
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca {
+        display: flex !important;
+        position: fixed !important;
+        z-index: 999999 !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: #0b101a !important; /* Asegura el fondo oscuro uniforme */
+        align-items: center !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Forzamos que la tarjeta blanca recupere todas sus propiedades e iluminación original */
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca .deca-modal-contenido {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        max-width: 400px !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        background-color: #ffffff !important;
+        border-radius: 12px !important;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6) !important;
+        overflow: hidden !important;
+        margin: auto !important;
+    }
+
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca .deca-modal-cuerpo {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background-color: #ffffff !important;
+        padding: 35px 25px !important;
+        height: auto !important;
+    }
+
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca h4,
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca p,
+    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca span {
+        color: #212529 !important; /* Letras oscuras legibles */
+    }
 </style>
 
 
@@ -1469,49 +1497,77 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 /* === CORRECCIÓN GEOMÉTRICA HÍBRIDA TOLERANTE A FORMATOS MÓVILES (v4.41) === */
 @media print {
-    /* 1. CONFIGURACIÓN DE HOJA REGLAMENTARIA (BOE) */
     @page {
-        margin: 10mm 15mm !important; /* Margen físico real en el papel */
-        size: A4 portrait !important; /* Fuerza el estándar oficial de Tráfico */
+        margin: 0mm !important; /* Tritura las cabeceras, fechas y URLs sueltas del navegador */
+        /* 🚀 EL TRUCO UNIVERSAL: Al cambiar A4 por auto, el CSS deja de pelearse con el sistema operativo.
+           Heredará matemáticamente la hoja que tenga seleccionada el móvil (Carta, A4, etc.)
+           y estirará las tablas al ras del contorno disponible de forma nativa */
+        size: auto !important;
     }
 
-    /* 2. LIMPIEZA DE ARTEFACTOS EN LA VENTANA DE IMPRESIÓN */
-    html, body {
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
+        /* 🧼 SOLUCIÓN CHROME MÓVIL: Eliminamos display:flex y min-height del body para prohibir la segunda página */
         display: block !important;
         height: auto !important;
-        overflow: visible !important;
+        min-height: 0 !important;
     }
 
-    /* Ocultamos las botoneras de la previsualización */
-    .preview-pie-botones,
+    /* Ocultación rígida de paneles comerciales y botones del salpicadero */
+    #bloque_banners_normativos_app,
+    .cabecera-dashboard,
+    .grid-contadores,
+    .contenedor-filtros,
+    .contenedor-tabla,
     .deca-modal-cabecera,
-    #bloque_banners_normativos_app {
+    .preview-pie-botones,
+    .deca-modal-pie,
+    .deca-bloque-operaciones-libre {
         display: none !important;
     }
 
-    /* El folio impreso fluye de manera natural rompiendo las hojas que hagan falta */
-    .folio-deca {
-        display: block !important;
+    /* Forzamos a las capas contenedoras a ser pasillos transparentes sin empujar el papel */
+    .modal-preview-deca,
+    #modal_preview_deca,
+    .preview-container,
+    .preview-cuerpo-scroll {
+        display: block !important; /* Caja de bloque pura */
         width: 100% !important;
-        max-width: 100% !important;
         height: auto !important;
         overflow: visible !important;
+        background: #ffffff !important; /* Purgado total de grises en la impresión */
         box-shadow: none !important;
-        border: none !important;
         padding: 0 !important;
         margin: 0 !important;
-        page-break-inside: auto !important;
-        break-inside: auto !important;
+        box-sizing: border-box !important;
     }
 
-    .folio-tabla,
-    #capa_grupaje_master,
-    #capa_historial_modificaciones_legal {
+    /* 📄 EL FOLIO BLANCO: Centrado simétrico horizontal y vertical sin romper los ejes */
+    /* 📄 EL FOLIO BLANCO ESTIRADO: Devora el espacio horizontal sin deformar las letras */
+    .folio-deca {
+        display: block !important;
+        width: 100% !important;       /* 🚀 Ocupa todo el ancho de la hoja Carta o A4 disponible */
+        max-width: 100% !important;
+        height: auto !important;
+        padding: 20px 30px !important; /* Más aire en los laterales para que respire el texto */
+        margin: 0 !important;          /* Eliminamos pasillos superiores para que no se corte abajo */
+        box-shadow: none !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        box-sizing: border-box !important;
+
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+
+        /* 🚀 ELIMINADO EL ZOOM ARTIFICIAL: Al quitarlo, el navegador deja de encoger el documento */
+        /* zoom: 105% !important; */
     }
+
 
     .folio-header-azul {
         background: #0f4c81 !important;
@@ -1519,19 +1575,21 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+    /* 🚀 REPARACIÓN DE IMPRESIÓN CON PATRÓN DE COLOR PARA CARGADORES */
     body.rol-cargador-activo .folio-header-azul {
         background: #1e7e34 !important;
-        color: #ffffff !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
+
+
+    #qrcode_real_render img,
+    #qrcode_real_render canvas {
+        display: block !important;
+        width: 100px !important;
+        height: 100px !important;
+    }
 }
-
-
-
-
-
-
 
 
 /* Letrero de Advertencia para el Folio del DeCA Anulado (Estilo Sello de Custodia) */
@@ -2795,17 +2853,15 @@ function iniciarEcosistemaDeCAs() {
             #qrcode_real_render canvas + img { display: none !important; }
             #canvas_render_qr_gigante canvas { display: none !important; }
             #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
-
-            body.modo-escaneo-agente #modal_preview_deca { display: block !important; position: relative !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: auto !important; background: #525659 !important; z-index: 999999 !important; overflow: visible !important; }
-            .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; overflow: visible !important; }
+            #modal_preview_deca { display: flex !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+            .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
+            .preview-container .deca-modal-cabecera { display: none !important; }
             .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
-            .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 40px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
-
+            .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
             .preview-pie-botones { display: none !important; }
             #bloque_banners_normativos_app { display: none !important; }
         `;
         document.head.appendChild(estiloPDFVirtual);
-
 
         // 🚀 REPARACIÓN MÓVIL: Eliminamos el setTimeout ciego de 300ms.
         // Forzamos la autenticación y la lectura en frío directamente garantizando la sincronía.
@@ -4719,7 +4775,6 @@ function abrirModalQRGiganteNativo() {
 
 
 // Descarga PDF para Dispositivos y APK Móvil (v4.95 ADAPTACIÓN ANDROID)
-// Descarga PDF para Dispositivos y APK Móvil (v5.00 AISLAMIENTO POR VENTANA)
 function forzarDescargaPDFDesdeVisorInterno() {
     const capaToast = document.getElementById("toast_deca");
     if (capaToast) {
@@ -4733,82 +4788,53 @@ function forzarDescargaPDFDesdeVisorInterno() {
         console.log("📱 Entorno Agente Web: Redirigiendo a pasarela segura...");
         abrirPDFVirtualDesdeDashboard(idDocumentoEnEdicion);
     } else {
+        // 🚚 ENTORNO APK / CONDUCTOR: Detectamos si es un smartphone para esquivar el fallo de window.print()
         const esDispositivoMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const numeroDeCA = document.getElementById("prev_top_numero").innerText || "Documento_DeCA";
 
-        // CASE A: CONDUCTOR EN APK ANDROID (Mantiene tu descarga de archivo físico en el almacenamiento)
         if (esDispositivoMovil) {
             mostrarAvisoToast("⏳ Procesando PDF de alta fidelidad...");
+
+            // Seleccionamos el folio blanco máster
             const elementoFolio = document.querySelector(".folio-deca");
+
+            // Configuración matemática para clabar el folio en 1 página A4 justa sin romper las tablas
             const opcionesConfiguracion = {
-                margin:       10,
+                margin:       10, // Margen elástico perimetral en milímetros (10mm)
                 filename:     `${numeroDeCA}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true }, // Duplica la resolución del QR y textos
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' } // Forzado de tamaño estándar de Tráfico
             };
 
+            // Ejecutamos el motor de renderizado y descarga directa en el almacenamiento del teléfono
             html2pdf().set(opcionesConfiguracion).from(elementoFolio).save()
             .then(() => {
                 mostrarAvisoToast("✅ Fichero PDF guardado en Descargas.");
             })
             .catch(err => {
-                console.warn("Fallo en html2pdf, usando respaldo:", err);
+                console.warn("Fallo en motor html2pdf, usando respaldo:", err);
                 window.print();
             });
-        }
-        // CASE B: AGENTE DE TRÁFICO O CONSULTA EN ORDENADOR (Aislamiento absoluto anti-bloqueos)
-        else {
-            mostrarAvisoToast("📥 Preparando impresión limpia...");
 
-            // 1. Capturamos el código HTML estructurado únicamente del folio blanco con sus grupajes desglosados
-            const clonHTMLFolioBlanco = document.querySelector(".folio-deca").outerHTML;
-            const esCargadorActivo = document.body.classList.contains("rol-cargador-activo");
+        } else {
+            // El ordenador en PC sigue manteniendo su comportamiento nativo rápido de escritorio
+            const tituloOriginalPestaña = document.title;
+            document.title = numeroDeCA;
 
-            // 2. Abrimos una pestaña temporal oculta en el navegador libre de modales
-            const ventanaImpresionPlana = window.open("", "_blank");
-
-            // 3. Inyectamos una estructura HTML limpia anclada en el píxel cero real
-            ventanaImpresionPlana.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>${numeroDeCA}</title>
-                    <style>
-                        body { margin: 0; padding: 10mm; background: #ffffff; color: #111111; font-family: 'Segoe UI', Arial, sans-serif; }
-                        .folio-deca { width: 100%; max-width: 100%; margin: 0 auto; box-shadow: none !important; }
-                        .folio-tabla { width: 100% !important; border-collapse: collapse !important; margin-bottom: 16px; table-layout: fixed !important; }
-                        .folio-tabla td { border: 1px solid #111111 !important; padding: 8px !important; vertical-align: top; color: #111111 !important; box-sizing: border-box !important; word-break: break-word !important; }
-                        .folio-header-azul { background: ${esCargadorActivo ? '#1e7e34' : '#0f4c81'} !important; color: #ffffff !important; font-weight: bold; font-size: 11px; padding: 8px 10px !important; text-transform: uppercase; box-sizing: border-box !important; }
-                        .folio-subetiqueta { font-size: 10px; color: #555555; text-transform: uppercase; display: block; margin-bottom: 3px; font-weight: bold; }
-                        .badge-matricula { display: inline-flex !important; align-items: center !important; justify-content: center !important; background: #ffffff !important; color: #111111 !important; border: 1px solid #111111 !important; padding: 3px 6px !important; font-size: 11px !important; font-weight: bold !important; border-radius: 4px !important; margin-bottom: 5px !important; width: 95px !important; }
-                        .badge-matricula.remolque { border-color: #fd7e14 !important; background: #fffdf5 !important; margin-bottom: 0 !important; }
-                        #qrcode_real_render canvas { display: none !important; }
-                        #qrcode_real_render img { display: block !important; width: 100px !important; height: 100px !important; margin: 0 0 0 auto !important; }
-                        @media print { @page { margin: 10mm 15mm !important; size: A4 portrait !important; } body { padding: 0; } }
-                    </style>
-                </head>
-                <body>
-                    ${clonHTMLFolioBlanco}
-                </body>
-                </html>
-            `);
-            ventanaImpresionPlana.document.close();
-
-            // 🚀 DISPARADOR EXTERNO SEGURO: Ejecutamos el control directo sobre la nueva ventana sin usar etiquetas cruzadas
-            setTimeout(function() {
+            setTimeout(() => {
                 try {
-                    ventanaImpresionPlana.focus();
-                    ventanaImpresionPlana.print();
-                    ventanaImpresionPlana.close();
-                } catch (errWindow) {
-                    console.warn("Aviso en el puente de cierre de la ventana de impresión:", errWindow);
+                    window.print();
+                    document.title = tituloOriginalPestaña;
+                    mostrarAvisoToast("✅ Captura de impresión transferida.");
+                } catch (err) {
+                    console.warn("Aviso en el motor de descarga del visor:", err);
+                    document.title = tituloOriginalPestaña;
                 }
-            }, 350); // 300ms de cortesía para que el navegador dibuje las tablas antes de congelar la pantalla
+            }, 150);
         }
     }
 }
-
 
 
 
