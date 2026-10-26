@@ -835,6 +835,28 @@
     body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca span {
         color: #212529 !important; /* Letras oscuras legibles */
     }
+
+
+    /* 📄 BLINDAJE DE POSICIONAMIENTO: Evita que el folio colisione con el techo cuando no hay dashboard */
+    body.modo-escaneo-agente .deca-bloque-operaciones-libre {
+        margin-top: 15px !important; /* Reduce el pasillo de 75px a 15px al no existir la visera */
+        padding-top: 0px !important;
+    }
+
+    body.modo-escaneo-agente .modal-preview-deca,
+    body.modo-escaneo-agente #modal_preview_deca {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        background: #525659 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow-y: visible !important; /* Libera el scroll natural del navegador */
+    }
+
 </style>
 
 
@@ -1557,22 +1579,24 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     /* 📄 EL FOLIO BLANCO: Centrado simétrico horizontal y vertical sin romper los ejes */
     .folio-deca {
         display: block !important;
+        position: relative !important; /* Desconecta cualquier desborde superior */
+        top: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        padding: 10mm 15mm !important; /* Dimensiones normalizadas de imprenta */
-        margin: 0 auto !important;
+        padding: 15mm 15mm !important; /* Espacio perimetral sagrado de imprenta */
+        margin: 0 auto !important; /* Centrado matemático horizontal */
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
         box-sizing: border-box !important;
 
-        /* 📑 SALTO DE PÁGINA PERMISIVO: Permite abrir el folio en varias hojas si el grupaje lo requiere */
+        /* Forzado de reinicio de escala para impedir que Chrome encoja la tipografía */
+        transform: scale(1) !important;
         page-break-inside: auto !important;
         break-inside: auto !important;
-        page-break-after: auto !important;
-        break-after: auto !important;
     }
+
 
 
 
@@ -1597,6 +1621,11 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         height: 100px !important;
     }
 }
+
+
+
+
+
 
 
 /* Letrero de Advertencia para el Folio del DeCA Anulado (Estilo Sello de Custodia) */
@@ -2863,7 +2892,7 @@ function iniciarEcosistemaDeCAs() {
             #modal_preview_deca { display: flex !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
             .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
             .preview-container .deca-modal-cabecera { display: none !important; }
-            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
+            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow-y: visible !important; overflow-x: hidden !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
             .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
             .preview-pie-botones { display: none !important; }
             #bloque_banners_normativos_app { display: none !important; }
