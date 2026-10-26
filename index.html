@@ -838,24 +838,32 @@
 
 
     /* 📄 BLINDAJE DE POSICIONAMIENTO: Evita que el folio colisione con el techo cuando no hay dashboard */
-    body.modo-escaneo-agente .deca-bloque-operaciones-libre {
-        margin-top: 15px !important; /* Reduce el pasillo de 75px a 15px al no existir la visera */
-        padding-top: 0px !important;
-    }
-
     body.modo-escaneo-agente .modal-preview-deca,
     body.modo-escaneo-agente #modal_preview_deca {
-        position: absolute !important;
+        position: relative !important; /* Cambia absolute por relative para que herede el flujo natural */
         top: 0 !important;
         left: 0 !important;
         width: 100% !important;
         height: auto !important;
         min-height: 100vh !important;
         background: #525659 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow-y: visible !important; /* Libera el scroll natural del navegador */
+        display: block !important; /* Cambia flex por block para evitar que colapsen las subcapas */
+        overflow-y: auto !important; /* 🔥 ACTIVA EL SCROLL VERTICAL EN PANTALLA */
+        overflow-x: hidden !important;
     }
+
+    body.modo-escaneo-agente .preview-container {
+        position: relative !important;
+        width: 100% !important;
+        max-width: 780px !important;
+        height: auto !important;
+        min-height: 100% !important;
+        margin: 0 auto !important;
+        display: block !important;
+        overflow: visible !important; /* 🔥 LIBERA EL PASO HACIA LAS PÁGINAS INFERIORES */
+    }
+
+
 
 </style>
 
@@ -1519,6 +1527,19 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 /* === CORRECCIÓN GEOMÉTRICA HÍBRIDA TOLERANTE A FORMATOS MÓVILES (v4.41) === */
 @media print {
+
+    /* 🔓 DESBLOQUEO MATEMÁTICO DE IMPRESIÓN: Ppurga total de ataduras de scroll y altura */
+    html, body, .modal-preview-deca, #modal_preview_deca, .preview-container, .preview-cuerpo-scroll {
+        display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        position: relative !important;
+        top: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     @page {
         margin: 0mm !important; /* Tritura las cabeceras, fechas y URLs sueltas del navegador */
         /* 🚀 EL TRUCO UNIVERSAL: Al cambiar A4 por auto, el CSS deja de pelearse con el sistema operativo.
@@ -2889,10 +2910,13 @@ function iniciarEcosistemaDeCAs() {
             #qrcode_real_render canvas + img { display: none !important; }
             #canvas_render_qr_gigante canvas { display: none !important; }
             #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
-            #modal_preview_deca { display: flex !important; position: fixed !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
-            .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; }
+
+            /* Reemplaza estas tres reglas dentro de estiloPDFVirtual.innerHTML */
+            #modal_preview_deca { display: block !important; position: relative !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: auto !important; min-height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; }
+            .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; overflow: visible !important; }
             .preview-container .deca-modal-cabecera { display: none !important; }
-            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow-y: visible !important; overflow-x: hidden !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
+            .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
+
             .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
             .preview-pie-botones { display: none !important; }
             #bloque_banners_normativos_app { display: none !important; }
