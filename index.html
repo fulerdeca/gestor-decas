@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v5.02</title>
+    <title>Gestor de DeCAs Transportes v5.03</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -1599,6 +1599,22 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
         width: 100px !important;
         height: 100px !important;
     }
+
+    /* 🛡️ EVITA EL CORTE DE LÍNEAS DE TEXTO POR LA MITAD */
+    #capa_historial_modificaciones_legal div,
+    #capa_historial_modificaciones_legal span,
+    .folio-deca div,
+    .folio-deca p {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* 🛡️ EMPUJA EL BLOQUE COMPLETO DE UNA MODIFICACIÓN SI NO CABE ENTERO */
+    #capa_historial_modificaciones_legal > div > div {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 8px !important;
+    }
 }
 
 
@@ -2931,6 +2947,9 @@ function iniciarEcosistemaDeCAs() {
             .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
             .preview-pie-botones { display: none !important; }
             #bloque_banners_normativos_app { display: none !important; }
+
+            #capa_historial_modificaciones_legal div, #capa_historial_modificaciones_legal span, .folio-deca p, .folio-deca div { page-break-inside: avoid !important; break-inside: avoid !important; } #capa_historial_modificaciones_legal > div > div { page-break-inside: avoid !important; break-inside: avoid !important; }
+
         `;
         document.head.appendChild(estiloPDFVirtual);
 
@@ -4958,12 +4977,16 @@ function forzarDescargaPDFDesdeVisorInterno() {
 
             // Configuración matemática para clabar el folio en 1 página A4 justa sin romper las tablas
             const opcionesConfiguracion = {
-                margin:       10, // Margen elástico perimetral en milímetros (10mm)
+                margin:       10,
                 filename:     `${numeroDeCA}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, letterRendering: true }, // Duplica la resolución del QR y textos
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' } // Forzado de tamaño estándar de Tráfico
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+
+                /* 🚀 LA PROPIEDAD QUE EVITA LA GUILLOTINA: Modo inteligente de corte */
+                pagebreak:    { mode: ['avoid-all', 'css'] }
             };
+
 
             // Ejecutamos el motor de renderizado y descarga directa en el almacenamiento del teléfono
             html2pdf().set(opcionesConfiguracion).from(elementoFolio).save()
