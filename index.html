@@ -750,13 +750,13 @@
    🛡️ CONFIGURACIÓN ESTÉTICA INMUNE PARA CORTAFUEGOS WEB ONLINE (BOE v4.79)
    ========================================================================== -->
 <style>
+
     /* 1. APAGADO GENERAL CONTROLADO: Ocultamos el salpicadero principal, manteniendo el visor libre */
     body.modo-escaneo-agente .cabecera-dashboard,
     body.modo-escaneo-agente .grid-contadores,
     body.modo-escaneo-agente .contenedor-filtros,
     body.modo-escaneo-agente .contenedor-tabla,
     body.modo-escaneo-agente .pie-tabla,
-    body.modo-escaneo-agente .deca-bloque-operaciones-libre,
     body.modo-escaneo-agente .grupo-botones-top {
         display: none !important;
         visibility: hidden !important;
@@ -766,103 +766,45 @@
         padding: 0 !important;
     }
 
-    /* Ocultación estricta del folio SÓLO si el documento está expirado y bloqueado */
+    /* 📄 ANULACIÓN RADICAL DE ARRASTRES: Purgamos el margen superior de 75px que empujaba el folio hacia arriba */
+    body.modo-escaneo-agente .deca-bloque-operaciones-libre {
+        display: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 0 !important;
+    }
+
+    /* 🏢 ENTORNO DE CONSULTA DEL AGENTE: Posicionamiento natural de flujo continuo */
+    body.modo-escaneo-agente {
+        background: #525659 !important;
+        display: block !important;
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body.modo-escaneo-agente #modal_preview_deca {
+        display: block !important;
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        background: #525659 !important;
+        z-index: 999999 !important;
+        overflow: visible !important;
+    }
+
+    /* Ocultación estricta del folio SÓLO si el documento está verdaderamente expirado y bloqueado */
     body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca .preview-pie-botones,
     body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca #bloque_banners_normativos_app,
     body.modo-escaneo-agente.deca-expirado-bloqueado #modal_preview_deca .folio-deca {
         display: none !important;
         visibility: hidden !important;
     }
-
-
-    /* 2. DISEÑO DEL ENTORNO OSCURO MAESTRO DEL AGENTE */
-    body.modo-escaneo-agente.deca-expirado-bloqueado {
-        background: #0b101a !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        height: 100vh !important;
-        width: 100vw !important;
-        margin: 0 !important;
-        padding: 20px !important;
-        overflow: hidden !important;
-        box-sizing: border-box !important;
-    }
-
-    /* 3. LIBERACIÓN INMUNE DEL CARTEL DE ADVERTENCIA (CONEXIÓN DIRECTA POR ID) */
-    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca {
-        display: flex !important;
-        position: fixed !important;
-        z-index: 999999 !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        background: #0b101a !important; /* Asegura el fondo oscuro uniforme */
-        align-items: center !important;
-        justify-content: center !important;
-        box-sizing: border-box !important;
-    }
-
-    /* Forzamos que la tarjeta blanca recupere todas sus propiedades e iluminación original */
-    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca .deca-modal-contenido {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        width: 100% !important;
-        max-width: 400px !important;
-        height: auto !important;
-        min-height: 0 !important;
-        max-height: none !important;
-        background-color: #ffffff !important;
-        border-radius: 12px !important;
-        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6) !important;
-        overflow: hidden !important;
-        margin: auto !important;
-    }
-
-    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca .deca-modal-cuerpo {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        background-color: #ffffff !important;
-        padding: 35px 25px !important;
-        height: auto !important;
-    }
-
-    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca h4,
-    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca p,
-    body.modo-escaneo-agente.deca-expirado-bloqueado #modal_cortafuegos_expirado_deca span {
-        color: #212529 !important; /* Letras oscuras legibles */
-    }
-
-
-    /* 📄 BLINDAJE DE POSICIONAMIENTO: Evita que el folio colisione con el techo cuando no hay dashboard */
-    body.modo-escaneo-agente .modal-preview-deca,
-    body.modo-escaneo-agente #modal_preview_deca {
-        position: relative !important; /* Cambia absolute por relative para que herede el flujo natural */
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: auto !important;
-        min-height: 100vh !important;
-        background: #525659 !important;
-        display: block !important; /* Cambia flex por block para evitar que colapsen las subcapas */
-        overflow-y: auto !important; /* 🔥 ACTIVA EL SCROLL VERTICAL EN PANTALLA */
-        overflow-x: hidden !important;
-    }
-
-    body.modo-escaneo-agente .preview-container {
-        position: relative !important;
-        width: 100% !important;
-        max-width: 780px !important;
-        height: auto !important;
-        min-height: 100% !important;
-        margin: 0 auto !important;
-        display: block !important;
-        overflow: visible !important; /* 🔥 LIBERA EL PASO HACIA LAS PÁGINAS INFERIORES */
-    }
-
 
 
 </style>
@@ -1527,39 +1469,30 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
 
 /* === CORRECCIÓN GEOMÉTRICA HÍBRIDA TOLERANTE A FORMATOS MÓVILES (v4.41) === */
 @media print {
+    /* 1. CONFIGURACIÓN DE PÁGINA REGLAMENTARIA (BOE) */
+    @page {
+        margin: 0mm !important; /* Elimina cabeceras, fechas y URLs automáticas del navegador */
+        size: auto !important;   /* Hereda de forma nativa el tamaño seleccionado (A4, Carta, etc.) */
+    }
 
-    /* 🔓 DESBLOQUEO MATEMÁTICO DE IMPRESIÓN: Ppurga total de ataduras de scroll y altura */
-    html, body, .modal-preview-deca, #modal_preview_deca, .preview-container, .preview-cuerpo-scroll {
+    /* 2. DESBLOQUEO MATEMÁTICO DE IMPRESIÓN (Ejes principales) */
+    html, body {
         display: block !important;
         overflow: visible !important;
         height: auto !important;
         max-height: none !important;
+        min-height: 0 !important;
         position: relative !important;
         top: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-    }
-
-    @page {
-        margin: 0mm !important; /* Tritura las cabeceras, fechas y URLs sueltas del navegador */
-        /* 🚀 EL TRUCO UNIVERSAL: Al cambiar A4 por auto, el CSS deja de pelearse con el sistema operativo.
-           Heredará matemáticamente la hoja que tenga seleccionada el móvil (Carta, A4, etc.)
-           y estirará las tablas al ras del contorno disponible de forma nativa */
-        size: auto !important;
-    }
-
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
         background: #ffffff !important;
         color: #000000 !important;
-        /* 🧼 SOLUCIÓN CHROME MÓVIL: Eliminamos display:flex y min-height del body para prohibir la segunda página */
-        display: block !important;
-        height: auto !important;
-        min-height: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
-    /* Ocultación rígida de paneles comerciales y botones del salpicadero */
+    /* 3. OCULTACIÓN RÍGIDA DE BOTONERAS, INTERFACES Y CAPAS COMERCIALES */
     #bloque_banners_normativos_app,
     .cabecera-dashboard,
     .grid-contadores,
@@ -1568,78 +1501,96 @@ body.dark-mode .folio-deca { background: #ffffff; color: #111111; }
     .deca-modal-cabecera,
     .preview-pie-botones,
     .deca-modal-pie,
-    .deca-bloque-operaciones-libre {
+    .deca-bloque-operaciones-libre,
+    .grupo-botones-top,
+    .pie-tabla,
+    #contenedor_paginas_deca {
         display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* Forzamos a las capas contenedoras a ser pasillos transparentes sin empujar el papel */
+    /* 4. CONFIGURACIÓN ELÁSTICA DE LAS CAPAS CONTENEDORAS DEL VISOR */
     .modal-preview-deca,
     #modal_preview_deca,
-    .preview-container {
-        display: block !important;
+    .preview-container,
+    .preview-cuerpo-scroll {
+        display: block !important; /* Caja de bloque pura para respetar el salto de página */
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
         width: 100% !important;
         height: auto !important;
-        overflow: visible !important;
+        max-height: none !important;
+        overflow: visible !important; /* Liberación absoluta de flujo */
         background: #ffffff !important;
         box-shadow: none !important;
-        padding: 0 !important;
+        border: none !important;
         margin: 0 !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
     }
 
-    /* 📄 PASILLO ELÁSTICO: Permite que el visor fluya a lo largo de varias páginas si hay grupajes extensos */
-    .preview-cuerpo-scroll {
-        display: inline !important;
-        overflow: visible !important;
-        background: #ffffff !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-
-    /* 📄 EL FOLIO BLANCO: Centrado simétrico horizontal y vertical sin romper los ejes */
+    /* 5. EL FOLIO BLANCO MÁSTER INTEGRAL */
     .folio-deca {
         display: block !important;
-        position: relative !important; /* Desconecta cualquier desborde superior */
+        position: relative !important;
         top: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        padding: 15mm 15mm !important; /* Espacio perimetral sagrado de imprenta */
-        margin: 0 auto !important; /* Centrado matemático horizontal */
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 15mm 15mm !important; /* Margen perimetral oficial de imprenta */
+        margin: 0 auto !important;
         box-shadow: none !important;
         background: #ffffff !important;
         color: #000000 !important;
         box-sizing: border-box !important;
 
-        /* Forzado de reinicio de escala para impedir que Chrome encoja la tipografía */
-        transform: scale(1) !important;
+        /* Gestión estricta de saltos de página del FOE */
+        transform: scale(1) !important; /* Anula zooms artificiales */
         page-break-inside: auto !important;
         break-inside: auto !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
     }
 
+    /* Evita de forma rígida que las tablas de grupaje o firmas se corten por la mitad */
+    .folio-tabla,
+    #capa_grupaje_master,
+    #capa_historial_modificaciones_legal,
+    .sello-anulado-deca,
+    #banner_deca_modificado_alerta {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
 
-
-
+    /* 6. RELIEVES CROMÁTICOS EN IMPRESIÓN (Sincro de Roles) */
     .folio-header-azul {
         background: #0f4c81 !important;
         color: #ffffff !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
-    /* 🚀 REPARACIÓN DE IMPRESIÓN CON PATRÓN DE COLOR PARA CARGADORES */
+
     body.rol-cargador-activo .folio-header-azul {
         background: #1e7e34 !important;
+        color: #ffffff !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-
+    /* 7. BLINDAJE DE COMPATIBILIDAD DEL CÓDIGO QR */
     #qrcode_real_render img,
     #qrcode_real_render canvas {
         display: block !important;
         width: 100px !important;
         height: 100px !important;
+        max-width: 100px !important;
+        max-height: 100px !important;
     }
 }
 
@@ -2911,17 +2862,16 @@ function iniciarEcosistemaDeCAs() {
             #canvas_render_qr_gigante canvas { display: none !important; }
             #canvas_render_qr_gigante img { display: block !important; width: 260px !important; height: 260px !important; margin: 0 auto !important; }
 
-            /* Reemplaza estas tres reglas dentro de estiloPDFVirtual.innerHTML */
-            #modal_preview_deca { display: block !important; position: relative !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: auto !important; min-height: 100vh !important; background: #525659 !important; padding: 0 !important; box-sizing: border-box !important; z-index: 999999 !important; overflow-y: auto !important; }
+            body.modo-escaneo-agente #modal_preview_deca { display: block !important; position: relative !important; left: 0 !important; top: 0 !important; width: 100vw !important; height: auto !important; background: #525659 !important; z-index: 999999 !important; overflow: visible !important; }
             .preview-container { width: 100% !important; max-width: 780px !important; height: auto !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; margin: 0 auto !important; display: block !important; overflow: visible !important; }
-            .preview-container .deca-modal-cabecera { display: none !important; }
             .preview-cuerpo-scroll { background: #525659 !important; padding: 20px 10px !important; overflow: visible !important; height: auto !important; box-sizing: border-box !important; width: 100% !important; display: block !important; }
+            .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 40px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
 
-            .folio-deca { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; margin: 0 auto 80px auto !important; background: #ffffff !important; display: block !important; overflow: visible !important; height: auto !important; }
             .preview-pie-botones { display: none !important; }
             #bloque_banners_normativos_app { display: none !important; }
         `;
         document.head.appendChild(estiloPDFVirtual);
+
 
         // 🚀 REPARACIÓN MÓVIL: Eliminamos el setTimeout ciego de 300ms.
         // Forzamos la autenticación y la lectura en frío directamente garantizando la sincronía.
