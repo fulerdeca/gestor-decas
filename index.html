@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de DeCAs Transportes v4.91</title>
+    <title>Gestor de DeCAs Transportes v4.92</title>
 
     <!-- CONEXIÓN COMPAT OFICIAL DESDE EL SERVIDOR DE GOOGLE (Igual que vuestro TPV) -->
 <!-- RUTAS ABSOLUTAS COMPLETAS: Descargan los motores oficiales desde el servidor de Google -->
@@ -4345,8 +4345,33 @@ function verFichaDocumento(idFirebase) {
     const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
     if (!doc) return;
 
+    // 🧼 CORTAFUEGOS DE CACHÉ: Vaciamos el folio por completo antes de inyectar el nuevo viaje
+    document.getElementById("prev_top_numero").innerText = "DeCA";
+    document.getElementById("prev_folio_numero").innerText = "---";
+    document.getElementById("prev_carg_razon").innerText = "---";
+    document.getElementById("prev_carg_nif").innerText = "---";
+    document.getElementById("prev_carg_domicilio").innerText = "---";
+    document.getElementById("prev_transp_razon").innerText = "---";
+    document.getElementById("prev_transp_nif").innerText = "---";
+    document.getElementById("prev_fecha_transporte").innerText = "---";
+    document.getElementById("prev_matricula_tractor").innerText = "---";
+    document.getElementById("prev_matricula_remolque").innerText = "---";
+
+    const capGrup = document.getElementById("capa_grupaje_master");
+    if (capGrup) {
+        capGrup.innerHTML = "";
+        capGrup.removeAttribute("data-grupaje-renderizado"); // 🚀 Libera el candado para que el satélite vuelva a pintar
+    }
+
+    const capHist = document.getElementById("capa_historial_modificaciones_legal");
+    if (capHist) capHist.innerHTML = "";
+
+    const contQR = document.getElementById("qrcode_real_render");
+    if (contQR) contQR.innerHTML = "";
+
     idDocumentoEnEdicion = idFirebase;
-    console.log("📋 Cargando Folio:", doc.numero_documento);
+    console.log("📋 Cargando Folio Limpio:", doc.numero_documento);
+
 
     // Volcar campos dinámicos en el Folio Blanco
     document.getElementById("prev_top_numero").innerText = doc.numero_documento || "---";
@@ -4548,6 +4573,12 @@ function cerrarModalQRGiganteNativo() {
 
 function cerrarVisorPreviewDeCA() {
     document.getElementById("modal_preview_deca").style.display = "none";
+
+    // 🧹 Borrado de seguridad al cerrar para que el próximo documento cargue limpio
+    const capaMaster = document.getElementById("capa_grupaje_master");
+    if (capaMaster) {
+        capaMaster.removeAttribute("data-grupaje-renderizado");
+    }
 }
 
 // ==========================================
