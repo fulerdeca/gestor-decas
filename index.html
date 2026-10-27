@@ -1221,7 +1221,7 @@ body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #44
    REPARACIÓN GEOMÉTRICA INTEGRAL DEL VISOR DECA (SIN SCROLL HORIZONTAL)
    ========================================================================== */
 .modal-preview-deca {
-    display: none; /* 🔒 Obliga a nacer cerrado al actualizar */
+    display: none;
     position: fixed;
     z-index: 500000;
     left: 0;
@@ -1229,27 +1229,25 @@ body.dark-mode .select-acciones-rapidas { background: #2c2c2e; border-color: #44
     width: 100vw;
     height: 100vh;
     background-color: rgba(0,0,0,0.5);
-    align-items: center; /* Centrado vertical nativo */
-    justify-content: center; /* Centrado horizontal nativo */
     box-sizing: border-box;
+    overflow-y: auto !important; /* Libera el scroll por abajo */
+    -webkit-overflow-scrolling: touch;
 }
-
-
-
 
 .preview-container {
     background-color: #f0f4f8;
-    border-radius: 12px !important; /* Recupera tus bordes curvos oficiales */
-    width: 94% !important; /* Ancho idéntico al de Nuevo DeCA */
-    max-width: 800px !important; /* Tamaño exacto de tus otros formularios */
-    height: 92vh !important; /* Altura congelada de búnker con scroll interno */
+    border-radius: 12px;
+    width: 96% !important;
+    max-width: 780px !important;
+    height: auto !important; /* Elimina la guillotina del 92vh */
+    min-height: min-content;
+    margin: 40px auto !important; /* Centra el modal en horizontal en modo block */
     box-shadow: 0 8px 30px rgba(0,0,0,0.3);
     box-sizing: border-box !important;
     display: flex;
     flex-direction: column;
-    overflow: hidden !important; /* Bloquea el estiramiento y fuerza el scroll dentro */
+    overflow: visible !important;
 }
-
 
 
 /* === REPARACIÓN GEOMÉTRICA DE ALTA FIDELIDAD: PASILLO DE RESPIRACIÓN SIMÉTRICO === */
@@ -4623,19 +4621,21 @@ if (cadenaHoyRígida > doc.qr_caducidad) {
 
         urlControlQRGiganteActivo = enlaceInspeccionReal;
 
-// 🚀 APERTURA SIMÉTRICA Y CENTRADA: Activamos el visor usando el motor flexbase nativo
+// 🚀 CORRECCIÓN MÁSTER DE SCROLL: Forzamos el display en bloque y reiniciamos el scroll al milisegundo cero
 const capaModalPreview = document.getElementById("modal_preview_deca");
 if (capaModalPreview) {
-    capaModalPreview.style.display = "flex";
+    capaModalPreview.style.setProperty("display", "block", "important");
+
+    // Forzamos al contenedor del modal y a la ventana a volver arriba del todo
     capaModalPreview.scrollTop = 0;
 }
 
-// 🎯 ANCLAJE DE CABECERA: Forzamos a que el folio empiece estrictamente arriba del todo
 const capaScrollInterna = document.querySelector(".preview-cuerpo-scroll");
 if (capaScrollInterna) {
     capaScrollInterna.scrollTop = 0;
 }
 
+window.scrollTo(0, 0);
 
 
 
