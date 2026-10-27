@@ -2718,9 +2718,12 @@ function verFichaDocumento(idFirebase) {
 
         const partesQ = doc.qr_caducidad.split("-");
         const campoFechaCabecera = document.getElementById("txt_fecha_expiracion_cabecera");
-        if (campoFechaCabecera) campoFechaCabecera.innerText = partesQ[2] + "/" + partesQ[1] + "/" + partesQ[0];
-        return;
+        if (campoFechaCabecera && partesQ.length === 3) {
+            campoFechaCabecera.innerText = partesQ[2] + "/" + partesQ[1] + "/" + partesQ[0];
+        }
+        return; // Detiene el flujo legal por expiración de plazo
     }
+
     // 🚀 INYECCIÓN NATIVA E INMEDIATA DE GRUPAJES (Art. 6.D)
     const contenedorMaster = document.getElementById("capa_grupaje_master");
     if (contenedorMaster && doc.envios_grupaje && Array.isArray(doc.envios_grupaje) && doc.envios_grupaje.length > 0) {
