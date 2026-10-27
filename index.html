@@ -2620,10 +2620,216 @@ body.dark-mode .deca-tabla-sincro-master tbody tr:has(span[onclick*="DeCA-2026-0
 
 
 <script>
+// Array global en memoria RAM que almacena el documento consultado de la nube
+let documentosDeCA = [];
+let database = null;
+let miUsuarioUIDActivo = null;
 
+// =========================================================================
+// 🔒 ARRANQUE DINÁMICO: INSPECCIÓN PASIVA DIRECTA (MÓDULO GITHUB v5.03)
+// =========================================================================
+function iniciarEcosistemaDeCAs() {
+    console.log("👮 Vista Pública del Agente Detectada. Conectando pasarela remota...");
 
+    const urlPorDefectoGateway = "https://gist.githubusercontent.com/fulerdeca/8fe7f76a168d665a4b9c8a386e4ecf4e/raw/931d060302cf67a8f83ad1af5ba8fa80830a45cf/Firebase-DeCa-Secreto.json";
 
+    fetch(urlPorDefectoGateway)
+    .then(res => {
+        if (!res.ok) throw new Error("La pasarela remota no responde.");
+        return res.json();
+    })
+    .then(configFirebase => {
+        if (firebase.apps.length === 0) {
+            firebase.initializeApp(configFirebase);
+        }
+        database = firebase.database();
+
+        // Captura de parámetros desde el QR escaneado por el agente
+        const parametrosRadar = new URLSearchParams(window.location.search);
+        const idDecaInspeccionar = parametrosRadar.get("verificar");
+        const idUsuarioInspeccionar = parametrosRadar.get("user");
+
+        if (idDecaInspeccionar && idUsuarioInspeccionar) {
+            miUsuarioUIDActivo = idUsuarioInspeccionar;
+
+            // Autenticación anónima pasiva para abrir el canal de datos
+            firebase.auth().signInAnonymously().then(() => {
+                console.log("📡 Canal abierto. Descargando datos del porte...");
+
+                database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        console.log("✅ Datos recibidos con éxito.");
+                        const datosPorteInspector = snapshot.val();
+                        documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...datosPorteInspector }];
+
+                        // Llamamos al renderizador del Folio Blanco
+                        verFichaDocumento(idDecaInspeccionar);
+                    } else {
+                        alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
+                    }
+                }).catch(err => console.error("Error al leer el documento remoto:", err));
+            }).catch(err => console.error("Error en autenticación de pasarela:", err));
+        }
+    })
+    .catch(error => console.error("❌ Error crítico en el Gateway de arranque:", error));
+}
+// =========================================================================
+// 📄 VISOR MÁSTER: VOLCADO DE DATOS Y DESCARGA AUTOMÁTICA PDF
+// =========================================================================
+function verFichaDocumento(idFirebase) {
+    const doc = documentosDeCA.find(item => item.id_firebase === idFirebase);
+    if (!doc) return;
+
+    console.log("🔳 Renderizando Folio Oficial:", doc.numero_documento);
+
+    // Volcado de textos descriptivos e identificadores
+    document.getElementById("prev_top_numero").innerText = doc.numero_documento || "---";
+    document.getElementById("prev_folio_numero").innerText = doc.numero_documento || "---";
+    document.getElementById("prev_fecha_hora_envio_sello").innerText = doc.fecha_creacion_sistema || new Date().toLocaleString();
+
+    document.getElementById("prev_carg_razon").innerText = doc.cargador_razon || "---";
+    document.getElementById("prev_carg_nif").innerText = doc.cargador_nif || "---";
+    document.getElementById("prev_carg_domicilio").innerText = doc.cargador_domicilio || "---";
+    document.getElementById("prev_transp_razon").innerText = doc.transportista_razon || "---";
+    document.getElementById("prev_transp_nif").innerText = doc.transportista_nif || "---";
+
+    document.getElementById("prev_fecha_transporte").innerText = doc.fecha_transporte ? doc.fecha_transporte.split("-").reverse().join("/") : "";
+    document.getElementById("prev_matricula_tractor").innerText = doc.matricula_tractor || "---";
+    document.getElementById("prev_matricula_remolque").innerText = doc.matricula_remolque || "---";
+    document.getElementById("prev_qr_caducidad").innerText = doc.qr_caducidad ? doc.qr_caducidad.split("-").reverse().join("/") : "";
+
+    // Sello e identificador de anulación
+    const capaSelloAnulado = document.getElementById("sello_anulado_alerta");
+    if (capaSelloAnulado) capaSelloAnulado.style.display = (doc.estado === "ANULADO") ? "block" : "none";
+
+    document.getElementById("prev_sello_legal_emisor").innerText = doc.transportista_razon || "---";
+
+    // 🏁 EVALUACIÓN DEL CORTAFUEGOS DE EXPIRACIÓN (Resolución de 5 de junio de 2026)
+    const badgeActivo = document.getElementById("deca_badge_plazo_activo");
+    const badgeExpirado = document.getElementById("deca_badge_plazo_expirado");
+    const notaActiva = document.getElementById("deca_nota_normativa_activa");
+    const notaExpirada = document.getElementById("deca_nota_normativa_expirada");
+
+    const objHoy = new Date();
+    const cadenaHoyRígida = objHoy.getFullYear() + '-' + String(objHoy.getMonth() + 1).padStart(2, '0') + '-' + String(objHoy.getDate()).padStart(2, '0');
+
+    if (doc.qr_caducidad && cadenaHoyRígida > doc.qr_caducidad) {
+        if (badgeActivo) badgeActivo.style.setProperty("display", "none", "important");
+        if (notaActiva) notaActiva.style.setProperty("display", "none", "important");
+        if (badgeExpirado) badgeExpirado.style.setProperty("display", "inline-flex", "important");
+        if (notaExpirada) notaExpirada.style.setProperty("display", "block", "important");
+
+        const partesQ = doc.qr_caducidad.split("-");
+        const campoFechaCabecera = document.getElementById("txt_fecha_expiracion_cabecera");
+        if (campoFechaCabecera) campoFechaCabecera.innerText = partesQ[2] + "/" + partesQ[1] + "/" + partesQ[0];
+        return;
+    }
+    // 🚀 INYECCIÓN NATIVA DEL GRUPAJE SATÉLITE REPARADA (Sustituye las celdas vacías)
+    const contenedorMaster = document.getElementById("capa_grupaje_master");
+    if (contenedorMaster && doc.envios_grupaje && Array.isArray(doc.envios_grupaje) && doc.envios_grupaje.length > 0) {
+        const colorCabeceraGrupaje = "#0f4c81";
+        let listadoEnviosHtml = '<div class="folio-header-azul" style="border:1px solid ' + colorCabeceraGrupaje + ' !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:' + colorCabeceraGrupaje + ' !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Detalle de Envíos y Cargas (Grupaje Art. 6.D)</div>' +
+                                '<div style="width:100% !important; display:table !important; table-layout:fixed !important; box-sizing:border-box; border:1px solid #111111; border-top:none; border-bottom:none;">';
+
+        doc.envios_grupaje.forEach(function(envio) {
+            let nSec = envio.numero_secuencial || 1;
+            let orig = envio.origen || "---";
+            let dest = envio.destino || "---";
+            let merc = envio.mercancia || "---";
+            let cant = envio.cantidad || "---";
+            let bult = envio.bultos || "---";
+
+            listadoEnviosHtml += '<div style="display:table-row !important; width:100% !important; background:#ffffff; font-size:11px; color:#111111;">' +
+                '<div style="display:table-cell !important; width:7% !important; padding:8px 5px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; font-weight:bold; color:' + colorCabeceraGrupaje + '; text-align:center; vertical-align:middle; box-sizing:border-box;">' + nSec + '</div>' +
+                '<div style="display:table-cell !important; width:43% !important; padding:8px 6px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; line-height:1.4; vertical-align:middle; box-sizing:border-box; word-break:break-word;">' + orig + ' <span style="color:#fd7e14; font-weight:bold; margin:0 2px;">➔</span> <br>' + dest + '</div>' +
+                '<div style="display:table-cell !important; width:50% !important; padding:8px 6px !important; border-bottom:1px solid #111111; vertical-align:middle; box-sizing:border-box; word-break:break-word; text-align:left;">' +
+                    '<strong style="text-transform:uppercase; color:#111111; display:block; margin-bottom:3px; line-height:1.3;">' + merc + '</strong>' +
+                    '<span style="font-size:10px; color:#444444; font-weight:bold; display:block; line-height:1.2;">Cantidad: ' + cant + ' <br> Bultos: ' + bult + '</span>' +
+                '</div>' +
+            '</div>';
+        });
+        listadoEnviosHtml += '</div>';
+        contenedorMaster.innerHTML = listadoEnviosHtml;
+    }
+
+    // 🚀 INYECCIÓN NATIVA DE HISTORIAL DE AUDITORÍAS REPARADA
+    const contenedorHistorialHTML = document.getElementById("capa_historial_modificaciones_legal");
+    if (contenedorHistorialHTML && doc.historial_cambios && Array.isArray(doc.historial_cambios) && doc.historial_cambios.length > 0) {
+        const colorCabeceraGrupaje = "#0f4c81";
+        let tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid ' + colorCabeceraGrupaje + ' !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:' + colorCabeceraGrupaje + ' !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026)</div>' +
+            '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none; background:#ffffff; font-size:11px; padding:8px; color:#111111; text-align:left;">';
+
+        doc.historial_cambios.forEach(function(itemCambio) {
+            let descValores = itemCambio.desglose_valores || [];
+            tablaAuditoriaHtml += '<div style="margin-bottom:10px; border-bottom:1px dashed #cbd5e0; padding-bottom:8px; text-align:left;">' +
+                '<strong style="color:#0f4c81; text-transform:uppercase;">Modificación ' + itemCambio.numero_modificacion + '</strong> · <span style="color:#555; font-weight:bold;">' + itemCambio.fecha_hora_modificacion + '</span> · Motivo: <span style="font-weight:bold; color:#212529;">' + itemCambio.motivo_cambio + '</span>' +
+                '<div style="margin-top:6px; padding-left:10px; border-left:3px solid #fd7e14; display:flex; flex-direction:column; gap:4px;">';
+
+            descValores.forEach(function(diff) {
+                tablaAuditoriaHtml += '<div style="line-height:1.4;">' +
+                    '<span style="color:#718096; font-weight:bold; font-size:10px; display:inline-block; width:120px;">' + diff.etiqueta + ':</span>' +
+                    '<span style="text-decoration:line-through; color:#a0aec0; margin-right:6px;">' + diff.antes + '</span>' +
+                    '<span style="font-weight:bold; color:#111111;">➔ ' + diff.ahora + '</span>' +
+                '</div>';
+            });
+            tablaAuditoriaHtml += '</div></div>';
+        });
+        tablaAuditoriaHtml += '</div>';
+        contenedorHistorialHTML.innerHTML = tablaAuditoriaHtml;
+    }
+
+    // Inyección física del código QR en el folio del agente
+    const contenedorQR = document.getElementById("qrcode_real_render");
+    if (contenedorQR) {
+        contenedorQR.innerHTML = "";
+        const enlaceInspeccionReal = "https://github.io" + idFirebase + "&user=" + miUsuarioUIDActivo;
+        try {
+            new QRCode(contenedorQR, {
+                text: enlaceInspeccionReal,
+                width: 100,
+                height: 100,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+        } catch (e) {
+            contenedorQR.innerHTML = "🔳";
+        }
+    }
+
+    // 🚨 DISPARADOR MINISTERIO: Generación y descarga directa en PDF A4
+    if (!window.decaImpresionAutomaticaEjecutada) {
+        window.decaImpresionAutomaticaEjecutada = true;
+
+        setTimeout(() => {
+            try {
+                const numeroDocumentoOficial = doc.numero_documento || "Documento_DeCA";
+                const elementoFolioImprimir = document.querySelector(".folio-deca");
+
+                if (elementoFolioImprimir) {
+                    const opcionesConfiguracionAgente = {
+                        margin:       12,
+                        filename:     `${numeroDocumentoOficial}.pdf`,
+                        image:        { type: 'jpeg', quality: 0.98 },
+                        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+
+                    html2pdf().set(opcionesConfiguracionAgente).from(elementoFolioImprimir).save();
+                }
+            } catch (err) {
+                console.warn("Fallo en la descarga automática del PDF, usando window.print:", err);
+                window.print();
+            }
+        }, 1200);
+    }
+}
+
+// Inicializadores de carga
+document.addEventListener("DOMContentLoaded", iniciarEcosistemaDeCAs);
 </script>
+
 
 <body>
 
