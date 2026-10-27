@@ -160,12 +160,40 @@
                     database.ref('usuarios/' + idUsuarioInspeccionar + '/documentos_deca/' + idDecaInspeccionar).once('value')
                     .then((snapshot) => {
                         if (snapshot.exists()) {
-                            documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...snapshot.val() }];
+                            const datosPorteInspector = snapshot.val();
+
+                            // 🏁 CORTAFUEGOS MATEMÁTICO: Validación de los 7 días naturales
+                            if (datosPorteInspector && datosPorteInspector.qr_caducidad) {
+                                const [anoC, mesC, diaC] = datosPorteInspector.qr_caducidad.split("-").map(Number);
+                                const limiteCaducidadTimestamp = new Date(anoC, mesC - 1, diaC, 23, 59, 59, 999).getTime();
+
+                                if (Date.now() > limiteCaducidadTimestamp) {
+                                    console.error("🚫 Cortafuegos: Documento expirado. Bloqueando folio.");
+
+                                    // Bloqueamos la cola de autodescarga para que no genere un PDF vacío
+                                    window.decaImpresionAutomaticaEjecutada = true;
+
+                                    // Ocultamos el folio blanco por si acaso
+                                    document.getElementById("bloque_folio_imprimir").style.display = "none";
+
+                                    // Desplegamos el modal de rechazo inyectando la fecha formateada
+                                    document.getElementById("modal_cortafuegos_expirado_deca").style.display = "flex";
+                                    const campoFechaVencimiento = document.getElementById("txt_fecha_expiracion_cabecera");
+                                    if (campoFechaVencimiento) {
+                                        campoFechaVencimiento.innerText = diaC.toString().padStart(2, '0') + "/" + mesC.toString().padStart(2, '0') + "/" + anoC;
+                                    }
+                                    return; // Aborta la carga del folio y la descarga
+                                }
+                            }
+
+                            // Si pasa el cortafuegos, el flujo continúa normal: carga y descarga
+                            documentosDeCA = [{ id_firebase: idDecaInspeccionar, ...datosPorteInspector }];
                             verFichaDocumento(idDecaInspeccionar);
                         } else {
                             alert("❌ El documento electrónico consultado no existe o ha sido retirado.");
                         }
                     }).catch(err => console.error("Error en lectura pasiva del inspector:", err));
+
                 }
             })
             .catch(error => {
@@ -388,5 +416,22 @@
             document.addEventListener("DOMContentLoaded", iniciarEcosistemaDeCAs);
         }
     </script>
+
+    <!-- === 🚫 CORTAFUEGOS DE EXPIRACIÓN DE 7 DÍAS REINJECTADO === -->
+    <div id="modal_cortafuegos_expirado_deca" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b101a; z-index: 999999; align-items: center; justify-content: center; box-sizing: border-box; padding: 20px;">
+        <div style="background: #ffffff; padding: 35px 25px; border-radius: 12px; box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6); width: 100%; max-width: 400px; text-align: center; font-family: sans-serif;">
+            <span style="font-size: 50px; display: block; margin-bottom: 12px;">⏳</span>
+            <h4 style="margin: 0 0 10px 0; color: #212529; font-size: 15px; font-weight: bold; text-transform: uppercase;">Descarga por QR Expirada</h4>
+            <p style="font-size: 13px; color: #4a5568; line-height: 1.5; margin-bottom: 20px; text-align: justify;">
+                El plazo reglamentario de disponibilidad directa para este documento ha vencido (7 días naturales posteriores a la finalización del servicio según la Resolución de 5 de junio de 2026). El acceso al archivo PDF original ha sido revocado.
+            </p>
+            <div style="background: #f8f9fa; border: 1px solid #cbd5e0; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 13px; font-weight: bold; color: #dc3545; margin-bottom: 15px;">
+                VENCIMIENTO: <span id="txt_fecha_expiracion_cabecera">--/--/----</span>
+            </div>
+            <button style="width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer;" onclick="event.preventDefault(); alert('Documento fuera de plazo legal.');">ACCESO RECHAZADO (EXPIRADO)</button>
+        </div>
+    </div>
+
+
 </body>
 </html>
