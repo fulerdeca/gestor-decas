@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor Oficial DeCA v2.01</title>
+    <title>Visor Oficial DeCA v3.00</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -24,6 +24,35 @@
         #qrcode_real_render canvas, #qrcode_real_render img { position: absolute !important; top: 0 !important; left: 0 !important; width: 100px !important; height: 100px !important; max-width: 100px !important; max-height: 100px !important; margin: 0 !important; padding: 0 !important; display: block; box-sizing: border-box !important; }
         #qrcode_real_render img + canvas { display: none !important; }
         #qrcode_real_render canvas + img { display: none !important; }
+
+/* === BADGE NO VALIDO EN MODIFICACIONES === */
+        .badge-no-valido-fiel {
+            display: inline-block !important;
+            background: #ffffff !important;
+            color: #dc3545 !important;
+            border: 1px solid #dc3545 !important;
+            padding: 2px 5px !important;
+            font-size: 9.5px !important;
+            font-weight: bold !important;
+            border-radius: 4px !important;
+            margin-top: 4px !important;
+            margin-bottom: 4px !important;
+            margin-left: 6px !important;
+            margin-right: 6px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.2px !important;
+            white-space: nowrap !important;
+            vertical-align: middle !important;
+            font-family: sans-serif !important;
+            line-height: 1.2 !important;
+        }
+
+        body.dark-mode .badge-no-valido-fiel {
+            background: #1c1c1e !important;
+            color: #ff7373 !important;
+            border-color: #ff7373 !important;
+        }
+
     </style>
 </head>
 <body>
@@ -368,33 +397,52 @@
                         if (bannerAlertaModif && contenedorHistorialHTML) {
                             if (viajeActivo && parseInt(viajeActivo.modificaciones_contador || 0, 10) > 0) {
                                 bannerAlertaModif.style.display = "block";
-                                var tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid ' + colorCabeceraGrupaje + ' !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:' + colorCabeceraGrupaje + ' !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026, apdo. quinto)</div>' +
-                                    '<div style="width:100%; box-sizing:border-box; border:1px solid #111111; border-top:none; background:#ffffff; font-size:11px; padding:8px; color:#111111; text-align:left;">';
+                                
+                        // === SUSTITUIR ESTE BLOQUE EN EL SATELLITE DE LA WEB DE GITHUB PAGES ===
+                        var tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026, apdo. quinto)</div>' +
+                            '<div style="width:100% !important; display:table !important; table-layout:fixed !important; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
 
-                                var registrosCambios = viajeActivo.historial_cambios || [];
-                                if (!Array.isArray(registrosCambios)) { registrosCambios = Object.values(registrosCambios); }
+                        var registrosCambios = viajeActivo.historial_cambios || [];
+                        if (!Array.isArray(registrosCambios)) { registrosCambios = Object.values(registrosCambios); }
 
-                                registrosCambios.forEach(function(itemCambio) {
-                                    var descValores = itemCambio.desglose_valores || [];
-                                    if (!Array.isArray(descValores)) { descValores = Object.values(descValores); }
+                        // Iteramos cada una de las modificaciones del viaje para el agente
+                        registrosCambios.forEach(function(itemCambio) {
+                            var numMod = itemCambio.numero_modificacion || 1;
+                            var fechaMod = itemCambio.fecha_hora_modificacion || "---";
+                            var motMod = itemCambio.motivo_cambio || "---";
 
-                                    tablaAuditoriaHtml += '<div style="margin-bottom:10px; border-bottom:1px dashed #cbd5e0; padding-bottom:8px; text-align:left;">' +
-                                        '<strong style="color:#0f4c81; text-transform:uppercase;">Modificación ' + itemCambio.numero_modificacion + '</strong> · <span style="color:#555; font-weight:bold;">' + itemCambio.fecha_hora_modificacion + '</span> · Motivo: <span style="font-weight:bold; color:#212529;">' + itemCambio.motivo_cambio + '</span>' +
-                                        '<div style="margin-top:6px; padding-left:10px; border-left:3px solid #fd7e14; display:flex; flex-direction:column; gap:4px;">';
+                            // Línea 1: Fila de Cabecera Coloreada Crema Fija de Carretera
+                            tablaAuditoriaHtml += '<div style="display:table-row !important; width:100% !important; background:#fdf8e2 !important; font-size:11px; color:#111111; font-family:sans-serif;">' +
+                                '<div style="display:table-cell !important; width:25% !important; padding:6px 8px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; font-weight:bold; text-transform:uppercase; color:#0f4c81; vertical-align:middle; box-sizing:border-box;">MODIFICACIÓN ' + numMod + '</div>' +
+                                '<div style="display:table-cell !important; width:75% !important; padding:6px 8px !important; border-bottom:1px solid #111111; font-weight:normal; vertical-align:middle; box-sizing:border-box; text-align:left;">' +
+                                    '<strong>' + fechaMod + '</strong> · Motivo: <span style="font-weight:bold; text-transform:uppercase;">' + motMod + '</span>' +
+                                '</div>' +
+                            '</div>';
 
-                                    descValores.forEach(function(diff) {
-                                        tablaAuditoriaHtml += '<div style="line-height:1.4;">' +
-                                            '<span style="color:#718096; font-weight:bold; font-size:10px; display:inline-block; width:120px;">' + diff.etiqueta + ':</span>' +
-                                            '<span style="text-decoration:line-through; color:#a0aec0; margin-right:6px;">' + diff.antes + '</span>' +
-                                            '<span style="font-weight:bold; color:#111111;">➔ ' + diff.ahora + '</span>' +
-                                        '</div>';
-                                    });
+                            var descValores = itemCambio.desglose_valores || [];
+                            if (!Array.isArray(descValores)) { descValores = Object.values(descValores); }
 
-                                    tablaAuditoriaHtml += '</div></div>';
-                                });
+                            // Iteramos los cambios específicos asociados a esta modificación
+                            descValores.forEach(function(diff) {
 
-                                tablaAuditoriaHtml += '</div>';
-                                contenedorHistorialHTML.innerHTML = tablaAuditoriaHtml;
+                                // Línea 2: Columna completa con la etiqueta de la magnitud
+                                tablaAuditoriaHtml += '<div style="display:table-row !important; width:100% !important; background:#ffffff; font-size:11px; color:#111111; font-family:sans-serif;">' +
+                                    '<div style="display:table-cell !important; width:25% !important; padding:6px 8px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; font-weight:bold; text-transform:uppercase; color:#718096; vertical-align:middle; box-sizing:border-box;">' + diff.etiqueta + '</div>' +
+
+                                    // Línea 3: Columna completa sin cortes para el desglose visual "Antes -> Ahora"
+                                    '<div style="display:table-cell !important; width:75% !important; padding:6px 8px !important; border-bottom:1px solid #111111; vertical-align:middle; box-sizing:border-box; text-align:left; word-break:break-word; line-height:1.4;">' +
+                                        '<span style="text-decoration:line-through; color:#a0aec0;">' + diff.antes + '</span>' +
+                                        '<span class="badge-no-valido-fiel">NO VÁLIDO</span>' +
+                                        '<span style="font-weight:bold; color:#111111;">➔ ' + diff.ahora + '</span>' +
+                                    '</div>' +
+                                '</div>';
+                            });
+                        });
+
+                        tablaAuditoriaHtml += '</div>';
+                        contenedorHistorialHTML.innerHTML = tablaAuditoriaHtml;
+                        // === FIN DEL PARCHE DE RESTRUCTURACIÓN DE VERIFICACIÓN ONLINE ===
+
                             } else {
                                 if (bannerAlertaModif) bannerAlertaModif.style.display = "none";
                                 if (contenedorHistorialHTML) contenedorHistorialHTML.innerHTML = "";
