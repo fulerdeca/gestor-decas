@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor Oficial DeCA v6.01</title>
+    <title>Visor Oficial DeCA v6.10</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -52,6 +52,94 @@
             color: #ff7373 !important;
             border-color: #ff7373 !important;
         }
+
+/* === INYECTAR JUSTO ANTES DEL CIERRE </style> (LÍNEA 44) === */
+@media print {
+    @page {
+        /* Margen físico mínimo reglamentario de 12mm para evitar que las impresoras rasuren texto */
+        margin: 12mm 15mm 15mm 15mm !important;
+        size: auto !important; /* Auto-adaptación matemática a formato A4 nativo */
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        display: block !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+    }
+
+    /* Ocultamos elementos técnicos y de descarte */
+    #modal_cortafuegos_expirado_deca,
+    #prev_top_numero {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Liberamos el folio máster de cualquier restricción o sombra pesada de pantalla */
+    .folio-deca {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        padding: 0 !important; /* El margen ya lo gobierna la directiva @page */
+        margin: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        box-sizing: border-box !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
+    }
+
+    /* 🛡️ SEGURO ANTI-GUILLOTINAS: Evita que las filas de las tablas se partan por la mitad horizontalmente */
+    #capa_grupaje_master > div,
+    #capa_historial_modificaciones_legal > div,
+    div[style*="display:table-row"],
+    div[style*="display:table-header-group"] {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* 🚀 ANTÍDOTO DE REGLÓN MUTILADO: Fuerza al motor a empujar el texto si el renglón no cabe entero */
+    #capa_grupaje_master div,
+    #capa_historial_modificaciones_legal div,
+    #capa_historial_modificaciones_legal span,
+    .folio-deca div,
+    .folio-deca p,
+    .folio-deca td {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* Forzado exacto de colores de fondo de títulos BOE para el motor de impresión */
+    .folio-header-azul {
+        background: #0f4c81 !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    div[style*="background:#fdf8e2"],
+    div[style*="background: #fdf8e2"] {
+        background: #fdf8e2 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    #qrcode_real_render img,
+    #qrcode_real_render canvas {
+        display: block !important;
+        width: 100px !important;
+        height: 100px !important;
+    }
+}
 
     </style>
 </head>
@@ -311,13 +399,15 @@
                                     const elementoFolioImprimir = document.getElementById("bloque_folio_imprimir");
 
                                     if (elementoFolioImprimir) {
-                                        const opcionesConfiguracionAgente = {
-                                            margin:       12,
-                                            filename:     `${numeroDocumentoOficial}.pdf`,
-                                            image:        { type: 'jpeg', quality: 0.98 },
-                                            html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-                                            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                                        };
+const opcionesConfiguracionAgente = {
+    margin:       12,
+    filename:     `${numeroDocumentoOficial}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    /* 🚀 LA PROPIEDAD QUE EVITA LA GUILLOTINA: Sincroniza los modos inteligentes de corte del CSS */
+    pagebreak:    { mode: ['avoid-all', 'css'] }
+};
 
                                         html2pdf().set(opcionesConfiguracionAgente).from(elementoFolioImprimir).save()
                                         .catch(err => {
