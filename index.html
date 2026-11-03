@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor Oficial DeCA v6.00</title>
+    <title>Visor Oficial DeCA v6.01</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -398,50 +398,51 @@
                             if (viajeActivo && parseInt(viajeActivo.modificaciones_contador || 0, 10) > 0) {
                                 bannerAlertaModif.style.display = "block";
 
-                        // === SUSTITUIR ESTE BLOQUE EN EL SATELLITE DE LA WEB DE GITHUB PAGES ===
-                        var tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026, apdo. quinto)</div>' +
-                            '<div style="width:100% !important; display:table !important; table-layout:fixed !important; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
+// === REEMPLAZA ESTE BLOQUE EXACTO EN EL HISTORIAL DEL MÓDULO SATÉLITE DE GITHUB PAGES ===
+var tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026, apdo. quinto)</div>' +
+    '<div style="width:100% !important; display:table !important; table-layout:fixed !important; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
 
-                        var registrosCambios = viajeActivo.historial_cambios || [];
-                        if (!Array.isArray(registrosCambios)) { registrosCambios = Object.values(registrosCambios); }
+var registrosCambios = viajeActivo.historial_cambios || [];
+if (!Array.isArray(registrosCambios)) { registrosCambios = Object.values(registrosCambios); }
 
-                        // Iteramos cada una de las modificaciones del viaje para el agente
-                        registrosCambios.forEach(function(itemCambio) {
-                            var numMod = itemCambio.numero_modificacion || 1;
-                            var fechaMod = itemCambio.fecha_hora_modificacion || "---";
-                            var motMod = itemCambio.motivo_cambio || "---";
+// Iteramos cada una de las modificaciones para la vista pasiva del Agente
+registrosCambios.forEach(function(itemCambio) {
+    var numMod = itemCambio.numero_modificacion || 1;
+    var fechaMod = itemCambio.fecha_hora_modificacion || "---";
+    var motMod = itemCambio.motivo_cambio || "---";
 
-                            // Línea 1: Fila de Cabecera Coloreada Crema Fija de Carretera
-                            tablaAuditoriaHtml += '<div style="display:table-row !important; width:100% !important; background:#fdf8e2 !important; font-size:11px; color:#111111; font-family:sans-serif;">' +
-                                '<div style="display:table-cell !important; width:25% !important; padding:6px 8px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; font-weight:bold; text-transform:uppercase; color:#0f4c81; vertical-align:middle; box-sizing:border-box;">MODIFICACIÓN ' + numMod + '</div>' +
-                                '<div style="display:table-cell !important; width:75% !important; padding:6px 8px !important; border-bottom:1px solid #111111; font-weight:normal; vertical-align:middle; box-sizing:border-box; text-align:left;">' +
-                                    '<strong>' + fechaMod + '</strong> · Motivo: <span style="font-weight:bold; text-transform:uppercase;">' + motMod + '</span>' +
-                                '</div>' +
-                            '</div>';
+    // Línea 1: Fila de Cabecera Coloreada Crema (Ancho del 30% en primera columna para evitar solapes)
+    tablaAuditoriaHtml += '<div style="display:table-row !important; width:100% !important; background:#fdf8e2 !important; font-size:11px; color:#111111; font-family:sans-serif;">' +
+        '<div style="display:table-cell !important; width:30% !important; padding:6px 8px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; font-weight:bold; text-transform:uppercase; color:#0f4c81; vertical-align:middle; box-sizing:border-box; white-space:nowrap;">MODIFICACIÓN ' + numMod + '</div>' +
+        '<div style="display:table-cell !important; width:70% !important; padding:6px 8px !important; border-bottom:1px solid #111111; font-weight:normal; vertical-align:middle; box-sizing:border-box; text-align:left;">' +
+            '<strong>' + fechaMod + '</strong> · Motivo: <span style="font-weight:bold; text-transform:uppercase;">' + motMod + '</span>' +
+        '</div>' +
+    '</div>';
 
-                            var descValores = itemCambio.desglose_valores || [];
-                            if (!Array.isArray(descValores)) { descValores = Object.values(descValores); }
+    var descValores = itemCambio.desglose_valores || [];
+    if (!Array.isArray(descValores)) { descValores = Object.values(descValores); }
 
-                            // Iteramos los cambios específicos asociados a esta modificación
-                            descValores.forEach(function(diff) {
+    // Iteramos los cambios específicos asociados a esta modificación
+    descValores.forEach(function(diff) {
 
-                                // Línea 2: Columna completa con la etiqueta de la magnitud
-                                tablaAuditoriaHtml += '<div style="display:table-row !important; width:100% !important; background:#ffffff; font-size:11px; color:#111111; font-family:sans-serif;">' +
-                                    '<div style="display:table-cell !important; width:25% !important; padding:6px 8px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; font-weight:bold; text-transform:uppercase; color:#718096; vertical-align:middle; box-sizing:border-box;">' + diff.etiqueta + '</div>' +
+        // Línea 2: Columna de etiqueta ensanchada simétricamente al 30%
+        tablaAuditoriaHtml += '<div style="display:table-row !important; width:100% !important; background:#ffffff; font-size:11px; color:#111111; font-family:sans-serif;">' +
+            '<div style="display:table-cell !important; width:30% !important; padding:6px 8px !important; border-right:1px solid #111111; border-bottom:1px solid #111111; font-weight:bold; text-transform:uppercase; color:#718096; vertical-align:middle; box-sizing:border-box; word-break:break-word;">' + diff.etiqueta + '</div>' +
 
-                                    // Línea 3: Columna completa sin cortes para el desglose visual "Antes -> Ahora"
-                                    '<div style="display:table-cell !important; width:75% !important; padding:6px 8px !important; border-bottom:1px solid #111111; vertical-align:middle; box-sizing:border-box; text-align:left; word-break:break-word; line-height:1.4;">' +
-                                        '<span style="text-decoration:line-through; color:#a0aec0;">' + diff.antes + '</span>' +
-                                        '<span class="badge-no-valido-fiel">NO VÁLIDO</span>' +
-                                        '<span style="font-weight:bold; color:#111111;">➔ ' + diff.ahora + '</span>' +
-                                    '</div>' +
-                                '</div>';
-                            });
-                        });
+            // Línea 3: Detalle del cambio (Badge primero, luego valor tachado y valor nuevo)
+            '<div style="display:table-cell !important; width:70% !important; padding:6px 8px !important; border-bottom:1px solid #111111; vertical-align:middle; box-sizing:border-box; text-align:left; word-break:break-word; line-height:1.4;">' +
+                '<span class="badge-no-valido-fiel" style="margin-left:0px !important; margin-right:8px !important; margin-top:2px !important; margin-bottom:2px !important;">NO VÁLIDO</span>' +
+                '<span style="text-decoration:line-through; color:#a0aec0; vertical-align:middle;">' + diff.antes + '</span>' +
+                '<span style="font-weight:bold; color:#111111; vertical-align:middle;"> ➔ ' + diff.ahora + '</span>' +
+            '</div>' +
+        '</div>';
+    });
+});
 
-                        tablaAuditoriaHtml += '</div>';
-                        contenedorHistorialHTML.innerHTML = tablaAuditoriaHtml;
-                        // === FIN DEL PARCHE DE RESTRUCTURACIÓN DE VERIFICACIÓN ONLINE ===
+tablaAuditoriaHtml += '</div>';
+contenedorHistorialHTML.innerHTML = tablaAuditoriaHtml;
+// === FIN DEL PARCHE PARA EL REPOSITORIO ONLINE DE GITHUB ===
+
 
                             } else {
                                 if (bannerAlertaModif) bannerAlertaModif.style.display = "none";
