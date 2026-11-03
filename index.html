@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor Oficial DeCA v3.00</title>
+    <title>Visor Oficial DeCA v6.00</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
@@ -106,7 +106,7 @@
 
         <!-- TABLA 3: DATOS DEL TRANSPORTE -->
         <div style="width:100%; margin-bottom:12px; box-sizing:border-box; font-family:sans-serif;">
-            <div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important;">Datos del Transporte (Art. 6)</div>
+            <div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important;">Datos del Transporte (art. 6.c, 6.e, 6.f, 6.g)</div>
             <div style="display:flex; width:100%; box-sizing:border-box;">
                 <div style="width:33.33%; border:1px solid #111; border-top:none; padding:6px; box-sizing:border-box;"><span class="folio-subetiqueta">Fecha</span><span id="prev_fecha_transporte">---</span></div>
                 <div style="width:33.33%; border:1px solid #111; border-top:none; border-left:none; padding:6px; box-sizing:border-box;"><span class="folio-subetiqueta">Tractor</span><span id="prev_matricula_tractor" style="font-weight:bold;">---</span></div>
@@ -359,7 +359,7 @@
 
                         if (viajeActivo && viajeActivo.envios_grupaje && Array.isArray(viajeActivo.envios_grupaje) && viajeActivo.envios_grupaje.length > 0) {
                             var colorCabeceraGrupaje = "#0f4c81";
-                            var listadoEnviosHtml = '<div class="folio-header-azul" style="border:1px solid ' + colorCabeceraGrupaje + ' !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:' + colorCabeceraGrupaje + ' !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Detalle de Envíos y Cargas (Grupaje Art. 6.D)</div>' +
+                            var listadoEnviosHtml = '<div class="folio-header-azul" style="border:1px solid ' + colorCabeceraGrupaje + ' !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:' + colorCabeceraGrupaje + ' !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Envíos: Origen, Destino y Mercancía (art. 6.c, 6.d, 6.f)</div>' +
                                                     '<div style="width:100% !important; display:table !important; table-layout:fixed !important; box-sizing:border-box; border:1px solid #111111; border-top:none; border-bottom:none;">';
 
                             viajeActivo.envios_grupaje.forEach(function(envio) {
@@ -397,7 +397,7 @@
                         if (bannerAlertaModif && contenedorHistorialHTML) {
                             if (viajeActivo && parseInt(viajeActivo.modificaciones_contador || 0, 10) > 0) {
                                 bannerAlertaModif.style.display = "block";
-                                
+
                         // === SUSTITUIR ESTE BLOQUE EN EL SATELLITE DE LA WEB DE GITHUB PAGES ===
                         var tablaAuditoriaHtml = '<div class="folio-header-azul" style="border:1px solid #0f4c81 !important; width:100%; box-sizing:border-box; padding:6px 8px !important; background:#0f4c81 !important; color:#ffffff !important; font-weight:bold; text-transform:uppercase; font-size:11px;">Modificaciones durante el Servicio (Res. 5/6/2026, apdo. quinto)</div>' +
                             '<div style="width:100% !important; display:table !important; table-layout:fixed !important; box-sizing:border-box; border:1px solid #111111; border-top:none;">';
